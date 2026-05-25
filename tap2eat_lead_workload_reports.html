@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2eat | Q&T Lead — Workload & Reporting Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sophisticated:#E5E5C9; --sophisticated-d:#d4d4b0;
+  --progressive:#FFB200;   --progressive-d:#BF8500;
+  --carrot:#FF8C00;        --carrot-d:#BF6900;
+  --leafy:#24631E;         --leafy-mid:#3a7a34;
+  --leafy-pale:#eaf3e8;    --leafy-faint:#f2f8f0;
+  --blackboard:#1F1B1B;
+  --gray-light:#f7f5ee;    --gray-mid:#e4e2d8;
+  --red:#c0392b;           --red-pale:#fdecea;
+  --purple:#6a1b9a;        --purple-pale:#f3e8fd;
+  --blue:#1565c0;          --blue-pale:#e8eaf6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);min-height:100vh;}
+
+/* COVER */
+.cover{background:var(--blackboard);padding:48px 40px 40px;position:relative;overflow:hidden;}
+.cover::before{content:'';position:absolute;top:0;right:0;width:320px;height:320px;border-radius:50%;background:rgba(255,178,0,0.07);transform:translate(40%,-40%);pointer-events:none;}
+.cover::after{content:'';position:absolute;bottom:0;left:200px;width:200px;height:200px;border-radius:50%;background:rgba(255,140,0,0.06);transform:translateY(50%);pointer-events:none;}
+.cover-eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--progressive);margin-bottom:14px;}
+.cover h1{font-size:32px;font-weight:900;color:white;line-height:1.1;margin-bottom:10px;}
+.cover h1 span{color:var(--carrot);}
+.cover-sub{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:560px;}
+.cover-badges{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap;}
+.cbadge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;letter-spacing:0.3px;}
+.cbadge.g{background:rgba(36,99,30,0.35);color:#7dd87a;}
+.cbadge.o{background:rgba(255,140,0,0.2);color:var(--carrot);}
+.cbadge.r{background:rgba(192,57,43,0.25);color:#ff8a80;}
+
+/* TABS */
+.tabs{background:var(--leafy);padding:0 40px;display:flex;overflow-x:auto;gap:0;}
+.tabs::-webkit-scrollbar{height:2px;}
+.tabs::-webkit-scrollbar-thumb{background:var(--progressive);}
+.tbtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.45);background:none;border:none;padding:15px 16px 13px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
+.tbtn:hover{color:rgba(255,255,255,0.8);}
+.tbtn.active{color:var(--progressive);border-bottom-color:var(--progressive);}
+
+/* LAYOUT */
+.content{max-width:960px;margin:0 auto;padding:30px 40px 60px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* CARDS */
+.card{background:white;border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 20px rgba(31,27,27,0.07);}
+.ch{padding:12px 22px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;}
+.ch.green{background:var(--leafy);color:white;}
+.ch.orange{background:var(--carrot);color:white;}
+.ch.amber{background:var(--progressive);color:var(--blackboard);}
+.ch.dark{background:var(--blackboard);color:white;}
+.ch.red{background:var(--red);color:white;}
+.ch.purple{background:var(--purple);color:white;}
+.cb{padding:22px;}
+
+/* SCENARIO BANNER */
+.scenario-banner{border-radius:14px;padding:22px 26px;margin-bottom:16px;display:flex;gap:16px;align-items:flex-start;}
+.scenario-banner.with-qa{background:var(--leafy);color:white;}
+.scenario-banner.no-qa{background:var(--red);color:white;}
+.sb-icon{font-size:36px;flex-shrink:0;}
+.sb-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;opacity:0.7;}
+.sb-title{font-size:18px;font-weight:800;margin-bottom:5px;}
+.sb-desc{font-size:13px;opacity:0.8;line-height:1.6;}
+
+/* LOAD BAR */
+.load-bar-wrap{margin-bottom:6px;}
+.load-label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;}
+.load-bar-bg{height:8px;background:var(--gray-mid);border-radius:4px;overflow:hidden;}
+.load-bar-fill{height:100%;border-radius:4px;transition:width .5s;}
+.fill-green{background:var(--leafy);}
+.fill-orange{background:var(--carrot);}
+.fill-amber{background:var(--progressive);}
+.fill-red{background:var(--red);}
+.fill-purple{background:var(--purple);}
+.fill-blue{background:var(--blue);}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;}
+.tl-item{display:flex;gap:0;}
+.tl-time{width:72px;flex-shrink:0;padding:14px 12px 14px 0;text-align:right;}
+.tl-main{font-size:12px;font-weight:700;}
+.tl-dur{font-size:10px;color:#aaa;margin-top:1px;}
+.tl-spine{display:flex;flex-direction:column;align-items:center;width:24px;flex-shrink:0;}
+.tl-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:18px;z-index:1;}
+.tl-line{width:2px;flex:1;margin-top:0;}
+.tl-item:last-child .tl-line{display:none;}
+.tl-dot.g{background:var(--leafy);}
+.tl-dot.o{background:var(--carrot);}
+.tl-dot.y{background:var(--progressive);}
+.tl-dot.d{background:var(--blackboard);}
+.tl-dot.r{background:var(--red);}
+.tl-dot.p{background:var(--purple);}
+.tl-line.g{background:var(--leafy-pale);}
+.tl-line.o{background:#ffe0cc;}
+.tl-line.y{background:#fff3cc;}
+.tl-line.d{background:var(--gray-mid);}
+.tl-line.r{background:#fdecea;}
+.tl-line.p{background:var(--purple-pale);}
+.tl-card{flex:1;padding:12px 0 16px 14px;}
+.tl-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.tl-body{font-size:12px;color:#555;line-height:1.65;margin-bottom:6px;}
+.tl-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:0.2px;}
+.tqa{background:var(--leafy-pale);color:var(--leafy);}
+.ttr{background:#fff3e0;color:var(--carrot-d);}
+.trp{background:#fff8e1;color:var(--progressive-d);}
+.tpe{background:var(--purple-pale);color:var(--purple);}
+.tad{background:var(--blue-pale);color:var(--blue);}
+.tfl{background:var(--blackboard);color:rgba(255,255,255,0.85);}
+.twarn{background:var(--red-pale);color:var(--red);}
+
+.alert-flag{display:flex;gap:10px;align-items:flex-start;background:var(--red-pale);border:1px solid #ffcdd2;border-radius:8px;padding:10px 12px;margin-top:8px;}
+.alert-flag .icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.alert-flag .text{font-size:11px;color:var(--red);font-weight:600;line-height:1.5;}
+
+.stress-bar{display:flex;align-items:center;gap:10px;background:var(--gray-light);border-radius:8px;padding:10px 14px;margin:6px 0;}
+.stress-label{font-size:11px;font-weight:700;width:100px;flex-shrink:0;}
+.stress-track{flex:1;height:6px;background:var(--gray-mid);border-radius:3px;overflow:hidden;}
+.stress-fill{height:100%;border-radius:3px;}
+.stress-val{font-size:11px;font-weight:700;min-width:32px;text-align:right;}
+
+/* SIDE-BY-SIDE COMPARISON */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.compare-col{border-radius:10px;overflow:hidden;border:1px solid var(--gray-mid);}
+.compare-head{padding:11px 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.compare-head.with{background:var(--leafy);color:white;}
+.compare-head.without{background:var(--red);color:white;}
+.compare-body{padding:0;}
+.compare-row{padding:10px 14px;border-bottom:1px solid var(--gray-light);font-size:12px;line-height:1.5;}
+.compare-row:last-child{border-bottom:none;}
+.compare-row strong{display:block;font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px;}
+
+/* REPORT SECTIONS */
+.report-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.rmeta-cell{background:var(--gray-light);border-radius:8px;padding:12px 14px;}
+.rmeta-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--carrot);margin-bottom:3px;}
+.rmeta-val{font-size:13px;font-weight:700;}
+
+.metric-table{width:100%;border-collapse:collapse;}
+.metric-table thead tr{background:var(--blackboard);color:white;}
+.metric-table thead th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;text-align:left;}
+.metric-table tbody tr:nth-child(even){background:var(--gray-light);}
+.metric-table td{padding:10px 14px;font-size:12px;vertical-align:middle;border-bottom:1px solid var(--gray-mid);}
+.metric-table td:first-child{font-weight:600;font-size:13px;}
+.status-pill{display:inline-block;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;}
+.sp-on{background:var(--leafy-pale);color:var(--leafy);}
+.sp-risk{background:#fff3e0;color:var(--carrot-d);}
+.sp-off{background:var(--red-pale);color:var(--red);}
+.sp-na{background:var(--gray-light);color:#888;}
+
+.section-divider{display:flex;align-items:center;gap:12px;margin:20px 0 14px;}
+.sd-line{flex:1;height:1px;background:var(--gray-mid);}
+.sd-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#aaa;}
+
+.insight-box{border-left:4px solid var(--progressive);background:#fffbf0;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:10px;}
+.insight-box .ib-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--progressive-d);margin-bottom:4px;}
+.insight-box .ib-text{font-size:12px;color:#555;line-height:1.6;}
+
+.risk-box{border-left:4px solid var(--red);background:var(--red-pale);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:10px;}
+.risk-box .rb-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:4px;}
+.risk-box .rb-text{font-size:12px;color:#b71c1c;line-height:1.6;}
+
+.action-item{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--gray-light);}
+.action-item:last-child{border-bottom:none;}
+.action-num{min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.action-num.g{background:var(--leafy);color:white;}
+.action-num.o{background:var(--carrot);color:white;}
+.action-num.r{background:var(--red);color:white;}
+.action-content .action-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.action-content .action-detail{font-size:11px;color:#777;line-height:1.5;}
+
+.term-highlight{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.th-cell{border-radius:10px;padding:16px;text-align:center;}
+.th-cell.g{background:var(--leafy-pale);}
+.th-cell.o{background:#fff3e0;}
+.th-cell.y{background:#fff8e1;}
+.th-cell.d{background:var(--gray-light);}
+.th-num{font-size:26px;font-weight:900;}
+.th-num.g{color:var(--leafy);}
+.th-num.o{color:var(--carrot-d);}
+.th-num.y{color:var(--progressive-d);}
+.th-num.d{color:var(--blackboard);}
+.th-label{font-size:11px;font-weight:600;color:#777;margin-top:4px;}
+
+.page-break-note{text-align:center;font-size:11px;color:#bbb;font-style:italic;padding:8px 0 16px;}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Tap2eat · CX Operations · Quality &amp; Training Lead</div>
+  <h1>Your Work, <span>Both Realities</span><br>&amp; What You Report</h1>
+  <p class="cover-sub">A clear picture of how your day runs with a QA on the team versus handling it all yourself — and exactly what goes into the weekly and termly reports that prove this work is happening.</p>
+  <div class="cover-badges">
+    <span class="cbadge g">✅ With QA Available</span>
+    <span class="cbadge r">⚠️ Solo — No QA Yet</span>
+    <span class="cbadge o">📋 Weekly Report</span>
+    <span class="cbadge o">📊 Termly Report</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tbtn active" onclick="sw(0)">✅ Day With QA</button>
+  <button class="tbtn" onclick="sw(1)">⚠️ Day Without QA</button>
+  <button class="tbtn" onclick="sw(2)">⚖️ Side-by-Side</button>
+  <button class="tbtn" onclick="sw(3)">📋 Weekly Report</button>
+  <button class="tbtn" onclick="sw(4)">📊 Termly Report</button>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════
+  TAB 0 — DAY WITH QA
+═══════════════════════════════════ -->
+<div class="tab-panel active" id="p0">
+
+  <div class="scenario-banner with-qa">
+    <div class="sb-icon">✅</div>
+    <div>
+      <div class="sb-tag">Scenario A</div>
+      <div class="sb-title">You have a Quality Assessor in post</div>
+      <div class="sb-desc">The QA handles daily monitoring, scoring, and coaching logs. Your job is to lead the system — design the standards, manage the assessor, run training, analyse the data, and own the outcomes. You are the architect, not the bricklayer.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch green">📅 A Day in the Life — With QA (Wednesday)</div>
+    <div class="cb" style="padding-top:16px;">
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">7:30</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e1">Floor Readiness &amp; QA Briefing</div>
+            <div class="tl-body" data-e="wl-e2">Review yesterday's QA dashboard summary submitted by your assessor. Confirm evaluation targets for today — which agents, which channels, any priority call types. Quick 10-min stand-up with the QA Assessor: what's in the queue, any carry-over from yesterday, any risks to flag. You're not picking up a headset — you're setting the day's direction.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 QA Oversight</span><span class="tag tfl">🎯 Floor Briefing</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">8:00</div><div class="tl-dur">60m</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line y"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e3">Training Module Development</div>
+            <div class="tl-body" data-e="wl-e4">Use the protected morning block to build or update training content. Today: revising the escalation scenarios module based on last week's QA data showing 3 agents escalated unnecessarily. Create 2 new scenario cards with debrief notes. This is strategic work that the QA frees you to do — designing better systems, not just measuring the current one.</div>
+            <div class="tl-tags"><span class="tag ttr">📚 Content Development</span><span class="tag tad">📋 Strategic Work</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">9:00</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line o"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e5">One-on-One Coaching — Development Focus</div>
+            <div class="tl-body" data-e="wl-e6">Sit down with the agent who scored lowest last week. The QA Assessor has already done the first-pass coaching session. Your coaching goes deeper — what's the root cause? Is it a knowledge gap, a confidence issue, or something personal affecting performance? You're coaching at the level of pattern, not just behaviour. Leave with a 30-day development plan documented.</div>
+            <div class="tl-tags"><span class="tag ttr">📚 Deep Coaching</span><span class="tag tpe">👥 People Dev</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">9:45</div><div class="tl-dur">75m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e7">Training Session — Active Group Delivery</div>
+            <div class="tl-body" data-e="wl-e8">Deliver Module 3 to the current intern group: Common Scenarios and Escalation Protocols. Trainer-led, role-play pairs, group debrief. You are fully present — no distraction from evaluation tasks because the QA is handling those. Note any intern needing extra support before nesting begins on Monday.</div>
+            <div class="tl-tags"><span class="tag ttr">📚 Training Facilitation</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">11:00</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot d"></div><div class="tl-line d"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e9">Nesting Supervision — Intern Phase 2</div>
+            <div class="tl-body" data-e="wl-e10">Sit in on 2 supervised live calls with the nesting intern. The QA Assessor is scoring independently — your role here is leadership-level observation. Is the intern ready? Is the QA Assessor scoring fairly? You're checking both simultaneously. Verbal feedback directly after each call.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 Nesting Oversight</span><span class="tag tpe">👥 QA Mgmt</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">11:30</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot d" style="background:#aaa;"></div><div class="tl-line d"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" style="color:#aaa;" data-e="wl-e11">Lunch Break</div>
+            <div class="tl-body" style="color:#bbb;font-style:italic;" data-e="wl-e12">Clean break. You are a Lead, not the floor. You have a QA holding the fort.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">12:00</div><div class="tl-dur">90m</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line y"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e13">Data Analysis &amp; Weekly Report Prep</div>
+            <div class="tl-body" data-e="wl-e14">Pull the mid-week QA data submitted by your assessor. Build trend charts: team QA score, FCR rate, AHT distribution, CRM accuracy. Flag any agent dipping. Draft the risk section for Friday's report. Because the QA is running evaluations, your data arrives structured and on time — you're analysing and narrating, not also gathering.</div>
+            <div class="tl-tags"><span class="tag trp">📊 Data Analysis</span><span class="tag tad">📋 Report Prep</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">13:30</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e15">Weekly Calibration Session</div>
+            <div class="tl-body" data-e="wl-e16">You and the QA Assessor each scored 3 calls independently. Compare on screen. Discuss any divergence over 5 points. Update the scoring guidance document. This is the most important 45 minutes in quality management — without it, every agent experiences a different scoring standard.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 Calibration</span><span class="tag tpe">👥 QA Development</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">14:15</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot p"></div><div class="tl-line p"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e17">QA Assessor Monthly Performance Check-In</div>
+            <div class="tl-body" data-e="wl-e18">Review your assessor's own KPIs: monitoring coverage, coaching completion, calibration alignment, report timeliness. Give structured feedback. Discuss their professional development. Are they ready for more responsibility? Are there blockers? You are their manager — this relationship directly determines your quality output.</div>
+            <div class="tl-tags"><span class="tag tpe">👥 Performance Review</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">15:00</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line o"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e19">SOP Review &amp; Training Calendar Planning</div>
+            <div class="tl-body" data-e="wl-e20">Update any SOPs impacted by this week's programme changes. Plan next week's training sessions — intern group, refresher for live agents, any individual coaching carry-overs. Build the week's schedule and share with the Team Lead. This is where quality becomes systematic rather than reactive.</div>
+            <div class="tl-tags"><span class="tag tad">📋 SOP Management</span><span class="tag ttr">📚 Planning</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">15:45</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line d"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e21">EOD Floor Walk &amp; Planning Log</div>
+            <div class="tl-body" data-e="wl-e22">Brief floor walk — observe tone, energy, any concerns. Close the day's planning log. Confirm QA evaluation count for the day. File the assessor's daily submission. Prep tomorrow's coaching schedule.</div>
+            <div class="tl-tags"><span class="tag tfl">🎯 Floor Leadership</span><span class="tag tad">📋 Admin</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">16:15</div><div class="tl-dur">—</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" style="color:var(--leafy);" data-e="wl-e23">End of Day — You led today. The QA ran the floor-level evaluation. You built the system better.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch amber">⏱ How the Day Splits — With QA</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>Training &amp; Development</span><span style="color:var(--carrot-d);">2.5h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-orange" style="width:32%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>Data, Reporting &amp; Planning</span><span style="color:var(--progressive-d);">2.0h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-amber" style="width:26%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>QA Oversight &amp; Calibration</span><span style="color:var(--leafy);">1.5h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-green" style="width:19%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>People Management</span><span style="color:var(--purple);">1.25h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-purple" style="width:16%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>Admin &amp; Floor Leadership</span><span style="color:var(--blue);">0.75h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-blue" style="width:10%;"></div></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#aaa;margin-top:14px;font-style:italic;">Total active working time: ~8 hours. Sustainable. Strategic. The role as it should function.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════
+  TAB 1 — DAY WITHOUT QA
+═══════════════════════════════════ -->
+<div class="tab-panel" id="p1">
+
+  <div class="scenario-banner no-qa">
+    <div class="sb-icon">⚠️</div>
+    <div>
+      <div class="sb-tag">Scenario B — Current Reality</div>
+      <div class="sb-title">No QA in post — you are carrying both roles</div>
+      <div class="sb-desc">Every evaluation, every coaching log, every calibration, every training session, every report, every intern supervision — all of it lands on one person. This is not sustainable indefinitely. This document shows the reality clearly so that the workload is visible, not invisible.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch red">⚠️ What Changes When There's No QA</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--red);">Daily evaluations</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--red);"></div></div>
+          <span class="stress-val" style="color:var(--red);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--red);">Coaching logs</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--red);"></div></div>
+          <span class="stress-val" style="color:var(--red);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--red);">CRM audits</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--red);"></div></div>
+          <span class="stress-val" style="color:var(--red);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--leafy);">Training delivery</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--leafy);"></div></div>
+          <span class="stress-val" style="color:var(--leafy);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--leafy);">Report writing</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--leafy);"></div></div>
+          <span class="stress-val" style="color:var(--leafy);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--leafy);">Calibration</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--leafy);"></div></div>
+          <span class="stress-val" style="color:var(--leafy);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--leafy);">Nesting supervision</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--leafy);"></div></div>
+          <span class="stress-val" style="color:var(--leafy);">You</span>
+        </div>
+        <div class="stress-bar">
+          <span class="stress-label" style="font-size:11px;color:var(--leafy);">SOP updates</span>
+          <div class="stress-track"><div class="stress-fill" style="width:100%;background:var(--leafy);"></div></div>
+          <span class="stress-val" style="color:var(--leafy);">You</span>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--red);font-weight:600;margin-top:14px;background:var(--red-pale);padding:10px 14px;border-radius:8px;">Every single function of both the QA Assessor role and the Q&amp;T Lead role falls to one person. The day below is the honest version of what that looks like.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch red">📅 A Day in the Life — No QA Available (Wednesday)</div>
+    <div class="cb" style="padding-top:16px;">
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">7:00</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot r"></div><div class="tl-line r"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e24">Early Start — Pre-Floor Evaluation Batch</div>
+            <div class="tl-body" data-e="wl-e25">You arrive 30 minutes before the floor opens. Load the recording system and score 3 call recordings from yesterday's afternoon shift before agents arrive. This is the only guaranteed quiet evaluation window. Without a QA, every evaluation has to be squeezed around everything else — you start early to protect some of the scoring time.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 QA Evaluation</span><span class="tag twarn">⚠️ QA Role Cover</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">7:30</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e26">Floor Readiness — Solo Brief</div>
+            <div class="tl-body" data-e="wl-e27">No QA to brief. Instead you do a direct check-in with the Team Lead on the floor. Any incidents from yesterday? Any agent concerns? Confirm the evaluation queue for today is realistic given everything else in the diary. Flag immediately if there are interns in nesting — their supervision cannot be deprioritised.</div>
+            <div class="tl-tags"><span class="tag tfl">🎯 Floor Leadership</span><span class="tag tpe">👥 Team Check-In</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">8:00</div><div class="tl-dur">60m</div></div>
+          <div class="tl-spine"><div class="tl-dot r"></div><div class="tl-line r"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e28">Live QA Monitoring &amp; Scoring — Morning Block</div>
+            <div class="tl-body" data-e="wl-e29">Score 4 interactions — calls and/or WhatsApp — from the current active agents. Complete the scorecard for each. Annotate coaching notes as you go because there's no QA to hand these to — you need them ready for later coaching sessions. This block alone would be the QA Assessor's primary morning task. You're doing it on top of everything else.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 QA Scoring</span><span class="tag twarn">⚠️ QA Role Cover</span></div>
+            <div class="alert-flag"><span class="icon">⚠️</span><span class="text">Strategic training development work that would normally happen in this block is postponed. Content creation and SOP building shifts to evenings or weekends unless protected time is formally allocated.</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">9:00</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line o"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e30">Coaching Session — Agent From Yesterday's Low Score</div>
+            <div class="tl-body" data-e="wl-e31">You scored the call, you wrote the coaching notes, and now you're delivering the coaching session too. Pull up the recording, walk through the scorecard, discuss the specific moments. Sign the coaching log. In a normal structure, the QA Assessor handles first-pass coaching; you handle complex or escalated cases. Right now there is no first-pass filter — every coaching conversation comes to you.</div>
+            <div class="tl-tags"><span class="tag ttr">📚 Coaching</span><span class="tag twarn">⚠️ QA Role Cover</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">9:30</div><div class="tl-dur">75m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e32">Training Session — Intern Group</div>
+            <div class="tl-body" data-e="wl-e33">Deliver Module 2 to the intern group. You cannot skip this or delegate it — training is your core function and these interns go into nesting in 3 days. The challenge: you just came from scoring calls and running a coaching session. Focus is required. Energy management on a day like this is a skill in itself. Deliver fully, note comprehension gaps, book follow-ups.</div>
+            <div class="tl-tags"><span class="tag ttr">📚 Training Delivery</span></div>
+            <div class="alert-flag"><span class="icon">⚠️</span><span class="text">You cannot do live floor monitoring during this session. Any real-time quality failures on the floor while you're in training are invisible until you review recordings later.</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">10:45</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot r"></div><div class="tl-line r"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e34">Nesting Supervision — Intern Phase 2 Calls</div>
+            <div class="tl-body" data-e="wl-e35">Sit in on 2 supervised live calls with the nesting intern. Score them. Give immediate verbal feedback. Log the nesting scores. This is non-negotiable — no intern goes unsupervised in the nesting period. But without a QA, you are the only person who can do this, meaning every other task must pause when a nesting call is live.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 Nesting Scoring</span><span class="tag twarn">⚠️ QA Role Cover</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">11:15</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line y"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e36">CRM Audit — Weekly Spot Check</div>
+            <div class="tl-body" data-e="wl-e37">Pull 10 recent CRM records. Verify accuracy — correct parent details, complete interaction logs, proper case closures. Flag errors and note the responsible agent. This would be the QA's task as part of weekly auditing. Without them, it falls here. It takes 30–45 minutes that would otherwise go to report preparation or training development.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 CRM Audit</span><span class="tag twarn">⚠️ QA Role Cover</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">12:00</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot d" style="background:#aaa;"></div><div class="tl-line d"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" style="color:#aaa;" data-e="wl-e38">Lunch — Shortened, Often at the Desk</div>
+            <div class="tl-body" style="color:#bbb;font-style:italic;" data-e="wl-e39">There is no one to hold the fort. Lunch is taken but often shortened. Checking the recording queue over lunch is common. This is a visible risk of dual-role operating — rest degrades, and with it, quality of judgement.</div>
+            <div class="tl-tags"><span class="tag twarn">⚠️ Sustainability Risk</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">12:45</div><div class="tl-dur">90m</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line y"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e40">Weekly Data Compilation — Full Build</div>
+            <div class="tl-body" data-e="wl-e41">Pull all QA scores from the week — every one of which you scored personally. Compile AHT data, FCR analysis, CRM accuracy audit results. Build the weekly report from scratch because there's no assessor submitting structured data to you — you're both the collector and the analyst. The report takes longer and more mental energy because you're also reviewing your own scoring for accuracy.</div>
+            <div class="tl-tags"><span class="tag trp">📊 Data &amp; Reporting</span><span class="tag twarn">⚠️ Double Load</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">14:15</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot r"></div><div class="tl-line r"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e42">Afternoon Evaluation Batch</div>
+            <div class="tl-body" data-e="wl-e43">Score 3 more interactions — this time from agents not yet covered this week. The target is 5 evaluations per agent per week. Without a QA, even covering all agents minimally is a stretch. You make prioritisation decisions daily: who gets evaluated, who must wait. Every agent not evaluated is a quality blind spot.</div>
+            <div class="tl-tags"><span class="tag tqa">🔍 QA Scoring</span><span class="tag twarn">⚠️ Coverage Gap Risk</span></div>
+            <div class="alert-flag"><span class="icon">⚠️</span><span class="text">Without a QA Assessor, the minimum evaluation coverage target of 80% of agents per week is extremely difficult to maintain alongside training delivery and reporting. Tracking this gap is essential for the business case for hiring.</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">15:00</div><div class="tl-dur">45m</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line o"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e44">SOP Update &amp; Coaching Log Admin</div>
+            <div class="tl-body" data-e="wl-e45">Update any SOP changed this week. File all coaching logs completed today. Review the coaching tracker — any overdue sessions? Confirm tomorrow's training session is prepared. This administrative layer is essential and invisible — it's what keeps the quality system documented and defensible when leadership asks for evidence.</div>
+            <div class="tl-tags"><span class="tag tad">📋 SOP &amp; Admin</span><span class="tag ttr">📚 Training Prep</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">15:45</div><div class="tl-dur">30m</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line d"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="wl-e46">Floor Walk &amp; EOD Log</div>
+            <div class="tl-body" data-e="wl-e47">Brief floor walk. Update the daily tracking log — evaluations completed, coaching sessions delivered, training sessions run, CRM records audited. This log is your evidence. Without it, the workload is invisible. With it, you have a week-by-week case for the QA hire. Close the day's files.</div>
+            <div class="tl-tags"><span class="tag tfl">🎯 Floor Leadership</span><span class="tag tad">📋 Daily Log</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-main">16:15</div><div class="tl-dur">—</div></div>
+          <div class="tl-spine"><div class="tl-dot r"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" style="color:var(--red);" data-e="wl-e48">End of Day — You did two jobs today. Document it. Every day this happens, document it.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch red">⏱ How the Day Splits — Without QA</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="load-bar-wrap">
+          <div class="load-label"><span style="color:var(--red);font-weight:700;">QA Evaluation &amp; Auditing (QA Role)</span><span style="color:var(--red);font-weight:700;">3.25h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-red" style="width:42%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>Training Delivery &amp; Coaching</span><span style="color:var(--carrot-d);">2.0h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-orange" style="width:26%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>Data Compilation &amp; Reporting</span><span style="color:var(--progressive-d);">1.75h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-amber" style="width:22%;"></div></div>
+        </div>
+        <div class="load-bar-wrap">
+          <div class="load-label"><span>Admin, SOPs &amp; Floor</span><span style="color:var(--blue);">0.75h</span></div>
+          <div class="load-bar-bg"><div class="load-bar-fill fill-blue" style="width:10%;"></div></div>
+        </div>
+      </div>
+      <div style="background:var(--red-pale);border-radius:8px;padding:12px 14px;margin-top:14px;">
+        <p style="font-size:12px;color:var(--red);font-weight:700;margin-bottom:4px;">What gets lost or compromised:</p>
+        <p style="font-size:12px;color:#b71c1c;line-height:1.7;">
+          → Strategic training content development (pushed to evenings/weekends)<br>
+          → QA Assessor performance management (no QA to manage)<br>
+          → Calibration sessions (self-calibration is less effective)<br>
+          → Full agent evaluation coverage (some agents go unmonitored each week)<br>
+          → Rest and recovery time (shortened lunch, early starts become the norm)
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════
+  TAB 2 — SIDE BY SIDE
+═══════════════════════════════════ -->
+<div class="tab-panel" id="p2">
+
+  <div class="compare-grid">
+    <div class="compare-col">
+      <div class="compare-head with">✅ With QA Available</div>
+      <div class="compare-body">
+        <div class="compare-row" data-e="wl-e49"><strong>Start Time</strong>7:30 — standard floor opening</div>
+        <div class="compare-row" data-e="wl-e50"><strong>QA Evaluation Load</strong>Oversight &amp; spot-check only (1–2 calls). QA handles the daily batch independently.</div>
+        <div class="compare-row" data-e="wl-e51"><strong>Coaching</strong>Deep/complex cases only. QA delivers first-pass coaching for all standard scores.</div>
+        <div class="compare-row" data-e="wl-e52"><strong>Training Delivery</strong>Full focus — no evaluation tasks running in parallel. Sessions are fully prepared.</div>
+        <div class="compare-row" data-e="wl-e53"><strong>CRM Auditing</strong>QA runs the weekly CRM audit. You review the summary.</div>
+        <div class="compare-row" data-e="wl-e54"><strong>Data for Reports</strong>Arrives structured from the QA. You analyse and narrate.</div>
+        <div class="compare-row" data-e="wl-e55"><strong>Strategic Work</strong>Protected blocks for content development, SOP building, training planning.</div>
+        <div class="compare-row" data-e="wl-e56"><strong>Calibration</strong>Full session with QA Assessor weekly — genuine scoring alignment.</div>
+        <div class="compare-row" data-e="wl-e57"><strong>Lunch</strong>Clean break. Full 30 minutes away from the desk.</div>
+        <div class="compare-row" data-e="wl-e58"><strong>Sustainability</strong>Workload is demanding but manageable. Role is structured as designed.</div>
+        <div class="compare-row" data-e="wl-e59"><strong>Evaluation Coverage</strong>≥80% of agents evaluated weekly. Target achievable.</div>
+        <div class="compare-row" data-e="wl-e60"><strong>End of Day</strong>4:15–4:30. On time. Energy remains for planning tomorrow.</div>
+      </div>
+    </div>
+    <div class="compare-col">
+      <div class="compare-head without">⚠️ Without QA — Current Reality</div>
+      <div class="compare-body">
+        <div class="compare-row" data-e="wl-e61"><strong>Start Time</strong>7:00 — early start to batch-score before the floor opens.</div>
+        <div class="compare-row" data-e="wl-e62"><strong>QA Evaluation Load</strong>All evaluations, all agents, all channels — entirely on the Lead. 3–4 hours per day of QA-role work.</div>
+        <div class="compare-row" data-e="wl-e63"><strong>Coaching</strong>Every coaching session — standard and complex — conducted by the Lead. No filter layer.</div>
+        <div class="compare-row" data-e="wl-e64"><strong>Training Delivery</strong>Delivered, but immediately preceded or followed by evaluation tasks. Focus and energy are split.</div>
+        <div class="compare-row" data-e="wl-e65"><strong>CRM Auditing</strong>Lead runs the full audit personally. 30–45 minutes taken from reporting or training prep time.</div>
+        <div class="compare-row" data-e="wl-e66"><strong>Data for Reports</strong>Lead collects, compiles, and analyses all data. Twice the effort, twice the time.</div>
+        <div class="compare-row" data-e="wl-e67"><strong>Strategic Work</strong>Consistently displaced to evenings or removed entirely. System improvement stalls.</div>
+        <div class="compare-row" data-e="wl-e68"><strong>Calibration</strong>No second person to calibrate with. Self-review only — scoring consistency risk increases.</div>
+        <div class="compare-row" data-e="wl-e69"><strong>Lunch</strong>Shortened. Often at the desk. Rest is compromised.</div>
+        <div class="compare-row" data-e="wl-e70"><strong>Sustainability</strong>Not sustainable beyond 4–6 weeks at full quality standard. Quality gaps emerge over time.</div>
+        <div class="compare-row" data-e="wl-e71"><strong>Evaluation Coverage</strong>Coverage likely drops to 50–60% of agents per week. Blind spots accumulate.</div>
+        <div class="compare-row" data-e="wl-e72"><strong>End of Day</strong>4:30–5:00+. Regular overrun. Admin and SOP work carries to next morning.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="ch dark">💡 The Business Case These Comparisons Build</div>
+    <div class="cb">
+      <div class="insight-box">
+        <div class="ib-tag">What this comparison proves</div>
+        <div class="ib-text" data-e="wl-e73">The gap between the two columns is not a personal capacity gap — it is a structural resourcing gap. The Q&amp;T Lead role was designed to function with a QA Assessor in place. Operating without one means one person is delivering the outputs of two roles, which compresses strategic work, limits evaluation coverage, and creates quality blind spots that compound over time.</div>
+      </div>
+      <div class="risk-box">
+        <div class="rb-tag">The Risk of Silence</div>
+        <div class="rb-text" data-e="wl-e74">If this dual-role situation is not documented and reported, it becomes the new normal. Leadership assumes the quality function is operating at full capacity. It is not. The weekly and termly reports in the next two tabs exist partly to make this visible — factually, not as a complaint.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════
+  TAB 3 — WEEKLY REPORT
+═══════════════════════════════════ -->
+<div class="tab-panel" id="p3">
+
+  <div class="card">
+    <div class="ch amber">📋 Weekly Quality &amp; Training Report — Template &amp; Guide</div>
+    <div class="cb">
+      <p style="font-size:13px;color:#555;line-height:1.7;border-left:4px solid var(--progressive);padding-left:14px;">This report is submitted every Friday to the Technical Operations Manager and CX Manager. It covers the full week: QA performance, training activity, coaching sessions, nesting progress, CRM accuracy, and the key risks and actions for the coming week. When there is no QA in post, this report also documents the dual-role workload transparently.</p>
+    </div>
+  </div>
+
+  <!-- REPORT META -->
+  <div class="report-meta">
+    <div class="rmeta-cell"><div class="rmeta-label">Report Period</div><div class="rmeta-val">Week of [DD/MM – DD/MM/YYYY]</div></div>
+    <div class="rmeta-cell"><div class="rmeta-label">Submitted By</div><div class="rmeta-val">Quality &amp; Training Lead</div></div>
+    <div class="rmeta-cell"><div class="rmeta-label">QA Status</div><div class="rmeta-val" style="color:var(--red);">⚠️ No QA in Post</div></div>
+  </div>
+
+  <!-- SECTION 1: QUALITY METRICS -->
+  <div class="card">
+    <div class="ch green">1. Quality Assurance Performance</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr>
+            <th>KPI</th>
+            <th>Target</th>
+            <th>This Week</th>
+            <th>Last Week</th>
+            <th>Trend</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Team QA Score (Average)</td>
+            <td>≥ 95%</td>
+            <td>[X%]</td>
+            <td>[X%]</td>
+            <td>[↑/↓/→]</td>
+            <td><span class="status-pill sp-on">On Track</span></td>
+          </tr>
+          <tr>
+            <td>First Call Resolution (FCR)</td>
+            <td>≥ 95%</td>
+            <td>[X%]</td>
+            <td>[X%]</td>
+            <td>[↑/↓/→]</td>
+            <td><span class="status-pill sp-risk">At Risk</span></td>
+          </tr>
+          <tr>
+            <td>Average Handle Time (AHT)</td>
+            <td>≤ 180s</td>
+            <td>[X sec]</td>
+            <td>[X sec]</td>
+            <td>[↑/↓/→]</td>
+            <td><span class="status-pill sp-on">On Track</span></td>
+          </tr>
+          <tr>
+            <td>CRM Data Accuracy</td>
+            <td>≥ 98%</td>
+            <td>[X%]</td>
+            <td>[X%]</td>
+            <td>[↑/↓/→]</td>
+            <td><span class="status-pill sp-on">On Track</span></td>
+          </tr>
+          <tr>
+            <td>Agent Evaluation Coverage</td>
+            <td>≥ 80%</td>
+            <td>[X%]</td>
+            <td>[X%]</td>
+            <td>[↑/↓/→]</td>
+            <td><span class="status-pill sp-off">Below Target</span></td>
+          </tr>
+          <tr>
+            <td>Interactions Evaluated (Total)</td>
+            <td>[Target no.]</td>
+            <td>[X]</td>
+            <td>[X]</td>
+            <td>[↑/↓/→]</td>
+            <td><span class="status-pill sp-na">N/A</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2: AGENT SNAPSHOT -->
+  <div class="card">
+    <div class="ch orange">2. Individual Agent Performance Snapshot</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>QA Score</th>
+            <th>FCR</th>
+            <th>AHT</th>
+            <th>Calls Evaluated</th>
+            <th>Coaching Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Agent 1</td>
+            <td>[X%]</td><td>[X%]</td><td>[Xs]</td><td>[X]</td>
+            <td style="font-size:11px;">Session delivered [date] — AHT improvement plan</td>
+          </tr>
+          <tr>
+            <td>Agent 2</td>
+            <td>[X%]</td><td>[X%]</td><td>[Xs]</td><td>[X]</td>
+            <td style="font-size:11px;color:var(--leafy);">No action required</td>
+          </tr>
+          <tr>
+            <td>Agent 3</td>
+            <td>[X%]</td><td>[X%]</td><td>[Xs]</td><td>[X]</td>
+            <td style="font-size:11px;color:var(--red);">Coaching due by [date] — empathy &amp; FCR gaps</td>
+          </tr>
+          <tr>
+            <td>Agent 4</td>
+            <td>[X%]</td><td>[X%]</td><td>[Xs]</td><td>[X]</td>
+            <td style="font-size:11px;">Follow-up from last week coaching — improvement noted</td>
+          </tr>
+          <tr>
+            <td style="color:#aaa;font-style:italic;">⚠️ Agent 5 — Not evaluated this week</td>
+            <td>—</td><td>—</td><td>—</td><td>0</td>
+            <td style="font-size:11px;color:var(--red);">Evaluation gap — no QA cover this week</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 3: TRAINING -->
+  <div class="card">
+    <div class="ch amber">3. Training &amp; Development Activity</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr><th>Activity</th><th>Date</th><th>Participants</th><th>Outcome</th><th>Next Step</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Module 2 — Call Standards</td>
+            <td>[Date]</td><td>[X interns]</td>
+            <td style="font-size:11px;">Delivered. 1 intern flagged for follow-up before nesting.</td>
+            <td style="font-size:11px;">Module 3 scheduled [date]</td>
+          </tr>
+          <tr>
+            <td>Refresher — Escalation Protocol</td>
+            <td>[Date]</td><td>[X agents]</td>
+            <td style="font-size:11px;">Triggered by QA data — 3 agents escalating unnecessarily.</td>
+            <td style="font-size:11px;">Monitor in next 2 QA evaluations</td>
+          </tr>
+          <tr>
+            <td>1-on-1 Coaching Sessions</td>
+            <td>Throughout</td><td>[X agents]</td>
+            <td style="font-size:11px;">[X] sessions delivered, [X] coaching logs filed.</td>
+            <td style="font-size:11px;">Follow-ups logged in tracker</td>
+          </tr>
+          <tr>
+            <td>Nesting Period Supervision</td>
+            <td>Ongoing</td><td>[X interns]</td>
+            <td style="font-size:11px;">Phase [X] — [X] calls supervised, scored [X%] avg</td>
+            <td style="font-size:11px;">Certification assessment [date]</td>
+          </tr>
+          <tr>
+            <td>SOP Updates</td>
+            <td>[Date]</td><td>All agents</td>
+            <td style="font-size:11px;">[X] documents updated following [change/update]</td>
+            <td style="font-size:11px;">Distributed via team channel</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4: NO-QA WORKLOAD LOG -->
+  <div class="card">
+    <div class="ch red">4. ⚠️ Dual-Role Workload Log (No QA in Post)</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr><th>QA Assessor Task Covered by Lead</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Call evaluations completed</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td></tr>
+          <tr><td>WhatsApp/email evaluations</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td></tr>
+          <tr><td>Coaching sessions (incl. first-pass)</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td></tr>
+          <tr><td>CRM audit records checked</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td><td>[X]</td></tr>
+          <tr><td>Estimated hours on QA-role tasks</td><td>[Xh]</td><td>[Xh]</td><td>[Xh]</td><td>[Xh]</td><td>[Xh]</td><td>[Xh]</td></tr>
+        </tbody>
+      </table>
+      <div style="padding:14px 16px;background:var(--red-pale);border-top:1px solid #ffcdd2;">
+        <p style="font-size:12px;color:var(--red);font-weight:700;margin-bottom:4px;">Impact on Lead-Role Deliverables This Week:</p>
+        <p style="font-size:12px;color:#b71c1c;line-height:1.7;">[List any Lead-level tasks that were delayed, reduced, or not completed due to QA-role coverage. Examples: strategic content development postponed, full agent coverage not achieved, calibration self-review only, reduced report depth.]</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: RISKS & ACTIONS -->
+  <div class="card">
+    <div class="ch dark">5. Risks, Flags &amp; Actions for Next Week</div>
+    <div class="cb" style="padding:0;">
+      <div class="action-item">
+        <span class="action-num r">R1</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e75">Agent evaluation coverage below target</div>
+          <div class="action-detail" data-e="wl-e76">Current coverage: [X%] vs target ≥80%. Root cause: dual-role operation without QA. Mitigation: prioritise highest-risk agents in next week's evaluation queue. This risk persists until QA post is filled.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num o">R2</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e77">[Agent name] FCR declining for 2nd consecutive week</div>
+          <div class="action-detail" data-e="wl-e78">FCR at [X%] vs 95% target. Coaching session scheduled [date]. Root cause appears to be [escalation decisions / knowledge gap / scenario type]. Monitor closely over the next 10 evaluations.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num g">A1</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e79">Module 3 delivery to current intern cohort</div>
+          <div class="action-detail" data-e="wl-e80">Scheduled [date]. Nesting begins [date]. All pre-nesting requirements must be confirmed complete by [date].</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num g">A2</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e81">Nesting certification assessment — [Intern name]</div>
+          <div class="action-detail" data-e="wl-e82">Practical assessment scheduled [date]. Current nesting average: [X%]. On track for certification.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num r">R3</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e83">QA post vacancy — ongoing workload risk</div>
+          <div class="action-detail" data-e="wl-e84">Week [X] of operating without a QA Assessor. Lead has absorbed [X hours] of QA-role tasks this week. Strategic content development, full coverage, and calibration quality are all at risk. Formal request for QA hire timeline submitted to [manager name] on [date].</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════
+  TAB 4 — TERMLY REPORT
+═══════════════════════════════════ -->
+<div class="tab-panel" id="p4">
+
+  <div class="card">
+    <div class="ch green">📊 End-of-Term Quality &amp; Training Report</div>
+    <div class="cb">
+      <p style="font-size:13px;color:#555;line-height:1.7;border-left:4px solid var(--leafy);padding-left:14px;">Submitted at the end of each school term to the Technical Operations Manager, CX Manager, and People Team. This is the strategic picture — trends over 10–13 weeks, the impact of training interventions, the true state of quality across the CX team, resourcing gaps, and recommendations going into the next term.</p>
+    </div>
+  </div>
+
+  <!-- TERM OVERVIEW NUMBERS -->
+  <div class="term-highlight">
+    <div class="th-cell g"><div class="th-num g">[X]</div><div class="th-label">Agents evaluated this term</div></div>
+    <div class="th-cell o"><div class="th-num o">[X]</div><div class="th-label">Training sessions delivered</div></div>
+    <div class="th-cell y"><div class="th-num y">[X]</div><div class="th-label">Coaching sessions completed</div></div>
+    <div class="th-cell d"><div class="th-num d">[X]</div><div class="th-label">Interns certified this term</div></div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="card">
+    <div class="ch green">1. Term Quality Performance — Aggregate KPIs</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr><th>KPI</th><th>Target</th><th>Term Start</th><th>Term End</th><th>Peak</th><th>Lowest</th><th>Trend</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Team QA Score</td><td>≥95%</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[↑↑/↑/→/↓]</td></tr>
+          <tr><td>First Call Resolution</td><td>≥95%</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[↑↑/↑/→/↓]</td></tr>
+          <tr><td>Average Handle Time</td><td>≤180s</td><td>[Xs]</td><td>[Xs]</td><td>[Xs]</td><td>[Xs]</td><td>[↑↑/↑/→/↓]</td></tr>
+          <tr><td>CRM Data Accuracy</td><td>≥98%</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[↑↑/↑/→/↓]</td></tr>
+          <tr><td>Agent Evaluation Coverage</td><td>≥80%/wk</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td>[↑↑/↑/→/↓]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="card">
+    <div class="ch orange">2. Agent Performance Overview — Term Summary</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr><th>Agent</th><th>Term Avg QA</th><th>Term Avg FCR</th><th>AHT Trend</th><th>Coaching Sessions</th><th>Post-Coaching Improvement</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Agent 1</td><td>[X%]</td><td>[X%]</td><td>↓ improved</td><td>[X]</td><td>+[X]pts</td><td><span class="status-pill sp-on">Strong</span></td></tr>
+          <tr><td>Agent 2</td><td>[X%]</td><td>[X%]</td><td>→ stable</td><td>[X]</td><td>+[X]pts</td><td><span class="status-pill sp-on">On Track</span></td></tr>
+          <tr><td>Agent 3</td><td>[X%]</td><td>[X%]</td><td>→ stable</td><td>[X]</td><td>+[X]pts</td><td><span class="status-pill sp-risk">Monitor</span></td></tr>
+          <tr><td>Agent 4</td><td>[X%]</td><td>[X%]</td><td>↑ worsened</td><td>[X]</td><td>-[X]pts</td><td><span class="status-pill sp-off">At Risk</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="card">
+    <div class="ch amber">3. Training Programme — Term Delivery &amp; Impact</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr><th>Programme/Module</th><th>Delivered</th><th>Cohort Size</th><th>Completion Rate</th><th>Pre-Train QA Avg</th><th>30-Day Post QA Avg</th><th>Impact</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>New Intern Onboarding (Full)</td><td>[Date range]</td><td>[X]</td><td>[X%]</td><td>N/A (new)</td><td>[X%]</td><td style="color:var(--leafy);font-weight:700;">[X] certified</td></tr>
+          <tr><td>Escalation Protocol Refresher</td><td>[Date]</td><td>[X agents]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td style="color:var(--leafy);font-weight:700;">+[X]pts</td></tr>
+          <tr><td>CRM Accuracy Refresher</td><td>[Date]</td><td>[X agents]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td style="color:var(--leafy);font-weight:700;">+[X]pts</td></tr>
+          <tr><td>WhatsApp Standards</td><td>[Date]</td><td>[X agents]</td><td>[X%]</td><td>[X%]</td><td>[X%]</td><td style="color:var(--leafy);font-weight:700;">+[X]pts</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4 — NO-QA IMPACT -->
+  <div class="card">
+    <div class="ch red">4. ⚠️ Dual-Role Impact Assessment — Term Without QA</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="background:var(--red-pale);border-radius:10px;padding:16px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--red);">[X] weeks</div>
+          <div style="font-size:12px;color:#b71c1c;margin-top:4px;">Operating without QA Assessor</div>
+        </div>
+        <div style="background:var(--red-pale);border-radius:10px;padding:16px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--red);">~[X] hrs</div>
+          <div style="font-size:12px;color:#b71c1c;margin-top:4px;">QA-role hours absorbed by Lead</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:10px;padding:16px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--carrot-d);">[X%]</div>
+          <div style="font-size:12px;color:var(--carrot-d);margin-top:4px;">Avg weekly evaluation coverage (target 80%)</div>
+        </div>
+        <div style="background:#fff8e1;border-radius:10px;padding:16px;text-align:center;">
+          <div style="font-size:26px;font-weight:900;color:var(--progressive-d);">[X] sessions</div>
+          <div style="font-size:12px;color:var(--progressive-d);margin-top:4px;">Strategic training content not developed</div>
+        </div>
+      </div>
+      <div class="risk-box">
+        <div class="rb-tag">Documented Compromises — This Term</div>
+        <div class="rb-text" data-e="wl-e85">
+          → Full agent evaluation coverage was not consistently achieved. [X] agents had 1 or fewer evaluations in [X] weeks.<br>
+          → Calibration sessions were self-conducted — no second assessor to compare against. Scoring consistency risk unresolved.<br>
+          → Strategic training content development was displaced. [X] planned modules were not built this term.<br>
+          → Lead workload exceeded designed capacity, with early starts and reduced break time documented across [X] weeks.<br>
+          → QA vacancy period has now reached [X] weeks. Impact on quality outcomes is measurable (see Section 1 — coverage trends).
+        </div>
+      </div>
+      <div class="insight-box">
+        <div class="ib-tag">Recommendation to Leadership</div>
+        <div class="ib-text" data-e="wl-e86">The quality function cannot operate at full effectiveness without a QA Assessor in post. This term's data shows that the Lead has maintained core outputs through dual-role working, but at measurable cost to coverage, strategic development, and system improvement. A QA hire before the start of next term is the strongest action to protect quality outcomes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: INCIDENTS -->
+  <div class="card">
+    <div class="ch purple">5. Quality Incidents &amp; Escalations — Term Log</div>
+    <div class="cb" style="padding:0;">
+      <table class="metric-table">
+        <thead>
+          <tr><th>Date</th><th>Type</th><th>Agent</th><th>Description</th><th>Action Taken</th><th>Resolved</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>[Date]</td>
+            <td style="font-size:11px;"><span class="status-pill sp-risk">CRM Error</span></td>
+            <td>[Agent]</td>
+            <td style="font-size:11px;">Incorrect school details logged for 3 parent records. Discovered during weekly audit.</td>
+            <td style="font-size:11px;">Records corrected. CRM accuracy coaching session delivered.</td>
+            <td><span class="status-pill sp-on">✓ Yes</span></td>
+          </tr>
+          <tr>
+            <td>[Date]</td>
+            <td style="font-size:11px;"><span class="status-pill sp-off">Complaint</span></td>
+            <td>[Agent]</td>
+            <td style="font-size:11px;">Parent escalated call to management. Agent ended call without confirming resolution.</td>
+            <td style="font-size:11px;">Root cause review. Call closing SOP refresher for team.</td>
+            <td><span class="status-pill sp-on">✓ Yes</span></td>
+          </tr>
+          <tr>
+            <td>[Date]</td>
+            <td style="font-size:11px;"><span class="status-pill sp-risk">FCR Failure</span></td>
+            <td>[Agent]</td>
+            <td style="font-size:11px;">3 repeat contacts from same parent — issue not resolved on first two contacts.</td>
+            <td style="font-size:11px;">Issue resolution coaching. Escalation SOP reviewed with agent.</td>
+            <td><span class="status-pill sp-on">✓ Yes</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 6: NEXT TERM PLAN -->
+  <div class="card">
+    <div class="ch dark">6. Next Term — Quality &amp; Training Plan</div>
+    <div class="cb" style="padding:0;">
+      <div class="action-item">
+        <span class="action-num g">P1</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e87">QA Assessor Hire — Priority Action</div>
+          <div class="action-detail" data-e="wl-e88">Request formally submitted to People Team and Technical Operations Manager. Target: QA in post by Week 2 of next term. Onboarding plan and role induction ready to deploy immediately upon hire.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num g">P2</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e89">New Intern Cohort Onboarding</div>
+          <div class="action-detail" data-e="wl-e90">Next cohort starts [date]. Full 3-module onboarding programme ready. Target: all interns certified within 15 working days of start date. Nesting supervision schedule to be built in Week 1.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num o">P3</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e91">New Training Module: Complex Multi-Issue Calls</div>
+          <div class="action-detail" data-e="wl-e92">QA data this term shows the highest failure rate in multi-issue call management. New module to be developed in the first 4 weeks of next term. Delivery scheduled for Week 5.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num o">P4</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e93">FCR Improvement Campaign — [Specific Agents]</div>
+          <div class="action-detail" data-e="wl-e94">[X] agents ended this term below FCR target. Structured 4-week improvement plan with weekly evaluation and fortnightly coaching sessions to run from the start of next term.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <span class="action-num g">P5</span>
+        <div class="action-content">
+          <div class="action-title" data-e="wl-e95">Full Calibration Programme — Once QA Is in Post</div>
+          <div class="action-detail" data-e="wl-e96">Formalise weekly calibration sessions from Week 1 of QA's tenure. Build and publish the calibration schedule, sample call library, and scoring alignment log for the full next term.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--blackboard);border-radius:12px;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;margin-top:4px;">
+    <span style="font-size:28px;flex-shrink:0;">🌽</span>
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--progressive);margin-bottom:5px;">Closing Note — For the Record</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.75;">This report documents not just what was achieved, but how it was achieved — including the conditions under which the quality function operated. The work this term has been delivered. What this report makes clear is that it has been delivered by one person doing two jobs, and that the quality outcomes going forward depend on restoring that structure to what it was designed to be.</div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /content -->
+
+<script>
+function sw(i){
+  document.querySelectorAll('.tbtn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+<!-- EDIT MODE -->
+<style>
+body.edit-mode [data-e]{outline:2px dashed #FFB200;border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid #FF8C00;background:rgba(255,140,0,0.07);}
+#ebar{position:fixed;bottom:0;left:0;right:0;background:#FF8C00;padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+#ebar.on{display:flex;}
+#ebar .eb-l{font-size:13px;font-weight:700;color:white;}
+#ebar .eb-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:#BF6900;}
+.ebtn-x{background:rgba(255,255,255,.15);color:white;}
+#efab{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:#24631E;color:white;border:none;font-size:20px;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+#efab:hover{background:#3a7a34;}
+#emodal{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#emodal.hide{display:none;}
+.embox{background:white;border-radius:16px;padding:30px;max-width:320px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);}
+#epin{width:100%;padding:12px;border:2px solid #e4e2d8;border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;box-sizing:border-box;}
+#epin:focus{border-color:#24631E;}
+#epin.shake{animation:eshk .28s;}
+@keyframes eshk{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px);}}
+#eerr{font-size:12px;color:#c0392b;text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+.epri{width:100%;font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;padding:12px;border-radius:9px;border:none;background:#24631E;color:white;cursor:pointer;}
+.ecan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:9px;border-radius:9px;border:1px solid #e4e2d8;background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+</style>
+<div id="ebar">
+  <div class="eb-l">&#9998; Edit Mode active &mdash; click any highlighted text to edit</div>
+  <div class="eb-r">
+    <button class="ebtn ebtn-s" onclick="saveE()">&#128190; Save</button>
+    <button class="ebtn ebtn-s" onclick="exportE()">&#8595; Export</button>
+    <button class="ebtn ebtn-x" onclick="exitE()">&#10005; Exit</button>
+  </div>
+</div>
+<button id="efab" onclick="openEM()" title="Edit this document">&#9998;</button>
+<div id="emodal" class="hide">
+  <div class="embox">
+    <div style="font-size:30px;text-align:center;margin-bottom:10px;">&#9998;</div>
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px;">Edit Document</div>
+    <div style="font-size:12px;color:#888;text-align:center;margin-bottom:16px;">Enter the Admin PIN to unlock editing on this page</div>
+    <input id="epin" type="password" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
+    <div id="eerr"></div>
+    <button class="epri" onclick="tryE()">Unlock Editing</button>
+    <button class="ecan" onclick="closeEM()">Cancel</button>
+    <div style="font-size:10px;color:#ccc;text-align:center;margin-top:8px;">Admin PIN is managed in the Document Hub by the Q&amp;T Lead</div>
+  </div>
+</div>
+<script>
+(function(){
+  var EK="t2e_pin_admin", DF="admin9";
+  var SK="t2e_edits_"+location.pathname.split("/").pop();
+  function gp(){return localStorage.getItem(EK)||DF;}
+  function openEM(){document.getElementById("emodal").classList.remove("hide");setTimeout(function(){document.getElementById("epin").focus();},80);}
+  function closeEM(){document.getElementById("emodal").classList.add("hide");document.getElementById("epin").value="";document.getElementById("eerr").textContent="";}
+  function tryE(){
+    var v=document.getElementById("epin").value.trim();
+    if(v===gp()){closeEM();startE();}
+    else{var i=document.getElementById("epin");i.classList.add("shake");document.getElementById("eerr").textContent="Incorrect PIN.";i.value="";i.focus();}
+  }
+  function startE(){
+    document.body.classList.add("edit-mode");
+    document.getElementById("ebar").classList.add("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="true";});
+  }
+  function exitE(){
+    document.body.classList.remove("edit-mode");
+    document.getElementById("ebar").classList.remove("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="false";});
+  }
+  function saveE(){
+    var d={};
+    document.querySelectorAll("[data-e]").forEach(function(el){d[el.getAttribute("data-e")]=el.innerHTML;});
+    localStorage.setItem(SK,JSON.stringify(d));
+    st("Changes saved to this browser.","#24631E");
+  }
+  function exportE(){
+    saveE();
+    var h="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    var b=new Blob([h],{type:"text/html"});
+    var u=URL.createObjectURL(b);
+    var a=document.createElement("a");
+    a.href=u;a.download=location.pathname.split("/").pop().replace(".html","_edited.html");
+    a.click();URL.revokeObjectURL(u);
+    st("Exported with edits baked in.","#24631E");
+  }
+  function loadE(){
+    try{
+      var r=localStorage.getItem(SK);
+      if(!r)return;
+      var d=JSON.parse(r);
+      Object.keys(d).forEach(function(k){
+        var el=document.querySelector('[data-e="'+k+'"]');
+        if(el)el.innerHTML=d[k];
+      });
+    }catch(e){}
+  }
+  var et;
+  function st(msg,bg){
+    var t=document.getElementById("_est");
+    if(!t){t=document.createElement("div");t.id="_est";t.style.cssText="position:fixed;bottom:70px;right:22px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;color:white;z-index:10001;box-shadow:0 3px 14px rgba(0,0,0,.15);";document.body.appendChild(t);}
+    t.textContent=msg;t.style.background=bg;t.style.display="block";
+    clearTimeout(et);et=setTimeout(function(){t.style.display="none";},2800);
+  }
+  window.openEM=openEM;window.closeEM=closeEM;window.tryE=tryE;window.exitE=exitE;window.saveE=saveE;window.exportE=exportE;
+  document.getElementById("epin").addEventListener("keydown",function(e){if(e.key==="Enter")tryE();});
+  document.getElementById("epin").addEventListener("input",function(){this.classList.remove("shake");document.getElementById("eerr").textContent="";});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeEM();});
+  document.getElementById("emodal").addEventListener("click",function(ev){if(ev.target===this)closeEM();});
+  loadE();
+})();
+</script>
+
+</body>
+</html>

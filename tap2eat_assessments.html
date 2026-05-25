@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2Eat CX — Onboarding Assessments</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --blackboard:#1F1B1B;--sophisticated:#E5E5C9;
+  --gray-light:#f7f5ee;--gray-mid:#e4e2d8;
+  --red:#c0392b;--red-pale:#fdecea;
+  --purple:#6a1b9a;--purple-pale:#f3e8fd;
+  --teal:#00695c;--teal-pale:#e0f2f1;
+  --blue:#1565c0;--blue-pale:#e8eaf6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);}
+body.edit-mode [data-e]{outline:2px dashed var(--progressive);border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
+.ebar{position:fixed;bottom:0;left:0;right:0;background:var(--carrot);padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:900;}
+.ebar.on{display:flex;}
+.eb-l{font-size:13px;font-weight:700;color:white;}
+.eb-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:var(--carrot-d);}
+.ebtn-x{background:rgba(255,255,255,.15);color:white;}
+
+/* HEADER */
+.hdr{background:var(--leafy);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-in{max-width:860px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-l{display:flex;align-items:center;gap:10px;}
+.hicos{display:flex;gap:4px;}
+.hico{width:25px;height:25px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.hico.o{background:rgba(255,140,0,.25);}
+.hico.y{background:rgba(255,178,0,.25);}
+.hdr-txt .org{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.hdr-txt .ttl{font-size:13px;font-weight:800;color:white;}
+.hdr-r{display:flex;gap:7px;align-items:center;}
+.hbadge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;background:rgba(255,178,0,.18);color:var(--progressive);}
+.edit-btn{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:6px 13px;border-radius:16px;border:none;cursor:pointer;background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);}
+
+/* SELECTOR */
+.selector{background:var(--blackboard);padding:20px 24px;}
+.sel-in{max-width:860px;margin:0 auto;}
+.sel-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;}
+.ass-cards{display:flex;gap:10px;flex-wrap:wrap;}
+.ass-card{flex:1;min-width:140px;border-radius:10px;padding:12px 14px;cursor:pointer;border:2px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);transition:all .18s;}
+.ass-card:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.09);}
+.ass-card.active{border-color:var(--progressive);background:rgba(255,178,0,.12);}
+.ass-card .ac-num{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.4);margin-bottom:4px;}
+.ass-card .ac-name{font-size:12px;font-weight:700;color:white;line-height:1.3;}
+.ass-card .ac-qs{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;}
+.ass-card.active .ac-num{color:var(--progressive);}
+
+/* MAIN */
+.main{max-width:860px;margin:0 auto;padding:24px 24px 90px;}
+.panel{display:none;}
+.panel.on{display:block;}
+
+/* ASSESSMENT HEADER */
+.ass-header{border-radius:13px;padding:20px 24px;margin-bottom:16px;}
+.ah-num{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:5px;}
+.ah-title{font-size:22px;font-weight:800;color:white;margin-bottom:5px;}
+.ah-desc{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:12px;}
+.ah-meta{display:flex;gap:8px;flex-wrap:wrap;}
+.ah-m{font-size:11px;font-weight:600;padding:4px 11px;border-radius:12px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);}
+
+/* SCORE BAR */
+.score-bar{background:white;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;gap:0;box-shadow:0 2px 12px rgba(31,27,27,.07);}
+.sb-cell{flex:1;text-align:center;border-right:1px solid var(--gray-mid);}
+.sb-cell:last-child{border-right:none;}
+.sb-num{font-size:24px;font-weight:800;}
+.sb-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#aaa;margin-top:2px;}
+.progress-track{height:8px;background:var(--gray-mid);border-radius:4px;margin:10px 0 0;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s,background .3s;}
+
+/* QUESTION BLOCKS */
+.q-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:12px 20px 8px;border-bottom:1px solid var(--gray-light);}
+.q-block{padding:14px 20px;border-bottom:1px solid var(--gray-light);}
+.q-block:last-child{border-bottom:none;}
+.q-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;color:white;font-size:10px;font-weight:700;margin-right:6px;flex-shrink:0;}
+.q-text{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:flex-start;}
+.q-options{display:flex;flex-direction:column;gap:5px;margin-left:28px;}
+.q-opt{display:flex;gap:8px;align-items:flex-start;padding:8px 11px;border-radius:7px;background:var(--gray-light);border:1.5px solid transparent;cursor:pointer;font-size:12px;line-height:1.5;transition:all .14s;}
+.q-opt:hover{border-color:var(--progressive);background:#fff8e1;}
+.q-opt.selected{border-color:var(--progressive);background:#fff8e1;}
+.q-opt.correct{border-color:var(--leafy)!important;background:var(--leafy-pale)!important;}
+.q-opt.wrong{border-color:var(--red)!important;background:var(--red-pale)!important;}
+.opt-letter{min-width:20px;height:20px;border-radius:5px;background:var(--gray-mid);color:var(--blackboard);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:background .14s;}
+.q-opt.selected .opt-letter{background:var(--progressive);color:var(--blackboard);}
+.q-opt.correct .opt-letter{background:var(--leafy);color:white;}
+.q-opt.wrong .opt-letter{background:var(--red);color:white;}
+.q-explain{margin:8px 0 0 28px;font-size:11px;background:var(--leafy-pale);border-left:3px solid var(--leafy);border-radius:0 6px 6px 0;padding:7px 10px;color:var(--leafy);line-height:1.55;display:none;}
+.show-key .q-explain{display:block;}
+.show-key .q-opt.correct{border-color:var(--leafy)!important;background:var(--leafy-pale)!important;}
+.show-key .q-opt.correct .opt-letter{background:var(--leafy);color:white;}
+.crit-tag{font-size:9px;background:var(--red-pale);color:var(--red);padding:1px 6px;border-radius:3px;margin-left:6px;font-weight:700;vertical-align:middle;}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;padding:16px 20px;}
+.btn-submit{font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;padding:11px 24px;border-radius:10px;border:none;background:var(--leafy);color:white;cursor:pointer;}
+.btn-key{font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;padding:11px 24px;border-radius:10px;border:1.5px solid var(--gray-mid);background:none;color:var(--blackboard);cursor:pointer;}
+.btn-reset{font-family:'Rubik',sans-serif;font-size:13px;font-weight:600;padding:11px 24px;border-radius:10px;border:1.5px solid var(--gray-mid);background:none;color:#888;cursor:pointer;}
+.btn-submit:hover{background:var(--leafy-mid);}
+.btn-key:hover{background:var(--gray-light);}
+
+/* RESULT CARD */
+.result-card{border-radius:12px;padding:20px 24px;margin:16px 20px;text-align:center;}
+.rc-pass{background:var(--leafy-pale);border:1.5px solid var(--leafy);}
+.rc-fail{background:var(--red-pale);border:1.5px solid #ffcdd2;}
+.rc-score{font-size:36px;font-weight:900;margin-bottom:4px;}
+.rc-score.pass{color:var(--leafy);}
+.rc-score.fail{color:var(--red);}
+.rc-label{font-size:12px;font-weight:600;color:#666;}
+.rc-verdict{font-size:14px;font-weight:700;margin-top:8px;}
+
+/* CARD WRAPPER */
+.card{background:white;border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 14px rgba(31,27,27,.07);}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.mbg.hide{display:none;}
+.mbox{background:white;border-radius:16px;padding:28px;max-width:330px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);}
+.mico{font-size:32px;text-align:center;margin-bottom:10px;}
+.mttl{font-size:18px;font-weight:800;text-align:center;margin-bottom:4px;}
+.msub{font-size:12px;color:#888;text-align:center;margin-bottom:16px;}
+.minput{width:100%;padding:12px;border:2px solid var(--gray-mid);border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;}
+.minput:focus{border-color:var(--leafy);}
+.minput.shake{animation:shk .28s;}
+@keyframes shk{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px)};}
+.merr{font-size:12px;color:var(--red);text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+.mpri{width:100%;font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;padding:11px;border-radius:9px;border:none;background:var(--leafy);color:white;cursor:pointer;}
+.mcan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:8px;border-radius:9px;border:1px solid var(--gray-mid);background:none;color:#aaa;cursor:pointer;margin-top:6px;}
+
+.footer{background:var(--blackboard);padding:16px 24px;text-align:center;}
+.footer p{font-size:11px;color:rgba(255,255,255,.27);}
+.footer strong{color:var(--progressive);}
+
+@media(max-width:640px){.hdr-in,.main{padding-left:16px;padding-right:16px;}.ass-cards{flex-direction:column;}.score-bar{flex-wrap:wrap;}.sb-cell{min-width:50%;border-right:none;border-bottom:1px solid var(--gray-mid);padding-bottom:8px;margin-bottom:8px;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-l">
+      <div class="hicos"><div class="hico o">📋</div><div class="hico y">🌱</div></div>
+      <div class="hdr-txt">
+        <div class="org">Food4Education · Tap2Eat</div>
+        <div class="ttl">Onboarding Assessments — CX Team</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <span class="hbadge">🟡 Agent Access</span>
+      <button class="edit-btn" onclick="openEditModal()">✏️ Edit</button>
+    </div>
+  </div>
+</header>
+
+<!-- ASSESSMENT SELECTOR -->
+<div class="selector">
+  <div class="sel-in">
+    <div class="sel-label">Select Assessment</div>
+    <div class="ass-cards">
+      <div class="ass-card active" onclick="selAss(0)" id="ac-0">
+        <div class="ac-num">Assessment A</div>
+        <div class="ac-name">Programme &amp; Product Knowledge</div>
+        <div class="ac-qs">15 questions · Pass: 80%</div>
+      </div>
+      <div class="ass-card" onclick="selAss(1)" id="ac-1">
+        <div class="ac-num">Assessment B</div>
+        <div class="ac-name">Communication &amp; Call Standards</div>
+        <div class="ac-qs">15 questions · Pass: 80%</div>
+      </div>
+      <div class="ass-card" onclick="selAss(2)" id="ac-2">
+        <div class="ac-num">Assessment C</div>
+        <div class="ac-name">CRM &amp; Data Management</div>
+        <div class="ac-qs">15 questions · Pass: 80%</div>
+      </div>
+      <div class="ass-card" onclick="selAss(3)" id="ac-3">
+        <div class="ac-num">Assessment D</div>
+        <div class="ac-name">Scenarios &amp; Problem-Solving</div>
+        <div class="ac-qs">15 questions · Pass: 80%</div>
+      </div>
+      <div class="ass-card" onclick="selAss(4)" id="ac-4">
+        <div class="ac-num">Assessment E</div>
+        <div class="ac-name">Quality Standards &amp; Compliance</div>
+        <div class="ac-qs">15 questions · Pass: 80%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ════════ ASSESSMENT A — PROGRAMME KNOWLEDGE ════════ -->
+<div class="panel on" id="p0">
+  <div class="ass-header" style="background:var(--leafy);">
+    <div class="ah-num">Assessment A · Programme & Product Knowledge</div>
+    <div class="ah-title">Tap2Eat Programme Foundations</div>
+    <div class="ah-desc">Tests your knowledge of Food4Education's mission, how the Tap2Eat programme works, and your role in supporting parents and schools. You must know the programme inside out before your first live call.</div>
+    <div class="ah-meta"><span class="ah-m">15 Questions</span><span class="ah-m">Pass: 12/15 (80%)</span><span class="ah-m">30 Minutes</span></div>
+  </div>
+  <div class="card">
+    <div class="score-bar" id="sba">
+      <div class="sb-cell"><div class="sb-num" id="sba-score">–</div><div class="sb-label">Score</div></div>
+      <div class="sb-cell"><div class="sb-num" id="sba-pct">–</div><div class="sb-label">Percentage</div></div>
+      <div class="sb-cell"><div class="sb-num" id="sba-ans">0</div><div class="sb-label">Answered</div></div>
+      <div class="sb-cell"><div class="sb-num" id="sba-left">15</div><div class="sb-label">Remaining</div></div>
+    </div>
+    <div class="progress-track" style="margin:0 20px 14px;"><div class="progress-fill" id="pba" style="width:0%;background:var(--leafy);"></div></div>
+
+    <div class="q-section-label" style="color:var(--leafy);">Section 1 — The Organisation & Programme (Q1–5)</div>
+
+    <div class="q-block" id="a-q1">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">1</span>&nbsp;Food4Education's primary mission is to:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q1','A')"><span class="opt-letter">A</span>Provide scholarships to university students across East Africa</div>
+        <div class="q-opt correct" onclick="pick('a','q1','B')"><span class="opt-letter">B</span>Ensure schoolchildren receive nutritious, affordable meals through technology-enabled meal programmes</div>
+        <div class="q-opt" onclick="pick('a','q1','C')"><span class="opt-letter">C</span>Train teachers in digital literacy across Kenya</div>
+        <div class="q-opt" onclick="pick('a','q1','D')"><span class="opt-letter">D</span>Distribute food packages directly to families in low-income areas</div>
+      </div>
+      <div class="q-explain">B is correct. Food4Education exists to ensure every child in school has access to nutritious, affordable meals. Tap2Eat is the technology platform that makes that payment and management system accessible to parents and schools.</div>
+    </div>
+
+    <div class="q-block" id="a-q2">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">2</span>&nbsp;Tap2Eat enables parents to:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q2','A')"><span class="opt-letter">A</span>Order food to be delivered to their home</div>
+        <div class="q-opt" onclick="pick('a','q2','B')"><span class="opt-letter">B</span>Pay school fees directly to the Ministry of Education</div>
+        <div class="q-opt correct" onclick="pick('a','q2','C')"><span class="opt-letter">C</span>Pay for and manage their child's school meal account digitally</div>
+        <div class="q-opt" onclick="pick('a','q2','D')"><span class="opt-letter">D</span>Track their child's academic performance online</div>
+      </div>
+      <div class="q-explain">C is correct. Tap2Eat is the parent-facing service that allows payment, account management, and communication around school meals.</div>
+    </div>
+
+    <div class="q-block" id="a-q3">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">3</span>&nbsp;A parent's meal account balance is deducted:</div>
+      <div class="q-options">
+        <div class="q-opt correct" onclick="pick('a','q3','A')"><span class="opt-letter">A</span>Per meal served to the child at school, based on confirmed delivery</div>
+        <div class="q-opt" onclick="pick('a','q3','B')"><span class="opt-letter">B</span>At the start of every school term as a lump sum</div>
+        <div class="q-opt" onclick="pick('a','q3','C')"><span class="opt-letter">C</span>Daily, regardless of whether the child attends school</div>
+        <div class="q-opt" onclick="pick('a','q3','D')"><span class="opt-letter">D</span>Only when the parent manually approves each transaction</div>
+      </div>
+      <div class="q-explain">A is correct. The balance is deducted per meal actually served and confirmed. This is why delivery confirmation and CRM logging are critical.</div>
+    </div>
+
+    <div class="q-block" id="a-q4">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">4</span>&nbsp;The Food4Education Warehouse (where you work) is located in:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q4','A')"><span class="opt-letter">A</span>Nairobi CBD, Kenya</div>
+        <div class="q-opt correct" onclick="pick('a','q4','B')"><span class="opt-letter">B</span>Ruiru, Kenya</div>
+        <div class="q-opt" onclick="pick('a','q4','C')"><span class="opt-letter">C</span>Mombasa, Kenya</div>
+        <div class="q-opt" onclick="pick('a','q4','D')"><span class="opt-letter">D</span>Kisumu, Kenya</div>
+      </div>
+      <div class="q-explain">B is correct. The Food4Education Warehouse is in Ruiru, Kenya.</div>
+    </div>
+
+    <div class="q-block" id="a-q5">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">5</span>&nbsp;Your role in the Tap2Eat CX team is primarily to:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q5','A')"><span class="opt-letter">A</span>Prepare and deliver school meals to partner schools</div>
+        <div class="q-opt" onclick="pick('a','q5','B')"><span class="opt-letter">B</span>Manage the financial accounts of partner schools</div>
+        <div class="q-opt correct" onclick="pick('a','q5','C')"><span class="opt-letter">C</span>Handle parent and school enquiries, resolve issues, and ensure a high-quality service experience</div>
+        <div class="q-opt" onclick="pick('a','q5','D')"><span class="opt-letter">D</span>Recruit new schools to join the programme</div>
+      </div>
+      <div class="q-explain">C is correct. CX agents are the human face of the programme for parents and schools — your role is service, resolution, and quality.</div>
+    </div>
+
+    <div class="q-section-label" style="color:var(--leafy);">Section 2 — Common Contact Scenarios (Q6–10)</div>
+
+    <div class="q-block" id="a-q6">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">6</span>&nbsp;A parent says their mobile money payment went through but their account balance has not updated. Your first step is:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q6','A')"><span class="opt-letter">A</span>Tell them payments take 24 hours and to call back tomorrow</div>
+        <div class="q-opt correct" onclick="pick('a','q6','B')"><span class="opt-letter">B</span>Verify their identity, pull up their CRM record, and check the payment log and account status</div>
+        <div class="q-opt" onclick="pick('a','q6','C')"><span class="opt-letter">C</span>Ask them to send a screenshot of the payment via WhatsApp</div>
+        <div class="q-opt" onclick="pick('a','q6','D')"><span class="opt-letter">D</span>Escalate immediately to the Team Lead</div>
+      </div>
+      <div class="q-explain">B is correct. Always verify and check CRM first before giving any advice or escalating. The answer may already be visible in the system.</div>
+    </div>
+
+    <div class="q-block" id="a-q7">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">7</span>&nbsp;A parent wants to transfer their child to a different school. You should:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q7','A')"><span class="opt-letter">A</span>Tell them to go to the school directly</div>
+        <div class="q-opt correct" onclick="pick('a','q7','B')"><span class="opt-letter">B</span>Follow the school transfer SOP: verify identity, confirm new school details, update CRM, and confirm the change with the parent</div>
+        <div class="q-opt" onclick="pick('a','q7','C')"><span class="opt-letter">C</span>Escalate to the Team Lead immediately</div>
+        <div class="q-opt" onclick="pick('a','q7','D')"><span class="opt-letter">D</span>Ask them to email their request</div>
+      </div>
+      <div class="q-explain">B is correct. School transfers are a standard agent-level task — follow the SOP, update CRM accurately, and confirm with the parent.</div>
+    </div>
+
+    <div class="q-block" id="a-q8">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">8</span>&nbsp;What is First Call Resolution (FCR)?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q8','A')"><span class="opt-letter">A</span>The number of calls answered per hour</div>
+        <div class="q-opt" onclick="pick('a','q8','B')"><span class="opt-letter">B</span>Whether the agent picks up within 3 rings</div>
+        <div class="q-opt correct" onclick="pick('a','q8','C')"><span class="opt-letter">C</span>Whether a parent's issue is fully resolved on the first contact without needing to call back</div>
+        <div class="q-opt" onclick="pick('a','q8','D')"><span class="opt-letter">D</span>Whether the agent follows the opening script correctly</div>
+      </div>
+      <div class="q-explain">C is correct. FCR measures whether the issue was resolved in one contact. A callback for the same issue counts as a failed FCR.</div>
+    </div>
+
+    <div class="q-block" id="a-q9">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">9</span>&nbsp;The Tap2Eat AHT (Average Handle Time) target per call is:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q9','A')"><span class="opt-letter">A</span>60 seconds</div>
+        <div class="q-opt" onclick="pick('a','q9','B')"><span class="opt-letter">B</span>120 seconds</div>
+        <div class="q-opt correct" onclick="pick('a','q9','C')"><span class="opt-letter">C</span>180 seconds</div>
+        <div class="q-opt" onclick="pick('a','q9','D')"><span class="opt-letter">D</span>300 seconds</div>
+      </div>
+      <div class="q-explain">C is correct. The AHT target is ≤180 seconds (3 minutes), including talk time and wrap-up.</div>
+    </div>
+
+    <div class="q-block" id="a-q10">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">10</span>&nbsp;Which of these is NOT one of the contact channels handled by the Tap2Eat CX team?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q10','A')"><span class="opt-letter">A</span>Inbound phone calls</div>
+        <div class="q-opt" onclick="pick('a','q10','B')"><span class="opt-letter">B</span>WhatsApp messages</div>
+        <div class="q-opt correct" onclick="pick('a','q10','C')"><span class="opt-letter">C</span>In-person visits at the warehouse</div>
+        <div class="q-opt" onclick="pick('a','q10','D')"><span class="opt-letter">D</span>SMS and email</div>
+      </div>
+      <div class="q-explain">C is correct. The CX team handles voice, WhatsApp, SMS, and email. In-person visits are not a CX service channel.</div>
+    </div>
+
+    <div class="q-section-label" style="color:var(--leafy);">Section 3 — Policies & Responsibilities (Q11–15)</div>
+
+    <div class="q-block" id="a-q11">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">11</span>&nbsp;Before you can access any parent's account information, you must:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q11','A')"><span class="opt-letter">A</span>Ask the parent for their full name</div>
+        <div class="q-opt correct" onclick="pick('a','q11','B')"><span class="opt-letter">B</span>Verify their identity using two approved verification methods</div>
+        <div class="q-opt" onclick="pick('a','q11','C')"><span class="opt-letter">C</span>Ask them to send a photo ID</div>
+        <div class="q-opt" onclick="pick('a','q11','D')"><span class="opt-letter">D</span>Get permission from the Team Lead first</div>
+      </div>
+      <div class="q-explain">B is correct. Two-factor verification is mandatory before accessing any account. This is a critical compliance requirement.</div>
+    </div>
+
+    <div class="q-block" id="a-q12">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">12</span>&nbsp;You accidentally gave a parent incorrect information about their account balance. You should:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q12','A')"><span class="opt-letter">A</span>Hope they don't call back</div>
+        <div class="q-opt" onclick="pick('a','q12','B')"><span class="opt-letter">B</span>Wait to see if it causes a problem before acting</div>
+        <div class="q-opt correct" onclick="pick('a','q12','C')"><span class="opt-letter">C</span>Correct the information immediately — call the parent back if necessary, update CRM, and inform your Team Lead</div>
+        <div class="q-opt" onclick="pick('a','q12','D')"><span class="opt-letter">D</span>Ask a colleague to handle the callback so you're not involved</div>
+      </div>
+      <div class="q-explain">C is correct. Own the error immediately. Correct the information, update CRM, and inform your Team Lead. Accountability is a core value of this team.</div>
+    </div>
+
+    <div class="q-block" id="a-q13">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">13</span>&nbsp;What is the CRM Data Accuracy target for the Tap2Eat CX team?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q13','A')"><span class="opt-letter">A</span>80%</div>
+        <div class="q-opt" onclick="pick('a','q13','B')"><span class="opt-letter">B</span>90%</div>
+        <div class="q-opt" onclick="pick('a','q13','C')"><span class="opt-letter">C</span>95%</div>
+        <div class="q-opt correct" onclick="pick('a','q13','D')"><span class="opt-letter">D</span>98%</div>
+      </div>
+      <div class="q-explain">D is correct. CRM Data Accuracy must be ≥98%. This metric is audited weekly by the QA Assessor.</div>
+    </div>
+
+    <div class="q-block" id="a-q14">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">14</span>&nbsp;The QA Scorecard minimum pass mark for agents is:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q14','A')"><span class="opt-letter">A</span>70%</div>
+        <div class="q-opt" onclick="pick('a','q14','B')"><span class="opt-letter">B</span>80%</div>
+        <div class="q-opt correct" onclick="pick('a','q14','C')"><span class="opt-letter">C</span>95%</div>
+        <div class="q-opt" onclick="pick('a','q14','D')"><span class="opt-letter">D</span>100%</div>
+      </div>
+      <div class="q-explain">C is correct. The QA score target is ≥95%. Scores below 90% trigger a coaching session with the QA Assessor.</div>
+    </div>
+
+    <div class="q-block" id="a-q15">
+      <div class="q-text"><span class="q-num" style="background:var(--leafy);">15</span>&nbsp;Who is responsible for the Quality &amp; Training function at Tap2Eat CX?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('a','q15','A')"><span class="opt-letter">A</span>The CX Team Lead</div>
+        <div class="q-opt" onclick="pick('a','q15','B')"><span class="opt-letter">B</span>The Technical Operations Manager</div>
+        <div class="q-opt correct" onclick="pick('a','q15','C')"><span class="opt-letter">C</span>The Quality &amp; Training Lead, supported by the QA Assessor</div>
+        <div class="q-opt" onclick="pick('a','q15','D')"><span class="opt-letter">D</span>The People Team</div>
+      </div>
+      <div class="q-explain">C is correct. The Quality & Training Lead owns the QA framework and training delivery. The QA Assessor handles daily evaluations and first-pass coaching.</div>
+    </div>
+
+    <div id="result-a"></div>
+    <div class="btn-row">
+      <button class="btn-submit" onclick="submit('a',15)">Submit Assessment</button>
+      <button class="btn-key" onclick="toggleKey('a')">Show Answer Key</button>
+      <button class="btn-reset" onclick="resetAss('a',15)">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ASSESSMENT B — COMMUNICATION & CALL STANDARDS ════════ -->
+<div class="panel" id="p1">
+  <div class="ass-header" style="background:var(--carrot);">
+    <div class="ah-num">Assessment B · Communication & Call Standards</div>
+    <div class="ah-title">Call Handling &amp; Communication Skills</div>
+    <div class="ah-desc">Tests your understanding of professional communication standards, call structure, tone, empathy, and how to handle different types of caller situations.</div>
+    <div class="ah-meta"><span class="ah-m">15 Questions</span><span class="ah-m">Pass: 12/15 (80%)</span><span class="ah-m">25 Minutes</span></div>
+  </div>
+  <div class="card">
+    <div class="score-bar" id="sbb"><div class="sb-cell"><div class="sb-num" id="sbb-score">–</div><div class="sb-label">Score</div></div><div class="sb-cell"><div class="sb-num" id="sbb-pct">–</div><div class="sb-label">Percentage</div></div><div class="sb-cell"><div class="sb-num" id="sbb-ans">0</div><div class="sb-label">Answered</div></div><div class="sb-cell"><div class="sb-num" id="sbb-left">15</div><div class="sb-label">Remaining</div></div></div>
+    <div class="progress-track" style="margin:0 20px 14px;"><div class="progress-fill" id="pbb" style="width:0%;background:var(--carrot);"></div></div>
+
+    <div class="q-section-label" style="color:var(--carrot-d);">Opening & Structure (Q1–4)</div>
+
+    <div class="q-block" id="b-q1">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">1</span>&nbsp;Which greeting correctly follows the Tap2Eat standard opening procedure?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q1','A')"><span class="opt-letter">A</span>"Hello, how can I help?"</div>
+        <div class="q-opt correct" onclick="pick('b','q1','B')"><span class="opt-letter">B</span>"Good morning/afternoon, thank you for calling Tap2Eat. My name is [Name] — how may I assist you today?"</div>
+        <div class="q-opt" onclick="pick('b','q1','C')"><span class="opt-letter">C</span>"Tap2Eat, speak."</div>
+        <div class="q-opt" onclick="pick('b','q1','D')"><span class="opt-letter">D</span>"Hi this is [Name], what's your problem?"</div>
+      </div>
+      <div class="q-explain">B is correct. The opening must include: time-of-day greeting, programme name, your name, and an offer to assist — in that order.</div>
+    </div>
+
+    <div class="q-block" id="b-q2">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">2</span>&nbsp;An angry parent starts shouting. The correct approach is:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q2','A')"><span class="opt-letter">A</span>Raise your voice to match their urgency</div>
+        <div class="q-opt" onclick="pick('b','q2','B')"><span class="opt-letter">B</span>Place them on hold until they calm down</div>
+        <div class="q-opt correct" onclick="pick('b','q2','C')"><span class="opt-letter">C</span>Stay calm, lower your tone, acknowledge their frustration, then move to resolution</div>
+        <div class="q-opt" onclick="pick('b','q2','D')"><span class="opt-letter">D</span>Warn them you will end the call if they continue</div>
+      </div>
+      <div class="q-explain">C is correct. De-escalation requires a calm, lower tone. Acknowledge the emotion before solving the problem.</div>
+    </div>
+
+    <div class="q-block" id="b-q3">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">3</span>&nbsp;You should place a parent on hold when:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q3','A')"><span class="opt-letter">A</span>You need a moment to think</div>
+        <div class="q-opt correct" onclick="pick('b','q3','B')"><span class="opt-letter">B</span>You need to check a resource — after asking permission and giving an estimated wait time</div>
+        <div class="q-opt" onclick="pick('b','q3','C')"><span class="opt-letter">C</span>The call is approaching 180 seconds</div>
+        <div class="q-opt" onclick="pick('b','q3','D')"><span class="opt-letter">D</span>The parent sounds confused</div>
+      </div>
+      <div class="q-explain">B is correct. Holds require: reason + parent's permission + estimated wait time. Never hold to manage AHT.</div>
+    </div>
+
+    <div class="q-block" id="b-q4">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">4</span>&nbsp;Which is an example of an empathetic statement?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q4','A')"><span class="opt-letter">A</span>"That's not our fault."</div>
+        <div class="q-opt" onclick="pick('b','q4','B')"><span class="opt-letter">B</span>"I understand your issue but the system shows otherwise."</div>
+        <div class="q-opt correct" onclick="pick('b','q4','C')"><span class="opt-letter">C</span>"I completely understand how frustrating that must be — let me look into this for you right now."</div>
+        <div class="q-opt" onclick="pick('b','q4','D')"><span class="opt-letter">D</span>"You should have checked your account earlier."</div>
+      </div>
+      <div class="q-explain">C is correct. Empathy validates the feeling before jumping to the solution. "Right now" signals urgency and care.</div>
+    </div>
+
+    <div class="q-section-label" style="color:var(--carrot-d);">Difficult Callers (Q5–8)</div>
+
+    <div class="q-block" id="b-q5">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">5</span>&nbsp;A parent says they want to speak to a manager immediately. You should:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q5','A')"><span class="opt-letter">A</span>Transfer immediately without attempting to help</div>
+        <div class="q-opt correct" onclick="pick('b','q5','B')"><span class="opt-letter">B</span>Acknowledge the request, attempt to resolve the issue yourself first, and escalate only if unresolved</div>
+        <div class="q-opt" onclick="pick('b','q5','C')"><span class="opt-letter">C</span>Tell them no manager is available today</div>
+        <div class="q-opt" onclick="pick('b','q5','D')"><span class="opt-letter">D</span>Ask them to call back later</div>
+      </div>
+      <div class="q-explain">B is correct. A request for management does not automatically trigger escalation. Attempt resolution first — most issues can be solved at agent level.</div>
+    </div>
+
+    <div class="q-block" id="b-q6">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">6</span>&nbsp;A parent contacts you in Kiswahili. You are most comfortable in English. You should:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q6','A')"><span class="opt-letter">A</span>Reply only in English</div>
+        <div class="q-opt" onclick="pick('b','q6','B')"><span class="opt-letter">B</span>Ask them to call back when a Kiswahili agent is available</div>
+        <div class="q-opt correct" onclick="pick('b','q6','C')"><span class="opt-letter">C</span>Respond bilingually or hand over to a bilingual colleague — informing the parent</div>
+        <div class="q-opt" onclick="pick('b','q6','D')"><span class="opt-letter">D</span>Ask them to resend in English</div>
+      </div>
+      <div class="q-explain">C is correct. Language must never be a barrier. Make every effort to serve in the parent's preferred language.</div>
+    </div>
+
+    <div class="q-block" id="b-q7">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">7</span>&nbsp;A caller becomes extremely rude and begins using abusive language. You should:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q7','A')"><span class="opt-letter">A</span>Hang up immediately</div>
+        <div class="q-opt" onclick="pick('b','q7','B')"><span class="opt-letter">B</span>Respond with equal directness to assert yourself</div>
+        <div class="q-opt correct" onclick="pick('b','q7','C')"><span class="opt-letter">C</span>Calmly advise the caller that you want to help but need the conversation to remain respectful, then escalate if it continues</div>
+        <div class="q-opt" onclick="pick('b','q7','D')"><span class="opt-letter">D</span>Put them on hold indefinitely</div>
+      </div>
+      <div class="q-explain">C is correct. Set a boundary calmly and professionally. Escalate to the Team Lead if abuse continues — but never match the caller's tone.</div>
+    </div>
+
+    <div class="q-block" id="b-q8">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">8</span>&nbsp;What is "dead air" and why must it be avoided?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q8','A')"><span class="opt-letter">A</span>When the call recording stops — it means the call wasn't logged</div>
+        <div class="q-opt correct" onclick="pick('b','q8','B')"><span class="opt-letter">B</span>Unnecessary silence during a call — it makes the parent feel ignored and increases AHT without adding value</div>
+        <div class="q-opt" onclick="pick('b','q8','C')"><span class="opt-letter">C</span>When both parties speak at the same time</div>
+        <div class="q-opt" onclick="pick('b','q8','D')"><span class="opt-letter">D</span>The silent hold period while you transfer a call</div>
+      </div>
+      <div class="q-explain">B is correct. Dead air is unannounced silence that leaves the parent unsure if you are still there. Fill it with brief narration ("I'm just checking that for you now").</div>
+    </div>
+
+    <div class="q-section-label" style="color:var(--carrot-d);">Chat & Written Standards (Q9–12)</div>
+
+    <div class="q-block" id="b-q9">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">9</span>&nbsp;The WhatsApp response time target during business hours is:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q9','A')"><span class="opt-letter">A</span>2 hours</div>
+        <div class="q-opt" onclick="pick('b','q9','B')"><span class="opt-letter">B</span>1 hour</div>
+        <div class="q-opt correct" onclick="pick('b','q9','C')"><span class="opt-letter">C</span>30 minutes</div>
+        <div class="q-opt" onclick="pick('b','q9','D')"><span class="opt-letter">D</span>15 minutes</div>
+      </div>
+      <div class="q-explain">C is correct. All chat messages must be acknowledged within 30 minutes during business hours (8am–5pm).</div>
+    </div>
+
+    <div class="q-block" id="b-q10">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">10</span>&nbsp;Which of these is acceptable in a WhatsApp message to a parent?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q10','A')"><span class="opt-letter">A</span>"pls send ur details so we can help asap 🙏😊😊"</div>
+        <div class="q-opt" onclick="pick('b','q10','B')"><span class="opt-letter">B</span>"PLEASE CONFIRM YOUR ACCOUNT NUMBER IMMEDIATELY"</div>
+        <div class="q-opt correct" onclick="pick('b','q10','C')"><span class="opt-letter">C</span>"Good afternoon, [Name]. To assist you securely, could you please confirm the phone number registered on your account? 😊"</div>
+        <div class="q-opt" onclick="pick('b','q10','D')"><span class="opt-letter">D</span>"hi wht's the issue"</div>
+      </div>
+      <div class="q-explain">C is correct. Complete sentence, parent's name, professional tone, clear request, and one emoji used warmly. All other options violate chat standards.</div>
+    </div>
+
+    <div class="q-block" id="b-q11">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">11</span>&nbsp;Email responses must be sent within:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q11','A')"><span class="opt-letter">A</span>30 minutes</div>
+        <div class="q-opt" onclick="pick('b','q11','B')"><span class="opt-letter">B</span>4 hours</div>
+        <div class="q-opt correct" onclick="pick('b','q11','C')"><span class="opt-letter">C</span>24 business hours (4 hours for urgent emails)</div>
+        <div class="q-opt" onclick="pick('b','q11','D')"><span class="opt-letter">D</span>48 hours</div>
+      </div>
+      <div class="q-explain">C is correct. Standard email: ≤24 business hours. Urgent emails (payment failure, complaints, account suspension): ≤4 hours.</div>
+    </div>
+
+    <div class="q-block" id="b-q12">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">12</span>&nbsp;You receive an email from a parent threatening legal action. You should:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q12','A')"><span class="opt-letter">A</span>Draft a firm but polite reply and send it</div>
+        <div class="q-opt" onclick="pick('b','q12','B')"><span class="opt-letter">B</span>Ignore it and see if they follow up</div>
+        <div class="q-opt correct" onclick="pick('b','q12','C')"><span class="opt-letter">C</span>Forward it immediately to the Team Lead — do not respond without approval</div>
+        <div class="q-opt" onclick="pick('b','q12','D')"><span class="opt-letter">D</span>Ask a colleague to reply on your behalf</div>
+      </div>
+      <div class="q-explain">C is correct. Legal threats are an immediate escalation. Never respond to legal, media, or data-breach emails without Team Lead approval.</div>
+    </div>
+
+    <div class="q-section-label" style="color:var(--carrot-d);">Closing & Wrap-Up (Q13–15)</div>
+
+    <div class="q-block" id="b-q13">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">13</span>&nbsp;Before closing a call, you must:</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q13','A')"><span class="opt-letter">A</span>Ask the parent to rate the call before hanging up</div>
+        <div class="q-opt correct" onclick="pick('b','q13','B')"><span class="opt-letter">B</span>Confirm the issue is resolved, offer further assistance, and close warmly</div>
+        <div class="q-opt" onclick="pick('b','q13','C')"><span class="opt-letter">C</span>Tell the parent their call has been recorded for quality purposes</div>
+        <div class="q-opt" onclick="pick('b','q13','D')"><span class="opt-letter">D</span>Ask them to call back if the issue recurs</div>
+      </div>
+      <div class="q-explain">B is correct. The closing must confirm resolution, offer further help, and close warmly — every time. Never end a call abruptly.</div>
+    </div>
+
+    <div class="q-block" id="b-q14">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">14</span>&nbsp;CRM wrap-up after a call must be completed:</div>
+      <div class="q-options">
+        <div class="q-opt correct" onclick="pick('b','q14','A')"><span class="opt-letter">A</span>Immediately after the call, before accepting the next interaction</div>
+        <div class="q-opt" onclick="pick('b','q14','B')"><span class="opt-letter">B</span>Within 30 minutes of the call</div>
+        <div class="q-opt" onclick="pick('b','q14','C')"><span class="opt-letter">C</span>At the end of each shift</div>
+        <div class="q-opt" onclick="pick('b','q14','D')"><span class="opt-letter">D</span>Only if the issue was resolved</div>
+      </div>
+      <div class="q-explain">A is correct. CRM must be logged before the next call. Batching logs is a data integrity failure and impacts your CRM accuracy score.</div>
+    </div>
+
+    <div class="q-block" id="b-q15">
+      <div class="q-text"><span class="q-num" style="background:var(--carrot);">15</span>&nbsp;Which of these is the correct approved call closing?</div>
+      <div class="q-options">
+        <div class="q-opt" onclick="pick('b','q15','A')"><span class="opt-letter">A</span>"OK bye." [hangs up]</div>
+        <div class="q-opt" onclick="pick('b','q15','B')"><span class="opt-letter">B</span>"Is that all? OK thanks." [hangs up]</div>
+        <div class="q-opt correct" onclick="pick('b','q15','C')"><span class="opt-letter">C</span>"Is there anything else I can help you with today? … Thank you for calling Tap2Eat, [Name]. Have a lovely day."</div>
+        <div class="q-opt" onclick="pick('b','q15','D')"><span class="opt-letter">D</span>"The issue has been noted. Goodbye."</div>
+      </div>
+      <div class="q-explain">C is correct. The closing must include an offer of further help, a thank you, the parent's name, and a warm farewell.</div>
+    </div>
+
+    <div id="result-b"></div>
+    <div class="btn-row">
+      <button class="btn-submit" onclick="submit('b',15)">Submit Assessment</button>
+      <button class="btn-key" onclick="toggleKey('b')">Show Answer Key</button>
+      <button class="btn-reset" onclick="resetAss('b',15)">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ASSESSMENT C — CRM & DATA ════════ -->
+<div class="panel" id="p2">
+  <div class="ass-header" style="background:var(--teal);">
+    <div class="ah-num">Assessment C · CRM & Data Management</div>
+    <div class="ah-title">CRM Accuracy &amp; Data Entry</div>
+    <div class="ah-desc">Tests your knowledge of correct CRM procedures, data entry standards, and what accurate record-keeping looks like in practice. Poor data has real consequences — this assessment ensures you take it seriously.</div>
+    <div class="ah-meta"><span class="ah-m">15 Questions</span><span class="ah-m">Pass: 12/15 (80%)</span><span class="ah-m">25 Minutes</span></div>
+  </div>
+  <div class="card">
+    <div class="score-bar" id="sbc"><div class="sb-cell"><div class="sb-num" id="sbc-score">–</div><div class="sb-label">Score</div></div><div class="sb-cell"><div class="sb-num" id="sbc-pct">–</div><div class="sb-label">Percentage</div></div><div class="sb-cell"><div class="sb-num" id="sbc-ans">0</div><div class="sb-label">Answered</div></div><div class="sb-cell"><div class="sb-num" id="sbc-left">15</div><div class="sb-label">Remaining</div></div></div>
+    <div class="progress-track" style="margin:0 20px 14px;"><div class="progress-fill" id="pbc" style="width:0%;background:var(--teal);"></div></div>
+
+    <div class="q-block" id="c-q1"><div class="q-text"><span class="q-num" style="background:var(--teal);">1</span>&nbsp;Which is the correct way to log a parent's phone number in the CRM?</div><div class="q-options"><div class="q-opt" onclick="pick('c','q1','A')"><span class="opt-letter">A</span>0722 123456</div><div class="q-opt correct" onclick="pick('c','q1','B')"><span class="opt-letter">B</span>+254 722 123456</div><div class="q-opt" onclick="pick('c','q1','C')"><span class="opt-letter">C</span>722123456</div><div class="q-opt" onclick="pick('c','q1','D')"><span class="opt-letter">D</span>07-22-12-3456</div></div><div class="q-explain">B is correct. Always include the international country code (+254) for consistency in reporting and outbound dialling.</div></div>
+
+    <div class="q-block" id="c-q2"><div class="q-text"><span class="q-num" style="background:var(--teal);">2</span>&nbsp;Which of these is a complete CRM interaction log?</div><div class="q-options"><div class="q-opt" onclick="pick('c','q2','A')"><span class="opt-letter">A</span>"Parent called."</div><div class="q-opt" onclick="pick('c','q2','B')"><span class="opt-letter">B</span>"Issue resolved."</div><div class="q-opt correct" onclick="pick('c','q2','C')"><span class="opt-letter">C</span>"Inbound call. Parent enquired about meal non-delivery on 14/05. CRM checked — delivery confirmed. Parent advised to confirm with class teacher. Case closed — resolved."</div><div class="q-opt" onclick="pick('c','q2','D')"><span class="opt-letter">D</span>"Called parent back. No answer."</div></div><div class="q-explain">C is correct. A complete log includes: channel, issue, what was checked, what was found, action taken, and case status.</div></div>
+
+    <div class="q-block" id="c-q3"><div class="q-text"><span class="q-num" style="background:var(--teal);">3</span>&nbsp;You discover you logged the wrong school name for a parent. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q3','A')"><span class="opt-letter">A</span>Delete the record and start again</div><div class="q-opt" onclick="pick('c','q3','B')"><span class="opt-letter">B</span>Leave it — one wrong field won't matter</div><div class="q-opt correct" onclick="pick('c','q3','C')"><span class="opt-letter">C</span>Correct it immediately, add an amendment note with the date and what was changed, and inform your supervisor</div><div class="q-opt" onclick="pick('c','q3','D')"><span class="opt-letter">D</span>Ask IT to fix it at end of week</div></div><div class="q-explain">C is correct. Errors must be corrected immediately with an amendment note. Deletion is never appropriate — it removes the audit trail.</div></div>
+
+    <div class="q-block" id="c-q4"><div class="q-text"><span class="q-num" style="background:var(--teal);">4</span>&nbsp;When searching for a parent in the CRM, you find two records with the same name. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q4','A')"><span class="opt-letter">A</span>Use whichever one has the most information</div><div class="q-opt" onclick="pick('c','q4','B')"><span class="opt-letter">B</span>Create a third record to be safe</div><div class="q-opt correct" onclick="pick('c','q4','C')"><span class="opt-letter">C</span>Identify the correct record via phone number or school, use only that one, and report the duplicate to the QA Assessor for cleanup</div><div class="q-opt" onclick="pick('c','q4','D')"><span class="opt-letter">D</span>Merge them yourself</div></div><div class="q-explain">C is correct. Duplicate records cause data corruption. Use the correct record, report the duplicate — never merge or create additional records yourself.</div></div>
+
+    <div class="q-block" id="c-q5"><div class="q-text"><span class="q-num" style="background:var(--teal);">5</span>&nbsp;If you cannot find a category that matches the contact reason, you should select "Other" and:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q5','A')"><span class="opt-letter">A</span>Leave the description blank</div><div class="q-opt correct" onclick="pick('c','q5','B')"><span class="opt-letter">B</span>Write a full description of the contact reason in the notes field</div><div class="q-opt" onclick="pick('c','q5','C')"><span class="opt-letter">C</span>Select the closest category even if it doesn't match</div><div class="q-opt" onclick="pick('c','q5','D')"><span class="opt-letter">D</span>Ask the parent to describe their issue again</div></div><div class="q-explain">B is correct. "Other" is never an acceptable standalone entry. A full description is required — this data informs training and reporting.</div></div>
+
+    <div class="q-block" id="c-q6"><div class="q-text"><span class="q-num" style="background:var(--teal);">6</span>&nbsp;You batch your CRM logs at the end of the shift instead of logging after each interaction. This:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q6','A')"><span class="opt-letter">A</span>Is acceptable if you remember everything</div><div class="q-opt" onclick="pick('c','q6','B')"><span class="opt-letter">B</span>Saves time and is encouraged</div><div class="q-opt correct" onclick="pick('c','q6','C')"><span class="opt-letter">C</span>Is a data integrity failure and will be flagged in your CRM accuracy score</div><div class="q-opt" onclick="pick('c','q6','D')"><span class="opt-letter">D</span>Is fine as long as the information is accurate</div></div><div class="q-explain">C is correct. Batching introduces errors, gaps, and delayed records. Real-time logging is a required standard.</div></div>
+
+    <div class="q-block" id="c-q7"><div class="q-text"><span class="q-num" style="background:var(--teal);">7</span>&nbsp;The case status "Escalated" should be selected when:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q7','A')"><span class="opt-letter">A</span>The parent was rude</div><div class="q-opt correct" onclick="pick('c','q7','B')"><span class="opt-letter">B</span>You transferred the issue to the Team Lead or another team for resolution</div><div class="q-opt" onclick="pick('c','q7','C')"><span class="opt-letter">C</span>You used the hold function during the call</div><div class="q-opt" onclick="pick('c','q7','D')"><span class="opt-letter">D</span>The parent asked for a callback</div></div><div class="q-explain">B is correct. "Escalated" means the case has moved to another person or team. "Pending callback" is used for callback arrangements.</div></div>
+
+    <div class="q-block" id="c-q8"><div class="q-text"><span class="q-num" style="background:var(--teal);">8</span>&nbsp;How often does the QA Assessor run a CRM accuracy spot-check?</div><div class="q-options"><div class="q-opt" onclick="pick('c','q8','A')"><span class="opt-letter">A</span>Monthly</div><div class="q-opt" onclick="pick('c','q8','B')"><span class="opt-letter">B</span>Daily</div><div class="q-opt correct" onclick="pick('c','q8','C')"><span class="opt-letter">C</span>Weekly</div><div class="q-opt" onclick="pick('c','q8','D')"><span class="opt-letter">D</span>Only when a complaint is raised</div></div><div class="q-explain">C is correct. Weekly CRM audits are part of the QA process. Accuracy below 95% on any week triggers a coaching session.</div></div>
+
+    <div class="q-block" id="c-q9"><div class="q-text"><span class="q-num" style="background:var(--teal);">9</span>&nbsp;A parent asks you to update their phone number during a call. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q9','A')"><span class="opt-letter">A</span>Tell them to call back to do this</div><div class="q-opt correct" onclick="pick('c','q9','B')"><span class="opt-letter">B</span>Verify their identity first, then update the number in CRM and confirm the change with the parent</div><div class="q-opt" onclick="pick('c','q9','C')"><span class="opt-letter">C</span>Update the number without verification</div><div class="q-opt" onclick="pick('c','q9','D')"><span class="opt-letter">D</span>Ask them to email the update request</div></div><div class="q-explain">B is correct. Verify first — always. Then update and confirm. Note the change in the interaction log.</div></div>
+
+    <div class="q-block" id="c-q10"><div class="q-text"><span class="q-num" style="background:var(--teal);">10</span>&nbsp;What does "CRM Data Accuracy" measure?</div><div class="q-options"><div class="q-opt" onclick="pick('c','q10','A')"><span class="opt-letter">A</span>How quickly you log each interaction</div><div class="q-opt correct" onclick="pick('c','q10','B')"><span class="opt-letter">B</span>The percentage of CRM records that are complete, accurate, and correctly categorised</div><div class="q-opt" onclick="pick('c','q10','C')"><span class="opt-letter">C</span>How many records you create per week</div><div class="q-opt" onclick="pick('c','q10','D')"><span class="opt-letter">D</span>Whether the system is functioning without errors</div></div><div class="q-explain">B is correct. CRM accuracy measures the quality of your records — completeness, accuracy, and correct categorisation — across all interactions.</div></div>
+
+    <div class="q-block" id="c-q11"><div class="q-text"><span class="q-num" style="background:var(--teal);">11</span>&nbsp;You are mid-interaction and the CRM system crashes. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q11','A')"><span class="opt-letter">A</span>Continue the call and skip the CRM log</div><div class="q-opt" onclick="pick('c','q11','B')"><span class="opt-letter">B</span>End the call and wait for IT to fix it</div><div class="q-opt correct" onclick="pick('c','q11','C')"><span class="opt-letter">C</span>Note the key details on paper during the call, report the issue to your Team Lead, and log in CRM as soon as the system recovers</div><div class="q-opt" onclick="pick('c','q11','D')"><span class="opt-letter">D</span>Ask the parent to repeat everything when you call back</div></div><div class="q-explain">C is correct. System failures do not exempt you from logging. Note details manually and log as soon as the system is restored.</div></div>
+
+    <div class="q-block" id="c-q12"><div class="q-text"><span class="q-num" style="background:var(--teal);">12</span>&nbsp;Which field is NOT required in every CRM interaction log?</div><div class="q-options"><div class="q-opt" onclick="pick('c','q12','A')"><span class="opt-letter">A</span>Contact reason category</div><div class="q-opt" onclick="pick('c','q12','B')"><span class="opt-letter">B</span>Resolution status</div><div class="q-opt correct" onclick="pick('c','q12','C')"><span class="opt-letter">C</span>Parent's date of birth</div><div class="q-opt" onclick="pick('c','q12','D')"><span class="opt-letter">D</span>Channel (call/WhatsApp/SMS/email)</div></div><div class="q-explain">C is correct. Date of birth is not a standard required field for CRM interaction logs. The required fields are: channel, contact reason, summary, resolution status, and date/time.</div></div>
+
+    <div class="q-block" id="c-q13"><div class="q-text"><span class="q-num" style="background:var(--teal);">13</span>&nbsp;Data entered in the CRM is used for:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q13','A')"><span class="opt-letter">A</span>Internal gossip only</div><div class="q-opt correct" onclick="pick('c','q13','B')"><span class="opt-letter">B</span>Programme reporting, quality analysis, training decisions, and parent communication</div><div class="q-opt" onclick="pick('c','q13','C')"><span class="opt-letter">C</span>Billing agents for calls they didn't handle</div><div class="q-opt" onclick="pick('c','q13','D')"><span class="opt-letter">D</span>It is archived and never reviewed</div></div><div class="q-explain">B is correct. CRM data drives reporting, training, QA analysis, and management decisions. Every entry matters.</div></div>
+
+    <div class="q-block" id="c-q14"><div class="q-text"><span class="q-num" style="background:var(--teal);">14</span>&nbsp;You suspect a parent's record has been tampered with by another agent. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('c','q14','A')"><span class="opt-letter">A</span>Fix it yourself quietly</div><div class="q-opt" onclick="pick('c','q14','B')"><span class="opt-letter">B</span>Ignore it</div><div class="q-opt correct" onclick="pick('c','q14','C')"><span class="opt-letter">C</span>Report it to the QA Assessor or Q&T Lead immediately without making any changes yourself</div><div class="q-opt" onclick="pick('c','q14','D')"><span class="opt-letter">D</span>Post about it in the team chat</div></div><div class="q-explain">C is correct. Suspected record tampering is a data integrity concern — report it immediately. Do not modify the record yourself as this could complicate the investigation.</div></div>
+
+    <div class="q-block" id="c-q15"><div class="q-text"><span class="q-num" style="background:var(--teal);">15</span>&nbsp;The CRM accuracy target (≥98%) means that for every 100 records audited, a maximum of how many can have errors?</div><div class="q-options"><div class="q-opt" onclick="pick('c','q15','A')"><span class="opt-letter">A</span>5</div><div class="q-opt" onclick="pick('c','q15','B')"><span class="opt-letter">B</span>4</div>
+    <div class="q-opt" onclick="pick('c','q15','C')"><span class="opt-letter">C</span>3</div>
+    <div class="q-opt correct" onclick="pick('c','q15','D')"><span class="opt-letter">D</span>2</div></div><div class="q-explain">D is correct. ≥98% accuracy means no more than 2 errors per 100 records. This is a high bar — precision is expected every time.</div></div>
+
+    <div id="result-c"></div>
+    <div class="btn-row">
+      <button class="btn-submit" onclick="submit('c',15)">Submit Assessment</button>
+      <button class="btn-key" onclick="toggleKey('c')">Show Answer Key</button>
+      <button class="btn-reset" onclick="resetAss('c',15)">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ASSESSMENT D — SCENARIOS ════════ -->
+<div class="panel" id="p3">
+  <div class="ass-header" style="background:var(--blackboard);">
+    <div class="ah-num">Assessment D · Scenarios & Problem-Solving</div>
+    <div class="ah-title">Real-World Scenario Handling</div>
+    <div class="ah-desc">Tests your ability to apply knowledge to realistic parent scenarios. Each question presents a situation — choose the best course of action based on the SOPs and training you have completed.</div>
+    <div class="ah-meta"><span class="ah-m">15 Questions</span><span class="ah-m">Pass: 12/15 (80%)</span><span class="ah-m">30 Minutes</span></div>
+  </div>
+  <div class="card">
+    <div class="score-bar" id="sbd"><div class="sb-cell"><div class="sb-num" id="sbd-score">–</div><div class="sb-label">Score</div></div><div class="sb-cell"><div class="sb-num" id="sbd-pct">–</div><div class="sb-label">Percentage</div></div><div class="sb-cell"><div class="sb-num" id="sbd-ans">0</div><div class="sb-label">Answered</div></div><div class="sb-cell"><div class="sb-num" id="sbd-left">15</div><div class="sb-label">Remaining</div></div></div>
+    <div class="progress-track" style="margin:0 20px 14px;"><div class="progress-fill" id="pbd" style="width:0%;background:var(--blackboard);"></div></div>
+
+    <div class="q-block" id="d-q1"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">1</span>&nbsp;A parent calls to say their child has not received meals for 3 consecutive days despite a positive balance. The parent is upset. Your first response is:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q1','A')"><span class="opt-letter">A</span>"That's a problem with the school, not us."</div><div class="q-opt correct" onclick="pick('d','q1','B')"><span class="opt-letter">B</span>Empathise, verify identity, pull up the CRM record, and check meal delivery logs before determining next steps</div><div class="q-opt" onclick="pick('d','q1','C')"><span class="opt-letter">C</span>Escalate immediately to the Team Lead</div><div class="q-opt" onclick="pick('d','q1','D')"><span class="opt-letter">D</span>Ask the parent to visit the school and confirm</div></div><div class="q-explain">B is correct. Always empathise first, then investigate in CRM before making any decisions or escalating.</div></div>
+
+    <div class="q-block" id="d-q2"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">2</span>&nbsp;A parent sends a WhatsApp message at 7am requesting an urgent callback. You start work at 8am. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q2','A')"><span class="opt-letter">A</span>Respond to the message immediately from your personal phone</div><div class="q-opt" onclick="pick('d','q2','B')"><span class="opt-letter">B</span>Ignore it — your shift hasn't started</div><div class="q-opt correct" onclick="pick('d','q2','C')"><span class="opt-letter">C</span>When your shift begins, send an acknowledgement and arrange the callback within business hours</div><div class="q-opt" onclick="pick('d','q2','D')"><span class="opt-letter">D</span>Ask your Team Lead to handle it</div></div><div class="q-explain">C is correct. Business hours are 8am–5pm. Acknowledge at shift start and arrange the callback. Using personal devices for work is not appropriate.</div></div>
+
+    <div class="q-block" id="d-q3"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">3</span>&nbsp;During an outbound callback, someone answers who is not the registered parent. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q3','A')"><span class="opt-letter">A</span>Explain the situation and ask them to pass the message to the parent</div><div class="q-opt" onclick="pick('d','q3','B')"><span class="opt-letter">B</span>Leave the account details and ask them to relay to the parent</div><div class="q-opt correct" onclick="pick('d','q3','C')"><span class="opt-letter">C</span>State you will call back and log the attempt — share no account information</div><div class="q-opt" onclick="pick('d','q3','D')"><span class="opt-letter">D</span>Proceed with the call if they seem trustworthy</div></div><div class="q-explain">C is correct. Data privacy: never share account details with a third party. Log the attempt and call back when the registered parent is available.</div></div>
+
+    <div class="q-block" id="d-q4"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">4</span>&nbsp;A parent contacts you on WhatsApp with what seems like the same complaint they called about yesterday. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q4','A')"><span class="opt-letter">A</span>Ask them why they're contacting again — the issue was handled</div><div class="q-opt correct" onclick="pick('d','q4','B')"><span class="opt-letter">B</span>Check the previous CRM log to understand the prior resolution, acknowledge they've had to contact again, and work to resolve the underlying issue completely this time</div><div class="q-opt" onclick="pick('d','q4','C')"><span class="opt-letter">C</span>Escalate immediately — it's a repeat call</div><div class="q-opt" onclick="pick('d','q4','D')"><span class="opt-letter">D</span>Tell them the case is closed and they need to open a new one</div></div><div class="q-explain">B is correct. A repeat contact means FCR was not achieved previously. Review what happened, acknowledge the inconvenience, and resolve fully this time.</div></div>
+
+    <div class="q-block" id="d-q5"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">5</span>&nbsp;A parent calls in a panic — they've just realised their child's school has them listed under the wrong account. The child may not receive meals. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q5','A')"><span class="opt-letter">A</span>Tell them to go to the school to sort it out</div><div class="q-opt" onclick="pick('d','q5','B')"><span class="opt-letter">B</span>Ask them to email the issue so it can be investigated</div><div class="q-opt correct" onclick="pick('d','q5','C')"><span class="opt-letter">C</span>Treat this as urgent — verify identity, check both accounts in CRM, correct the error or escalate if it requires admin access, and confirm resolution with the parent before ending the call</div><div class="q-opt" onclick="pick('d','q5','D')"><span class="opt-letter">D</span>Log it as pending and call back tomorrow</div></div><div class="q-explain">C is correct. A child potentially missing meals is urgent. Act immediately, verify, resolve or escalate, and close with confirmation.</div></div>
+
+    <div class="q-block" id="d-q6"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">6</span>&nbsp;During a call, a parent begins crying and shares a personal difficulty that is affecting their ability to pay for meals. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q6','A')"><span class="opt-letter">A</span>End the call professionally and log it</div><div class="q-opt" onclick="pick('d','q6','B')"><span class="opt-letter">B</span>Tell them this is a billing call and you cannot discuss personal matters</div><div class="q-opt correct" onclick="pick('d','q6','C')"><span class="opt-letter">C</span>Acknowledge their situation with empathy, provide information on any available support options, and note the context in CRM sensitively</div><div class="q-opt" onclick="pick('d','q6','D')"><span class="opt-letter">D</span>Share your own personal story to make them feel better</div></div><div class="q-explain">C is correct. Human situations require human responses. Empathise, provide relevant information, and document sensitively. Never overshare personal information.</div></div>
+
+    <div class="q-block" id="d-q7"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">7</span>&nbsp;A parent insists they paid KES 500 today but no record shows in the system. The most appropriate next step is:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q7','A')"><span class="opt-letter">A</span>Tell them to call their mobile money provider</div><div class="q-opt correct" onclick="pick('d','q7','B')"><span class="opt-letter">B</span>Ask them to provide the transaction reference or screenshot, check the payment logs in CRM, and if confirmed, escalate for manual reconciliation if needed</div><div class="q-opt" onclick="pick('d','q7','C')"><span class="opt-letter">C</span>Manually credit the account</div><div class="q-opt" onclick="pick('d','q7','D')"><span class="opt-letter">D</span>Tell them payments can take 3–5 days</div></div><div class="q-explain">B is correct. Request evidence, check CRM, and escalate for reconciliation if needed. Never manually credit accounts or give inaccurate timelines.</div></div>
+
+    <div class="q-block" id="d-q8"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">8</span>&nbsp;A parent contacts you via SMS asking for their account PIN to be reset. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q8','A')"><span class="opt-letter">A</span>Send the new PIN via SMS</div><div class="q-opt" onclick="pick('d','q8','B')"><span class="opt-letter">B</span>Ask them to share their current PIN first to verify</div><div class="q-opt correct" onclick="pick('d','q8','C')"><span class="opt-letter">C</span>Verify their identity through the approved method, then follow the PIN reset SOP — never share PINs via SMS</div><div class="q-opt" onclick="pick('d','q8','D')"><span class="opt-letter">D</span>Decline — PIN resets must be done in person</div></div><div class="q-explain">C is correct. Verify first, then follow the SOP. PINs are never shared via SMS or chat — this is a data security requirement.</div></div>
+
+    <div class="q-block" id="d-q9"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">9</span>&nbsp;You are on a call that has run to 3 minutes 20 seconds. The parent's issue is still unresolved. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q9','A')"><span class="opt-letter">A</span>End the call abruptly to protect your AHT score</div><div class="q-opt" onclick="pick('d','q9','B')"><span class="opt-letter">B</span>Rush the resolution regardless of quality</div><div class="q-opt correct" onclick="pick('d','q9','C')"><span class="opt-letter">C</span>Continue until the issue is properly resolved — AHT is a guide, not an excuse to cut quality. Flag the reason for the extended call in CRM.</div><div class="q-opt" onclick="pick('d','q9','D')"><span class="opt-letter">D</span>Ask the parent to call back later</div></div><div class="q-explain">C is correct. AHT is a target, not a hard cutoff. Quality always comes first. Document the reason for the extended interaction.</div></div>
+
+    <div class="q-block" id="d-q10"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">10</span>&nbsp;A parent who has been fully resolved asks "But why did this happen in the first place?" You:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q10','A')"><span class="opt-letter">A</span>Tell them you don't know</div><div class="q-opt" onclick="pick('d','q10','B')"><span class="opt-letter">B</span>Blame the school or another department</div><div class="q-opt correct" onclick="pick('d','q10','C')"><span class="opt-letter">C</span>Explain what you can — and if you don't know the root cause, acknowledge that honestly, commit to logging it, and assure them it will be looked into</div><div class="q-opt" onclick="pick('d','q10','D')"><span class="opt-letter">D</span>End the call — the issue is resolved and the question is beyond your scope</div></div><div class="q-explain">C is correct. Transparency and ownership. If you don't know, say so honestly and commit to logging the pattern. Never blame other departments to the parent.</div></div>
+
+    <div class="q-block" id="d-q11"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">11</span>&nbsp;A parent on WhatsApp says "This is the worst service I've ever received." The correct response is:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q11','A')"><span class="opt-letter">A</span>"I'm sorry you feel that way."</div><div class="q-opt" onclick="pick('d','q11','B')"><span class="opt-letter">B</span>"That's not fair — we work very hard."</div><div class="q-opt correct" onclick="pick('d','q11','C')"><span class="opt-letter">C</span>"I'm really sorry to hear that, [Name]. That is not the experience we want for you at all. Please tell me what happened and I'll do everything I can to make this right."</div><div class="q-opt" onclick="pick('d','q11','D')"><span class="opt-letter">D</span>"We have many satisfied parents — we'll try to do better."</div></div><div class="q-explain">C is correct. Acknowledge the experience directly, personalise it, and invite them to share more. "Sorry you feel that way" is dismissive; it doesn't acknowledge the experience.</div></div>
+
+    <div class="q-block" id="d-q12"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">12</span>&nbsp;A parent asks you to process a refund of KES 1,500. You do not have authorisation for refunds. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q12','A')"><span class="opt-letter">A</span>Process it anyway to keep the parent happy</div><div class="q-opt" onclick="pick('d','q12','B')"><span class="opt-letter">B</span>Tell the parent refunds are not available</div><div class="q-opt correct" onclick="pick('d','q12','C')"><span class="opt-letter">C</span>Acknowledge the request, explain you need to escalate this to someone with the authority to process it, take ownership of the follow-up, and give a clear timeframe</div><div class="q-opt" onclick="pick('d','q12','D')"><span class="opt-letter">D</span>Ask the parent to email the request</div></div><div class="q-explain">C is correct. Never process what you're not authorised for. Acknowledge, escalate with ownership, set a timeframe. The parent must never feel abandoned.</div></div>
+
+    <div class="q-block" id="d-q13"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">13</span>&nbsp;You receive a call where a child comes on the line instead of the parent and is clearly distressed. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q13','A')"><span class="opt-letter">A</span>Tell the child to pass the phone to a parent</div><div class="q-opt" onclick="pick('d','q13','B')"><span class="opt-letter">B</span>End the call — you only speak with adults</div><div class="q-opt correct" onclick="pick('d','q13','C')"><span class="opt-letter">C</span>Speak calmly to the child to understand what's happening. If a safeguarding concern arises, escalate to the Team Lead immediately as a priority</div><div class="q-opt" onclick="pick('d','q13','D')"><span class="opt-letter">D</span>Log the call and wait for a parent to call back</div></div><div class="q-explain">C is correct. Safeguarding is the highest priority. Engage the child calmly, assess the situation, and escalate immediately if there is any welfare concern.</div></div>
+
+    <div class="q-block" id="d-q14"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">14</span>&nbsp;A parent ends the call sounding dissatisfied even though you believe you resolved the issue. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q14','A')"><span class="opt-letter">A</span>Not worry about it — the issue is resolved</div><div class="q-opt" onclick="pick('d','q14','B')"><span class="opt-letter">B</span>Call them back immediately and ask if they're happy</div><div class="q-opt correct" onclick="pick('d','q14','C')"><span class="opt-letter">C</span>Log the interaction noting the parent's apparent dissatisfaction, and flag it to the QA Assessor as a potential coaching or process improvement point</div><div class="q-opt" onclick="pick('d','q14','D')"><span class="opt-letter">D</span>Ask a colleague to follow up instead</div></div><div class="q-explain">C is correct. A resolved issue does not guarantee a satisfied parent. Log the observation — it helps the QA process and contributes to improving service.</div></div>
+
+    <div class="q-block" id="d-q15"><div class="q-text"><span class="q-num" style="background:var(--blackboard);">15</span>&nbsp;You are handling a high volume of interactions and are falling behind on CRM logs. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('d','q15','A')"><span class="opt-letter">A</span>Skip the logs for less important calls</div><div class="q-opt" onclick="pick('d','q15','B')"><span class="opt-letter">B</span>Write very short entries to catch up</div><div class="q-opt correct" onclick="pick('d','q15','C')"><span class="opt-letter">C</span>Inform the Team Lead immediately so they can assess workload and support — complete all logs properly once capacity allows</div><div class="q-opt" onclick="pick('d','q15','D')"><span class="opt-letter">D</span>Stop answering calls until the logs are done</div></div><div class="q-explain">C is correct. Capacity issues must be flagged to the Team Lead — not solved by skipping or shortcutting logging. All interactions must be fully documented.</div></div>
+
+    <div id="result-d"></div>
+    <div class="btn-row">
+      <button class="btn-submit" onclick="submit('d',15)">Submit Assessment</button>
+      <button class="btn-key" onclick="toggleKey('d')">Show Answer Key</button>
+      <button class="btn-reset" onclick="resetAss('d',15)">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ASSESSMENT E — QUALITY & COMPLIANCE ════════ -->
+<div class="panel" id="p4">
+  <div class="ass-header" style="background:var(--purple);">
+    <div class="ah-num">Assessment E · Quality Standards & Compliance</div>
+    <div class="ah-title">QA, Compliance &amp; Professional Standards</div>
+    <div class="ah-desc">Tests your understanding of how quality is evaluated, what compliance means in this context, what the QA process involves, and your professional responsibilities as a Tap2Eat CX agent.</div>
+    <div class="ah-meta"><span class="ah-m">15 Questions</span><span class="ah-m">Pass: 12/15 (80%)</span><span class="ah-m">25 Minutes</span></div>
+  </div>
+  <div class="card">
+    <div class="score-bar" id="sbe"><div class="sb-cell"><div class="sb-num" id="sbe-score">–</div><div class="sb-label">Score</div></div><div class="sb-cell"><div class="sb-num" id="sbe-pct">–</div><div class="sb-label">Percentage</div></div><div class="sb-cell"><div class="sb-num" id="sbe-ans">0</div><div class="sb-label">Answered</div></div><div class="sb-cell"><div class="sb-num" id="sbe-left">15</div><div class="sb-label">Remaining</div></div></div>
+    <div class="progress-track" style="margin:0 20px 14px;"><div class="progress-fill" id="pbe" style="width:0%;background:var(--purple);"></div></div>
+
+    <div class="q-block" id="e-q1"><div class="q-text"><span class="q-num" style="background:var(--purple);">1</span>&nbsp;What does the QA Scorecard measure?</div><div class="q-options"><div class="q-opt" onclick="pick('e','q1','A')"><span class="opt-letter">A</span>How many calls you take per hour</div><div class="q-opt correct" onclick="pick('e','q1','B')"><span class="opt-letter">B</span>The quality of your interactions across dimensions including professionalism, empathy, resolution, and compliance</div><div class="q-opt" onclick="pick('e','q1','C')"><span class="opt-letter">C</span>Your punctuality and attendance record</div><div class="q-opt" onclick="pick('e','q1','D')"><span class="opt-letter">D</span>How fast you type in the CRM</div></div><div class="q-explain">B is correct. The scorecard measures interaction quality — not volume. Dimensions include opening/closing, empathy, issue resolution, process compliance, and CRM accuracy.</div></div>
+
+    <div class="q-block" id="e-q2"><div class="q-text"><span class="q-num" style="background:var(--purple);">2</span>&nbsp;If you receive a QA score of 82% on an evaluated call, what happens next?</div><div class="q-options"><div class="q-opt" onclick="pick('e','q2','A')"><span class="opt-letter">A</span>Nothing — it's above 80%</div><div class="q-opt" onclick="pick('e','q2','B')"><span class="opt-letter">B</span>You are immediately placed on a performance improvement plan</div><div class="q-opt correct" onclick="pick('e','q2','C')"><span class="opt-letter">C</span>A coaching session is scheduled within 5 working days to discuss the gaps and agree improvement actions</div><div class="q-opt" onclick="pick('e','q2','D')"><span class="opt-letter">D</span>Your pay is deducted</div></div><div class="q-explain">C is correct. Any score below 90% triggers a coaching session within 5 working days. It is a learning conversation — not a disciplinary one.</div></div>
+
+    <div class="q-block" id="e-q3"><div class="q-text"><span class="q-num" style="background:var(--purple);">3</span>&nbsp;You disagree with a QA score you received. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q3','A')"><span class="opt-letter">A</span>Ignore it — you can't challenge QA scores</div><div class="q-opt" onclick="pick('e','q3','B')"><span class="opt-letter">B</span>Complain to the CX Manager directly</div><div class="q-opt correct" onclick="pick('e','q3','C')"><span class="opt-letter">C</span>Raise a formal dispute with the QA Assessor within 24 hours, referencing the specific scorecard criteria you disagree with</div><div class="q-opt" onclick="pick('e','q3','D')"><span class="opt-letter">D</span>Ask a colleague to speak on your behalf</div></div><div class="q-explain">C is correct. You have the right to dispute — raise it within 24 hours citing specific criteria. The Q&T Lead is the final arbitrator.</div></div>
+
+    <div class="q-block" id="e-q4"><div class="q-text"><span class="q-num" style="background:var(--purple);">4</span>&nbsp;What is a "Critical Compliance Failure" on the QA scorecard?</div><div class="q-options"><div class="q-opt" onclick="pick('e','q4','A')"><span class="opt-letter">A</span>Scoring below 80% on three consecutive evaluations</div><div class="q-opt" onclick="pick('e','q4','B')"><span class="opt-letter">B</span>Being late to your shift on an evaluation day</div><div class="q-opt correct" onclick="pick('e','q4','C')"><span class="opt-letter">C</span>A non-scored mandatory check that, if triggered, overrides the overall score and flags the interaction for immediate review — e.g. no verification, data privacy breach, or rude conduct</div><div class="q-opt" onclick="pick('e','q4','D')"><span class="opt-letter">D</span>Failing to use the parent's name in the call</div></div><div class="q-explain">C is correct. Critical compliance checks are serious violations that automatically trigger a coaching review regardless of the rest of the score.</div></div>
+
+    <div class="q-block" id="e-q5"><div class="q-text"><span class="q-num" style="background:var(--purple);">5</span>&nbsp;Your calls are recorded for quality purposes. This means:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q5','A')"><span class="opt-letter">A</span>Only your worst calls will be reviewed</div><div class="q-opt" onclick="pick('e','q5','B')"><span class="opt-letter">B</span>Recordings are only used if a parent complains</div><div class="q-opt correct" onclick="pick('e','q5','C')"><span class="opt-letter">C</span>Any call may be selected for evaluation — you must maintain the same standard on every single interaction</div><div class="q-opt" onclick="pick('e','q5','D')"><span class="opt-letter">D</span>You will be told in advance which calls are being evaluated</div></div><div class="q-explain">C is correct. You are evaluated on a sample — but any call could be that sample. Consistency is the only safe standard.</div></div>
+
+    <div class="q-block" id="e-q6"><div class="q-text"><span class="q-num" style="background:var(--purple);">6</span>&nbsp;Data privacy in the context of your role means:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q6','A')"><span class="opt-letter">A</span>Not sharing your own login credentials with colleagues</div><div class="q-opt correct" onclick="pick('e','q6','B')"><span class="opt-letter">B</span>Never sharing a parent's account information with unauthorised third parties, and always verifying identity before discussing any account details</div><div class="q-opt" onclick="pick('e','q6','C')"><span class="opt-letter">C</span>Keeping the office doors locked at all times</div><div class="q-opt" onclick="pick('e','q6','D')"><span class="opt-letter">D</span>Not taking notes during calls</div></div><div class="q-explain">B is correct. Data privacy is about protecting parent and child information — always verify before discussing accounts, and never share with anyone not authorised to receive it.</div></div>
+
+    <div class="q-block" id="e-q7"><div class="q-text"><span class="q-num" style="background:var(--purple);">7</span>&nbsp;A colleague asks you to log an interaction for them because they forgot. You should:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q7','A')"><span class="opt-letter">A</span>Help them out — it's just a CRM entry</div><div class="q-opt" onclick="pick('e','q7','B')"><span class="opt-letter">B</span>Do it if they give you enough detail</div><div class="q-opt correct" onclick="pick('e','q7','C')"><span class="opt-letter">C</span>Decline — every agent logs under their own credentials. Logging on behalf of someone else creates a false audit trail.</div><div class="q-opt" onclick="pick('e','q7','D')"><span class="opt-letter">D</span>Log it under a shared account</div></div><div class="q-explain">C is correct. CRM logs must be accurate and agent-attributed. Logging under the wrong credentials is a data integrity and accountability violation.</div></div>
+
+    <div class="q-block" id="e-q8"><div class="q-text"><span class="q-num" style="background:var(--purple);">8</span>&nbsp;"Calibration" in QA means:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q8','A')"><span class="opt-letter">A</span>Adjusting your headset volume at the start of a shift</div><div class="q-opt correct" onclick="pick('e','q8','B')"><span class="opt-letter">B</span>A process where QA team members score the same call independently and compare results to ensure scoring consistency</div><div class="q-opt" onclick="pick('e','q8','C')"><span class="opt-letter">C</span>Setting performance targets for the quarter</div><div class="q-opt" onclick="pick('e','q8','D')"><span class="opt-letter">D</span>Training new agents how to use the scorecard</div></div><div class="q-explain">B is correct. Calibration ensures all evaluators score consistently so every agent is assessed fairly regardless of who evaluates them.</div></div>
+
+    <div class="q-block" id="e-q9"><div class="q-text"><span class="q-num" style="background:var(--purple);">9</span>&nbsp;If you observe a colleague behaving unprofessionally on a call, you should:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q9','A')"><span class="opt-letter">A</span>Ignore it — it's not your responsibility</div><div class="q-opt" onclick="pick('e','q9','B')"><span class="opt-letter">B</span>Post about it in the team group chat</div><div class="q-opt correct" onclick="pick('e','q9','C')"><span class="opt-letter">C</span>Report it privately and discreetly to the Team Lead or QA Assessor</div><div class="q-opt" onclick="pick('e','q9','D')"><span class="opt-letter">D</span>Confront the colleague directly on the floor</div></div><div class="q-explain">C is correct. Professional standards are a team responsibility. Report concerns discreetly through the correct channel — not publicly or directly in the moment.</div></div>
+
+    <div class="q-block" id="e-q10"><div class="q-text"><span class="q-num" style="background:var(--purple);">10</span>&nbsp;A QA coaching session is primarily:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q10','A')"><span class="opt-letter">A</span>A disciplinary meeting that goes on your HR record</div><div class="q-opt" onclick="pick('e','q10','B')"><span class="opt-letter">B</span>A formal warning before dismissal</div><div class="q-opt correct" onclick="pick('e','q10','C')"><span class="opt-letter">C</span>A structured development conversation focused on specific improvement areas with agreed actions</div><div class="q-opt" onclick="pick('e','q10','D')"><span class="opt-letter">D</span>An opportunity to explain why your QA score was unfair</div></div><div class="q-explain">C is correct. Coaching is developmental — it is designed to help you improve, not to punish. The goal is specific, actionable improvement with a follow-up plan.</div></div>
+
+    <div class="q-block" id="e-q11"><div class="q-text"><span class="q-num" style="background:var(--purple);">11</span>&nbsp;Which of these would be flagged as a data privacy breach?</div><div class="q-options"><div class="q-opt" onclick="pick('e','q11','A')"><span class="opt-letter">A</span>Mentioning Tap2Eat by name on a call</div><div class="q-opt correct" onclick="pick('e','q11','B')"><span class="opt-letter">B</span>Confirming a parent's account balance to someone who has not been verified as the account holder</div><div class="q-opt" onclick="pick('e','q11','C')"><span class="opt-letter">C</span>Placing a parent on hold for 60 seconds</div><div class="q-opt" onclick="pick('e','q11','D')"><span class="opt-letter">D</span>Asking for the parent's name at the start of a call</div></div><div class="q-explain">B is correct. Sharing account details without verification is a critical compliance failure and constitutes a data privacy breach.</div></div>
+
+    <div class="q-block" id="e-q12"><div class="q-text"><span class="q-num" style="background:var(--purple);">12</span>&nbsp;The QA score target across all evaluated interactions is:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q12','A')"><span class="opt-letter">A</span>≥ 70%</div><div class="q-opt" onclick="pick('e','q12','B')"><span class="opt-letter">B</span>≥ 80%</div><div class="q-opt" onclick="pick('e','q12','C')"><span class="opt-letter">C</span>≥ 90%</div><div class="q-opt correct" onclick="pick('e','q12','D')"><span class="opt-letter">D</span>≥ 95%</div></div><div class="q-explain">D is correct. The QA Score target is ≥95% across all evaluated interactions.</div></div>
+
+    <div class="q-block" id="e-q13"><div class="q-text"><span class="q-num" style="background:var(--purple);">13</span>&nbsp;The purpose of the "Training Flag" on the QA scorecard is:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q13','A')"><span class="opt-letter">A</span>To flag calls where the agent needs retraining</div><div class="q-opt correct" onclick="pick('e','q13','B')"><span class="opt-letter">B</span>To mark an interaction as a high-quality example to be used for agent training</div><div class="q-opt" onclick="pick('e','q13','C')"><span class="opt-letter">C</span>To indicate the agent was trained before the call</div><div class="q-opt" onclick="pick('e','q13','D')"><span class="opt-letter">D</span>To trigger a mandatory debrief session</div></div><div class="q-explain">B is correct. The Training Flag is positive — it marks a "Perfect Call" or high-value interaction that can be used as a model example in training sessions.</div></div>
+
+    <div class="q-block" id="e-q14"><div class="q-text"><span class="q-num" style="background:var(--purple);">14</span>&nbsp;If you consistently score well on QA evaluations, this means:</div><div class="q-options"><div class="q-opt" onclick="pick('e','q14','A')"><span class="opt-letter">A</span>You won't be evaluated again for a while</div><div class="q-opt" onclick="pick('e','q14','B')"><span class="opt-letter">B</span>You can relax your standards on quieter days</div><div class="q-opt correct" onclick="pick('e','q14','C')"><span class="opt-letter">C</span>You are meeting the standard — you must maintain it consistently, as any interaction could be evaluated</div><div class="q-opt" onclick="pick('e','q14','D')"><span class="opt-letter">D</span>You will be promoted automatically</div></div><div class="q-explain">C is correct. Good scores confirm you're meeting the standard — they are not a licence to relax. Consistent quality across all interactions is the only real standard.</div></div>
+
+    <div class="q-block" id="e-q15"><div class="q-text"><span class="q-num" style="background:var(--purple);">15</span>&nbsp;Which of the following is a professional responsibility you hold as a Tap2Eat CX agent?</div><div class="q-options"><div class="q-opt" onclick="pick('e','q15','A')"><span class="opt-letter">A</span>Only answering calls from parents you've helped before</div><div class="q-opt" onclick="pick('e','q15','B')"><span class="opt-letter">B</span>Setting your own quality targets each month</div><div class="q-opt correct" onclick="pick('e','q15','C')"><span class="opt-letter">C</span>Maintaining professional standards on every interaction, protecting parent data, logging accurately, and completing training as required</div><div class="q-opt" onclick="pick('e','q15','D')"><span class="opt-letter">D</span>Evaluating your colleagues' calls and submitting scores</div></div><div class="q-explain">C is correct. Your professional responsibilities as a CX agent cover interaction quality, data protection, accurate CRM logging, and continuous learning through training.</div></div>
+
+    <div id="result-e"></div>
+    <div class="btn-row">
+      <button class="btn-submit" onclick="submit('e',15)">Submit Assessment</button>
+      <button class="btn-key" onclick="toggleKey('e')">Show Answer Key</button>
+      <button class="btn-reset" onclick="resetAss('e',15)">Reset</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<footer class="footer">
+  <p><strong>Tap2Eat CX Onboarding Assessments — Food4Education</strong> · 5 assessments · 75 questions total · Pass mark 80% each · Used during the onboarding training programme</p>
+</footer>
+
+<!-- EDIT BAR -->
+<div class="ebar" id="ebar">
+  <div class="eb-l">✏️ Edit Mode — click text to edit</div>
+  <div class="eb-r"><button class="ebtn ebtn-s" onclick="saveEdits()">💾 Save</button><button class="ebtn ebtn-x" onclick="exitEdit()">✕ Exit</button></div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="mbg hide" id="edit-modal">
+  <div class="mbox">
+    <div class="mico">✏️</div>
+    <div class="mttl">Admin Edit Access</div>
+    <div class="msub">Enter admin PIN to edit this document.</div>
+    <input class="minput" id="edit-pin" type="password" maxlength="6" placeholder="••••••" onkeydown="if(event.key==='Enter')tryEdit()" oninput="this.classList.remove('shake');document.getElementById('edit-err').textContent=''">
+    <div class="merr" id="edit-err"></div>
+    <button class="mpri" onclick="tryEdit()">Unlock Edit Mode</button>
+    <button class="mcan" onclick="closeEditModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+const ADMIN_PIN = () => localStorage.getItem('t2e_pin_admin') || 'admin9';
+const ans = {};    // {ass+q: selected letter}
+const keyShown = {};
+
+// ─── SELECTORS ────────────────────────────────
+function selAss(i){
+  document.querySelectorAll('.ass-card').forEach((c,j)=>c.classList.toggle('active',j===i));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('on',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── SCORING ──────────────────────────────────
+const IDS = ['a','b','c','d','e'];
+function pick(ass,q,letter){
+  const key=ass+q;
+  ans[key]=letter;
+  // clear all selected in this q
+  document.querySelectorAll(`#${ass}-${q} .q-opt`).forEach(o=>o.classList.remove('selected'));
+  // mark selected
+  const opts=document.querySelectorAll(`#${ass}-${q} .q-opt`);
+  const letters=['A','B','C','D'];
+  opts[letters.indexOf(letter)].classList.add('selected');
+  updateBar(ass);
+}
+
+function updateBar(ass){
+  const total=15;
+  const answered=Object.keys(ans).filter(k=>k.startsWith(ass)).length;
+  const el=id=>document.getElementById(id);
+  el('sb'+ass+'-ans').textContent=answered;
+  el('sb'+ass+'-left').textContent=total-answered;
+  el('pb'+ass).style.width=(answered/total*100)+'%';
+}
+
+function submit(ass,total){
+  const colors={a:'var(--leafy)',b:'var(--carrot)',c:'var(--teal)',d:'var(--blackboard)',e:'var(--purple)'};
+  // count correct answers
+  const correctMap={};
+  document.querySelectorAll(`#p${IDS.indexOf(ass)} .q-opt.correct`).forEach(el=>{
+    const block=el.closest('.q-block');
+    const qid=block.id.replace(ass+'-','');
+    correctMap[ass+qid]=el.querySelector('.opt-letter').textContent.trim();
+  });
+  let score=0;
+  Object.entries(correctMap).forEach(([k,correct])=>{if(ans[k]===correct)score++;});
+  const pct=Math.round(score/total*100);
+  const pass=pct>=80;
+  const rc=document.getElementById('result-'+ass);
+  rc.innerHTML=`<div class="result-card ${pass?'rc-pass':'rc-fail'}">
+    <div class="rc-score ${pass?'pass':'fail'}">${score}/${total}</div>
+    <div class="rc-label">${pct}% — ${pass?'PASSED ✓':'FAILED ✗'}</div>
+    <div class="rc-verdict">${pass?'Well done! You have met the pass mark for this assessment.':'Below the 80% pass mark. Review the answer key and retake when ready.'}</div>
+  </div>`;
+  rc.scrollIntoView({behavior:'smooth',block:'center'});
+  // update score bar
+  document.getElementById('sb'+ass+'-score').textContent=score+'/'+total;
+  document.getElementById('sb'+ass+'-pct').textContent=pct+'%';
+  document.getElementById('pb'+ass).style.width=pct+'%';
+  document.getElementById('pb'+ass).style.background=pass?'var(--leafy)':'var(--red)';
+}
+
+function toggleKey(ass){
+  const idx=IDS.indexOf(ass);
+  const panel=document.getElementById('p'+idx);
+  const showing=!keyShown[ass];
+  keyShown[ass]=showing;
+  panel.classList.toggle('show-key',showing);
+  // update button text
+  const btns=panel.querySelectorAll('.btn-key');
+  btns.forEach(b=>b.textContent=showing?'Hide Answer Key':'Show Answer Key');
+  // highlight correct/wrong if submitted
+  const correctMap={};
+  panel.querySelectorAll('.q-opt.correct').forEach(el=>{
+    const block=el.closest('.q-block');
+    const qid=block.id.replace(ass+'-','');
+    correctMap[ass+qid]=el.querySelector('.opt-letter').textContent.trim();
+  });
+  if(showing){
+    Object.entries(correctMap).forEach(([k,correct])=>{
+      const selected=ans[k];
+      if(selected && selected!==correct){
+        // find wrong selected option
+        const qid=k.replace(ass,'');
+        const block=document.getElementById(ass+'-'+qid);
+        if(block){
+          const opts=block.querySelectorAll('.q-opt');
+          const letters=['A','B','C','D'];
+          const wi=letters.indexOf(selected);
+          if(wi>=0)opts[wi].classList.add('wrong');
+        }
+      }
+    });
+  } else {
+    panel.querySelectorAll('.q-opt.wrong').forEach(o=>o.classList.remove('wrong'));
+  }
+}
+
+function resetAss(ass,total){
+  const idx=IDS.indexOf(ass);
+  const panel=document.getElementById('p'+idx);
+  // clear selections
+  Object.keys(ans).filter(k=>k.startsWith(ass)).forEach(k=>delete ans[k]);
+  keyShown[ass]=false;
+  panel.classList.remove('show-key');
+  panel.querySelectorAll('.q-opt').forEach(o=>o.classList.remove('selected','wrong'));
+  panel.querySelectorAll('.btn-key').forEach(b=>b.textContent='Show Answer Key');
+  const rc=document.getElementById('result-'+ass);if(rc)rc.innerHTML='';
+  ['score','pct'].forEach(s=>document.getElementById('sb'+ass+'-'+s).textContent='–');
+  document.getElementById('sb'+ass+'-ans').textContent='0';
+  document.getElementById('sb'+ass+'-left').textContent=total;
+  document.getElementById('pb'+ass).style.width='0%';
+  document.getElementById('pb'+ass).style.background={a:'var(--leafy)',b:'var(--carrot)',c:'var(--teal)',d:'var(--blackboard)',e:'var(--purple)'}[ass];
+}
+
+// ─── EDIT MODE ────────────────────────────────
+let editOn=false;
+function openEditModal(){document.getElementById('edit-modal').classList.remove('hide');setTimeout(()=>document.getElementById('edit-pin').focus(),80);}
+function closeEditModal(){document.getElementById('edit-modal').classList.add('hide');document.getElementById('edit-pin').value='';document.getElementById('edit-err').textContent='';}
+function tryEdit(){
+  if(document.getElementById('edit-pin').value.trim()===ADMIN_PIN()){closeEditModal();enableEdit();}
+  else{const i=document.getElementById('edit-pin');i.classList.add('shake');document.getElementById('edit-err').textContent='Incorrect PIN.';i.value='';i.focus();}
+}
+function enableEdit(){
+  editOn=true;document.body.classList.add('edit-mode');document.getElementById('ebar').classList.add('on');
+  document.querySelector('.edit-btn').textContent='✏️ Editing…';
+  document.querySelectorAll('[data-e]').forEach(e=>e.contentEditable='true');
+}
+function exitEdit(){
+  editOn=false;document.body.classList.remove('edit-mode');document.getElementById('ebar').classList.remove('on');
+  document.querySelector('.edit-btn').textContent='✏️ Edit';
+  document.querySelectorAll('[data-e]').forEach(e=>e.contentEditable='false');
+}
+function saveEdits(){
+  const d={};document.querySelectorAll('[data-e]').forEach(e=>d[e.dataset.e]=e.innerHTML);
+  localStorage.setItem('t2e_ass_edits',JSON.stringify(d));showToast('Saved.');
+}
+function loadEdits(){try{const raw=localStorage.getItem('t2e_ass_edits');if(!raw)return;const d=JSON.parse(raw);Object.keys(d).forEach(k=>{const el=document.querySelector(`[data-e="${k}"]`);if(el)el.innerHTML=d[k];});}catch(e){}}
+let tt;function showToast(msg){let el=document.getElementById('ass-toast');if(!el){el=document.createElement('div');el.id='ass-toast';el.style.cssText='position:fixed;bottom:76px;right:22px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;z-index:1100;background:var(--leafy-pale);color:var(--leafy);border:1px solid #b6dab0;';document.body.appendChild(el);}el.textContent=msg;el.style.display='block';clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',2500);}
+
+document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEditModal();});
+loadEdits();
+</script>
+
+<!-- EDIT MODE OVERLAY -->
+<style>
+body.edit-mode [data-e]{outline:2px dashed #FFB200;border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid #FF8C00;}
+#_ebar2{position:fixed;bottom:0;left:0;right:0;background:#FF8C00;padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+#_ebar2.on{display:flex;}
+#_ebar2 ._ebl{font-size:13px;font-weight:700;color:white;}
+#_ebar2 ._ebr{display:flex;gap:8px;}
+#_efab2{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:#24631E;color:white;border:none;font-size:20px;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+#_efab2:hover{background:#3a7a34;}
+#_emod2{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#_emod2.hide{display:none;}
+._embox2{background:white;border-radius:16px;padding:28px;max-width:320px;width:100%;}
+#_epin2{width:100%;padding:12px;border:2px solid #e4e2d8;border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;box-sizing:border-box;}
+#_epin2:focus{border-color:#24631E;}
+#_epin2.shake{animation:_shk2 .28s;}
+@keyframes _shk2{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px);}}
+#_eerr2{font-size:12px;color:#c0392b;text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+._epri2{width:100%;font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;padding:11px;border-radius:9px;border:none;background:#24631E;color:white;cursor:pointer;}
+._ecan2{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:8px;border-radius:9px;border:1px solid #e4e2d8;background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+._ebtn2{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 14px;border-radius:18px;border:none;cursor:pointer;}
+._ebsave{background:white;color:#BF6900;}
+._ebxit{background:rgba(255,255,255,.15);color:white;}
+</style>
+<div id="_ebar2"><div class="_ebl">&#9998; Edit Mode &mdash; click any highlighted text to edit</div><div class="_ebr"><button class="_ebtn2 _ebsave" onclick="_saveE2()">&#128190; Save</button><button class="_ebtn2 _ebsave" onclick="_exportE2()">&#8595; Export</button><button class="_ebtn2 _ebxit" onclick="_exitE2()">&#10005; Exit</button></div></div>
+<button id="_efab2" onclick="_openEM2()" title="Edit this document">&#9998;</button>
+<div id="_emod2" class="hide"><div class="_embox2"><div style="font-size:28px;text-align:center;margin-bottom:10px;">&#9998;</div><div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:4px;">Edit Document</div><div style="font-size:12px;color:#888;text-align:center;margin-bottom:14px;">Enter Admin PIN to unlock editing on this page</div><input id="_epin2" type="password" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;"><div id="_eerr2"></div><button class="_epri2" onclick="_tryE2()">Unlock Editing</button><button class="_ecan2" onclick="_closeEM2()">Cancel</button><div style="font-size:10px;color:#ccc;text-align:center;margin-top:8px;">Admin PIN is managed in the Document Hub</div></div></div>
+<script>
+(function(){
+  var EK="t2e_pin_admin",DF="admin9",SK="t2e_edits_"+location.pathname.split("/").pop();
+  function gp(){return localStorage.getItem(EK)||DF;}
+  function _openEM2(){document.getElementById("_emod2").classList.remove("hide");setTimeout(function(){document.getElementById("_epin2").focus();},80);}
+  function _closeEM2(){document.getElementById("_emod2").classList.add("hide");document.getElementById("_epin2").value="";document.getElementById("_eerr2").textContent="";}
+  function _tryE2(){var v=document.getElementById("_epin2").value.trim();if(v===gp()){_closeEM2();_startE2();}else{var i=document.getElementById("_epin2");i.classList.add("shake");document.getElementById("_eerr2").textContent="Incorrect PIN.";i.value="";i.focus();}}
+  function _startE2(){document.body.classList.add("edit-mode");document.getElementById("_ebar2").classList.add("on");document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="true";});}
+  function _exitE2(){document.body.classList.remove("edit-mode");document.getElementById("_ebar2").classList.remove("on");document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="false";});}
+  function _saveE2(){var d={};document.querySelectorAll("[data-e]").forEach(function(el){d[el.getAttribute("data-e")]=el.innerHTML;});localStorage.setItem(SK,JSON.stringify(d));_st2("Saved.","#24631E");}
+  function _exportE2(){_saveE2();var h="<!DOCTYPE html>\n"+document.documentElement.outerHTML;var b=new Blob([h],{type:"text/html"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=location.pathname.split("/").pop().replace(".html","_edited.html");a.click();URL.revokeObjectURL(u);_st2("Exported!","#24631E");}
+  function _loadE2(){try{var r=localStorage.getItem(SK);if(!r)return;var d=JSON.parse(r);Object.keys(d).forEach(function(k){var el=document.querySelector("[data-e=\""+k+"\"]");if(el)el.innerHTML=d[k];});}catch(e){}}
+  var _et2;
+  function _st2(msg,bg){var t=document.getElementById("_est2");if(!t){t=document.createElement("div");t.id="_est2";t.style.cssText="position:fixed;bottom:72px;right:22px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;color:white;z-index:10001;box-shadow:0 3px 14px rgba(0,0,0,.15);";document.body.appendChild(t);}t.textContent=msg;t.style.background=bg;t.style.display="block";clearTimeout(_et2);_et2=setTimeout(function(){t.style.display="none";},2800);}
+  window._openEM2=_openEM2;window._closeEM2=_closeEM2;window._tryE2=_tryE2;window._exitE2=_exitE2;window._saveE2=_saveE2;window._exportE2=_exportE2;
+  document.getElementById("_epin2").addEventListener("keydown",function(e){if(e.key==="Enter")_tryE2();});
+  document.getElementById("_epin2").addEventListener("input",function(){this.classList.remove("shake");document.getElementById("_eerr2").textContent="";});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")_closeEM2();});
+  document.getElementById("_emod2").addEventListener("click",function(ev){if(ev.target===this)_closeEM2();});
+  _loadE2();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2eat | Intern Onboarding Kit & Day in the Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sophisticated: #E5E5C9;
+  --sophisticated-d: #d4d4b0;
+  --progressive: #FFB200;
+  --progressive-d: #BF8500;
+  --carrot: #FF8C00;
+  --carrot-d: #BF6900;
+  --leafy: #24631E;
+  --leafy-mid: #3a7a34;
+  --leafy-pale: #eaf3e8;
+  --blackboard: #1F1B1B;
+  --white: #FFFFFF;
+  --gray-light: #f7f5ee;
+  --gray-mid: #e4e2d8;
+  --gray-text: #555;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);min-height:100vh;}
+
+/* COVER */
+.cover{background:var(--leafy);padding:44px 40px 36px;position:relative;overflow:hidden;}
+.cover::after{content:'';position:absolute;bottom:-60px;right:-60px;width:280px;height:280px;border-radius:50%;background:rgba(255,178,0,0.12);pointer-events:none;}
+.cover::before{content:'';position:absolute;top:-40px;right:100px;width:180px;height:180px;border-radius:50%;background:rgba(255,140,0,0.09);pointer-events:none;}
+.cover-pill{display:inline-block;background:rgba(255,178,0,0.2);color:var(--progressive);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:16px;}
+.cover h1{font-size:30px;font-weight:800;color:white;line-height:1.15;margin-bottom:10px;}
+.cover h1 em{color:var(--progressive);font-style:normal;}
+.cover-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:520px;}
+.cover-icons{display:flex;gap:10px;margin-top:24px;}
+.ci{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.ci.g{background:rgba(229,229,201,0.15);}
+.ci.o{background:rgba(255,140,0,0.2);}
+.ci.y{background:rgba(255,178,0,0.2);}
+
+/* TABS */
+.tabs{background:var(--blackboard);padding:0 40px;display:flex;gap:0;overflow-x:auto;}
+.tabs::-webkit-scrollbar{height:2px;}
+.tabs::-webkit-scrollbar-thumb{background:var(--progressive);}
+.tbtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.45);background:none;border:none;padding:15px 18px 13px;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;letter-spacing:0.3px;}
+.tbtn:hover{color:rgba(255,255,255,0.75);}
+.tbtn.active{color:var(--progressive);border-bottom-color:var(--progressive);}
+
+/* LAYOUT */
+.content{max-width:920px;margin:0 auto;padding:32px 40px 60px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* CARD */
+.card{background:white;border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 2px 18px rgba(31,27,27,0.07);}
+.ch{padding:13px 22px;display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;}
+.ch.green{background:var(--leafy);color:white;}
+.ch.orange{background:var(--carrot);color:white;}
+.ch.amber{background:var(--progressive);color:var(--blackboard);}
+.ch.dark{background:var(--blackboard);color:white;}
+.cb{padding:22px;}
+
+/* WELCOME BANNER */
+.welcome-banner{background:linear-gradient(135deg,var(--leafy) 0%,var(--leafy-mid) 100%);border-radius:14px;padding:28px 28px;color:white;margin-bottom:18px;display:flex;gap:20px;align-items:center;}
+.wb-left{flex:1;}
+.wb-emoji{font-size:48px;flex-shrink:0;}
+.wb-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--progressive);margin-bottom:6px;}
+.wb-title{font-size:20px;font-weight:800;margin-bottom:6px;}
+.wb-sub{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;}
+
+/* WEEK TIMELINE */
+.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.wday{border-radius:10px;overflow:hidden;}
+.wday-head{padding:10px 12px;font-size:11px;font-weight:700;text-align:center;}
+.wday-head.w1{background:var(--leafy);color:white;}
+.wday-head.w2{background:var(--carrot);color:white;}
+.wday-head.w3{background:var(--progressive);color:var(--blackboard);}
+.wday-body{background:var(--gray-light);padding:10px 12px;border:1px solid var(--gray-mid);border-top:none;border-radius:0 0 10px 10px;}
+.wday-session{font-size:11px;font-weight:600;color:var(--blackboard);padding:5px 8px;border-radius:6px;margin-bottom:5px;line-height:1.4;}
+.wday-session:last-child{margin-bottom:0;}
+.wday-session.gs{background:var(--leafy-pale);color:var(--leafy);}
+.wday-session.os{background:#fff3e0;color:var(--carrot-d);}
+.wday-session.ys{background:#fff8e1;color:var(--progressive-d);}
+.wday-session.bs{background:#f3f3f3;color:#555;}
+
+/* MODULE CARDS */
+.module-list{display:flex;flex-direction:column;gap:14px;}
+.module{display:flex;gap:16px;align-items:flex-start;background:var(--gray-light);border-radius:10px;padding:16px;}
+.module-badge{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.module-badge.g{background:var(--leafy-pale);}
+.module-badge.o{background:#fff3e0;}
+.module-badge.y{background:#fff8e1;}
+.module-content .module-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.module-content .module-desc{font-size:12px;color:#666;line-height:1.6;margin-bottom:8px;}
+.module-topics{display:flex;flex-wrap:wrap;gap:5px;}
+.mtopic{font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px;background:white;color:var(--gray-text);border:1px solid var(--gray-mid);}
+.module-dur{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--carrot);margin-top:6px;}
+
+/* NESTING PHASES */
+.phases{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.phase{border-radius:10px;overflow:hidden;border:1px solid var(--gray-mid);}
+.phase-head{padding:12px 15px;font-size:12px;font-weight:700;}
+.phase-head.p1{background:var(--leafy);color:white;}
+.phase-head.p2{background:var(--carrot);color:white;}
+.phase-head.p3{background:var(--progressive);color:var(--blackboard);}
+.phase-body{padding:14px 15px;background:white;}
+.phase-body p{font-size:12px;color:#555;line-height:1.6;margin-bottom:8px;}
+.phase-body ul{list-style:none;}
+.phase-body ul li{font-size:12px;padding:4px 0;border-bottom:1px solid var(--gray-light);display:flex;gap:6px;align-items:flex-start;}
+.phase-body ul li::before{content:'→';color:var(--carrot);flex-shrink:0;font-weight:700;}
+.phase-body ul li:last-child{border-bottom:none;}
+
+/* ASSESSMENT SECTION */
+.qa-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--leafy);padding:14px 22px 8px;border-bottom:1px solid var(--gray-light);}
+.qa-q-block{padding:16px 22px;border-bottom:1px solid var(--gray-light);}
+.qa-q-block:last-child{border-bottom:none;}
+.qa-q-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--leafy);color:white;border-radius:50%;font-size:10px;font-weight:700;margin-right:6px;flex-shrink:0;}
+.qa-q-text{font-size:13px;font-weight:600;color:var(--blackboard);margin-bottom:10px;display:flex;align-items:flex-start;gap:0;}
+.qa-options{display:flex;flex-direction:column;gap:6px;margin-left:28px;}
+.qa-opt{display:flex;gap:8px;align-items:flex-start;background:var(--gray-light);border-radius:7px;padding:8px 12px;font-size:12px;cursor:pointer;border:1.5px solid transparent;transition:all 0.15s;}
+.qa-opt:hover{border-color:var(--progressive);background:#fff8e1;}
+.qa-opt.correct{border-color:var(--leafy);background:var(--leafy-pale);}
+.qa-opt.correct .opt-letter{background:var(--leafy);color:white;}
+.opt-letter{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;background:var(--gray-mid);color:var(--blackboard);font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.qa-explain{margin:8px 0 0 28px;font-size:11px;color:var(--leafy);background:var(--leafy-pale);border-radius:6px;padding:7px 10px;border-left:3px solid var(--leafy);display:none;}
+.show-key .qa-explain{display:block;}
+.show-key .qa-opt.correct{border-color:var(--leafy);background:var(--leafy-pale);}
+
+/* PRACTICAL RUBRIC */
+.rubric-table{width:100%;border-collapse:collapse;}
+.rubric-table thead tr{background:var(--blackboard);color:white;}
+.rubric-table thead th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-align:left;}
+.rubric-table tbody tr:nth-child(even){background:var(--gray-light);}
+.rubric-table td{padding:11px 14px;font-size:12px;vertical-align:top;border-bottom:1px solid var(--gray-mid);}
+.rubric-table td:first-child{font-weight:600;font-size:13px;}
+.score-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.score-ex{background:#e8f5e9;color:#2e7d32;}
+.score-me{background:#fff8e1;color:#f57f17;}
+.score-be{background:#fff3e0;color:#e65100;}
+.score-fa{background:#ffebee;color:#c62828;}
+
+/* CERT BOX */
+.cert-box{background:var(--blackboard);color:white;border-radius:12px;padding:22px;display:flex;gap:18px;align-items:flex-start;margin-bottom:18px;}
+.cert-icon{font-size:36px;flex-shrink:0;}
+.cert-title{font-size:14px;font-weight:700;color:var(--progressive);margin-bottom:6px;}
+.cert-body{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;}
+
+/* DAY IN THE LIFE */
+.ditl-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.ditl-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:12px;}
+.tag-qa{background:#e8f0e6;color:var(--leafy);}
+.tag-train{background:#fff3e0;color:var(--carrot-d);}
+.tag-report{background:#fff8e1;color:var(--progressive-d);}
+.tag-people{background:#f3e8fd;color:#6a1b9a;}
+.tag-admin{background:#e8eaf6;color:#283593;}
+.tag-lead{background:var(--blackboard);color:rgba(255,255,255,0.85);}
+
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:0;position:relative;}
+.tl-time{width:78px;flex-shrink:0;padding:16px 14px 16px 0;text-align:right;}
+.tl-time-main{font-size:13px;font-weight:700;color:var(--blackboard);}
+.tl-time-dur{font-size:10px;color:#999;margin-top:1px;}
+.tl-spine{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:19px;z-index:1;}
+.tl-dot.g{background:var(--leafy);}
+.tl-dot.o{background:var(--carrot);}
+.tl-dot.y{background:var(--progressive);}
+.tl-dot.d{background:var(--blackboard);}
+.tl-dot.p{background:#7b1fa2;}
+.tl-line{width:2px;background:var(--gray-mid);flex:1;margin-top:0;}
+.tl-item:last-child .tl-line{display:none;}
+.tl-card{flex:1;padding:12px 0 20px 12px;}
+.tl-title{font-size:14px;font-weight:700;color:var(--blackboard);margin-bottom:5px;}
+.tl-body{font-size:12px;color:#555;line-height:1.7;margin-bottom:8px;}
+.tl-tags{display:flex;gap:6px;flex-wrap:wrap;}
+
+.meal-break{display:flex;align-items:center;gap:10px;margin:4px 0;background:var(--gray-light);border-radius:8px;padding:10px 14px;font-size:12px;color:#888;font-style:italic;}
+
+/* INSIGHT STRIP */
+.insight-strip{background:var(--carrot);border-radius:12px;padding:18px 22px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start;}
+.insight-strip .icon{font-size:24px;flex-shrink:0;}
+.insight-strip .text{font-size:13px;color:white;line-height:1.7;}
+.insight-strip .text strong{font-weight:700;}
+
+.key-btn{font-family:'Rubik',sans-serif;background:var(--leafy);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;padding:8px 18px;cursor:pointer;margin:10px 22px 16px;letter-spacing:0.5px;}
+.key-btn:hover{background:var(--leafy-mid);}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-pill">Tap2eat · CX Operations · Internal Resource</div>
+  <h1>Intern Onboarding Kit<br>&amp; <em>Day in the Life</em></h1>
+  <p class="cover-desc">Everything a new CX intern needs from Day 1 to first live call — plus a window into what the Quality &amp; Training Lead does every single day to keep the programme running.</p>
+  <div class="cover-icons">
+    <div class="ci g">🥬</div><div class="ci o">☎️</div><div class="ci y">📚</div>
+    <div class="ci g">🌽</div><div class="ci o">🎯</div><div class="ci y">📊</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tbtn active" onclick="sw(0)">👋 Welcome & Week 1</button>
+  <button class="tbtn" onclick="sw(1)">📚 Training Modules</button>
+  <button class="tbtn" onclick="sw(2)">🔬 Nesting Period</button>
+  <button class="tbtn" onclick="sw(3)">✅ Knowledge Assessment</button>
+  <button class="tbtn" onclick="sw(4)">🎙️ Practical Assessment</button>
+  <button class="tbtn" onclick="sw(5)">🌅 Day in the Life</button>
+</div>
+
+<div class="content">
+
+<!-- ═══════ TAB 0 — WELCOME & WEEK 1 ═══════ -->
+<div class="tab-panel active" id="p0">
+
+  <div class="welcome-banner">
+    <div class="wb-emoji">🥕</div>
+    <div class="wb-left">
+      <div class="wb-tag">Welcome to the Team</div>
+      <div class="wb-title">You're now part of something that feeds thousands of children every day.</div>
+      <div class="wb-sub" data-e="ob-e1">The Tap2eat programme connects parents and schools to Food for Education's meal service. As a CX intern, every call you handle, every parent you help, every issue you resolve — it all keeps that mission running. This kit will get you ready.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch green">📋 Your First Week at a Glance</div>
+    <div class="cb">
+      <div class="week-grid">
+        <div class="wday">
+          <div class="wday-head w1">Monday</div>
+          <div class="wday-body">
+            <div class="wday-session gs">Welcome & HR Onboarding</div>
+            <div class="wday-session os">Site Tour & Introductions</div>
+            <div class="wday-session ys">Tap2eat Programme Overview</div>
+          </div>
+        </div>
+        <div class="wday">
+          <div class="wday-head w1">Tuesday</div>
+          <div class="wday-body">
+            <div class="wday-session os">Module 1: CRM Systems</div>
+            <div class="wday-session gs">CRM Hands-on Practice</div>
+            <div class="wday-session bs">Q&A with QA Lead</div>
+          </div>
+        </div>
+        <div class="wday">
+          <div class="wday-head w2">Wednesday</div>
+          <div class="wday-body">
+            <div class="wday-session os">Module 2: Call Standards</div>
+            <div class="wday-session ys">Listen to Model Calls</div>
+            <div class="wday-session gs">QA Scorecard Walkthrough</div>
+          </div>
+        </div>
+        <div class="wday">
+          <div class="wday-head w2">Thursday</div>
+          <div class="wday-body">
+            <div class="wday-session ys">Module 3: Common Scenarios</div>
+            <div class="wday-session os">Role-Play Practice</div>
+            <div class="wday-session gs">Escalation Protocols</div>
+          </div>
+        </div>
+        <div class="wday">
+          <div class="wday-head w3">Friday</div>
+          <div class="wday-body">
+            <div class="wday-session gs">Knowledge Assessment</div>
+            <div class="wday-session ys">Feedback Session</div>
+            <div class="wday-session os">Nesting Period Briefing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch amber">📌 Before Your First Call — Checklist</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">HR documents submitted</div><div style="font-size:11px;color:#777;">ID, next-of-kin, bank details</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">CRM login credentials received</div><div style="font-size:11px;color:#777;">From IT via your work email</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">Headset tested &amp; working</div><div style="font-size:11px;color:#777;">Request replacement same day if faulty</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">All 3 training modules completed</div><div style="font-size:11px;color:#777;">Signed off by Q&amp;T Lead</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">Knowledge Assessment passed ≥80%</div><div style="font-size:11px;color:#777;">Resit available if below threshold</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">QA Scorecard reviewed</div><div style="font-size:11px;color:#777;">Understand how you'll be evaluated</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">Shadow sessions completed (×3)</div><div style="font-size:11px;color:#777;">Observe 3 different senior agents</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;">☐</span>
+          <div><div style="font-size:13px;font-weight:600;">Escalation SOP memorised</div><div style="font-size:11px;color:#777;">Know who to call and when</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch green">🧑‍🤝‍🧑 Your Key Contacts</div>
+    <div class="cb" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="border:1.5px solid var(--leafy-pale);border-radius:10px;padding:14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--leafy);margin-bottom:4px;">Your Direct Supervisor</div>
+        <div style="font-size:14px;font-weight:700;">Quality &amp; Training Lead</div>
+        <div style="font-size:12px;color:#777;margin-top:2px;">QA evaluations, coaching, training, escalations</div>
+      </div>
+      <div style="border:1.5px solid #fff3e0;border-radius:10px;padding:14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--carrot);margin-bottom:4px;">Day-to-Day Floor Support</div>
+        <div style="font-size:14px;font-weight:700;">CX Team Lead</div>
+        <div style="font-size:12px;color:#777;margin-top:2px;">Shift queries, schedules, immediate help on calls</div>
+      </div>
+      <div style="border:1.5px solid #fff8e1;border-radius:10px;padding:14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--progressive-d);margin-bottom:4px;">CRM &amp; Tech Issues</div>
+        <div style="font-size:14px;font-weight:700;">IT Support / CRM Admin</div>
+        <div style="font-size:12px;color:#777;margin-top:2px;">System access, login issues, technical faults</div>
+      </div>
+      <div style="border:1.5px solid var(--gray-mid);border-radius:10px;padding:14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:4px;">HR &amp; Welfare</div>
+        <div style="font-size:14px;font-weight:700;">People Team</div>
+        <div style="font-size:12px;color:#777;margin-top:2px;">Contracts, leave requests, wellbeing support</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════ TAB 1 — TRAINING MODULES ═══════ -->
+<div class="tab-panel" id="p1">
+
+  <div class="insight-strip">
+    <div class="icon">📖</div>
+    <div class="text"><strong>How the modules work:</strong> Each module has a trainer-led session, a self-study guide, and a short knowledge check. You must complete all modules before entering the nesting period. The Q&amp;T Lead signs off your completion on each one.</div>
+  </div>
+
+  <div class="module-list">
+
+    <div class="card">
+      <div class="ch green">Module 1 — Foundation</div>
+      <div class="cb">
+        <div class="module">
+          <div class="module-badge g">🥬</div>
+          <div class="module-content">
+            <div class="module-title">Food for Education &amp; the Tap2eat Programme</div>
+            <div class="module-desc">Understand the organisation's mission, how the school meals programme works, and your role in the parent-facing service that supports it. You can't serve parents well if you don't understand what you're serving.</div>
+            <div class="module-topics">
+              <span class="mtopic">FFE mission &amp; history</span>
+              <span class="mtopic">How Tap2eat works</span>
+              <span class="mtopic">School &amp; parent journey</span>
+              <span class="mtopic">Meal payment cycle</span>
+              <span class="mtopic">Programme reach &amp; impact</span>
+            </div>
+            <div class="module-dur">⏱ 2 hours · Trainer-led + self-study guide</div>
+          </div>
+        </div>
+        <div class="module" style="margin-top:12px;">
+          <div class="module-badge o">💻</div>
+          <div class="module-content">
+            <div class="module-title">CRM Navigation &amp; Data Standards</div>
+            <div class="module-desc">Learn how to search, log, update, and close interactions in the CRM. CRM accuracy is a primary KPI — from your first interaction, what you type matters. Poor data causes programme failures downstream.</div>
+            <div class="module-topics">
+              <span class="mtopic">CRM login &amp; layout</span>
+              <span class="mtopic">Searching parent records</span>
+              <span class="mtopic">Logging an interaction</span>
+              <span class="mtopic">Updating contact details</span>
+              <span class="mtopic">Closing &amp; categorising cases</span>
+              <span class="mtopic">Data accuracy standards</span>
+            </div>
+            <div class="module-dur">⏱ 3 hours · Practical hands-on session</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch orange">Module 2 — Communication Standards</div>
+      <div class="cb">
+        <div class="module">
+          <div class="module-badge o">☎️</div>
+          <div class="module-content">
+            <div class="module-title">Call Handling &amp; Quality Standards</div>
+            <div class="module-desc">Master the Tap2eat call structure — from greeting to wrap-up. You'll learn how to open calls professionally, use empathy throughout, manage difficult parents calmly, and close every interaction clearly and completely.</div>
+            <div class="module-topics">
+              <span class="mtopic">Opening script</span>
+              <span class="mtopic">Tone &amp; empathy language</span>
+              <span class="mtopic">Active listening techniques</span>
+              <span class="mtopic">Hold procedure</span>
+              <span class="mtopic">Transfer protocol</span>
+              <span class="mtopic">Closing script</span>
+              <span class="mtopic">Wrap-up &amp; CRM logging</span>
+            </div>
+            <div class="module-dur">⏱ 2.5 hours · Trainer-led with listening exercises</div>
+          </div>
+        </div>
+        <div class="module" style="margin-top:12px;">
+          <div class="module-badge y">💬</div>
+          <div class="module-content">
+            <div class="module-title">WhatsApp, SMS &amp; Email Standards</div>
+            <div class="module-desc">Written channels demand different skills — no tone of voice, no real-time back-and-forth. Learn how to write clear, professional, warm messages that resolve issues without creating confusion or requiring follow-up.</div>
+            <div class="module-topics">
+              <span class="mtopic">Channel etiquette</span>
+              <span class="mtopic">Response time standards</span>
+              <span class="mtopic">Approved message templates</span>
+              <span class="mtopic">Avoiding ambiguity</span>
+              <span class="mtopic">Emoji &amp; tone policy</span>
+            </div>
+            <div class="module-dur">⏱ 1.5 hours · Self-study + writing exercises</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch amber">Module 3 — Scenarios &amp; Escalations</div>
+      <div class="cb">
+        <div class="module">
+          <div class="module-badge g">🧩</div>
+          <div class="module-content">
+            <div class="module-title">Common Parent &amp; School Scenarios</div>
+            <div class="module-desc">Work through the 15 most frequent contact reasons — payment failures, school registration queries, meal delivery issues, account updates, and complaints. Learn the right resolution path for each without needing to escalate unnecessarily.</div>
+            <div class="module-topics">
+              <span class="mtopic">Payment failures</span>
+              <span class="mtopic">Balance enquiries</span>
+              <span class="mtopic">School registration</span>
+              <span class="mtopic">Meal non-delivery</span>
+              <span class="mtopic">Account suspension</span>
+              <span class="mtopic">Refund requests</span>
+              <span class="mtopic">PIN/access issues</span>
+              <span class="mtopic">Changing school</span>
+            </div>
+            <div class="module-dur">⏱ 3 hours · Role-play pairs + trainer debrief</div>
+          </div>
+        </div>
+        <div class="module" style="margin-top:12px;">
+          <div class="module-badge o">🚨</div>
+          <div class="module-content">
+            <div class="module-title">Escalation Protocols &amp; SOPs</div>
+            <div class="module-desc">Know exactly when to escalate, who to escalate to, and how to hand off without losing the parent. Unnecessary escalations frustrate parents and inflate handle times. Missing a real escalation is worse. This module tells you the difference.</div>
+            <div class="module-topics">
+              <span class="mtopic">Escalation decision tree</span>
+              <span class="mtopic">When not to escalate</span>
+              <span class="mtopic">Warm transfer technique</span>
+              <span class="mtopic">Documenting escalations</span>
+              <span class="mtopic">Safeguarding contacts</span>
+              <span class="mtopic">Complaint procedure</span>
+            </div>
+            <div class="module-dur">⏱ 2 hours · Trainer-led + scenario cards</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ TAB 2 — NESTING PERIOD ═══════ -->
+<div class="tab-panel" id="p2">
+
+  <div class="insight-strip">
+    <div class="icon">🌱</div>
+    <div class="text"><strong>The nesting period is not a formality.</strong> It is the bridge between training and live calls. No intern goes fully live until the Quality &amp; Training Lead has signed off on their readiness. Use this time to ask questions — it costs nothing here, but costs a lot once you're live.</div>
+  </div>
+
+  <div class="phases">
+    <div class="phase">
+      <div class="phase-head p1">Phase 1 · Days 6–8<br>Silent Shadowing</div>
+      <div class="phase-body">
+        <p>Sit alongside a senior agent. Listen to live calls with your headset in. Do not speak. Observe everything — how they open, how they use the CRM in real time, how they handle frustrated parents, how they wrap up.</p>
+        <ul>
+          <li>Minimum 3 shadow sessions with different agents</li>
+          <li>Complete shadow observation form after each session</li>
+          <li>Note at least 3 questions to bring to debrief</li>
+          <li>Q&amp;T Lead reviews shadow forms end of Phase 1</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-head p2">Phase 2 · Days 9–13<br>Supervised Live Calls</div>
+      <div class="phase-body">
+        <p>Take live calls with your supervisor listening silently. Handle the interaction fully. After each call, receive immediate verbal feedback. QA Assessor scores a selection of these calls using the full scorecard.</p>
+        <ul>
+          <li>Minimum 15 supervised calls completed</li>
+          <li>Same-day verbal feedback after every session</li>
+          <li>QA scores reviewed with you every 2 days</li>
+          <li>Target score during Phase 2 is ≥ 75%</li>
+          <li>Any score below 60% triggers a coaching hold</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-head p3">Phase 3 · Days 14–15<br>Readiness Certification</div>
+      <div class="phase-body">
+        <p>Final assessment by the Quality &amp; Training Lead. Includes one observed live call session plus a short competency check. Pass criteria must be met before going fully independent.</p>
+        <ul>
+          <li>Final QA score ≥ 80% to pass</li>
+          <li>CRM accuracy ≥ 95% on assessed calls</li>
+          <li>Escalation decision correct on all test scenarios</li>
+          <li>Q&amp;T Lead issues written readiness sign-off</li>
+          <li>Failed phase = extend by 5 days with support plan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <div class="ch green">📅 Nesting Period Timeline Overview</div>
+    <div class="cb">
+      <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--gray-mid);">
+        <div style="flex:1;background:var(--leafy-pale);padding:14px;border-right:1px solid var(--gray-mid);">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--leafy);margin-bottom:4px;">Days 1–5</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Training Week</div>
+          <div style="font-size:11px;color:#666;">All 3 modules + knowledge assessment + QA scorecard briefing</div>
+        </div>
+        <div style="flex:1;background:#fff3e0;padding:14px;border-right:1px solid var(--gray-mid);">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--carrot);margin-bottom:4px;">Days 6–8</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Silent Shadow</div>
+          <div style="font-size:11px;color:#666;">3 shadow sessions, observation forms, debrief</div>
+        </div>
+        <div style="flex:1;background:#fff8e1;padding:14px;border-right:1px solid var(--gray-mid);">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--progressive-d);margin-bottom:4px;">Days 9–13</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;">Supervised Live</div>
+          <div style="font-size:11px;color:#666;">15+ supervised calls, daily feedback, target ≥75%</div>
+        </div>
+        <div style="flex:1;background:var(--blackboard);padding:14px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--progressive);margin-bottom:4px;">Days 14–15</div>
+          <div style="font-size:12px;font-weight:700;color:white;margin-bottom:4px;">Certification</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);">Final assessment, ≥80% required, written sign-off</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-box">
+    <div class="cert-icon">🏅</div>
+    <div>
+      <div class="cert-title">What Readiness Certification Means</div>
+      <div class="cert-body" data-e="ob-e2">Passing the nesting period does not mean you are perfect — it means you have demonstrated that you can handle a live Tap2eat parent interaction safely, professionally, and with the right instincts. Ongoing QA evaluations, coaching, and training continue throughout your internship. Certification is the beginning, not the finish line.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════ TAB 3 — KNOWLEDGE ASSESSMENT ═══════ -->
+<div class="tab-panel" id="p3">
+
+  <div class="card">
+    <div class="ch amber">📋 Assessment Instructions</div>
+    <div class="cb" style="font-size:13px;color:#555;line-height:1.8;">
+      <strong style="color:var(--blackboard);">Pass mark: 80% (16/20 questions correct).</strong> You must complete this assessment individually without referring to your notes. You will have 30 minutes. If you score below 80%, you will receive targeted coaching and one resit attempt within 2 working days. Press "Show Answer Key" at the bottom to reveal correct answers after completing the assessment.
+    </div>
+  </div>
+
+  <div class="card" id="assess-card">
+    <!-- SECTION A -->
+    <div class="qa-section-label">Section A — Programme Knowledge (5 questions)</div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">1</span>&nbsp;What is the primary purpose of the Tap2eat programme?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>To provide free internet access to schools in Kenya</div>
+        <div class="qa-opt correct"><span class="opt-letter">B</span>To enable parents and schools to manage school meal payments and delivery through the Food for Education platform</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>To deliver food directly to parents' homes on subscription</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>To manage teacher payroll for partner schools</div>
+      </div>
+      <div class="qa-explain">B is correct. Tap2eat is the parent-facing service of Food for Education, enabling payment, registration, and meal management for enrolled schools.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">2</span>&nbsp;A parent calls and says their child didn't receive a meal today despite having a positive balance. What is your FIRST action?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Immediately escalate to the Team Lead</div>
+        <div class="qa-opt correct"><span class="opt-letter">B</span>Empathise, pull up the parent's CRM record, and verify account status and meal schedule</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>Tell the parent the school is responsible and give them the school's number</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Ask the parent to send a WhatsApp message instead</div>
+      </div>
+      <div class="qa-explain">B is correct. Always empathise first, then investigate using the CRM before deciding whether to escalate or resolve directly. Escalating without checking the record wastes everyone's time.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">3</span>&nbsp;Which of the following is an example of a CORRECT CRM log entry?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>"Parent called about lunch"</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>"Rude parent, didn't help"</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>"Parent enquired re: meal non-delivery on 14/05. Verified account balance (KES 450). Confirmed delivery log shows meal recorded. Advised parent to confirm with class teacher. Closed — no further action required."</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>"Called back but no answer"</div>
+      </div>
+      <div class="qa-explain">C is correct. A proper CRM entry includes: the contact reason, what was checked, what was found, what action was taken, and how the case was closed.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">4</span>&nbsp;How long should a standard call handle time (AHT) be at most?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>60 seconds</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>120 seconds</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>180 seconds</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>300 seconds</div>
+      </div>
+      <div class="qa-explain">C is correct. The AHT target is ≤180 seconds (3 minutes). This includes talk time and any immediate wrap-up/CRM entry after the call.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">5</span>&nbsp;If a parent contacts you a second time about the same unresolved issue, this is recorded as a failure of which KPI?</div>
+      <div class="qa-options">
+        <div class="qa-opt correct"><span class="opt-letter">A</span>First Call Resolution (FCR)</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Quality Assurance Score</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>Average Handle Time</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>CRM Data Accuracy</div>
+      </div>
+      <div class="qa-explain">A is correct. First Call Resolution measures whether an issue is resolved on the first contact. A repeat contact for the same issue counts as a failed FCR instance.</div>
+    </div>
+
+    <!-- SECTION B -->
+    <div class="qa-section-label">Section B — Call Standards (5 questions)</div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">6</span>&nbsp;Which greeting correctly follows the Tap2eat call opening standard?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>"Hello, how can I help you today?"</div>
+        <div class="qa-opt correct"><span class="opt-letter">B</span>"Good morning/afternoon, thank you for calling Tap2eat. My name is [Name] — how may I assist you today?"</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>"Tap2eat customer service, speak."</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>"Hi, this is [Name], what's your problem?"</div>
+      </div>
+      <div class="qa-explain">B is correct. A proper opening includes a time-of-day greeting, the programme name, your name, and an offer to assist — in that order.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">7</span>&nbsp;A parent becomes very angry and starts shouting. What is the correct approach?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Raise your voice slightly to match their urgency so they know you are serious</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Place them on hold immediately until they calm down</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Stay calm, lower your tone, acknowledge their frustration, and say "I hear you — let me look into this for you right now"</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Warn the parent that you will end the call if they continue shouting</div>
+      </div>
+      <div class="qa-explain">C is correct. De-escalation requires a calm, lower tone — never matching the parent's energy. Acknowledging the frustration before problem-solving is a key empathy technique.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">8</span>&nbsp;When is it correct to place a parent on hold?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Whenever you need a moment to think</div>
+        <div class="qa-opt correct"><span class="opt-letter">B</span>When you need to consult a resource or colleague and cannot resolve the query in real time — only after asking permission and informing the parent of the expected wait time</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>When the parent sounds confused and you need to read the SOP</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>When calls are running too long and AHT is rising</div>
+      </div>
+      <div class="qa-explain">B is correct. Holds require: (1) a reason, (2) permission from the parent, (3) an estimated wait time. Never hold without notifying. Never hold to manage AHT.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">9</span>&nbsp;A parent asks you to process a refund of KES 2,000. You are not authorised to do this. What do you do?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Tell the parent refunds are not available</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Process it anyway to keep the parent happy</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Acknowledge the request, explain you'll need to escalate to the Team Lead, take ownership of the follow-up, and give a clear timeframe</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Ask the parent to email the refund request</div>
+      </div>
+      <div class="qa-explain">C is correct. When you cannot resolve an issue yourself, you must: acknowledge, explain, escalate with ownership (not pass the parent off), and set a clear expectation.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">10</span>&nbsp;Which of these is an example of an empathetic statement?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>"That's not our fault."</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>"I understand your issue but our system is correct."</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>"I completely understand how frustrating that must be — let me look into this for you right now."</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>"You should have checked your account earlier."</div>
+      </div>
+      <div class="qa-explain">C is correct. Empathy means validating the parent's feeling before jumping to the solution. Phrases like "I understand" and "right now" signal urgency and care simultaneously.</div>
+    </div>
+
+    <!-- SECTION C -->
+    <div class="qa-section-label">Section C — Scenarios &amp; Escalations (5 questions)</div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">11</span>&nbsp;A parent reports that their child has been eating meals for two weeks but the balance hasn't been deducted. What should you do FIRST?</div>
+      <div class="qa-options">
+        <div class="qa-opt correct"><span class="opt-letter">A</span>Pull up the CRM record, check transaction history and meal logs, verify whether it's a billing delay or a system error, and escalate if confirmed as a system issue</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Tell the parent to contact their school's finance office</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>Inform the parent that the balance will be deducted retroactively soon</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Ask the parent to stop allowing their child to eat until it is resolved</div>
+      </div>
+      <div class="qa-explain">A is correct. Always investigate in the CRM first. Billing anomalies require verification before any explanation is given to the parent to avoid misinformation.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">12</span>&nbsp;When should you escalate to the Team Lead WITHOUT first attempting to resolve?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>When the parent sounds upset</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>When the call is running past 180 seconds</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>When the issue involves a system error, safeguarding concern, legal threat, or refund above your authorisation limit</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>When you are unsure what to say next</div>
+      </div>
+      <div class="qa-explain">C is correct. Immediate escalation is required for: system errors, safeguarding, legal threats, and transactions above your authorisation level. Emotional tone or uncertainty is not a reason to escalate.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">13</span>&nbsp;A parent sends a WhatsApp message in Kiswahili. You are comfortable in English. What should you do?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Reply in English only</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Ignore the message until a Kiswahili-speaking agent is available</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Respond in both English and Kiswahili where possible, or flag to a bilingual colleague while keeping the parent informed of the handover</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Ask the parent to resend their message in English</div>
+      </div>
+      <div class="qa-explain">C is correct. Language should never be a barrier. Make every effort to communicate in the parent's preferred language. Handovers to bilingual colleagues are acceptable with proper notification to the parent.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">14</span>&nbsp;After resolving a call, what must you do before moving to the next interaction?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Take a short break to recover</div>
+        <div class="qa-opt correct"><span class="opt-letter">B</span>Complete the CRM log — recording the contact reason, actions taken, resolution, and case status — before accepting the next interaction</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>Check WhatsApp for new messages</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Report the call outcome verbally to your Team Lead</div>
+      </div>
+      <div class="qa-explain">B is correct. Every interaction must be logged in CRM immediately after the call — before the next contact. Delayed or missed logs directly impact CRM Data Accuracy KPI.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">15</span>&nbsp;You accidentally log incorrect school details for a parent's account. What should you do?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Leave it and hope no one notices</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Delete the record entirely and start a new one</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Correct the record immediately in CRM, add a note explaining the amendment and when it was made, and inform your supervisor</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Ask IT to fix it at the end of the week</div>
+      </div>
+      <div class="qa-explain">C is correct. Errors must be corrected immediately, documented with an amendment note, and disclosed to your supervisor. Data integrity is non-negotiable.</div>
+    </div>
+
+    <!-- SECTION D -->
+    <div class="qa-section-label">Section D — Quality &amp; Standards (5 questions)</div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">16</span>&nbsp;What is the minimum QA score you must maintain as a certified agent?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>70%</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>80%</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>95%</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>100%</div>
+      </div>
+      <div class="qa-explain">C is correct. The QA Score target is ≥95%. Scores below 90% trigger a mandatory coaching session within 5 working days.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">17</span>&nbsp;Which of these is NOT a quality parameter assessed on the QA scorecard?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Professionalism and tone</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>First Call Resolution</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Number of calls taken per hour</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>CRM accuracy</div>
+      </div>
+      <div class="qa-explain">C is correct. Volume metrics (calls per hour) are not on the QA scorecard. QA measures quality of interaction — not quantity. Professionalism, FCR, empathy, and CRM accuracy are all scored.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">18</span>&nbsp;A Quality Assessor gives you a score of 82% and feedback you disagree with. What should you do?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Ignore the feedback — it was a one-off</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Complain to the CX Manager directly</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Raise a formal dispute with the Quality Assessor within 24 hours, referencing specific scorecard items, and request a review by the Quality &amp; Training Lead</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Ask a senior colleague to speak to the assessor on your behalf</div>
+      </div>
+      <div class="qa-explain">C is correct. Disputes must be raised directly and formally within 24 hours, citing specific scorecard criteria. The Q&amp;T Lead is the final arbitrator for all score disputes.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">19</span>&nbsp;What does "calibration" mean in a call centre QA context?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Adjusting your headset audio levels at the start of a shift</div>
+        <div class="qa-opt correct"><span class="opt-letter">B</span>A session where QA Assessors and supervisors score the same call independently, then compare scores to ensure consistency in how the scorecard is applied</div>
+        <div class="qa-opt"><span class="opt-letter">C</span>Training new agents how to use the CRM correctly</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Setting performance targets for the coming month</div>
+      </div>
+      <div class="qa-explain">B is correct. Calibration ensures that all QA Assessors interpret the scorecard the same way — so every agent is evaluated fairly regardless of who scores their call.</div>
+    </div>
+
+    <div class="qa-q-block">
+      <div class="qa-q-text"><span class="qa-q-num">20</span>&nbsp;Why is a QA score below 90% on a single interaction not necessarily catastrophic?</div>
+      <div class="qa-options">
+        <div class="qa-opt"><span class="opt-letter">A</span>Because QA scores don't really matter for interns</div>
+        <div class="qa-opt"><span class="opt-letter">B</span>Because the scorecard has known errors</div>
+        <div class="qa-opt correct"><span class="opt-letter">C</span>Because QA is evaluated on trends over multiple interactions — one score triggers a coaching conversation to prevent the pattern, not an immediate disciplinary action</div>
+        <div class="qa-opt"><span class="opt-letter">D</span>Because interns are not expected to reach 90% for the first 6 months</div>
+      </div>
+      <div class="qa-explain">C is correct. A single low score is a learning signal, not a punishment trigger. The coaching conversation that follows is designed to prevent it becoming a trend. Consistent sub-90% scores over a period are the concern.</div>
+    </div>
+
+    <button class="key-btn" onclick="toggleKey()">Show Answer Key</button>
+  </div>
+
+</div>
+
+<!-- ═══════ TAB 4 — PRACTICAL ASSESSMENT ═══════ -->
+<div class="tab-panel" id="p4">
+
+  <div class="insight-strip">
+    <div class="icon">🎙️</div>
+    <div class="text"><strong>The practical assessment is the final gate before certification.</strong> It uses real Tap2eat scenarios on a live or simulated call. The Q&amp;T Lead scores every dimension using the same rubric applied to live agents — because you will be held to the same standard once certified.</div>
+  </div>
+
+  <div class="card">
+    <div class="ch green">🎯 Practical Assessment — Scoring Rubric</div>
+    <div class="cb" style="padding:0;">
+      <table class="rubric-table">
+        <thead>
+          <tr>
+            <th style="width:180px;">Dimension</th>
+            <th>Exceeds (5)</th>
+            <th>Meets (4)</th>
+            <th>Below (2–3)</th>
+            <th>Fails (0–1)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Opening &amp; Greeting</td>
+            <td><span class="score-pill score-ex">Warm, complete, brand-accurate, confident</span></td>
+            <td><span class="score-pill score-me">All elements present, minor tone gap</span></td>
+            <td><span class="score-pill score-be">Missing 1 element or slightly robotic</span></td>
+            <td><span class="score-pill score-fa">Missing 2+ elements or incorrect opening</span></td>
+          </tr>
+          <tr>
+            <td>Empathy &amp; Tone</td>
+            <td><span class="score-pill score-ex">Natural, specific, validates feeling before solution</span></td>
+            <td><span class="score-pill score-me">Empathises but generic phrasing</span></td>
+            <td><span class="score-pill score-be">Empathy absent on one occasion or sounds scripted</span></td>
+            <td><span class="score-pill score-fa">Dismissive, cold, or impatient at any point</span></td>
+          </tr>
+          <tr>
+            <td>Issue Identification</td>
+            <td><span class="score-pill score-ex">Quickly and accurately identifies root cause; clarifies without interrogating</span></td>
+            <td><span class="score-pill score-me">Identifies issue correctly with 1–2 clarifying questions</span></td>
+            <td><span class="score-pill score-be">Takes longer than necessary; minor misidentification</span></td>
+            <td><span class="score-pill score-fa">Wrong issue identified or no attempt to clarify</span></td>
+          </tr>
+          <tr>
+            <td>CRM Navigation &amp; Log</td>
+            <td><span class="score-pill score-ex">Navigates CRM fluently; complete, accurate, immediate log</span></td>
+            <td><span class="score-pill score-me">Accurate log, minor delay or brief navigation pause</span></td>
+            <td><span class="score-pill score-be">Log incomplete or delayed; one data field inaccurate</span></td>
+            <td><span class="score-pill score-fa">No log created, wrong record updated, or major inaccuracy</span></td>
+          </tr>
+          <tr>
+            <td>Resolution &amp; FCR</td>
+            <td><span class="score-pill score-ex">Issue fully resolved or escalated correctly with ownership and ETA</span></td>
+            <td><span class="score-pill score-me">Issue resolved with minor clarification gap</span></td>
+            <td><span class="score-pill score-be">Partial resolution; follow-up left unclear</span></td>
+            <td><span class="score-pill score-fa">Issue unresolved, incorrect advice, or parent not informed</span></td>
+          </tr>
+          <tr>
+            <td>Escalation Judgement</td>
+            <td><span class="score-pill score-ex">Correct escalation decision every time; warm transfer with full handover brief</span></td>
+            <td><span class="score-pill score-me">Correct decision; handover brief slightly incomplete</span></td>
+            <td><span class="score-pill score-be">Escalated when unnecessary or slight delay in correct decision</span></td>
+            <td><span class="score-pill score-fa">Failed to escalate when required or escalated a simple query</span></td>
+          </tr>
+          <tr>
+            <td>Handle Time (AHT)</td>
+            <td><span class="score-pill score-ex">Completed within 150 seconds without sacrificing quality</span></td>
+            <td><span class="score-pill score-me">151–180 seconds</span></td>
+            <td><span class="score-pill score-be">181–240 seconds</span></td>
+            <td><span class="score-pill score-fa">&gt;240 seconds or rushed to the point of error</span></td>
+          </tr>
+          <tr>
+            <td>Closing &amp; Wrap-Up</td>
+            <td><span class="score-pill score-ex">Confirms resolution, offers further help, closes warmly, logs immediately</span></td>
+            <td><span class="score-pill score-me">Closes correctly with all required elements</span></td>
+            <td><span class="score-pill score-be">Missing one closing element (e.g. no confirmation of resolution)</span></td>
+            <td><span class="score-pill score-fa">Abrupt end, no confirmation, no log after call</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch amber">📐 Scoring &amp; Certification Criteria</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--leafy-pale);border-radius:10px;padding:16px;border-left:4px solid var(--leafy);">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--leafy);margin-bottom:6px;">Certification Pass</div>
+          <div style="font-size:22px;font-weight:800;color:var(--leafy);">≥ 80%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px;">Minimum 32/40 points across all 8 dimensions. No individual dimension may score 0.</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:10px;padding:16px;border-left:4px solid var(--carrot);">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--carrot);margin-bottom:6px;">Extended Nesting</div>
+          <div style="font-size:22px;font-weight:800;color:var(--carrot);">60–79%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px;">5-day extension with a targeted coaching plan. Reassessment at end of extension period.</div>
+        </div>
+        <div style="background:#ffebee;border-radius:10px;padding:16px;border-left:4px solid #c62828;grid-column:1/-1;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c62828;margin-bottom:6px;">Programme Review</div>
+          <div style="font-size:22px;font-weight:800;color:#c62828;">&lt; 60%</div>
+          <div style="font-size:12px;color:#555;margin-top:4px;">Full training programme review required before re-entry to nesting. Q&amp;T Lead and People Team jointly determine next steps including additional training or probation outcome.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch dark">🎭 Practical Scenarios Used in Assessment</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:var(--gray-light);border-radius:8px;padding:13px 16px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:var(--leafy);color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:2px;">S1</span>
+          <div><div style="font-size:13px;font-weight:600;">Payment Failure Scenario</div><div style="font-size:12px;color:#666;margin-top:3px;">Parent says their mobile money payment didn't go through but money was deducted. Agent must investigate, empathise, confirm with CRM, and provide resolution or escalation path.</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:13px 16px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:var(--carrot);color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:2px;">S2</span>
+          <div><div style="font-size:13px;font-weight:600;">Angry Parent Escalation</div><div style="font-size:12px;color:#666;margin-top:3px;">Parent is irate — child has missed meals for 3 days. Agent must de-escalate, identify root cause in CRM, and navigate correctly between resolution and escalation. Tests empathy and FCR skills.</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:13px 16px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:var(--progressive-d);color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:2px;">S3</span>
+          <div><div style="font-size:13px;font-weight:600;">School Change Request</div><div style="font-size:12px;color:#666;margin-top:3px;">Parent wants to transfer their child to a new school mid-term and update the Tap2eat account accordingly. Agent must follow the correct SOP, update CRM accurately, and confirm with the parent.</div></div>
+        </div>
+        <div style="background:var(--gray-light);border-radius:8px;padding:13px 16px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:var(--blackboard);color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:2px;">S4</span>
+          <div><div style="font-size:13px;font-weight:600;">Complex Multi-Issue Call (Advanced)</div><div style="font-size:12px;color:#666;margin-top:3px;">Parent raises a billing question, a delivery concern, and a complaint about a staff member at school in a single call. Agent must manage prioritisation, triage correctly, and ensure none of the three issues is dropped.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════ TAB 5 — DAY IN THE LIFE ═══════ -->
+<div class="tab-panel" id="p5">
+
+  <div class="welcome-banner">
+    <div class="wb-emoji">🌅</div>
+    <div class="wb-left">
+      <div class="wb-tag">Quality &amp; Training Lead</div>
+      <div class="wb-title">A day that builds quality across every level.</div>
+      <div class="wb-sub" data-e="ob-e3">No two days are identical — but the rhythm is consistent. You move between evaluation, coaching, training delivery, data analysis, and leadership. Here's what a typical Wednesday looks like.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch amber">🗂️ Activity Type Key</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="ditl-legend">
+        <span class="ditl-tag tag-qa">🔍 QA &amp; Evaluation</span>
+        <span class="ditl-tag tag-train">📚 Training &amp; Coaching</span>
+        <span class="ditl-tag tag-report">📊 Data &amp; Reporting</span>
+        <span class="ditl-tag tag-people">👥 People Management</span>
+        <span class="ditl-tag tag-admin">📋 Admin &amp; Planning</span>
+        <span class="ditl-tag tag-lead">🎯 Leadership &amp; Comms</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch green">📅 Wednesday — Full Day Schedule</div>
+    <div class="cb">
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">7:30</div><div class="tl-time-dur">30 min</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e4">Morning prep &amp; floor readiness check</div>
+            <div class="tl-body" data-e="ob-e5">Arrive before the floor opens. Check the previous day's QA dashboard for any overnight flags. Confirm the evaluation queue is loaded for the day. Review attendance — are all agents in? Is there a nesting-period intern who needs a supervisor on-seat today? Brief the Team Lead on anything that needs floor-level attention before the first call drops.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-qa">🔍 QA Review</span><span class="ditl-tag tag-lead">🎯 Floor Leadership</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">8:00</div><div class="tl-time-dur">45 min</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e6">Live QA monitoring — morning batch</div>
+            <div class="tl-body" data-e="ob-e7">Pull up the call recording system and monitor 4–6 live or recent recordings from agents flagged by the QA Assessor in yesterday's shift. Focus especially on any agent who dipped below 90% last week. Score each one on the QA scorecard. Annotate specific moments for coaching feedback — exact timestamps, exact phrasing, what was missing and why it matters.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-qa">🔍 QA Evaluation</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">8:45</div><div class="tl-time-dur">30 min</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e8">QA Assessor daily brief &amp; task assignment</div>
+            <div class="tl-body" data-e="ob-e9">10-minute stand-up with the Quality Assessors. Share any trends spotted from the morning monitoring. Assign today's evaluation targets by agent name — who each assessor monitors, what channels to focus on, and any priority call types (e.g. payment complaints after a system maintenance window). Check their coaching log status — any overdue feedback sessions from last week?</div>
+            <div class="tl-tags"><span class="ditl-tag tag-people">👥 Team Management</span><span class="ditl-tag tag-qa">🔍 QA Oversight</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">9:15</div><div class="tl-time-dur">45 min</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e10">One-on-one coaching session — underperforming agent</div>
+            <div class="tl-body" data-e="ob-e11">Sit down with an agent who scored 84% on Tuesday. Bring the scorecard, the specific recordings, and a coaching plan. Walk through each missed point — play back the exact moment on the recording. This isn't a disciplinary meeting; it's a development conversation. By the end, the agent has 2–3 specific, actionable things to practise, and has signed the coaching record. Follow-up review call booked for next Tuesday.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-train">📚 1-on-1 Coaching</span><span class="ditl-tag tag-people">👥 People Dev</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">10:00</div><div class="tl-time-dur">60 min</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e12">Training delivery — new intern group session</div>
+            <div class="tl-body" data-e="ob-e13">Module 2 trainer-led session for the current intake: Call Handling Standards. You deliver the session yourself — not just assigning it. Walk interns through the call structure, play model recordings, do paired role-plays with scenario cards, debrief as a group. Good training now means fewer QA failures later. End with a quick 5-question verbal check of comprehension. Note any intern who looks uncertain — schedule a follow-up before their nesting period begins.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-train">📚 Training Facilitation</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">11:00</div><div class="tl-time-dur">30 min</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e14">Nesting period supervision — intern on supervised calls</div>
+            <div class="tl-body" data-e="ob-e15">Sit in on two supervised live calls with the intern currently in nesting Phase 2. Silent observation. After each call, give immediate verbal feedback — what worked, one specific thing to adjust. Score the calls on the nesting rubric. Log the scores. If the pattern from yesterday continues (missing wrap-up confirmation), today is the day you make it the focused development point.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-qa">🔍 Nesting Evaluation</span><span class="ditl-tag tag-train">📚 Coaching</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">11:30</div><div class="tl-time-dur">30 min</div></div>
+          <div class="tl-spine"><div class="tl-dot g" style="background:#888;"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="meal-break">🥦 Lunch break — you are not the floor. Disconnect, eat, reset.</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">12:00</div><div class="tl-time-dur">90 min</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e16">Weekly QA data compilation &amp; trend analysis</div>
+            <div class="tl-body" data-e="ob-e17">Pull all QA scores from the week so far. Build the mid-week snapshot: average QA score by agent, FCR rate by agent, AHT by agent, CRM accuracy audit results. Which agents are trending down? Which scenarios are generating the most failures? Is there a channel with disproportionate quality issues (e.g. WhatsApp scores lagging behind calls)? This analysis drives everything — what you coach, what you train, what you escalate to the Technical Operations Manager on Friday.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-report">📊 Data Analysis</span><span class="ditl-tag tag-admin">📋 Reporting</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">13:30</div><div class="tl-time-dur">45 min</div></div>
+          <div class="tl-spine"><div class="tl-dot d"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e18">Calibration session — weekly scorecard alignment</div>
+            <div class="tl-body" data-e="ob-e19">Bring the QA Assessors together. Each person has scored the same 3 calls independently before the session. Compare scores on screen. Discuss any divergence above 5 percentage points — what drove the different interpretation? Update the scoring notes document with agreed interpretations. This is not about who was right. It is about making sure every agent is scored fairly by any assessor on any day.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-qa">🔍 Calibration</span><span class="ditl-tag tag-people">👥 Assessor Development</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">14:15</div><div class="tl-time-dur">45 min</div></div>
+          <div class="tl-spine"><div class="tl-dot o"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e20">SOP &amp; training material update</div>
+            <div class="tl-body" data-e="ob-e21">The CRM team pushed an update to the payment screen layout yesterday — agents are navigating it slightly differently now. Review the change, update the relevant quick-reference guide, send it to all agents via the group channel, and flag it for inclusion in next week's refresher session. This is unglamorous work that prevents quality failures. Outdated materials are a silent quality killer.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-admin">📋 SOP Management</span><span class="ditl-tag tag-train">📚 Content Development</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">15:00</div><div class="tl-time-dur">30 min</div></div>
+          <div class="tl-spine"><div class="tl-dot d"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e22">Quality Assessor 1-on-1 performance check-in</div>
+            <div class="tl-body" data-e="ob-e23">Monthly check-in with one of your QA Assessors. Review their own KPIs — monitoring coverage, coaching completion, calibration alignment. Are they hitting targets? If not, understand why — is it a capacity issue, a skills gap, or something else? Your assessors are your direct reports and your quality delivery team. If they're not performing well, your metrics suffer too. Invest in them as you would want your manager to invest in you.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-people">👥 Performance Review</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">15:30</div><div class="tl-time-dur">45 min</div></div>
+          <div class="tl-spine"><div class="tl-dot y"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e24">Afternoon QA monitoring batch &amp; floor walk</div>
+            <div class="tl-body" data-e="ob-e25">Score 3 more calls — prioritise the afternoon shift agents you haven't covered yet this week. Then do a physical floor walk. Listen to tone. Watch CRM navigation. Is anyone looking stuck? Is there a call that's been running too long? Be visible. Your presence on the floor is itself a quality signal — agents who know the Q&amp;T Lead might be listening perform to a higher standard. You're not there to catch people out; you're there to catch problems early.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-qa">🔍 Live Monitoring</span><span class="ditl-tag tag-lead">🎯 Floor Leadership</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">16:15</div><div class="tl-time-dur">30 min</div></div>
+          <div class="tl-spine"><div class="tl-dot d"></div><div class="tl-line"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e26">Tomorrow's prep &amp; planning log</div>
+            <div class="tl-body" data-e="ob-e27">Update your weekly tracker — evaluations completed, coaching sessions logged, training sessions delivered. Flag anything that didn't get done today and reschedule before the week is out. Confirm the next intern group session is ready. Check if Friday's report to the Technical Operations Manager needs any data you haven't yet pulled. Leave the desk clear. A disorganised Quality Lead produces disorganised quality data.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-admin">📋 Planning &amp; Admin</span><span class="ditl-tag tag-report">📊 Reporting Prep</span></div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-time"><div class="tl-time-main">16:45</div><div class="tl-time-dur">—</div></div>
+          <div class="tl-spine"><div class="tl-dot g"></div></div>
+          <div class="tl-card">
+            <div class="tl-title" data-e="ob-e28">End of day</div>
+            <div class="tl-body" style="font-style:italic;color:#888;" data-e="ob-e29">You've evaluated calls, coached an agent, delivered training, supervised an intern, run a calibration session, updated an SOP, reviewed an assessor's performance, analysed data, and planned tomorrow. That is a full day of building quality — not just measuring it.</div>
+            <div class="tl-tags"><span class="ditl-tag tag-lead" style="background:var(--leafy);color:white;">🌿 End of Day</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily time breakdown visual -->
+  <div class="card">
+    <div class="ch dark">⏱ How the Day Splits — Time by Activity Type</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:var(--leafy-pale);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--leafy);">2.5h</div>
+          <div style="font-size:12px;font-weight:700;color:var(--leafy);">QA &amp; Evaluation</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">Monitoring, calibration, nesting</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--carrot-d);">2.25h</div>
+          <div style="font-size:12px;font-weight:700;color:var(--carrot-d);">Training &amp; Coaching</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">Sessions, 1-on-1s, SOPs</div>
+        </div>
+        <div style="background:#fff8e1;border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--progressive-d);">2.5h</div>
+          <div style="font-size:12px;font-weight:700;color:var(--progressive-d);">Reporting &amp; Data</div>
+          <div style="font-size:11px;color:#777;margin-top:3px;">Analysis, planning, admin</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#888;margin-top:12px;text-align:center;font-style:italic;">People management and floor leadership are woven throughout every block — they're not a separate time slot, they're how you show up in every interaction.</p>
+    </div>
+  </div>
+
+</div>
+</div><!-- /content -->
+
+<script>
+function sw(i){
+  document.querySelectorAll('.tbtn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleKey(){
+  const card = document.getElementById('assess-card');
+  const btn = card.querySelector('.key-btn');
+  const showing = card.classList.toggle('show-key');
+  btn.textContent = showing ? 'Hide Answer Key' : 'Show Answer Key';
+}
+</script>
+
+<!-- EDIT MODE -->
+<style>
+body.edit-mode [data-e]{outline:2px dashed #FFB200;border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid #FF8C00;background:rgba(255,140,0,0.07);}
+#ebar{position:fixed;bottom:0;left:0;right:0;background:#FF8C00;padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+#ebar.on{display:flex;}
+#ebar .eb-l{font-size:13px;font-weight:700;color:white;}
+#ebar .eb-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:#BF6900;}
+.ebtn-x{background:rgba(255,255,255,.15);color:white;}
+#efab{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:#24631E;color:white;border:none;font-size:20px;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+#efab:hover{background:#3a7a34;}
+#emodal{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#emodal.hide{display:none;}
+.embox{background:white;border-radius:16px;padding:30px;max-width:320px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);}
+#epin{width:100%;padding:12px;border:2px solid #e4e2d8;border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;box-sizing:border-box;}
+#epin:focus{border-color:#24631E;}
+#epin.shake{animation:eshk .28s;}
+@keyframes eshk{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px);}}
+#eerr{font-size:12px;color:#c0392b;text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+.epri{width:100%;font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;padding:12px;border-radius:9px;border:none;background:#24631E;color:white;cursor:pointer;}
+.ecan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:9px;border-radius:9px;border:1px solid #e4e2d8;background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+</style>
+<div id="ebar">
+  <div class="eb-l">&#9998; Edit Mode active &mdash; click any highlighted text to edit</div>
+  <div class="eb-r">
+    <button class="ebtn ebtn-s" onclick="saveE()">&#128190; Save</button>
+    <button class="ebtn ebtn-s" onclick="exportE()">&#8595; Export</button>
+    <button class="ebtn ebtn-x" onclick="exitE()">&#10005; Exit</button>
+  </div>
+</div>
+<button id="efab" onclick="openEM()" title="Edit this document">&#9998;</button>
+<div id="emodal" class="hide">
+  <div class="embox">
+    <div style="font-size:30px;text-align:center;margin-bottom:10px;">&#9998;</div>
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px;">Edit Document</div>
+    <div style="font-size:12px;color:#888;text-align:center;margin-bottom:16px;">Enter the Admin PIN to unlock editing on this page</div>
+    <input id="epin" type="password" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
+    <div id="eerr"></div>
+    <button class="epri" onclick="tryE()">Unlock Editing</button>
+    <button class="ecan" onclick="closeEM()">Cancel</button>
+    <div style="font-size:10px;color:#ccc;text-align:center;margin-top:8px;">Admin PIN is managed in the Document Hub by the Q&amp;T Lead</div>
+  </div>
+</div>
+<script>
+(function(){
+  var EK="t2e_pin_admin", DF="admin9";
+  var SK="t2e_edits_"+location.pathname.split("/").pop();
+  function gp(){return localStorage.getItem(EK)||DF;}
+  function openEM(){document.getElementById("emodal").classList.remove("hide");setTimeout(function(){document.getElementById("epin").focus();},80);}
+  function closeEM(){document.getElementById("emodal").classList.add("hide");document.getElementById("epin").value="";document.getElementById("eerr").textContent="";}
+  function tryE(){
+    var v=document.getElementById("epin").value.trim();
+    if(v===gp()){closeEM();startE();}
+    else{var i=document.getElementById("epin");i.classList.add("shake");document.getElementById("eerr").textContent="Incorrect PIN.";i.value="";i.focus();}
+  }
+  function startE(){
+    document.body.classList.add("edit-mode");
+    document.getElementById("ebar").classList.add("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="true";});
+  }
+  function exitE(){
+    document.body.classList.remove("edit-mode");
+    document.getElementById("ebar").classList.remove("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="false";});
+  }
+  function saveE(){
+    var d={};
+    document.querySelectorAll("[data-e]").forEach(function(el){d[el.getAttribute("data-e")]=el.innerHTML;});
+    localStorage.setItem(SK,JSON.stringify(d));
+    st("Changes saved to this browser.","#24631E");
+  }
+  function exportE(){
+    saveE();
+    var h="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    var b=new Blob([h],{type:"text/html"});
+    var u=URL.createObjectURL(b);
+    var a=document.createElement("a");
+    a.href=u;a.download=location.pathname.split("/").pop().replace(".html","_edited.html");
+    a.click();URL.revokeObjectURL(u);
+    st("Exported with edits baked in.","#24631E");
+  }
+  function loadE(){
+    try{
+      var r=localStorage.getItem(SK);
+      if(!r)return;
+      var d=JSON.parse(r);
+      Object.keys(d).forEach(function(k){
+        var el=document.querySelector('[data-e="'+k+'"]');
+        if(el)el.innerHTML=d[k];
+      });
+    }catch(e){}
+  }
+  var et;
+  function st(msg,bg){
+    var t=document.getElementById("_est");
+    if(!t){t=document.createElement("div");t.id="_est";t.style.cssText="position:fixed;bottom:70px;right:22px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;color:white;z-index:10001;box-shadow:0 3px 14px rgba(0,0,0,.15);";document.body.appendChild(t);}
+    t.textContent=msg;t.style.background=bg;t.style.display="block";
+    clearTimeout(et);et=setTimeout(function(){t.style.display="none";},2800);
+  }
+  window.openEM=openEM;window.closeEM=closeEM;window.tryE=tryE;window.exitE=exitE;window.saveE=saveE;window.exportE=exportE;
+  document.getElementById("epin").addEventListener("keydown",function(e){if(e.key==="Enter")tryE();});
+  document.getElementById("epin").addEventListener("input",function(){this.classList.remove("shake");document.getElementById("eerr").textContent="";});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeEM();});
+  document.getElementById("emodal").addEventListener("click",function(ev){if(ev.target===this)closeEM();});
+  loadE();
+})();
+</script>
+
+</body>
+</html>

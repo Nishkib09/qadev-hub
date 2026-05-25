@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2eat | QA Shadow Work Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sophisticated:#E5E5C9; --sophisticated-d:#d4d4b0;
+  --progressive:#FFB200;   --progressive-d:#BF8500;
+  --carrot:#FF8C00;        --carrot-d:#BF6900;
+  --leafy:#24631E;         --leafy-mid:#3a7a34;
+  --leafy-pale:#eaf3e8;    --leafy-faint:#f4faf3;
+  --blackboard:#1F1B1B;
+  --gray-light:#f7f5ee;    --gray-mid:#e4e2d8;
+  --red:#c0392b;           --red-pale:#fdecea;
+  --purple:#6a1b9a;        --purple-pale:#f3e8fd;
+  --blue:#1565c0;          --blue-pale:#e8eaf6;
+  --teal:#00695c;          --teal-pale:#e0f2f1;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);}
+
+/* COVER */
+.cover{background:var(--leafy);padding:50px 40px 44px;position:relative;overflow:hidden;}
+.cover::before{content:'';position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,178,0,0.1);pointer-events:none;}
+.cover::after{content:'';position:absolute;left:300px;bottom:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,140,0,0.08);pointer-events:none;}
+.cover-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px;}
+.cover-org{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--progressive);margin-bottom:16px;}
+.cover h1{font-size:34px;font-weight:900;color:white;line-height:1.1;margin-bottom:10px;}
+.cover h1 em{color:var(--progressive);font-style:normal;}
+.cover-sub{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:580px;margin-bottom:24px;}
+.cover-stats{display:flex;gap:20px;flex-wrap:wrap;}
+.cs{background:rgba(255,255,255,0.1);border-radius:10px;padding:14px 18px;text-align:center;min-width:90px;}
+.cs-num{font-size:22px;font-weight:900;color:var(--progressive);}
+.cs-label{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;}
+
+/* TABS */
+.tabs{background:var(--blackboard);padding:0 40px;display:flex;overflow-x:auto;gap:0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.tabs::-webkit-scrollbar{height:2px;}
+.tabs::-webkit-scrollbar-thumb{background:var(--progressive);}
+.tbtn{font-family:'Rubik',sans-serif;font-size:11.5px;font-weight:600;color:rgba(255,255,255,0.38);background:none;border:none;padding:14px 15px 12px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
+.tbtn:hover{color:rgba(255,255,255,0.7);}
+.tbtn.active{color:var(--progressive);border-bottom-color:var(--progressive);}
+
+/* LAYOUT */
+.content{max-width:960px;margin:0 auto;padding:28px 40px 60px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* PHASE HEADER BAND */
+.phase-band{border-radius:14px;padding:20px 24px;margin-bottom:14px;position:relative;overflow:hidden;}
+.phase-band::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06);}
+.pb-phase{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;opacity:0.7;}
+.pb-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.pb-sub{font-size:13px;opacity:0.75;line-height:1.5;}
+.pb-weeks{display:inline-block;background:rgba(255,255,255,0.15);border-radius:20px;font-size:11px;font-weight:700;padding:4px 12px;margin-top:10px;}
+.pb-0{background:var(--blackboard);color:white;}
+.pb-1{background:var(--leafy);color:white;}
+.pb-2{background:var(--carrot);color:white;}
+.pb-3{background:var(--progressive);color:var(--blackboard);}
+.pb-3 .pb-phase,.pb-3 .pb-sub,.pb-3 .pb-weeks{opacity:0.65;}
+.pb-4{background:var(--teal);color:white;}
+.pb-5{background:var(--purple);color:white;}
+
+/* CARDS */
+.card{background:white;border-radius:14px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 18px rgba(31,27,27,0.07);}
+.ch{padding:12px 22px;display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;}
+.ch.green{background:var(--leafy);color:white;}
+.ch.orange{background:var(--carrot);color:white;}
+.ch.amber{background:var(--progressive);color:var(--blackboard);}
+.ch.dark{background:var(--blackboard);color:white;}
+.ch.teal{background:var(--teal);color:white;}
+.ch.purple{background:var(--purple);color:white;}
+.cb{padding:20px;}
+
+/* ROAD MAP VISUAL */
+.roadmap{display:flex;align-items:flex-start;gap:0;margin-bottom:4px;overflow-x:auto;padding-bottom:4px;}
+.rm-phase{display:flex;flex-direction:column;align-items:center;flex:1;min-width:110px;}
+.rm-node{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;z-index:1;}
+.rm-n0{background:var(--blackboard);color:white;}
+.rm-n1{background:var(--leafy);color:white;}
+.rm-n2{background:var(--carrot);color:white;}
+.rm-n3{background:var(--progressive);color:var(--blackboard);}
+.rm-n4{background:var(--teal);color:white;}
+.rm-n5{background:var(--purple);color:white;}
+.rm-label{font-size:11px;font-weight:700;text-align:center;margin-top:8px;line-height:1.3;}
+.rm-weeks{font-size:10px;color:#aaa;text-align:center;margin-top:2px;}
+.rm-connector{flex:1;height:3px;margin-top:20px;min-width:20px;}
+.rm-c01{background:linear-gradient(90deg,var(--blackboard),var(--leafy));}
+.rm-c12{background:linear-gradient(90deg,var(--leafy),var(--carrot));}
+.rm-c23{background:linear-gradient(90deg,var(--carrot),var(--progressive));}
+.rm-c34{background:linear-gradient(90deg,var(--progressive),var(--teal));}
+.rm-c45{background:linear-gradient(90deg,var(--teal),var(--purple));}
+
+/* CHECKLIST */
+.check-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+.check-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--gray-light);}
+.check-item:last-child{border-bottom:none;}
+.check-box{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px;}
+.cb-g{background:var(--leafy-pale);color:var(--leafy);}
+.cb-o{background:#fff3e0;color:var(--carrot-d);}
+.cb-y{background:#fff8e1;color:var(--progressive-d);}
+.cb-d{background:var(--gray-light);color:#888;}
+.check-item .text{font-size:13px;line-height:1.6;}
+.check-item .note{font-size:11px;color:#888;margin-top:2px;}
+
+/* SKILL GRID */
+.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.skill-card{border-radius:10px;padding:14px;border:1.5px solid;}
+.skill-card.have{border-color:var(--leafy-pale);background:var(--leafy-faint);}
+.skill-card.need{border-color:#fff3e0;background:#fffbf5;}
+.skill-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.skill-tag.have{color:var(--leafy);}
+.skill-tag.need{color:var(--carrot-d);}
+.skill-pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;margin:3px 3px 0 0;}
+.sp-have{background:var(--leafy-pale);color:var(--leafy);}
+.sp-need{background:#fff3e0;color:var(--carrot-d);}
+
+/* WEEK BLOCKS */
+.week-block{border-radius:10px;overflow:hidden;margin-bottom:10px;border:1px solid var(--gray-mid);}
+.wb-head{padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.wb-head.w1{background:var(--leafy-pale);}
+.wb-head.w2{background:#fff3e0;}
+.wb-head.w3{background:#fff8e1;}
+.wb-head.w4{background:var(--teal-pale);}
+.wb-head.w5{background:var(--purple-pale);}
+.wb-week{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.wb-week.g{color:var(--leafy);}
+.wb-week.o{color:var(--carrot-d);}
+.wb-week.y{color:var(--progressive-d);}
+.wb-week.t{color:var(--teal);}
+.wb-week.p{color:var(--purple);}
+.wb-title{font-size:13px;font-weight:700;flex:1;}
+.wb-body{padding:14px 16px;background:white;border-top:1px solid var(--gray-mid);display:none;}
+.wb-body.open{display:block;}
+
+/* DAILY ACTIVITY TABLE */
+.day-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px;}
+.day-col{border-radius:8px;overflow:hidden;}
+.day-head{padding:8px 10px;font-size:10px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:.8px;}
+.dh-g{background:var(--leafy);color:white;}
+.dh-o{background:var(--carrot);color:white;}
+.dh-y{background:var(--progressive);color:var(--blackboard);}
+.dh-t{background:var(--teal);color:white;}
+.dh-p{background:var(--purple);color:white;}
+.day-body{background:var(--gray-light);padding:8px 10px;border:1px solid var(--gray-mid);border-top:none;border-radius:0 0 8px 8px;}
+.day-task{font-size:11px;font-weight:600;padding:5px 7px;border-radius:5px;margin-bottom:4px;line-height:1.3;}
+.day-task:last-child{margin-bottom:0;}
+.dt-g{background:var(--leafy-pale);color:var(--leafy);}
+.dt-o{background:#fff3e0;color:var(--carrot-d);}
+.dt-y{background:#fff8e1;color:var(--progressive-d);}
+.dt-d{background:white;color:#666;}
+.dt-t{background:var(--teal-pale);color:var(--teal);}
+.dt-p{background:var(--purple-pale);color:var(--purple);}
+
+/* SCORECARD PRACTICE */
+.scorecard-row{display:flex;gap:0;border-bottom:1px solid var(--gray-light);padding:10px 0;}
+.scorecard-row:last-child{border-bottom:none;}
+.sc-dim{flex:0 0 180px;font-size:13px;font-weight:600;}
+.sc-desc{flex:1;font-size:12px;color:#555;line-height:1.5;}
+.sc-points{flex:0 0 70px;text-align:right;font-size:12px;font-weight:700;color:var(--carrot-d);}
+
+/* ASSESSMENT BOX */
+.gate-box{border-radius:12px;padding:18px 22px;margin-bottom:12px;}
+.gate-box.pass{background:var(--leafy-pale);border:1.5px solid var(--leafy);}
+.gate-box.fail{background:var(--red-pale);border:1.5px solid #ffcdd2;}
+.gate-box.review{background:#fff8e1;border:1.5px solid var(--progressive);}
+.gate-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px;}
+.gt-pass{color:var(--leafy);}
+.gt-fail{color:var(--red);}
+.gt-review{color:var(--progressive-d);}
+.gate-title{font-size:15px;font-weight:800;margin-bottom:5px;}
+.gate-desc{font-size:12px;line-height:1.65;color:#555;}
+
+/* OUTCOME TABLE */
+.outcome-table{width:100%;border-collapse:collapse;}
+.outcome-table thead tr{background:var(--blackboard);color:white;}
+.outcome-table thead th{padding:10px 14px;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;text-align:left;}
+.outcome-table tbody tr:nth-child(even){background:var(--gray-light);}
+.outcome-table td{padding:10px 14px;font-size:12px;vertical-align:top;border-bottom:1px solid var(--gray-mid);}
+.outcome-table td:first-child{font-weight:600;font-size:13px;}
+
+/* INSIGHT / WARN STRIP */
+.info-strip{border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;}
+.info-strip.amber{background:#fff8e1;border-left:4px solid var(--progressive);}
+.info-strip.red{background:var(--red-pale);border-left:4px solid var(--red);}
+.info-strip.green{background:var(--leafy-pale);border-left:4px solid var(--leafy);}
+.info-strip.dark{background:var(--gray-light);border-left:4px solid var(--blackboard);}
+.info-strip .is-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.info-strip .is-text{font-size:12px;line-height:1.65;color:#444;}
+.info-strip .is-text strong{color:var(--blackboard);}
+
+/* PROGRESS TRACKER */
+.progress-tracker{display:flex;flex-direction:column;gap:8px;}
+.pt-row{display:flex;gap:10px;align-items:center;}
+.pt-label{font-size:12px;font-weight:600;min-width:200px;}
+.pt-bar-bg{flex:1;height:7px;background:var(--gray-mid);border-radius:4px;overflow:hidden;}
+.pt-bar-fill{height:100%;border-radius:4px;}
+.pt-pct{font-size:11px;font-weight:700;min-width:40px;text-align:right;}
+
+/* RATING STARS */
+.rating{display:flex;gap:3px;}
+.star{font-size:13px;}
+.star.on{color:var(--progressive);}
+.star.off{color:var(--gray-mid);}
+
+/* DO DONT */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.do-col,.dont-col{border-radius:10px;overflow:hidden;}
+.do-col .ddh{background:var(--leafy);color:white;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.dont-col .ddh{background:var(--red);color:white;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.dd-body{background:white;border:1px solid var(--gray-mid);border-top:none;padding:0;}
+.dd-item{padding:9px 14px;border-bottom:1px solid var(--gray-light);font-size:12px;display:flex;gap:8px;line-height:1.5;}
+.dd-item:last-child{border-bottom:none;}
+.dd-item.do-item::before{content:'✓';color:var(--leafy);font-weight:700;flex-shrink:0;}
+.dd-item.dont-item::before{content:'✗';color:var(--red);font-weight:700;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Food for Education · Tap2eat</div>
+  <div class="cover-org">Quality &amp; Training Function — Internal Development</div>
+  <h1>QA Shadow<br><em>Work Plan</em></h1>
+  <p class="cover-sub">A structured programme for an existing call centre agent who wants to transition into the Quality Assessor role — built from where they already are, taking them step by step to where they need to be.</p>
+  <div class="cover-stats">
+    <div class="cs"><div class="cs-num">9</div><div class="cs-label">Weeks Total</div></div>
+    <div class="cs"><div class="cs-num">5</div><div class="cs-label">Phases</div></div>
+    <div class="cs"><div class="cs-num">3</div><div class="cs-label">Gate Assessments</div></div>
+    <div class="cs"><div class="cs-num">1</div><div class="cs-label">Final Sign-Off</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tbtn active" onclick="sw(0)">🗺️ Overview</button>
+  <button class="tbtn" onclick="sw(1)">📍 Phase 0 — Start Point</button>
+  <button class="tbtn" onclick="sw(2)">👁️ Phase 1 — Observe</button>
+  <button class="tbtn" onclick="sw(3)">✍️ Phase 2 — Practise</button>
+  <button class="tbtn" onclick="sw(4)">🎯 Phase 3 — Independent</button>
+  <button class="tbtn" onclick="sw(5)">🏁 Phase 4 — Certification</button>
+  <button class="tbtn" onclick="sw(6)">📋 Dos &amp; Don'ts</button>
+</div>
+
+<div class="content">
+
+<!-- ════════════════════════════
+  TAB 0 — OVERVIEW
+════════════════════════════ -->
+<div class="tab-panel active" id="p0">
+
+  <div class="info-strip amber">
+    <div class="is-icon">💡</div>
+    <div class="is-text" data-e="sp-e1"><strong>Who this plan is for:</strong> An existing Tap2eat call centre agent who has been identified — or has expressed interest — in moving into the QA Assessor role. They already know the product, the systems, and the calls. What they don't yet have is the mindset shift, the evaluation skills, and the coaching tools required to sit on the other side of quality.</div>
+  </div>
+
+  <!-- ROAD MAP -->
+  <div class="card">
+    <div class="ch dark">🗺️ Full Programme Roadmap — 9 Weeks</div>
+    <div class="cb">
+      <div class="roadmap">
+        <div class="rm-phase">
+          <div class="rm-node rm-n0">📍</div>
+          <div class="rm-label">Phase 0<br>Start Point</div>
+          <div class="rm-weeks">Pre-programme</div>
+        </div>
+        <div class="rm-connector rm-c01"></div>
+        <div class="rm-phase">
+          <div class="rm-node rm-n1">👁️</div>
+          <div class="rm-label">Phase 1<br>Observe</div>
+          <div class="rm-weeks">Weeks 1–2</div>
+        </div>
+        <div class="rm-connector rm-c12"></div>
+        <div class="rm-phase">
+          <div class="rm-node rm-n2">✍️</div>
+          <div class="rm-label">Phase 2<br>Guided Practice</div>
+          <div class="rm-weeks">Weeks 3–5</div>
+        </div>
+        <div class="rm-connector rm-c23"></div>
+        <div class="rm-phase">
+          <div class="rm-node rm-n3">🎯</div>
+          <div class="rm-label">Phase 3<br>Independent</div>
+          <div class="rm-weeks">Weeks 6–7</div>
+        </div>
+        <div class="rm-connector rm-c34"></div>
+        <div class="rm-phase">
+          <div class="rm-node rm-n4">📝</div>
+          <div class="rm-label">Phase 4<br>Full Assessment</div>
+          <div class="rm-weeks">Weeks 8–9</div>
+        </div>
+        <div class="rm-connector rm-c45"></div>
+        <div class="rm-phase">
+          <div class="rm-node rm-n5">🏅</div>
+          <div class="rm-label">Outcome<br>Decision</div>
+          <div class="rm-weeks">Week 9 / End</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY THIS TIMEFRAME -->
+  <div class="card">
+    <div class="ch amber">⏱️ Why 9 Weeks — The Reasoning</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="info-strip green" style="margin-bottom:0;">
+          <div class="is-icon">✅</div>
+          <div class="is-text" data-e="sp-e2"><strong>The advantage they already have:</strong> As an existing agent, they know the product, the CRM, the parent types, the common scenarios, and the call structure. They don't need the 15-day agent onboarding. That saves 3 weeks right away.</div>
+        </div>
+        <div class="info-strip amber" style="margin-bottom:0;">
+          <div class="is-icon">🧠</div>
+          <div class="is-text" data-e="sp-e3"><strong>The mindset shift takes time:</strong> Going from doing to evaluating is not instant. An agent who was scored last month must learn to score fairly — including scoring calls that are better or worse than their own. That objectivity is built over weeks, not days.</div>
+        </div>
+        <div class="info-strip dark" style="margin-bottom:0;">
+          <div class="is-icon">📊</div>
+          <div class="is-text" data-e="sp-e4"><strong>Calibration is the proof:</strong> The final measure of readiness is not whether they can fill in a scorecard — it's whether their scores align within 5% of the Q&amp;T Lead's. That alignment requires repeated practice, feedback, and iteration.</div>
+        </div>
+        <div class="info-strip amber" style="margin-bottom:0;">
+          <div class="is-icon">⚠️</div>
+          <div class="is-text" data-e="sp-e5"><strong>9 weeks is the minimum:</strong> You could rush it to 6 weeks. The risk: a QA who scores inconsistently undermines the entire quality system. One unfair evaluation can destroy agent trust. Build the foundation properly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE SUMMARY TABLE -->
+  <div class="card">
+    <div class="ch green">📅 Phase-by-Phase Summary</div>
+    <div class="cb" style="padding:0;">
+      <table class="outcome-table">
+        <thead>
+          <tr><th>Phase</th><th>Duration</th><th>Focus</th><th>Key Deliverable</th><th>Gate?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0 — Start Point Assessment</td>
+            <td>3–5 days</td>
+            <td>Readiness check. Do they have the foundation to shadow?</td>
+            <td>Readiness score + gap analysis + personal learning plan</td>
+            <td style="font-weight:700;color:var(--red);">Gate 0 ✓</td>
+          </tr>
+          <tr>
+            <td>1 — Observe</td>
+            <td>2 weeks</td>
+            <td>Silent observation. Watch the Q&amp;T Lead evaluate, coach, report.</td>
+            <td>5 observation logs + 10 shadow scorecards + reflection journal</td>
+            <td style="color:#aaa;">—</td>
+          </tr>
+          <tr>
+            <td>2 — Guided Practice</td>
+            <td>3 weeks</td>
+            <td>Score calls independently, compare against Lead, discuss divergence.</td>
+            <td>30 scored evaluations + calibration variance &lt;10% consistently</td>
+            <td style="font-weight:700;color:var(--carrot-d);">Gate 1 ✓</td>
+          </tr>
+          <tr>
+            <td>3 — Independent Practice</td>
+            <td>2 weeks</td>
+            <td>Run evaluations solo. Lead spot-checks. Deliver coaching notes.</td>
+            <td>20 unsupervised evaluations + 3 coaching notes reviewed by Lead</td>
+            <td style="font-weight:700;color:var(--carrot-d);">Gate 2 ✓</td>
+          </tr>
+          <tr>
+            <td>4 — Final Assessment</td>
+            <td>2 weeks</td>
+            <td>Full QA Assessor tasks end-to-end. Lead observes only.</td>
+            <td>Full week of QA outputs + calibration session + coaching delivery observed</td>
+            <td style="font-weight:700;color:var(--purple);">Gate 3 ✓</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- WHAT THEY'LL NEED TO LET GO -->
+  <div class="card">
+    <div class="ch dark">🔄 The Biggest Transition — Agent Brain to QA Brain</div>
+    <div class="cb">
+      <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:14px;">This is the hardest part of the entire programme. It's not technical. It's psychological. An agent who becomes a QA must fundamentally change how they relate to their own colleagues, their own performance history, and their own personal call style.</p>
+      <div class="do-dont">
+        <div class="do-col">
+          <div class="ddh">✓ QA Assessor Mindset</div>
+          <div class="dd-body">
+            <div class="dd-item do-item">Evaluates against the scorecard — not against how they personally would have handled the call</div>
+            <div class="dd-item do-item">Separates person from performance when scoring and giving feedback</div>
+            <div class="dd-item do-item">Is equally rigorous scoring a close colleague as scoring someone they don't know</div>
+            <div class="dd-item do-item">Documents what they actually heard — not what they think the agent meant</div>
+            <div class="dd-item do-item">Treats their own scores as provisional until calibrated with the Lead</div>
+            <div class="dd-item do-item">Welcomes disagreement with their score as a learning opportunity</div>
+          </div>
+        </div>
+        <div class="dont-col">
+          <div class="ddh">✗ Agent Mindset Carried Over</div>
+          <div class="dd-body">
+            <div class="dd-item dont-item">"I would have handled it differently" — scores based on personal style not the standard</div>
+            <div class="dd-item dont-item">Inflating scores for friends or popular agents to avoid conflict</div>
+            <div class="dd-item dont-item">Being harsher on agents they personally find difficult</div>
+            <div class="dd-item dont-item">Giving vague feedback like "improve tone" without specific examples</div>
+            <div class="dd-item dont-item">Defending a score instead of reviewing it when challenged</div>
+            <div class="dd-item dont-item">Treating the scorecard as a formality rather than a precision instrument</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════
+  TAB 1 — PHASE 0
+════════════════════════════ -->
+<div class="tab-panel" id="p1">
+
+  <div class="phase-band pb-0">
+    <div class="pb-phase">Phase 0</div>
+    <div class="pb-title">Starting Point Assessment</div>
+    <div class="pb-sub" data-e="sp-e6">Before a single call is evaluated, you need to know whether this agent is ready to shadow — and where the gaps are that the programme must close.</div>
+    <div class="pb-weeks">📅 Pre-programme · 3–5 working days</div>
+  </div>
+
+  <!-- AGENT ADVANTAGE -->
+  <div class="card">
+    <div class="ch green">✅ What They Already Bring (Agent Advantage)</div>
+    <div class="cb">
+      <div class="skill-grid">
+        <div class="skill-card have">
+          <div class="skill-tag have">Strengths — Already in Place</div>
+          <div>
+            <span class="skill-pill sp-have">Product knowledge (Tap2eat)</span>
+            <span class="skill-pill sp-have">CRM navigation</span>
+            <span class="skill-pill sp-have">Call structure awareness</span>
+            <span class="skill-pill sp-have">Parent interaction experience</span>
+            <span class="skill-pill sp-have">Escalation scenarios</span>
+            <span class="skill-pill sp-have">Team dynamics awareness</span>
+            <span class="skill-pill sp-have">Channel knowledge (calls, WA, SMS)</span>
+            <span class="skill-pill sp-have">SOP familiarity</span>
+          </div>
+        </div>
+        <div class="skill-card need">
+          <div class="skill-tag need">Gaps — The Programme Closes These</div>
+          <div>
+            <span class="skill-pill sp-need">Objective scoring mindset</span>
+            <span class="skill-pill sp-need">Scorecard interpretation</span>
+            <span class="skill-pill sp-need">Calibration skills</span>
+            <span class="skill-pill sp-need">Constructive feedback writing</span>
+            <span class="skill-pill sp-need">Coaching conversation delivery</span>
+            <span class="skill-pill sp-need">Trend analysis &amp; pattern spotting</span>
+            <span class="skill-pill sp-need">CRM audit process</span>
+            <span class="skill-pill sp-need">QA report writing</span>
+            <span class="skill-pill sp-need">Evaluating peers fairly</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- READINESS CRITERIA -->
+  <div class="card">
+    <div class="ch amber">📋 Gate 0 — Readiness Criteria (Must Meet All)</div>
+    <div class="cb">
+      <ul class="check-list">
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text"><strong>Minimum 3 months as a live agent</strong> at Tap2eat. They must have enough call experience to evaluate interactions credibly.</div><div class="note">Evidence: employment record + Team Lead confirmation</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text"><strong>Personal QA average ≥ 85% over the last 6 weeks.</strong> A candidate who is still developing their own call quality cannot credibly evaluate others.</div><div class="note">Evidence: their last 6 weeks of QA scorecard data pulled by the Lead</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text"><strong>No active performance improvement plan (PIP)</strong> or unresolved disciplinary process at time of shadowing.</div><div class="note">Evidence: HR check with People Team</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text"><strong>CRM accuracy consistently ≥ 95%</strong> over the last month. A QA who audits CRM records must themselves be a strong CRM practitioner.</div><div class="note">Evidence: CRM accuracy data from QA evaluations</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text"><strong>Team Lead endorsement.</strong> The direct Team Lead confirms the agent is reliable, professional, and ready to be trusted with colleague evaluation data.</div><div class="note">Evidence: short written endorsement from Team Lead to Q&amp;T Lead</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-y">✓</span>
+          <div><div class="text"><strong>Written expression of intent.</strong> The agent submits a short (1-page) written statement explaining why they want to move into QA and what they believe they need to learn. This tests self-awareness.</div><div class="note">Reviewed by Q&amp;T Lead as part of readiness conversation</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-o">✓</span>
+          <div><div class="text"><strong>Readiness conversation with Q&amp;T Lead.</strong> 30-minute structured conversation covering: their motivations, their understanding of the QA role, any peer relationship concerns, and whether they understand the objectivity requirement.</div><div class="note">Q&amp;T Lead completes readiness assessment form after this conversation</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- READINESS SCORE -->
+  <div class="card">
+    <div class="ch green">📊 Starting Point Profile — What You Assess</div>
+    <div class="cb">
+      <p style="font-size:12px;color:#555;margin-bottom:16px;line-height:1.6;">During the readiness conversation, the Q&amp;T Lead scores the candidate against these dimensions. This profile shapes which areas the programme emphasises most during the shadow period.</p>
+      <div class="progress-tracker">
+        <div class="pt-row">
+          <span class="pt-label">Product &amp; process knowledge</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:85%;background:var(--leafy);"></div></div>
+          <span class="pt-pct" style="color:var(--leafy);">High</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">Personal call quality (QA avg)</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:75%;background:var(--leafy);"></div></div>
+          <span class="pt-pct" style="color:var(--leafy);">Solid</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">CRM accuracy habit</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:70%;background:var(--carrot);"></div></div>
+          <span class="pt-pct" style="color:var(--carrot-d);">Good</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">Self-awareness &amp; reflection ability</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:50%;background:var(--progressive);"></div></div>
+          <span class="pt-pct" style="color:var(--progressive-d);">Medium</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">Objectivity &amp; fairness instinct</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:35%;background:var(--carrot);"></div></div>
+          <span class="pt-pct" style="color:var(--carrot-d);">Developing</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">Feedback &amp; communication skills</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:40%;background:var(--carrot);"></div></div>
+          <span class="pt-pct" style="color:var(--carrot-d);">Developing</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">Data &amp; reporting orientation</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:20%;background:var(--red);"></div></div>
+          <span class="pt-pct" style="color:var(--red);">Low</span>
+        </div>
+        <div class="pt-row">
+          <span class="pt-label">Coaching conversation readiness</span>
+          <div class="pt-bar-bg"><div class="pt-bar-fill" style="width:20%;background:var(--red);"></div></div>
+          <span class="pt-pct" style="color:var(--red);">Low</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#aaa;font-style:italic;margin-top:12px;">Typical starting profile for an experienced agent. Red/orange areas are normal — they are the point of the programme.</p>
+    </div>
+  </div>
+
+  <div class="gate-box pass">
+    <div class="gate-tag gt-pass">✅ Gate 0 Outcome — Cleared to Start</div>
+    <div class="gate-title">If all criteria are met: programme begins Week 1.</div>
+    <div class="gate-desc" data-e="sp-e7">Q&amp;T Lead issues a written shadow plan to the agent, the Team Lead, and the Technical Operations Manager. The agent is formally in a development shadowing arrangement — not yet a QA Assessor in role or title.</div>
+  </div>
+  <div class="gate-box fail">
+    <div class="gate-tag gt-fail">✗ Gate 0 Not Cleared — What Happens</div>
+    <div class="gate-title">If criteria are not met: a development plan is built instead.</div>
+    <div class="gate-desc" data-e="sp-e8">The Q&amp;T Lead creates a specific 4-week plan addressing the gaps (e.g. bringing QA average above 85%, completing a CRM accuracy improvement plan). The shadow programme is scheduled for after that plan is complete. This is not a rejection — it is the honest starting point.</div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════
+  TAB 2 — PHASE 1 — OBSERVE
+════════════════════════════ -->
+<div class="tab-panel" id="p2">
+
+  <div class="phase-band pb-1">
+    <div class="pb-phase">Phase 1</div>
+    <div class="pb-title">Observe — See Before You Do</div>
+    <div class="pb-sub" data-e="sp-e9">The shadow sits alongside the Q&amp;T Lead for the full QA workflow. They don't score yet — they watch, they ask questions, and they build the mental map of how quality evaluation actually works from the other side.</div>
+    <div class="pb-weeks">📅 Weeks 1–2 · 10 working days</div>
+  </div>
+
+  <div class="info-strip amber">
+    <div class="is-icon">⚠️</div>
+    <div class="is-text" data-e="sp-e10"><strong>No scoring in Phase 1.</strong> The temptation will be to jump straight to evaluating. Resist it. Observing first prevents the shadow from locking in early bad habits before they understand the full scoring logic. Observation is active — they are completing observation logs after every session.</div>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="phase-band pb-1" style="padding:14px 20px;border-radius:10px;margin-bottom:10px;">
+    <div class="pb-phase">Week 1</div>
+    <div class="pb-title" style="font-size:16px;">Shadowing the Evaluation Process</div>
+  </div>
+  <div class="card">
+    <div class="ch green">📅 Week 1 Daily Plan</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-g">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Intro session: QA role overview from Lead</div>
+            <div class="day-task dt-d">Read QA scorecard in full — every criterion</div>
+            <div class="day-task dt-g">Watch Lead score 3 calls (silent, no input)</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Watch 4 more scored calls — different agents</div>
+            <div class="day-task dt-d">Complete Observation Log 1 (template provided)</div>
+            <div class="day-task dt-g">Debrief with Lead: 3 questions the shadow must bring</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Shadow coaching session (agent + Lead)</div>
+            <div class="day-task dt-d">Observe: how is feedback structured? Tone? Evidence?</div>
+            <div class="day-task dt-g">Write reflection: what did the agent hear vs what was said?</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Shadow CRM audit with Lead (read-only)</div>
+            <div class="day-task dt-d">Observe: what errors look like, how they're flagged</div>
+            <div class="day-task dt-g">Complete Observation Log 2</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Watch Lead compile mid-week data</div>
+            <div class="day-task dt-g">Read last week's QA report (provided by Lead)</div>
+            <div class="day-task dt-g">Week 1 debrief: what surprised you? What's unclear?</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--leafy);margin-bottom:8px;">Week 1 Outputs Required</div>
+        <ul class="check-list">
+          <li class="check-item"><span class="check-box cb-g">1</span><div class="text">Observation Log 1 &amp; 2 completed and submitted to Q&amp;T Lead</div></li>
+          <li class="check-item"><span class="check-box cb-g">2</span><div class="text">Written reflection on the coaching session observed — minimum half a page</div></li>
+          <li class="check-item"><span class="check-box cb-g">3</span><div class="text">3 questions prepared for Friday debrief — must be specific, not generic</div></li>
+          <li class="check-item"><span class="check-box cb-g">4</span><div class="text">Personal glossary: list of QA terms and their meaning in their own words</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="phase-band pb-1" style="padding:14px 20px;border-radius:10px;margin-bottom:10px;">
+    <div class="pb-phase">Week 2</div>
+    <div class="pb-title" style="font-size:16px;">Shadowing the Full QA Week Cycle</div>
+  </div>
+  <div class="card">
+    <div class="ch green">📅 Week 2 Daily Plan</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-g">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Shadow Lead's morning floor brief</div>
+            <div class="day-task dt-d">Watch 4 evaluations — now taking shadow notes on what score they'd give before Lead reveals</div>
+            <div class="day-task dt-g">Compare shadow estimates to Lead's scores — no discussion yet</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Shadow another coaching session (different agent)</div>
+            <div class="day-task dt-d">Focus: how does Lead handle an agent who disagrees?</div>
+            <div class="day-task dt-g">Complete Observation Log 3</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Watch Lead score 3 calls — shadow scores independently</div>
+            <div class="day-task dt-d">Debrief: compare side by side. Where did they diverge? Why?</div>
+            <div class="day-task dt-g">Lead explains scoring logic for each divergence</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Shadow nesting supervision (if intern in nesting)</div>
+            <div class="day-task dt-d">Observe how nesting scoring differs from agent scoring</div>
+            <div class="day-task dt-g">Complete Observation Log 4</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-g">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-g">Watch Lead compile &amp; write weekly report</div>
+            <div class="day-task dt-d">Shadow presents: "What I observed this week — 3 things that surprised me"</div>
+            <div class="day-task dt-g">Phase 1 close debrief with Lead</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--leafy);margin-bottom:8px;">Week 2 Outputs Required</div>
+        <ul class="check-list">
+          <li class="check-item"><span class="check-box cb-g">1</span><div class="text">Observation Logs 3, 4 &amp; 5 completed</div></li>
+          <li class="check-item"><span class="check-box cb-g">2</span><div class="text">10 shadow scorecards from Wed parallel scoring exercise — submitted with notes explaining their reasoning</div></li>
+          <li class="check-item"><span class="check-box cb-g">3</span><div class="text">Written reflection on divergence points — where they scored differently and whether they now understand why the Lead's score was correct</div></li>
+          <li class="check-item"><span class="check-box cb-g">4</span><div class="text">End-of-phase self-assessment: rate their own readiness to begin scoring (1–10) with written justification</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════
+  TAB 3 — PHASE 2 — PRACTICE
+════════════════════════════ -->
+<div class="tab-panel" id="p3">
+
+  <div class="phase-band pb-2">
+    <div class="pb-phase">Phase 2</div>
+    <div class="pb-title">Guided Practice — Score, Compare, Learn</div>
+    <div class="pb-sub" data-e="sp-e11">The shadow now scores calls independently before seeing the Lead's score. Every divergence is a teaching moment. By the end of this phase, their scores must consistently land within 10% of the Lead's.</div>
+    <div class="pb-weeks">📅 Weeks 3–5 · 15 working days</div>
+  </div>
+
+  <div class="info-strip green">
+    <div class="is-icon">🎯</div>
+    <div class="is-text" data-e="sp-e12"><strong>The core exercise of Phase 2:</strong> Shadow scores the call. Lead scores the same call. They reveal independently. Any gap over 10 points is discussed until both understand the correct interpretation. This is how calibration habits are built. Repeat it 30+ times over 3 weeks.</div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="card">
+    <div class="ch orange">📅 Week 3 — First Independent Scoring</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-o">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Brief: rules of guided practice explained</div>
+            <div class="day-task dt-d">Score 2 calls independently — scorecard only</div>
+            <div class="day-task dt-o">Compare with Lead. Discuss every gap ≥5pts</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 3 more calls independently</div>
+            <div class="day-task dt-d">Write coaching notes for 1 of those calls (draft only)</div>
+            <div class="day-task dt-o">Lead reviews coaching notes draft — feedback given</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 3 calls — include 1 WhatsApp thread</div>
+            <div class="day-task dt-d">Compare all 3 with Lead. Document divergence log</div>
+            <div class="day-task dt-o">Shadow CRM audit session — begin participating</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Read: feedback delivery principles (Lead provides reading)</div>
+            <div class="day-task dt-o">Score 2 calls independently</div>
+            <div class="day-task dt-o">Draft coaching notes for both — Lead reviews</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Week 3 calibration review — all scored calls this week</div>
+            <div class="day-task dt-d">Calculate divergence average: target trending &lt;15%</div>
+            <div class="day-task dt-o">Debrief: what's still unclear? What's clicking?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="card">
+    <div class="ch orange">📅 Week 4 — Adding Coaching Note Writing</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-o">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 3 calls + write coaching notes for all 3</div>
+            <div class="day-task dt-d">Lead reviews: Are the notes specific? Timestamped? Kind but clear?</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 3 calls — no help from Lead until after completion</div>
+            <div class="day-task dt-d">Divergence discussion: explain your score before Lead shares theirs</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Role-play: Shadow delivers feedback to Lead (playing agent)</div>
+            <div class="day-task dt-d">Lead gives feedback on feedback: tone, structure, evidence use</div>
+            <div class="day-task dt-o">Complete CRM audit section independently — Lead checks</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 2 calls on different channels (call + email)</div>
+            <div class="day-task dt-d">Discuss: does tone translate across channels? How does scoring adapt?</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Compile Week 4 divergence log</div>
+            <div class="day-task dt-o">Target: avg divergence &lt;12%</div>
+            <div class="day-task dt-o">Mid-programme check-in with Lead — honest two-way feedback</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 5 -->
+  <div class="card">
+    <div class="ch orange">📅 Week 5 — Towards Gate 1</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-o">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 3 calls — all with coaching notes</div>
+            <div class="day-task dt-d">Attempt data entry section of weekly report template</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Score 3 calls — Lead only reviews after all 3 complete</div>
+            <div class="day-task dt-d">Shadow observes: Lead reviews coaching notes before delivery to agent</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Gate 1 calibration exercise: 5 calls scored independently</div>
+            <div class="day-task dt-d">Lead scores same 5 calls. Compare. No discussion until both complete.</div>
+            <div class="day-task dt-o">Calculate final divergence: must be &lt;10% average to pass</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-o">Gate 1 written test: 10 scorecard interpretation questions</div>
+            <div class="day-task dt-d">Pass mark: 8/10 correct</div>
+            <div class="day-task dt-o">Coaching note quality assessment — Lead rates 3 submitted notes</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-o">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Gate 1 results communicated</div>
+            <div class="day-task dt-o">If passed: brief for Phase 3</div>
+            <div class="day-task dt-o">If not passed: targeted 1-week extension plan built</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATE 1 -->
+  <div class="gate-box pass">
+    <div class="gate-tag gt-pass">✅ Gate 1 — Clearing Criteria</div>
+    <div class="gate-title">Average scoring divergence &lt;10% across the 5 calibration calls</div>
+    <div class="gate-desc" data-e="sp-e13">PLUS: Scorecard interpretation test ≥ 8/10 &nbsp;|&nbsp; Coaching notes rated "meets standard" or above on at least 2 of 3 submitted &nbsp;|&nbsp; No individual call scored with divergence &gt;20%</div>
+  </div>
+  <div class="gate-box review">
+    <div class="gate-tag gt-review">⏳ If Gate 1 is Not Cleared</div>
+    <div class="gate-title">One-week targeted extension — specific gaps only</div>
+    <div class="gate-desc" data-e="sp-e14">The Lead identifies the exact calibration dimension causing the gap (e.g. consistently over-scoring empathy, or under-scoring CRM accuracy) and builds a 5-day focused exercise plan targeting just that dimension. Then re-attempt Gate 1. Maximum one extension before a programme review is required.</div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════
+  TAB 4 — PHASE 3 — INDEPENDENT
+════════════════════════════ -->
+<div class="tab-panel" id="p4">
+
+  <div class="phase-band pb-3">
+    <div class="pb-phase">Phase 3</div>
+    <div class="pb-title">Independent Practice — Run It, Be Checked</div>
+    <div class="pb-sub" data-e="sp-e15">The shadow now runs evaluations solo. The Lead does not sit with them. Instead, the Lead spot-checks 30% of all evaluations completed and provides written feedback. The shadow also delivers their first real coaching conversation — to an actual agent, with the Lead present.</div>
+    <div class="pb-weeks">📅 Weeks 6–7 · 10 working days</div>
+  </div>
+
+  <div class="info-strip green">
+    <div class="is-icon">🚀</div>
+    <div class="is-text" data-e="sp-e16"><strong>This is the biggest step in the programme.</strong> Up to this point the shadow has always had the Lead nearby. Phase 3 removes that safety net — they must make scoring decisions independently and stand behind them. The Lead's spot-check is a quality control, not a lesson anymore.</div>
+  </div>
+
+  <!-- WEEK 6 -->
+  <div class="card">
+    <div class="ch amber">📅 Week 6 — First Solo Evaluations</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-y">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-y">Phase 3 brief: expectations, submission process, feedback loop</div>
+            <div class="day-task dt-d">Score 2 calls solo — submit scorecards + notes to Lead by EOD</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Lead returns feedback on Monday's scorecards (written, not live)</div>
+            <div class="day-task dt-y">Score 3 more calls independently</div>
+            <div class="day-task dt-y">Begin building week's evaluation tracker (own template)</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-y">Score 3 calls — include 1 complex/multi-issue call</div>
+            <div class="day-task dt-d">Write full coaching notes for all 3 (no preview from Lead)</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-y">Deliver first REAL coaching session — to an agent with low score</div>
+            <div class="day-task dt-d">Lead observes silently. Gives feedback to shadow after session.</div>
+            <div class="day-task dt-y">Shadow completes coaching log and files it</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Week 6 debrief with Lead — verbal + written feedback</div>
+            <div class="day-task dt-y">Shadow: how did the coaching session feel? What would they do differently?</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="info-strip amber" style="margin-bottom:0;">
+          <div class="is-icon">💬</div>
+          <div class="is-text" data-e="sp-e17"><strong>On the coaching conversation:</strong> This is where many QA shadows struggle most. They know the scorecard. They know the score. But sitting across from a colleague and saying "here's where you fell short" — with kindness, evidence, and structure — is a different skill entirely. The Lead's post-session feedback focuses 100% on this.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 7 -->
+  <div class="card">
+    <div class="ch amber">📅 Week 7 — Full Evaluation Week Solo + Gate 2</div>
+    <div class="cb" style="padding-top:14px;">
+      <div class="day-grid">
+        <div class="day-col">
+          <div class="day-head dh-y">Monday</div>
+          <div class="day-body">
+            <div class="day-task dt-y">Run full solo evaluation day — 4 calls across different agents</div>
+            <div class="day-task dt-d">CRM audit: 5 records checked independently</div>
+            <div class="day-task dt-y">Submit all work to Lead by EOD</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Tuesday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Lead spot-checks 30% of this week's scored calls</div>
+            <div class="day-task dt-y">Shadow delivers 2nd coaching session — Lead observes</div>
+            <div class="day-task dt-y">Shadow begins drafting a mini weekly summary (one paragraph per agent)</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Wednesday</div>
+          <div class="day-body">
+            <div class="day-task dt-y">Gate 2 calibration: 5 calls scored independently</div>
+            <div class="day-task dt-d">Lead scores same 5 calls independently</div>
+            <div class="day-task dt-y">Reveal and compare — divergence must be &lt;8% avg</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Thursday</div>
+          <div class="day-body">
+            <div class="day-task dt-d">Gate 2 coaching assessment: Lead rates 2 coaching sessions observed</div>
+            <div class="day-task dt-y">Shadow submits week's evaluation tracker and mini report draft</div>
+          </div>
+        </div>
+        <div class="day-col">
+          <div class="day-head dh-y">Friday</div>
+          <div class="day-body">
+            <div class="day-task dt-y">Gate 2 results communicated</div>
+            <div class="day-task dt-d">Phase 3 close debrief — honest two-way review</div>
+            <div class="day-task dt-y">Brief for Phase 4 if gate cleared</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate-box pass">
+    <div class="gate-tag gt-pass">✅ Gate 2 — Clearing Criteria</div>
+    <div class="gate-title">Scoring divergence &lt;8% average across 5 Gate 2 calibration calls</div>
+    <div class="gate-desc" data-e="sp-e18">PLUS: Both coaching sessions rated "meets standard" or above by Lead &nbsp;|&nbsp; Evaluation tracker complete and accurate &nbsp;|&nbsp; No critical CRM audit errors in the 5 records checked &nbsp;|&nbsp; Agent receiving coaching confirmed their understanding of feedback</div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════
+  TAB 5 — PHASE 4 — CERTIFICATION
+════════════════════════════ -->
+<div class="tab-panel" id="p5">
+
+  <div class="phase-band pb-4">
+    <div class="pb-phase">Phase 4</div>
+    <div class="pb-title">Final Assessment — The Full QA Week</div>
+    <div class="pb-sub" data-e="sp-e19">The shadow runs a complete, unsupervised QA week. The Lead observes remotely, reviews all submissions, and only steps in if something is critically wrong. At the end of 2 weeks, the Lead makes the final certification decision.</div>
+    <div class="pb-weeks">📅 Weeks 8–9 · 10 working days</div>
+  </div>
+
+  <!-- WHAT FULL QA WEEK MEANS -->
+  <div class="card">
+    <div class="ch teal">🎯 What "Full QA Week" Means in Phase 4</div>
+    <div class="cb">
+      <ul class="check-list">
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text">Evaluate a minimum of 4 agents per week — minimum 3 interactions per agent — across at least 2 channels</div><div class="note">Target: 12–15 total scored interactions per week</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text">Complete coaching notes for every scored interaction below 90%</div><div class="note">Notes must be specific, timestamped, and signed off before delivered to agent</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text">Deliver at least 2 coaching sessions independently — Lead observes one</div><div class="note">Agent must sign coaching log after each session</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text">Run a mini CRM audit — 8 records checked, findings documented</div><div class="note">Lead spot-checks 3 of the 8</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text">Complete a draft weekly QA summary report in the standard template</div><div class="note">Lead reviews and scores the report for structure, accuracy, and insight quality</div></div>
+        </li>
+        <li class="check-item">
+          <span class="check-box cb-g">✓</span>
+          <div><div class="text">Participate in a final calibration session — scoring 5 calls against the Lead</div><div class="note">This is the Gate 3 calibration test. Divergence must be ≤5%</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GATE 3 -->
+  <div class="card">
+    <div class="ch teal">🏁 Gate 3 — Final Certification Assessment</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:var(--teal-pale);border-radius:10px;padding:14px;text-align:center;border-left:4px solid var(--teal);">
+          <div style="font-size:22px;font-weight:900;color:var(--teal);">≤5%</div>
+          <div style="font-size:11px;font-weight:700;color:var(--teal);margin-top:3px;">Calibration Divergence</div>
+          <div style="font-size:10px;color:#555;margin-top:2px;">On the 5-call Gate 3 session</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:10px;padding:14px;text-align:center;border-left:4px solid var(--carrot);">
+          <div style="font-size:22px;font-weight:900;color:var(--carrot-d);">Meets</div>
+          <div style="font-size:11px;font-weight:700;color:var(--carrot-d);margin-top:3px;">Coaching Standard</div>
+          <div style="font-size:10px;color:#555;margin-top:2px;">Both observed sessions rated ≥ "meets"</div>
+        </div>
+        <div style="background:var(--leafy-pale);border-radius:10px;padding:14px;text-align:center;border-left:4px solid var(--leafy);">
+          <div style="font-size:22px;font-weight:900;color:var(--leafy);">100%</div>
+          <div style="font-size:11px;font-weight:700;color:var(--leafy);margin-top:3px;">Deliverables Complete</div>
+          <div style="font-size:10px;color:#555;margin-top:2px;">All scorecards, notes, report submitted</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--leafy-pale);border-radius:10px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--leafy);margin-bottom:6px;">Report Quality</div>
+          <div style="font-size:12px;color:#555;line-height:1.6;">The weekly QA summary report must contain: accurate metrics, at least 2 trend observations, at least 1 risk flag with a proposed action, and be fully complete with no missing agent data.</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:10px;padding:14px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--carrot-d);margin-bottom:6px;">No Critical Errors</div>
+          <div style="font-size:12px;color:#555;line-height:1.6;">No evaluation in the 2-week phase may have a divergence of more than 20 points from the Lead's score without the shadow being able to articulate — in writing — a credible alternative interpretation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTCOME -->
+  <div class="card">
+    <div class="ch dark">🏅 Certification Outcomes — Three Possible Results</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="gate-box pass">
+          <div class="gate-tag gt-pass">✅ Outcome 1 — Full Certification</div>
+          <div class="gate-title">All Gate 3 criteria met. Shadow is certified as QA Assessor.</div>
+          <div class="gate-desc" data-e="sp-e20">Q&amp;T Lead issues written certification to Technical Operations Manager, CX Manager, and People Team. The shadow transitions into the QA Assessor role. If the role is budgeted and approved, this certification supports a formal appointment. If not yet, the shadow remains in an acting QA capacity with documentation supporting the business case for the hire.</div>
+        </div>
+        <div class="gate-box review">
+          <div class="gate-tag gt-review">⏳ Outcome 2 — Conditional Certification</div>
+          <div class="gate-title">Mostly meets criteria — one specific dimension below standard.</div>
+          <div class="gate-desc" data-e="sp-e21">Shadow is certified with a 30-day conditional period. The specific gap (e.g. report writing, coaching delivery) is addressed through a focused development plan running alongside the QA duties. Formally reviewed at the 30-day mark. No further programme extension needed unless another gate dimension drops below standard.</div>
+        </div>
+        <div class="gate-box fail">
+          <div class="gate-tag gt-fail">✗ Outcome 3 — Not Yet Certified</div>
+          <div class="gate-title">2 or more Gate 3 dimensions not met.</div>
+          <div class="gate-desc" data-e="sp-e22">Shadow returns to Phase 3 for a further 2 weeks with a highly targeted plan. This is not a failure of the person — it is a signal that more repetition is needed. The Q&amp;T Lead and the shadow agree on the specific plan together. The agent returns to their call centre duties in parallel. A third attempt is possible but requires a full programme review meeting with leadership.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL PROGRAMME OUTCOME TABLE -->
+  <div class="card">
+    <div class="ch purple">📊 Full Programme — What Gets Assessed &amp; When</div>
+    <div class="cb" style="padding:0;">
+      <table class="outcome-table">
+        <thead>
+          <tr><th>Assessment</th><th>When</th><th>Format</th><th>Pass Standard</th><th>Weight</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Gate 0 — Readiness</td>
+            <td>Pre-programme</td>
+            <td>Conversation + criteria check</td>
+            <td>All 7 criteria met</td>
+            <td>Entry gate — pass/fail</td>
+          </tr>
+          <tr>
+            <td>Phase 1 — Observation Logs</td>
+            <td>End of Week 2</td>
+            <td>5 written logs + shadow scorecards</td>
+            <td>Completed, thoughtful, submitted on time</td>
+            <td>Developmental — not scored</td>
+          </tr>
+          <tr>
+            <td>Gate 1 — Calibration</td>
+            <td>Week 5, Wed–Thu</td>
+            <td>5-call calibration + written test</td>
+            <td>&lt;10% avg divergence + 8/10 test</td>
+            <td>Pass/fail gate</td>
+          </tr>
+          <tr>
+            <td>Gate 2 — Independent Practice</td>
+            <td>Week 7, Wed–Thu</td>
+            <td>Calibration + observed coaching</td>
+            <td>&lt;8% avg divergence + coaching "meets"</td>
+            <td>Pass/fail gate</td>
+          </tr>
+          <tr>
+            <td>Gate 3 — Final Certification</td>
+            <td>Week 9</td>
+            <td>Full QA week + calibration + report + coaching</td>
+            <td>All criteria met (see above)</td>
+            <td>Certification decision</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════
+  TAB 6 — DOS & DON'TS
+════════════════════════════ -->
+<div class="tab-panel" id="p6">
+
+  <div class="info-strip dark">
+    <div class="is-icon">📌</div>
+    <div class="is-text" data-e="sp-e23"><strong>This tab is for both the shadow AND the Q&amp;T Lead.</strong> The programme only works if both parties are honest, consistent, and committed to what the role actually requires. Read both sides.</div>
+  </div>
+
+  <!-- FOR THE SHADOW -->
+  <div class="card">
+    <div class="ch orange">For the Shadow Candidate</div>
+    <div class="cb">
+      <div class="do-dont">
+        <div class="do-col">
+          <div class="ddh">✓ Do This</div>
+          <div class="dd-body">
+            <div class="dd-item do-item">Ask questions about every score you're unsure of — especially in Phase 1 and 2. There are no dumb questions in calibration.</div>
+            <div class="dd-item do-item">Score calls using only what you actually heard — not what you assumed the agent meant.</div>
+            <div class="dd-item do-item">Tell the Lead honestly when you find scoring a friend's call difficult. That's a professional conversation worth having early.</div>
+            <div class="dd-item do-item">Read your observation logs back before each debrief — come prepared with specific points, not vague impressions.</div>
+            <div class="dd-item do-item">Accept that your scores will be wrong sometimes in Phase 2. That's the entire point of Phase 2.</div>
+            <div class="dd-item do-item">Document everything — your reasoning, your divergence, your coaching session notes. Build the habit now.</div>
+            <div class="dd-item do-item">Continue performing well in your agent role during the programme. Your call quality is still being evaluated.</div>
+            <div class="dd-item do-item">Be honest in your self-assessments. Overrating yourself in a readiness check delays real development.</div>
+          </div>
+        </div>
+        <div class="dont-col">
+          <div class="ddh">✗ Don't Do This</div>
+          <div class="dd-body">
+            <div class="dd-item dont-item">Don't tell colleagues what scores they received or share any evaluation data from the programme. Confidentiality is non-negotiable from day one.</div>
+            <div class="dd-item dont-item">Don't score a call higher because you know the agent is going through something difficult personally.</div>
+            <div class="dd-item dont-item">Don't adjust your score after seeing the Lead's — log your original score first, always.</div>
+            <div class="dd-item dont-item">Don't rush evaluations to hit a number. 3 accurate evaluations are worth more than 6 careless ones.</div>
+            <div class="dd-item dont-item">Don't use "I would have done it differently" as the basis for a low score if the agent met the scorecard criteria.</div>
+            <div class="dd-item dont-item">Don't skip submitting observation logs or treat them as a formality. They are how the Lead tracks your thinking development.</div>
+            <div class="dd-item dont-item">Don't expect to be fully ready in 4 weeks. The 9-week structure exists for a reason.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOR THE Q&T LEAD -->
+  <div class="card">
+    <div class="ch green">For the Q&amp;T Lead Running the Programme</div>
+    <div class="cb">
+      <div class="do-dont">
+        <div class="do-col">
+          <div class="ddh">✓ Do This</div>
+          <div class="dd-body">
+            <div class="dd-item do-item">Debrief every divergence with curiosity, not correction. Ask "what did you hear?" before explaining why the score was different.</div>
+            <div class="dd-item do-item">Give written feedback on submitted scorecards consistently — not just verbal. The shadow needs a trail of their development.</div>
+            <div class="dd-item do-item">Be honest at gate assessments. A shadow who isn't ready should not move forward — a kind delay protects the quality system.</div>
+            <div class="dd-item do-item">Protect the shadow's time during the programme — especially in Phase 3 and 4 when they're running evaluations alongside their agent duties.</div>
+            <div class="dd-item do-item">Keep agent teams informed at the right level — they should know evaluations are happening, not who is doing them during the shadow phase.</div>
+            <div class="dd-item do-item">Track the programme formally and share progress updates with the Technical Operations Manager monthly.</div>
+            <div class="dd-item do-item">Celebrate progress openly — the shadow is investing real effort. Recognition is part of good people development.</div>
+          </div>
+        </div>
+        <div class="dont-col">
+          <div class="ddh">✗ Don't Do This</div>
+          <div class="dd-body">
+            <div class="dd-item dont-item">Don't use the shadow to reduce your own evaluation load in Phase 1 and 2. They are not a resource yet — they are a learner.</div>
+            <div class="dd-item dont-item">Don't pass a gate to be kind. A shadow who clears Gate 2 without truly meeting the standard will struggle badly in Phase 4.</div>
+            <div class="dd-item dont-item">Don't let the shadow deliver coaching notes to agents without your review until Gate 2 is cleared. Unsupervised feedback at this stage carries reputational risk.</div>
+            <div class="dd-item dont-item">Don't allow the shadow to evaluate their closest friends or people they have a known conflict with during the programme.</div>
+            <div class="dd-item dont-item">Don't skip the debrief sessions, even in busy weeks. They are the learning engine of the entire programme.</div>
+            <div class="dd-item dont-item">Don't allow the programme to drift beyond 9 weeks without a formal review. Indefinite shadowing with no clear endpoint demotivates the candidate.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHEN THINGS GET HARD -->
+  <div class="card">
+    <div class="ch dark">🔥 When It Gets Hard — Common Friction Points</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="info-strip amber">
+          <div class="is-icon">🧑‍🤝‍🧑</div>
+          <div class="is-text" data-e="sp-e24"><strong>"I have to score my friend's call and it was bad."</strong> This happens. The shadow should flag it to the Lead before scoring, not after. The Lead can either score it themselves or sit in for the coaching conversation. This is not weakness — it is professional self-awareness.</div>
+        </div>
+        <div class="info-strip amber">
+          <div class="is-icon">💔</div>
+          <div class="is-text" data-e="sp-e25"><strong>"The agent I coached was upset with my feedback."</strong> Expected. This is not failure. The Lead debriefs with the shadow after every difficult coaching session. Delivering hard feedback kindly is a skill that takes practice. One upset agent is part of learning — a pattern of upset agents is a signal to revisit coaching technique.</div>
+        </div>
+        <div class="info-strip red">
+          <div class="is-icon">📉</div>
+          <div class="is-text" data-e="sp-e26"><strong>"My own call quality is dipping since starting the programme."</strong> This is a real risk. Splitting attention between two roles is demanding. If the shadow's personal QA average drops below 80% during the programme, a check-in meeting with the Lead is required. The programme may need to be paused until their agent performance stabilises.</div>
+        </div>
+        <div class="info-strip amber">
+          <div class="is-icon">🤐</div>
+          <div class="is-text" data-e="sp-e27"><strong>"Other agents are asking me about their scores."</strong> The shadow must be clear and consistent: "I can't share that." If pressure is applied, they escalate to the Q&amp;T Lead immediately. Confidentiality is not negotiable and any breach is grounds for removing the shadow from the programme.</div>
+        </div>
+        <div class="info-strip green">
+          <div class="is-icon">🌱</div>
+          <div class="is-text" data-e="sp-e28"><strong>"I feel like I'm not improving fast enough."</strong> Show them the divergence data. Progress in calibration is measurable. If the data shows improvement week-on-week — even small improvement — that is real evidence to hold onto. The Q&amp;T Lead's job is to make the progress visible, not just felt.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL NOTE -->
+  <div style="background:var(--leafy);border-radius:14px;padding:24px 28px;display:flex;gap:18px;align-items:flex-start;margin-top:4px;">
+    <span style="font-size:32px;flex-shrink:0;">🥬</span>
+    <div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--progressive);margin-bottom:6px;">A Note on What This Programme Really Is</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.8;">This isn't a training course. It's a gradual transfer of trust. By the end of 9 weeks, the Q&amp;T Lead is saying: <em>"I trust this person to evaluate their colleagues fairly, to tell an agent the truth with kindness, and to represent quality standards I would stand behind."</em> That is the bar. Everything in this plan is designed to get someone to that bar — starting from a strong agent foundation, and building the objectivity, precision, and people skills that a QA Assessor must carry every single day.</div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /content -->
+
+<script>
+function sw(i){
+  document.querySelectorAll('.tbtn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+// toggle week block bodies
+document.querySelectorAll('.wb-head').forEach(h=>{
+  h.addEventListener('click',()=>{
+    const b=h.nextElementSibling;
+    b.classList.toggle('open');
+  });
+});
+</script>
+
+<!-- EDIT MODE -->
+<style>
+body.edit-mode [data-e]{outline:2px dashed #FFB200;border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid #FF8C00;background:rgba(255,140,0,0.07);}
+#ebar{position:fixed;bottom:0;left:0;right:0;background:#FF8C00;padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+#ebar.on{display:flex;}
+#ebar .eb-l{font-size:13px;font-weight:700;color:white;}
+#ebar .eb-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:#BF6900;}
+.ebtn-x{background:rgba(255,255,255,.15);color:white;}
+#efab{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:#24631E;color:white;border:none;font-size:20px;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+#efab:hover{background:#3a7a34;}
+#emodal{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#emodal.hide{display:none;}
+.embox{background:white;border-radius:16px;padding:30px;max-width:320px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);}
+#epin{width:100%;padding:12px;border:2px solid #e4e2d8;border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;box-sizing:border-box;}
+#epin:focus{border-color:#24631E;}
+#epin.shake{animation:eshk .28s;}
+@keyframes eshk{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px);}}
+#eerr{font-size:12px;color:#c0392b;text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+.epri{width:100%;font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;padding:12px;border-radius:9px;border:none;background:#24631E;color:white;cursor:pointer;}
+.ecan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:9px;border-radius:9px;border:1px solid #e4e2d8;background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+</style>
+<div id="ebar">
+  <div class="eb-l">&#9998; Edit Mode active &mdash; click any highlighted text to edit</div>
+  <div class="eb-r">
+    <button class="ebtn ebtn-s" onclick="saveE()">&#128190; Save</button>
+    <button class="ebtn ebtn-s" onclick="exportE()">&#8595; Export</button>
+    <button class="ebtn ebtn-x" onclick="exitE()">&#10005; Exit</button>
+  </div>
+</div>
+<button id="efab" onclick="openEM()" title="Edit this document">&#9998;</button>
+<div id="emodal" class="hide">
+  <div class="embox">
+    <div style="font-size:30px;text-align:center;margin-bottom:10px;">&#9998;</div>
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px;">Edit Document</div>
+    <div style="font-size:12px;color:#888;text-align:center;margin-bottom:16px;">Enter the Admin PIN to unlock editing on this page</div>
+    <input id="epin" type="password" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
+    <div id="eerr"></div>
+    <button class="epri" onclick="tryE()">Unlock Editing</button>
+    <button class="ecan" onclick="closeEM()">Cancel</button>
+    <div style="font-size:10px;color:#ccc;text-align:center;margin-top:8px;">Admin PIN is managed in the Document Hub by the Q&amp;T Lead</div>
+  </div>
+</div>
+<script>
+(function(){
+  var EK="t2e_pin_admin", DF="admin9";
+  var SK="t2e_edits_"+location.pathname.split("/").pop();
+  function gp(){return localStorage.getItem(EK)||DF;}
+  function openEM(){document.getElementById("emodal").classList.remove("hide");setTimeout(function(){document.getElementById("epin").focus();},80);}
+  function closeEM(){document.getElementById("emodal").classList.add("hide");document.getElementById("epin").value="";document.getElementById("eerr").textContent="";}
+  function tryE(){
+    var v=document.getElementById("epin").value.trim();
+    if(v===gp()){closeEM();startE();}
+    else{var i=document.getElementById("epin");i.classList.add("shake");document.getElementById("eerr").textContent="Incorrect PIN.";i.value="";i.focus();}
+  }
+  function startE(){
+    document.body.classList.add("edit-mode");
+    document.getElementById("ebar").classList.add("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="true";});
+  }
+  function exitE(){
+    document.body.classList.remove("edit-mode");
+    document.getElementById("ebar").classList.remove("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="false";});
+  }
+  function saveE(){
+    var d={};
+    document.querySelectorAll("[data-e]").forEach(function(el){d[el.getAttribute("data-e")]=el.innerHTML;});
+    localStorage.setItem(SK,JSON.stringify(d));
+    st("Changes saved to this browser.","#24631E");
+  }
+  function exportE(){
+    saveE();
+    var h="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    var b=new Blob([h],{type:"text/html"});
+    var u=URL.createObjectURL(b);
+    var a=document.createElement("a");
+    a.href=u;a.download=location.pathname.split("/").pop().replace(".html","_edited.html");
+    a.click();URL.revokeObjectURL(u);
+    st("Exported with edits baked in.","#24631E");
+  }
+  function loadE(){
+    try{
+      var r=localStorage.getItem(SK);
+      if(!r)return;
+      var d=JSON.parse(r);
+      Object.keys(d).forEach(function(k){
+        var el=document.querySelector('[data-e="'+k+'"]');
+        if(el)el.innerHTML=d[k];
+      });
+    }catch(e){}
+  }
+  var et;
+  function st(msg,bg){
+    var t=document.getElementById("_est");
+    if(!t){t=document.createElement("div");t.id="_est";t.style.cssText="position:fixed;bottom:70px;right:22px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;color:white;z-index:10001;box-shadow:0 3px 14px rgba(0,0,0,.15);";document.body.appendChild(t);}
+    t.textContent=msg;t.style.background=bg;t.style.display="block";
+    clearTimeout(et);et=setTimeout(function(){t.style.display="none";},2800);
+  }
+  window.openEM=openEM;window.closeEM=closeEM;window.tryE=tryE;window.exitE=exitE;window.saveE=saveE;window.exportE=exportE;
+  document.getElementById("epin").addEventListener("keydown",function(e){if(e.key==="Enter")tryE();});
+  document.getElementById("epin").addEventListener("input",function(){this.classList.remove("shake");document.getElementById("eerr").textContent="";});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeEM();});
+  document.getElementById("emodal").addEventListener("click",function(ev){if(ev.target===this)closeEM();});
+  loadE();
+})();
+</script>
+
+</body>
+</html>

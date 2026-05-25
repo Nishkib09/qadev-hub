@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pilots Done — Tap2Eat — Food4Education</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sophisticated:#E5E5C9;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --blackboard:#1F1B1B;--gray-light:#f7f5ee;--gray-mid:#e4e2d8;
+  --red:#c0392b;--red-pale:#fdecea;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);}
+
+.hdr{background:var(--leafy);position:sticky;top:0;z-index:200;box-shadow:0 2px 14px rgba(0,0,0,.2);}
+.hdr-in{max-width:1060px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icos{display:flex;gap:4px;}
+.li{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.li.o{background:rgba(255,140,0,.25);}
+.li.y{background:rgba(255,178,0,.25);}
+.li.c{background:rgba(229,229,201,.18);}
+.logo-txt .org{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.logo-txt .name{font-size:14px;font-weight:800;color:white;}
+.back-btn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:20px;border:none;cursor:pointer;background:rgba(255,255,255,.1);color:white;text-decoration:none;}
+
+.hero{background:linear-gradient(135deg,var(--leafy),var(--leafy-mid));padding:48px 28px 40px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,178,0,.07);}
+.hero-in{max-width:1060px;margin:0 auto;position:relative;}
+.hero-pill{display:inline-block;background:rgba(255,178,0,.18);color:var(--progressive);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 13px;border-radius:20px;margin-bottom:13px;}
+.hero h1{font-size:30px;font-weight:900;color:white;line-height:1.1;margin-bottom:9px;}
+.hero h1 em{color:var(--progressive);font-style:normal;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.6);max-width:520px;line-height:1.7;}
+
+.main{max-width:1060px;margin:0 auto;padding:28px 28px 80px;}
+
+.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--gray-mid);}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px;}
+.kpi{background:white;border-radius:12px;padding:18px 16px;text-align:center;box-shadow:0 2px 10px rgba(31,27,27,.06);}
+.kpi-num{font-size:28px;font-weight:900;color:var(--leafy);margin-bottom:3px;}
+.kpi-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+
+/* PILOT CARD */
+.pcard{background:white;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 14px rgba(31,27,27,.08);}
+.pcard-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.pcard-ico{width:44px;height:44px;border-radius:10px;background:var(--leafy-pale);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.pcard-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:8px;background:#e8f5e9;color:var(--leafy);}
+.pcard-meta{font-size:11px;color:#aaa;margin-left:auto;}
+.pcard-title{font-size:18px;font-weight:800;margin-bottom:4px;}
+.pcard-sub{font-size:13px;color:#666;line-height:1.6;margin-bottom:18px;}
+
+/* STATS GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:20px;}
+.stat{background:var(--gray-light);border-radius:10px;padding:16px;}
+.stat-val{font-size:22px;font-weight:900;color:var(--leafy);}
+.stat-lbl{font-size:11px;color:#888;font-weight:500;margin-top:2px;}
+
+/* BREAKDOWN BAR */
+.bar-box{margin-bottom:20px;}
+.bar-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.bar-lbl{font-size:12px;font-weight:600;width:150px;flex-shrink:0;}
+.bar-trk{flex:1;height:22px;background:var(--gray-mid);border-radius:11px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:11px;transition:width .6s;}
+.bar-fill.g{background:var(--leafy);}
+.bar-fill.o{background:var(--carrot);}
+.bar-fill.y{background:var(--progressive);}
+.bar-fill.r{background:var(--red);}
+.bar-val{font-size:12px;font-weight:700;width:50px;text-align:right;flex-shrink:0;}
+
+/* INSIGHTS */
+.insight{display:flex;gap:12px;align-items:flex-start;background:var(--leafy-pale);border-radius:10px;padding:16px;margin-bottom:8px;}
+.insight-ico{font-size:20px;flex-shrink:0;margin-top:1px;}
+.insight-num{width:26px;height:26px;border-radius:50%;background:var(--leafy);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.insight-txt{font-size:12px;color:#444;line-height:1.7;}
+
+/* RECOMMENDATIONS */
+.rec{display:flex;gap:12px;align-items:flex-start;background:white;border-radius:10px;padding:16px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,.04);border-left:3px solid var(--progressive);}
+.rec-num{width:28px;height:28px;border-radius:50%;background:var(--progressive);color:var(--blackboard);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.rec-txt{font-size:12px;color:#444;line-height:1.7;}
+.rec-txt strong{color:var(--leafy);}
+
+/* STATUS */
+.pilot-status{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.pst{font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.8px;}
+.pst-done{background:#e8f5e9;color:var(--leafy);}
+.pst-active{background:#fff8e1;color:var(--progressive-d);}
+.pst-scaled{background:var(--leafy-pale);color:var(--leafy);border:1px solid #b6dab0;}
+
+.footer{background:var(--blackboard);padding:18px 28px;text-align:center;}
+.footer p{font-size:11px;color:rgba(255,255,255,.26);}
+.footer strong{color:var(--progressive);}
+
+@media(max-width:600px){
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .stat-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="logo">
+      <div class="logo-icos">
+        <div class="li o">🥕</div><div class="li y">🌽</div><div class="li c">🥬</div>
+      </div>
+      <div class="logo-txt">
+        <div class="org">Food4Education · Tap2Eat</div>
+        <div class="name">Pilots Done</div>
+      </div>
+    </div>
+    <a href="tap2eat_document_hub_3.html" class="back-btn">← Back to Hub</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-in">
+    <div class="hero-pill">CX Quality &amp; Training · Completed Pilots</div>
+    <h1>Pilots <em>Done</em></h1>
+    <p class="hero-sub">A record of completed CX pilots — what was tested, what the data showed, and how findings were scaled to improve customer engagement and build parent trust.</p>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="sec-lbl">🚀 Pilot #1 — Parent Assistance Data Tracking</div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-num">674</div><div class="kpi-lbl">Parent Visits</div></div>
+  <div class="kpi"><div class="kpi-num">21</div><div class="kpi-lbl">Pilot Days</div></div>
+  <div class="kpi"><div class="kpi-num">32</div><div class="kpi-lbl">Visits/Day Avg</div></div>
+  <div class="kpi"><div class="kpi-num">7</div><div class="kpi-lbl">Counties</div></div>
+  <div class="kpi"><div class="kpi-num">92%</div><div class="kpi-lbl">Resolution Rate</div></div>
+</div>
+
+<div class="pcard">
+  <div class="pcard-header">
+    <div class="pcard-ico">📋</div>
+    <div>
+      <div class="pcard-title">Parent Assistance Pilot</div>
+      <div class="pcard-sub">Tracking data of parents who sought support from school reps across Kenya, using Kobo Collect (35 questions, skip logic, automated region-based school filtering).</div>
+    </div>
+    <div class="pcard-meta">March 2–31, 2026</div>
+  </div>
+
+  <div class="pilot-status">
+    <span class="pst pst-done">Pilot Complete</span>
+    <span class="pst pst-scaled">Scaled to All Schools</span>
+  </div>
+</div>
+
+<!-- VISIT PURPOSE -->
+<div class="bar-box">
+  <div class="bar-title">Visit Purpose Breakdown</div>
+  <div class="bar-row">
+    <span class="bar-lbl">Inquiry</span>
+    <div class="bar-trk"><div class="bar-fill g" style="width:87%"></div></div>
+    <span class="bar-val">87%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-lbl">Follow-up</span>
+    <div class="bar-trk"><div class="bar-fill o" style="width:6.4%"></div></div>
+    <span class="bar-val">43</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-lbl">Complaints</span>
+    <div class="bar-trk"><div class="bar-fill r" style="width:4.7%"></div></div>
+    <span class="bar-val">32</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-lbl">Feedback</span>
+    <div class="bar-trk"><div class="bar-fill y" style="width:3%"></div></div>
+    <span class="bar-val">20</span>
+  </div>
+</div>
+
+<!-- ISSUE BREAKDOWN -->
+<div class="bar-box">
+  <div class="bar-title">Issue Category Breakdown</div>
+  <div class="bar-row">
+    <span class="bar-lbl">Tag Queries</span>
+    <div class="bar-trk"><div class="bar-fill g" style="width:47.8%"></div></div>
+    <span class="bar-val">322</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-lbl">Registration</span>
+    <div class="bar-trk"><div class="bar-fill o" style="width:28.5%"></div></div>
+    <span class="bar-val">192</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-lbl">Account</span>
+    <div class="bar-trk"><div class="bar-fill y" style="width:16.5%"></div></div>
+    <span class="bar-val">111</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-lbl">Payment</span>
+    <div class="bar-trk"><div class="bar-fill r" style="width:5.5%"></div></div>
+    <span class="bar-val">37</span>
+  </div>
+</div>
+
+<!-- KEY STATS -->
+<div class="stat-grid">
+  <div class="stat">
+    <div class="stat-val">278</div>
+    <div class="stat-lbl">Tag Replacements (41% of all queries)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">128</div>
+    <div class="stat-lbl">New Parent Registrations</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">58%</div>
+    <div class="stat-lbl">Visitors Were Mothers</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">85%</div>
+    <div class="stat-lbl">Primary/JSS Learners</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">Mar 9</div>
+    <div class="stat-lbl">Peak Day (99 visits)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">63%</div>
+    <div class="stat-lbl">Kiambu + Nairobi Combined</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">620</div>
+    <div class="stat-lbl">Fully Resolved at School Level</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">Kobo</div>
+    <div class="stat-lbl">Data Collection Tool Used</div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="sec-lbl">💡 Key Insights</div>
+
+<div class="insight">
+  <div class="insight-num">1</div>
+  <div class="insight-txt"><strong>Tag management is the #1 parent pain point.</strong> 278 tag replacements in 21 days signals a parent education gap — many parents don't know how to care for or recover lost tags. A proactive communication campaign can reduce this volume.</div>
+</div>
+<div class="insight">
+  <div class="insight-num">2</div>
+  <div class="insight-txt"><strong>Onboarding demand is still high.</strong> 128 new parent registrations in a single month shows the programme continues to grow. An efficient, scalable onboarding process is essential.</div>
+</div>
+<div class="insight">
+  <div class="insight-num">3</div>
+  <div class="insight-txt"><strong>Monday visit spikes are predictable.</strong> The peak day (Monday, March 9 — 99 visits) aligns with the start of the school week. School reps can staff proactively for this pattern.</div>
+</div>
+<div class="insight">
+  <div class="insight-num">4</div>
+  <div class="insight-txt"><strong>92% school-level resolution validates the rep model.</strong> Only 2% of issues went unresolved, proving that school reps are effective first-line support.</div>
+</div>
+<div class="insight">
+  <div class="insight-num">5</div>
+  <div class="insight-txt"><strong>Geographic concentration provides focus.</strong> Kiambu + Nairobi = 63% of all visits. Other counties (Kakamega, Mombasa, Kisumu, Uasin Gishu, Kajiado) need proportional rep capacity for Term 2 scale-up.</div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="sec-lbl">📌 Recommendations &amp; Term 2 Actions</div>
+
+<div class="rec">
+  <div class="rec-num">1</div>
+  <div class="rec-txt"><strong>Tag Care Campaign —</strong> Posters + WhatsApp guides for parents on tag care and replacement process. Target: 30% reduction in tag replacement queries.</div>
+</div>
+<div class="rec">
+  <div class="rec-num">2</div>
+  <div class="rec-txt"><strong>Parent Onboarding Fast Lane —</strong> Monday priority slots with a scripted 5-minute walkthrough for new parent registrations at high-volume schools.</div>
+</div>
+<div class="rec">
+  <div class="rec-num">3</div>
+  <div class="rec-txt"><strong>Balance Check Self-Service —</strong> USSD or WhatsApp balance inquiry tool to reduce low-touch rep visits for simple account queries.</div>
+</div>
+<div class="rec">
+  <div class="rec-num">4</div>
+  <div class="rec-txt"><strong>Targeted SMS/WhatsApp Nudges —</strong> Proactive tips to parents at high-volume schools before common issues escalate.</div>
+</div>
+<div class="rec">
+  <div class="rec-num">5</div>
+  <div class="rec-txt"><strong>Scale Data Tracking —</strong> Roll out Kobo Collect (or integrated in-app tracking) to all schools in Term 2, capturing per-school and per-rep resolution data for campaign targeting.</div>
+</div>
+
+</div>
+
+<footer class="footer">
+  <p><strong>Pilots Done — Tap2Eat · Food4Education</strong><br>
+  Ruiru, Kenya · Internal use · Pilot data is anonymised — no parent names or phone numbers are displayed.</p>
+</footer>
+
+</body>
+</html>

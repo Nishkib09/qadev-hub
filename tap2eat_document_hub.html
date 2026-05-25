@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CX Quality &amp; Training Hub — Tap2Eat — Food4Education</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sophisticated:#E5E5C9;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --blackboard:#1F1B1B;--gray-light:#f7f5ee;--gray-mid:#e4e2d8;
+  --red:#c0392b;--red-pale:#fdecea;
+  --purple:#6a1b9a;--purple-pale:#f3e8fd;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);}
+body.edit-mode [data-e]{outline:2px dashed var(--progressive);border-radius:3px;cursor:text;background:rgba(255,178,0,.05);}
+body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
+
+/* EDIT BAR */
+.ebar{position:fixed;bottom:0;left:0;right:0;background:var(--carrot);padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:900;}
+.ebar.on{display:flex;}
+.ebar-l{font-size:13px;font-weight:700;color:white;}
+.ebar-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 15px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:var(--carrot-d);}
+.ebtn-x{background:rgba(255,255,255,.18);color:white;}
+
+/* HEADER */
+.hdr{background:var(--leafy);position:sticky;top:0;z-index:200;box-shadow:0 2px 14px rgba(0,0,0,.2);}
+.hdr-in{max-width:1060px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icos{display:flex;gap:4px;}
+.li{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.li.o{background:rgba(255,140,0,.25);}
+.li.y{background:rgba(255,178,0,.25);}
+.li.c{background:rgba(229,229,201,.18);}
+.logo-txt .org{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.logo-txt .name{font-size:14px;font-weight:800;color:white;}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.abadge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;}
+.ab-pub{background:rgba(255,178,0,.18);color:var(--progressive);}
+.ab-agt{background:rgba(255,140,0,.25);color:var(--carrot);}
+.ab-stf{background:rgba(36,99,30,.35);color:#7dd87a;}
+.ab-adm{background:rgba(106,27,154,.35);color:#ce93d8;}
+.hbtn{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:6px 13px;border-radius:20px;border:none;cursor:pointer;}
+.hbtn.login{background:var(--progressive);color:var(--blackboard);}
+.hbtn.logout{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);}
+.hbtn.edit{background:var(--carrot);color:white;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--leafy),var(--leafy-mid));padding:48px 28px 40px;overflow:hidden;position:relative;}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,178,0,.07);}
+.hero-in{max-width:1060px;margin:0 auto;position:relative;}
+.hero-pill{display:inline-block;background:rgba(255,178,0,.18);color:var(--progressive);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 13px;border-radius:20px;margin-bottom:13px;}
+.hero h1{font-size:30px;font-weight:900;color:white;line-height:1.1;margin-bottom:9px;}
+.hero h1 em{color:var(--progressive);font-style:normal;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.6);max-width:480px;line-height:1.7;}
+.hero-strip{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;}
+.hs{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;}
+.hs.pub{background:rgba(255,178,0,.15);color:var(--progressive);}
+.hs.prv{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);}
+.hs.adm{background:rgba(106,27,154,.2);color:#ce93d8;}
+
+/* NOTICE BANNER */
+.notice{background:var(--blackboard);padding:12px 28px;}
+.notice-in{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.55);}
+.notice strong{color:var(--progressive);}
+
+/* MAIN */
+.main{max-width:1060px;margin:0 auto;padding:28px 28px 100px;}
+.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#aaa;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--gray-mid);}
+
+/* ADMIN PANEL */
+.adm-panel{background:var(--blackboard);border-radius:14px;padding:20px;margin-bottom:24px;display:none;}
+.adm-panel.on{display:block;}
+.adm-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#ce93d8;margin-bottom:13px;}
+.adm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.acard{background:rgba(255,255,255,.05);border-radius:9px;padding:14px;}
+.acard-ttl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:9px;}
+.act-o{color:var(--carrot);}
+.act-g{color:#7dd87a;}
+.act-p{color:#ce93d8;}
+.act-y{color:var(--progressive);}
+.pin-box{background:rgba(255,255,255,.07);border-radius:6px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.pbl{font-size:10px;color:rgba(255,255,255,.38);}
+.pbv{font-size:16px;font-weight:800;letter-spacing:4px;}
+.pbv-o{color:var(--carrot);}
+.pbv-g{color:#7dd87a;}
+.pbv-p{color:#ce93d8;}
+.pin-row{display:flex;gap:6px;margin-bottom:6px;}
+.pin-inp{flex:1;font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;text-align:center;letter-spacing:3px;padding:7px 9px;border-radius:6px;border:none;background:rgba(255,255,255,.1);color:white;outline:none;}
+.pin-inp::placeholder{letter-spacing:1px;font-size:10px;font-weight:400;color:rgba(255,255,255,.28);}
+.abtn{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:7px 12px;border-radius:6px;border:none;cursor:pointer;}
+.abtn-o{background:var(--carrot);color:white;}
+.abtn-g{background:var(--leafy);color:white;}
+.abtn-p{background:var(--purple);color:white;}
+.abtn-y{background:var(--progressive);color:var(--blackboard);}
+.abtn-gh{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+.anote{font-size:10px;color:rgba(255,255,255,.3);line-height:1.5;margin-top:5px;}
+
+/* SHARE PANEL */
+.share-panel{background:white;border-radius:12px;padding:18px 20px;margin-bottom:20px;border:2px dashed var(--progressive);display:flex;gap:14px;align-items:flex-start;}
+.sp-ttl{font-size:13px;font-weight:800;margin-bottom:3px;}
+.sp-desc{font-size:12px;color:#666;line-height:1.6;margin-bottom:10px;}
+.sp-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.spt{font-size:11px;font-weight:600;padding:3px 9px;border-radius:8px;background:var(--leafy-pale);color:var(--leafy);}
+
+/* DOC GRID */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-bottom:24px;}
+.dcard{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(31,27,27,.08);display:flex;flex-direction:column;transition:transform .18s,box-shadow .18s;}
+.dcard:hover:not(.locked){transform:translateY(-2px);box-shadow:0 6px 24px rgba(31,27,27,.12);}
+.locked{opacity:.5;}
+.dc-head{padding:15px 17px 9px;}
+.dc-ico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:9px;}
+.ico-g{background:var(--leafy-pale);}
+.ico-o{background:#fff3e0;}
+.ico-a{background:#fff8e1;}
+.dc-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-bottom:6px;}
+.tag-pub{background:var(--leafy-pale);color:var(--leafy);}
+.tag-agt{background:#fff3e0;color:var(--carrot-d);}
+.tag-stf{background:var(--purple-pale);color:var(--purple);}
+.tag-adm{background:#fce4ec;color:#c62828;}
+.dc-title{font-size:14px;font-weight:800;margin-bottom:3px;line-height:1.2;}
+.dc-desc{font-size:12px;color:#666;line-height:1.5;}
+.dc-tags{display:flex;flex-wrap:wrap;gap:3px;padding:0 17px 9px;}
+.dtag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--gray-light);color:#777;}
+.dc-foot{padding:10px 17px;border-top:1px solid var(--gray-mid);display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+.dc-aud{font-size:10px;color:#bbb;}
+
+/* OPEN BUTTONS — standard anchor links, most reliable for local files */
+.obtn{display:inline-block;font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;text-decoration:none;text-align:center;transition:opacity .18s;}
+.obtn:hover{opacity:.84;}
+.obtn-pub{background:var(--leafy);color:white;}
+.obtn-agt{background:var(--carrot);color:white;}
+.obtn-stf{background:var(--purple);color:white;}
+.obtn-adm{background:#c62828;color:white;}
+.obtn-locked{background:var(--gray-mid);color:#aaa;cursor:not-allowed;pointer-events:none;}
+
+/* MODALS */
+.mbg{position:fixed;inset:0;background:rgba(31,27,27,.65);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.mbg.hide{display:none;}
+.mbox{background:white;border-radius:16px;padding:28px;max-width:380px;width:100%;box-shadow:0 20px 56px rgba(0,0,0,.25);}
+.mico{font-size:34px;text-align:center;margin-bottom:10px;}
+.mttl{font-size:18px;font-weight:800;text-align:center;margin-bottom:4px;}
+.msub{font-size:12px;color:#888;text-align:center;margin-bottom:4px;}
+.tier-list{display:flex;flex-direction:column;gap:7px;margin:12px 0;}
+.tier-btn{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;border:1.5px solid var(--gray-mid);background:none;cursor:pointer;font-family:'Rubik',sans-serif;text-align:left;width:100%;transition:all .15s;}
+.tier-btn:hover{border-color:var(--leafy);background:var(--leafy-pale);}
+.tier-btn .ti{font-size:18px;flex-shrink:0;}
+.tier-btn .tn{font-size:12px;font-weight:700;}
+.tier-btn .td{font-size:10px;color:#aaa;margin-top:1px;}
+.pentry{display:none;}
+.pentry.on{display:block;}
+.pback{font-family:'Rubik',sans-serif;font-size:11px;color:#bbb;background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:11px;padding:0;}
+.plbl{text-align:center;font-size:12px;font-weight:600;margin-bottom:10px;}
+.minput{width:100%;padding:12px;border:2px solid var(--gray-mid);border-radius:8px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;}
+.minput:focus{border-color:var(--leafy);}
+.minput.shake{animation:shk .26s;}
+@keyframes shk{0%,100%{transform:translateX(0);}30%{transform:translateX(-6px);}70%{transform:translateX(6px)};}
+.merr{font-size:12px;color:var(--red);text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+.mpri{width:100%;font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;padding:11px;border-radius:8px;border:none;background:var(--leafy);color:white;cursor:pointer;}
+.mcan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:8px;border-radius:8px;border:1px solid var(--gray-mid);background:none;color:#aaa;cursor:pointer;margin-top:6px;}
+.mhint{font-size:10px;color:#ccc;text-align:center;margin-top:9px;line-height:1.5;}
+
+/* TOAST */
+.toast{position:fixed;bottom:72px;right:20px;padding:10px 16px;border-radius:9px;font-size:12px;font-weight:700;z-index:1100;display:none;box-shadow:0 4px 16px rgba(0,0,0,.14);max-width:280px;}
+.toast.on{display:block;animation:fup .25s;}
+@keyframes fup{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.toast.success{background:var(--leafy-pale);color:var(--leafy);border:1px solid #b6dab0;}
+.toast.info{background:#fff8e1;color:var(--progressive-d);border:1px solid #ffe082;}
+.toast.error{background:var(--red-pale);color:var(--red);border:1px solid #ffcdd2;}
+
+/* FOOTER */
+.footer{background:var(--blackboard);padding:18px 28px;text-align:center;}
+.footer p{font-size:11px;color:rgba(255,255,255,.26);line-height:1.7;}
+.footer strong{color:var(--progressive);}
+
+@media(max-width:600px){
+  .hdr-in,.main,.notice-in{padding-left:16px;padding-right:16px;}
+  .hero{padding:32px 16px 28px;}.hero h1{font-size:22px;}
+  .doc-grid{grid-template-columns:1fr;}.adm-grid{grid-template-columns:1fr;}
+  .share-panel{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="logo">
+      <div class="logo-icos">
+        <div class="li o">🥕</div><div class="li y">🌽</div><div class="li c">🥬</div>
+      </div>
+      <div class="logo-txt">
+        <div class="org">Food4Education · Tap2Eat</div>
+        <div class="name" data-e="site-name">CX Quality &amp; Training Hub</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <span class="abadge ab-pub" id="abadge">🌍 Public</span>
+      <button class="hbtn edit" id="edit-btn" style="display:none" onclick="toggleEdit()">✏️ Edit Hub</button>
+      <button class="hbtn login" id="login-btn" onclick="openLogin()">🔐 Sign In</button>
+      <button class="hbtn logout" id="logout-btn" style="display:none" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-in">
+    <div class="hero-pill" data-e="hero-pill">CX Quality &amp; Training Hub · Ruiru, Kenya</div>
+    <h1>CX Quality &amp; Training Hub<br><em>Tap2Eat · Food4Education</em></h1>
+    <p class="hero-sub" data-e="hero-sub">One place for everything that keeps the Tap2Eat call centre running at quality. Public documents are open to everyone — private ones require a team PIN.</p>
+    <div class="hero-strip">
+      <span class="hs pub">🌍 Public — SOPs &amp; Scorecard</span>
+      <span class="hs prv">🟡 Agent — Onboarding &amp; Tests</span>
+      <span class="hs prv">🟢 Staff — Shadow Plan</span>
+      <span class="hs adm">🔴 Admin — Reports &amp; JDs</span>
+    </div>
+  </div>
+</div>
+
+<!-- NOTICE -->
+<div class="notice">
+  <div class="notice-in">
+    <span>📁</span>
+    <span><strong>How to use:</strong> Download all files and keep them in the <strong>same folder</strong> on your computer. Open <strong>tap2eat_document_hub.html</strong> in your browser — all document links will work from there.</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ADMIN PANEL -->
+<div class="adm-panel" id="adm-panel">
+  <div class="adm-ttl">🔴 Admin Control Panel — Q&amp;T Lead Only</div>
+  <div class="adm-grid">
+    <div class="acard">
+      <div class="acard-ttl act-o">🟡 Agent PIN <span style="font-size:9px;opacity:.45;">(Rotating)</span></div>
+      <div class="pin-box"><span class="pbl">Current</span><span class="pbv pbv-o" id="agt-pv">—</span></div>
+      <div class="pin-row">
+        <input class="pin-inp" id="new-agt" maxlength="6" placeholder="New PIN">
+        <button class="abtn abtn-o" onclick="setPin('agent')">Set</button>
+      </div>
+      <button class="abtn abtn-gh" style="width:100%;padding:7px;font-size:11px;" onclick="genPin()">🎲 Auto-generate</button>
+      <p class="anote">Agents access: Scorecard + SOPs + Onboarding + Assessments</p>
+    </div>
+    <div class="acard">
+      <div class="acard-ttl act-g">🟢 Staff PIN <span style="font-size:9px;opacity:.45;">(QA Assessor)</span></div>
+      <div class="pin-box"><span class="pbl">Current</span><span class="pbv pbv-g" id="stf-pv">—</span></div>
+      <div class="pin-row">
+        <input class="pin-inp" id="new-stf" maxlength="6" placeholder="New PIN">
+        <button class="abtn abtn-g" onclick="setPin('staff')">Update</button>
+      </div>
+      <p class="anote">Staff access: all above + QA Shadow Work Plan</p>
+    </div>
+    <div class="acard">
+      <div class="acard-ttl act-p">🔴 Admin PIN <span style="font-size:9px;opacity:.45;">(Never share)</span></div>
+      <div class="pin-box"><span class="pbl">Current</span><span class="pbv" id="adm-pv" style="color:#ce93d8;">—</span></div>
+      <div class="pin-row">
+        <input class="pin-inp" id="new-adm" maxlength="6" placeholder="New PIN">
+        <button class="abtn abtn-p" onclick="setPin('admin')">Update</button>
+      </div>
+      <p class="anote">Admin access: everything + JDs/KPIs + Workload Reports + Edit mode</p>
+    </div>
+    <div class="acard">
+      <div class="acard-ttl act-y">✏️ Edit Mode</div>
+      <p class="anote" style="margin-bottom:9px;">Toggle to edit text on this hub page. Each document also has its own ✏️ button (bottom-right corner) using this same Admin PIN.</p>
+      <button class="abtn abtn-y" style="width:100%;padding:9px;margin-bottom:7px;" onclick="toggleEdit()">✏️ Toggle Hub Edit Mode</button>
+      <button class="abtn abtn-gh" style="width:100%;padding:7px;" onclick="exportHub()">⬇ Export Hub with Edits</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PUBLIC ── -->
+<div class="sec-lbl">🌍 Public — Open to Everyone</div>
+
+<div class="share-panel">
+  <div style="font-size:26px;flex-shrink:0;">💡</div>
+  <div>
+    <div class="sp-ttl" data-e="share-ttl">Sharing Public Documents</div>
+    <div class="sp-desc" data-e="share-desc">The QA Scorecard and all SOPs are public — share them with agents, interns, schools, or anyone learning how Tap2Eat evaluates and delivers service quality.</div>
+    <div class="sp-tags">
+      <span class="spt">📧 Email</span><span class="spt">📁 Google Drive</span>
+      <span class="spt">💬 WhatsApp</span><span class="spt">🌐 Google Sites</span>
+      <span class="spt">📎 Notion</span><span class="spt">💾 USB</span>
+    </div>
+  </div>
+</div>
+
+<div class="doc-grid">
+  <div class="dcard">
+    <div class="dc-head">
+      <div class="dc-ico ico-g">📋</div>
+      <span class="dc-tag tag-pub">🌍 Public</span>
+      <div class="dc-title" data-e="sc-title">Combined QA Audit Scorecard</div>
+      <div class="dc-desc" data-e="sc-desc">The complete quality evaluation tool for all Tap2Eat channels — inbound calls, outbound calls, CSAT surveys, and SMS. Includes scoring, critical flags, Google Sheets integration, and coaching notes.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Inbound</span><span class="dtag">Outbound</span><span class="dtag">CSAT</span><span class="dtag">SMS</span><span class="dtag">Google Sheets</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👥 Agents · Interns · QA learners</div>
+      <a class="obtn obtn-pub" href="tap2eat_scorecard_public.html" target="_blank">Open ↗</a>
+    </div>
+  </div>
+
+  <div class="dcard">
+    <div class="dc-head">
+      <div class="dc-ico ico-g">📘</div>
+      <span class="dc-tag tag-pub">🌍 Public</span>
+      <div class="dc-title" data-e="sop-title">Standard Operating Procedures</div>
+      <div class="dc-desc" data-e="sop-desc">Complete SOPs for all CX channels — Inbound &amp; Outbound Call Handling, WhatsApp/Chat, Email, CRM Data Entry, and Escalation Protocol. The definitive reference for how every interaction must be handled.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Inbound</span><span class="dtag">Outbound</span><span class="dtag">Chat/WA</span><span class="dtag">Email</span><span class="dtag">Escalation</span><span class="dtag">CRM</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👥 All staff · Interns · Agents</div>
+      <a class="obtn obtn-pub" href="tap2eat_sops.html" target="_blank">Open ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── AGENT ── -->
+<div class="sec-lbl">🟡 Agent Access — PIN Required</div>
+<div class="doc-grid">
+
+  <div class="dcard" id="dc-onboarding">
+    <div class="dc-head">
+      <div class="dc-ico ico-a">📚</div>
+      <span class="dc-tag tag-agt">🟡 Agent PIN</span>
+      <div class="dc-title" data-e="ob-title">Intern Onboarding Kit</div>
+      <div class="dc-desc" data-e="ob-desc">Complete onboarding programme — Week 1 schedule, 3 training modules, nesting period phases, and practical scoring rubric. Everything a new intern needs from Day 1 to first live call.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Week 1</span><span class="dtag">Modules</span><span class="dtag">Nesting</span><span class="dtag">Rubric</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Agents · Interns · Team Lead</div>
+      <span class="obtn obtn-locked" id="lnk-onboarding">🔒 PIN Required</span>
+    </div>
+  </div>
+
+  <div class="dcard" id="dc-assessments">
+    <div class="dc-head">
+      <div class="dc-ico ico-a">✅</div>
+      <span class="dc-tag tag-agt">🟡 Agent PIN</span>
+      <div class="dc-title" data-e="as-title">Onboarding Assessments — 5 Tests</div>
+      <div class="dc-desc" data-e="as-desc">Five knowledge tests for onboarding: Programme Knowledge, Call Standards, CRM &amp; Data, Scenario-Based, and Quality Standards. Each has a full answer key for the Q&amp;T Lead.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Programme</span><span class="dtag">Call Standards</span><span class="dtag">CRM</span><span class="dtag">Scenarios</span><span class="dtag">QA Standards</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Interns · Agents · Q&amp;T Lead</div>
+      <span class="obtn obtn-locked" id="lnk-assessments">🔒 PIN Required</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── STAFF ── -->
+<div class="sec-lbl">🟢 Staff Access — PIN Required</div>
+<div class="doc-grid">
+
+  <div class="dcard" id="dc-shadow">
+    <div class="dc-head">
+      <div class="dc-ico ico-g">🌱</div>
+      <span class="dc-tag tag-stf">🟢 Staff PIN</span>
+      <div class="dc-title" data-e="sh-title">QA Shadow Work Plan — 9 Weeks</div>
+      <div class="dc-desc" data-e="sh-desc">Structured 9-week programme for an agent transitioning into the QA Assessor role. 5 phases, 3 gate assessments, certification criteria, and full dos &amp; don'ts guide.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">9-Week Plan</span><span class="dtag">Phases</span><span class="dtag">Gates</span><span class="dtag">Certification</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Q&amp;T Lead · Shadow Candidate</div>
+      <span class="obtn obtn-locked" id="lnk-shadow">🔒 PIN Required</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── ADMIN ── -->
+<div class="sec-lbl">🔴 Admin Only — Q&amp;T Lead Exclusive</div>
+<div class="doc-grid">
+
+  <div class="dcard" id="dc-jd">
+    <div class="dc-head">
+      <div class="dc-ico ico-o">📌</div>
+      <span class="dc-tag tag-adm">🔴 Admin Only</span>
+      <div class="dc-title" data-e="jd-title">Role Framework — JDs &amp; KPIs</div>
+      <div class="dc-desc" data-e="jd-desc">Job descriptions and KPI frameworks for the Quality Assessor and Quality &amp; Training Lead roles. Full responsibilities, competencies, and KPI ownership for both positions.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Job Descriptions</span><span class="dtag">KPIs</span><span class="dtag">QA Role</span><span class="dtag">Q&amp;T Lead</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Q&amp;T Lead only</div>
+      <span class="obtn obtn-locked" id="lnk-jd">🔒 Admin Only</span>
+    </div>
+  </div>
+
+  <div class="dcard" id="dc-workload">
+    <div class="dc-head">
+      <div class="dc-ico ico-o">⚖️</div>
+      <span class="dc-tag tag-adm">🔴 Admin Only</span>
+      <div class="dc-title" data-e="wl-title">Day in the Life &amp; Workload Reports</div>
+      <div class="dc-desc" data-e="wl-desc">Q&amp;T Lead workload with and without a QA in post, weekly and termly report templates, dual-role impact logging, and business case evidence for the QA hire.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Day in Life</span><span class="dtag">Weekly Report</span><span class="dtag">Termly Report</span><span class="dtag">QA Case</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Q&amp;T Lead only</div>
+      <span class="obtn obtn-locked" id="lnk-workload">🔒 Admin Only</span>
+    </div>
+  </div>
+
+</div>
+</div><!-- /main -->
+
+<footer class="footer">
+  <p><strong>CX Quality &amp; Training Hub — Tap2Eat · Food4Education</strong><br>
+  Ruiru, Kenya · Internal use · Public documents may be shared freely · Private documents require authorisation</p>
+</footer>
+
+<!-- EDIT BAR -->
+<div class="ebar" id="ebar">
+  <div class="ebar-l">✏️ Edit Mode — click any highlighted text to edit</div>
+  <div class="ebar-r">
+    <button class="ebtn ebtn-s" onclick="saveEdits()">💾 Save</button>
+    <button class="ebtn ebtn-s" onclick="exportHub()">⬇ Export</button>
+    <button class="ebtn ebtn-x" onclick="exitEdit()">✕ Exit</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="mbg hide" id="login-modal">
+  <div class="mbox">
+    <div class="mico">🔐</div>
+    <div class="mttl">Sign In</div>
+    <div class="msub">Choose your access level</div>
+
+    <div class="tier-list" id="tier-list">
+      <button class="tier-btn" onclick="sel('agent')">
+        <span class="ti">🟡</span>
+        <div><div class="tn">Agent Access</div><div class="td">Scorecard + SOPs + Onboarding + Assessments</div></div>
+      </button>
+      <button class="tier-btn" onclick="sel('staff')">
+        <span class="ti">🟢</span>
+        <div><div class="tn">Staff Access</div><div class="td">All above + QA Shadow Work Plan</div></div>
+      </button>
+      <button class="tier-btn" onclick="sel('admin')">
+        <span class="ti">🔴</span>
+        <div><div class="tn">Admin Access</div><div class="td">Everything + JDs/KPIs + Reports + Edit mode</div></div>
+      </button>
+    </div>
+
+    <div class="pentry" id="pentry">
+      <button class="pback" onclick="backToTiers()">← Back</button>
+      <div class="plbl" id="plbl"></div>
+      <input class="minput" id="pin-inp" type="password" maxlength="6" placeholder="••••••"
+        onkeydown="if(event.key==='Enter')tryLogin()"
+        oninput="this.classList.remove('shake');document.getElementById('pin-err').textContent=''">
+      <div class="merr" id="pin-err"></div>
+      <button class="mpri" onclick="tryLogin()">Unlock</button>
+      <button class="mcan" onclick="closeLogin()">Cancel</button>
+      <div class="mhint" id="phint"></div>
+    </div>
+
+    <button class="mcan" id="top-cancel" onclick="closeLogin()">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────
+const DEF = { agent:'1234', staff:'2025', admin:'admin9' };
+const FILES = {
+  onboarding: 'tap2eat_onboarding_kit.html',
+  assessments: 'tap2eat_assessments.html',
+  shadow:      'tap2eat_qa_shadow_workplan.html',
+  jd:          'tap2eat_jd_kpis.html',
+  workload:    'tap2eat_lead_workload_reports.html'
+};
+const ACCESS = {
+  onboarding:'agent', assessments:'agent',
+  shadow:'staff',
+  jd:'admin', workload:'admin'
+};
+
+// ── STATE ───────────────────────────────────
+let tier = 'public';
+let selTier = '';
+let editOn = false;
+const TORD = { public:0, agent:1, staff:2, admin:3 };
+const can = needed => TORD[tier] >= TORD[needed];
+const gp = t => localStorage.getItem('t2e_pin_'+t) || DEF[t];
+const sp = (t,v) => localStorage.setItem('t2e_pin_'+t, v);
+
+// ── UI ──────────────────────────────────────
+function applyUI() {
+  const bdg = document.getElementById('abadge');
+  const lbls = { public:'🌍 Public', agent:'🟡 Agent', staff:'🟢 Staff', admin:'🔴 Admin' };
+  const cls  = { public:'ab-pub', agent:'ab-agt', staff:'ab-stf', admin:'ab-adm' };
+  bdg.textContent = lbls[tier];
+  bdg.className = 'abadge ' + cls[tier];
+
+  document.getElementById('login-btn').style.display  = tier === 'public' ? '' : 'none';
+  document.getElementById('logout-btn').style.display = tier !== 'public' ? '' : 'none';
+  document.getElementById('edit-btn').style.display   = tier === 'admin'  ? '' : 'none';
+  document.getElementById('adm-panel').classList.toggle('on', tier === 'admin');
+
+  if (tier === 'admin') {
+    document.getElementById('agt-pv').textContent = gp('agent');
+    document.getElementById('stf-pv').textContent = gp('staff');
+    document.getElementById('adm-pv').textContent = gp('admin');
+  }
+
+  // Update each locked document link
+  Object.keys(FILES).forEach(key => {
+    const el = document.getElementById('lnk-' + key);
+    if (!el) return;
+    const card = document.getElementById('dc-' + key);
+    const needed = ACCESS[key];
+    if (can(needed)) {
+      // Replace span with anchor
+      const a = document.createElement('a');
+      a.className = 'obtn ' + {agent:'obtn-agt', staff:'obtn-stf', admin:'obtn-adm'}[needed];
+      a.href = FILES[key];
+      a.target = '_blank';
+      a.textContent = 'Open ↗';
+      a.id = 'lnk-' + key;
+      el.parentNode.replaceChild(a, el);
+      if (card) card.classList.remove('locked');
+    } else {
+      const labels = { agent:'🔒 PIN Required', staff:'🔒 PIN Required', admin:'🔒 Admin Only' };
+      el.textContent = labels[needed];
+      el.className = 'obtn obtn-locked';
+      el.onclick = () => openLogin(needed);
+      el.style.pointerEvents = 'auto';
+      el.style.cursor = 'pointer';
+      if (card) card.classList.add('locked');
+    }
+  });
+}
+
+function doLogout() {
+  tier = 'public';
+  if (editOn) exitEdit();
+  // Reset all links back to locked spans
+  Object.keys(FILES).forEach(key => {
+    const existing = document.getElementById('lnk-' + key);
+    if (existing && existing.tagName === 'A') {
+      const sp = document.createElement('span');
+      sp.id = 'lnk-' + key;
+      sp.className = 'obtn obtn-locked';
+      sp.textContent = ACCESS[key] === 'admin' ? '🔒 Admin Only' : '🔒 PIN Required';
+      existing.parentNode.replaceChild(sp, existing);
+    }
+  });
+  applyUI();
+  toast('Signed out.', 'info');
+}
+
+// ── LOGIN ───────────────────────────────────
+function openLogin(force) {
+  document.getElementById('login-modal').classList.remove('hide');
+  document.getElementById('tier-list').style.display = '';
+  document.getElementById('pentry').classList.remove('on');
+  document.getElementById('top-cancel').style.display = '';
+  if (force) sel(force);
+}
+function closeLogin() {
+  document.getElementById('login-modal').classList.add('hide');
+  document.getElementById('pin-inp').value = '';
+  document.getElementById('pin-err').textContent = '';
+}
+function sel(t) {
+  selTier = t;
+  document.getElementById('tier-list').style.display = 'none';
+  document.getElementById('top-cancel').style.display = 'none';
+  document.getElementById('pentry').classList.add('on');
+  const lbl = { agent:'🟡 Agent Access — Enter PIN', staff:'🟢 Staff Access — Enter PIN', admin:'🔴 Admin Access — Enter PIN' };
+  const hint = { agent:'Agent PIN changes regularly — check with the Q&T Lead.', staff:'Staff PIN is for QA Assessors and the Q&T Lead.', admin:'Admin PIN is for the Q&T Lead only.' };
+  document.getElementById('plbl').textContent = lbl[t];
+  document.getElementById('phint').textContent = hint[t];
+  setTimeout(() => document.getElementById('pin-inp').focus(), 80);
+}
+function backToTiers() {
+  document.getElementById('tier-list').style.display = '';
+  document.getElementById('pentry').classList.remove('on');
+  document.getElementById('top-cancel').style.display = '';
+  document.getElementById('pin-inp').value = '';
+  document.getElementById('pin-err').textContent = '';
+}
+function tryLogin() {
+  const entered = document.getElementById('pin-inp').value.trim();
+  if (entered === gp(selTier)) {
+    tier = selTier;
+    closeLogin();
+    applyUI();
+    const msg = { agent:'Agent access granted.', staff:'Staff access granted.', admin:'Admin access granted — all documents and edit mode unlocked.' };
+    toast(msg[selTier], 'success');
+  } else {
+    const inp = document.getElementById('pin-inp');
+    inp.classList.add('shake');
+    document.getElementById('pin-err').textContent = 'Incorrect PIN. Contact the Q&T Lead.';
+    inp.value = '';
+    inp.focus();
+  }
+}
+
+// ── ADMIN ACTIONS ───────────────────────────
+function setPin(type) {
+  const ids = { agent:'new-agt', staff:'new-stf', admin:'new-adm' };
+  const v = document.getElementById(ids[type]).value.trim();
+  if (!v || v.length < 4) { toast('PIN must be at least 4 characters.', 'error'); return; }
+  sp(type, v);
+  const displays = { agent:'agt-pv', staff:'stf-pv', admin:'adm-pv' };
+  document.getElementById(displays[type]).textContent = v;
+  document.getElementById(ids[type]).value = '';
+  toast(type.charAt(0).toUpperCase() + type.slice(1) + ' PIN updated to: ' + v, 'success');
+}
+function genPin() {
+  const p = String(Math.floor(1000 + Math.random() * 9000));
+  sp('agent', p);
+  document.getElementById('agt-pv').textContent = p;
+  document.getElementById('new-agt').value = '';
+  toast('New agent PIN: ' + p + ' — share privately.', 'success');
+}
+
+// ── EDIT MODE ───────────────────────────────
+function toggleEdit() {
+  if (!editOn) {
+    editOn = true;
+    document.body.classList.add('edit-mode');
+    document.getElementById('ebar').classList.add('on');
+    document.getElementById('edit-btn').textContent = '✏️ Editing…';
+    document.querySelectorAll('[data-e]').forEach(e => e.contentEditable = 'true');
+    toast('Edit mode on — click highlighted text to edit.', 'info');
+  } else { saveEdits(); exitEdit(); }
+}
+function exitEdit() {
+  editOn = false;
+  document.body.classList.remove('edit-mode');
+  document.getElementById('ebar').classList.remove('on');
+  document.getElementById('edit-btn').textContent = '✏️ Edit Hub';
+  document.querySelectorAll('[data-e]').forEach(e => e.contentEditable = 'false');
+}
+function saveEdits() {
+  const d = {};
+  document.querySelectorAll('[data-e]').forEach(e => d[e.getAttribute('data-e')] = e.innerHTML);
+  localStorage.setItem('t2e_hub_edits', JSON.stringify(d));
+  toast('Hub changes saved.', 'success');
+}
+function loadEdits() {
+  try {
+    const r = localStorage.getItem('t2e_hub_edits');
+    if (!r) return;
+    const d = JSON.parse(r);
+    Object.keys(d).forEach(k => {
+      const el = document.querySelector('[data-e="' + k + '"]');
+      if (el) el.innerHTML = d[k];
+    });
+  } catch(e) {}
+}
+function exportHub() {
+  saveEdits();
+  const h = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const b = new Blob([h], { type:'text/html' });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href = u; a.download = 'tap2eat_document_hub_updated.html';
+  a.click(); URL.revokeObjectURL(u);
+  toast('Hub exported with edits baked in.', 'success');
+}
+
+// ── TOAST ───────────────────────────────────
+let toastT;
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast on ' + type;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.className = 'toast', 3200);
+}
+
+// ── EVENTS ──────────────────────────────────
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLogin(); });
+document.getElementById('login-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeLogin();
+});
+
+// ── INIT ────────────────────────────────────
+loadEdits();
+applyUI();
+</script>
+</body>
+</html>

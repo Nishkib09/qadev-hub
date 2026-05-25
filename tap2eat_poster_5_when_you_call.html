@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When You Call Us — Tap2Eat WhatsApp Poster</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--sophisticated:#E5E5C9;
+  --blackboard:#1F1B1B;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+
+/* ── WHATSAPP POSTER SIZE (portrait, phone screen) ── */
+.poster{
+  width:380px;background:white;border-radius:18px;overflow:hidden;
+  box-shadow:0 8px 36px rgba(0,0,0,.18);
+}
+
+/* ── HEADER ── */
+.p-header{background:var(--leafy);padding:16px 18px;display:flex;align-items:center;gap:10px;}
+.p-logo{display:flex;gap:3px;}
+.pl{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.pl.o{background:rgba(255,140,0,.25);}
+.pl.y{background:rgba(255,178,0,.25);}
+.pl.c{background:rgba(229,229,201,.18);}
+.p-brand{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.6);}
+.p-tagline{font-size:12px;font-weight:800;color:white;}
+
+/* ── BODY ── */
+.p-body{padding:20px 18px;}
+
+/* Hero icon/illustration area */
+.p-hero-ico{text-align:center;margin-bottom:12px;font-size:52px;}
+
+/* Title */
+.p-title{font-size:20px;font-weight:900;color:var(--blackboard);text-align:center;line-height:1.2;margin-bottom:4px;}
+.p-subtitle{font-size:12px;color:#888;text-align:center;line-height:1.5;margin-bottom:18px;}
+
+/* Step row */
+.steps{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.step{display:flex;gap:12px;align-items:flex-start;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--leafy-pale);color:var(--leafy);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-content{flex:1;}
+.step-head{font-size:13px;font-weight:800;color:var(--blackboard);margin-bottom:2px;}
+.step-body{font-size:11px;color:#666;line-height:1.6;}
+.step-time{font-size:10px;font-weight:600;color:var(--progressive-d);background:#fff8e1;display:inline-block;padding:1px 7px;border-radius:6px;margin-top:3px;}
+
+/* Divider */
+.divider{height:1px;background:#eee;margin:14px 0;}
+
+/* Timeline */
+.timeline{background:var(--leafy-pale);border-radius:10px;padding:14px;margin-bottom:14px;}
+.tl-title{font-size:11px;font-weight:800;color:var(--leafy);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.tl-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.tl-dot.green{background:var(--leafy);}
+.tl-dot.amber{background:var(--progressive);}
+.tl-dot.orange{background:var(--carrot);}
+.tl-label{font-weight:700;color:var(--blackboard);}
+.tl-desc{font-size:11px;color:#666;margin-left:4px;}
+
+/* CTA */
+.cta-box{background:var(--progressive);border-radius:10px;padding:12px 16px;text-align:center;margin-bottom:10px;}
+.cta-text{font-size:13px;font-weight:800;color:var(--blackboard);}
+.cta-sub{font-size:10px;color:rgba(31,27,27,.55);margin-top:2px;}
+
+/* Footer */
+.p-footer{text-align:center;padding:0 18px 16px;}
+.p-footer-text{font-size:9px;color:#bbb;line-height:1.5;}
+
+/* ── VARIATION 2: More visual / infographic style ── */
+.poster2{width:380px;background:white;border-radius:18px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,.18);margin-left:30px;}
+.p2-hero{background:linear-gradient(135deg,var(--leafy),var(--leafy-mid));padding:28px 18px;text-align:center;position:relative;overflow:hidden;}
+.p2-hero::after{content:'';position:absolute;right:-40px;bottom:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,178,0,.1);}
+.p2-hero-ico{font-size:44px;margin-bottom:8px;}
+.p2-hero-title{font-size:22px;font-weight:900;color:white;line-height:1.1;}
+.p2-hero-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;}
+.p2-body{padding:16px 18px;}
+.p2-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.p2-card{text-align:center;padding:14px 10px;border-radius:10px;}
+.p2-card.green{background:var(--leafy-pale);}
+.p2-card.amber{background:#fff8e1;}
+.p2-card-num{font-size:24px;font-weight:900;margin-bottom:2px;}
+.p2-card-num.g{color:var(--leafy);}
+.p2-card-num.a{color:var(--progressive-d);}
+.p2-card-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;}
+.p2-note{background:var(--leafy-pale);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--leafy);line-height:1.6;font-weight:600;text-align:center;}
+
+/* SIDE-BY-SIDE WRAPPER */
+.poster-row{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+@media(max-width:820px){.poster-row{flex-direction:column;align-items:center;}.poster2{margin-left:0;}}
+
+/* LABELS */
+.plabel{text-align:center;font-size:13px;font-weight:800;color:var(--leafy);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<div style="display:flex;flex-direction:column;gap:40px;align-items:center;">
+
+<!-- ═══════ VARIATION A: Step-by-step flow ═══════ -->
+<div>
+  <div class="plabel">Option A — Step-by-Step Flow</div>
+  <div class="poster">
+    <div class="p-header">
+      <div class="p-logo">
+        <div class="pl o">🥕</div><div class="pl y">🌽</div><div class="pl c">🥬</div>
+      </div>
+      <div>
+        <div class="p-brand">Food4Education · Tap2Eat</div>
+        <div class="p-tagline">Call Centre — What to Expect</div>
+      </div>
+    </div>
+
+    <div class="p-body">
+      <div class="p-hero-ico">📞</div>
+      <div class="p-title">When You Call Us</div>
+      <div class="p-subtitle">Here's what happens so you're never left guessing</div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-head">Tell us everything</div>
+            <div class="step-body">Share all your concerns at once — tag issues, payments, account questions. We'll listen.</div>
+            <span class="step-time">~30 seconds</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-head">We confirm what we heard</div>
+            <div class="step-body">We repeat back your concerns so nothing is missed. No back-and-forth later.</div>
+            <span class="step-time">~15 seconds</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-head">We tackle the urgent one first</div>
+            <div class="step-body">If your child can't eat today, we fix that immediately. Then we handle the rest.</div>
+            <span class="step-time">Varies by issue</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-head">You'll know what happens next</div>
+            <div class="step-body">For anything not solved on the spot, we tell you exactly when to expect an update.</div>
+            <span class="step-time">~15 seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="timeline">
+        <div class="tl-title">⏱ How long things take</div>
+        <div class="tl-row">
+          <div class="tl-dot green"></div>
+          <span class="tl-label">Balance check</span>
+          <span class="tl-desc">— solved on the call</span>
+        </div>
+        <div class="tl-row">
+          <div class="tl-dot amber"></div>
+          <span class="tl-label">Payment / top-up query</span>
+          <span class="tl-desc">— 24 hours</span>
+        </div>
+        <div class="tl-row">
+          <div class="tl-dot orange"></div>
+          <span class="tl-label">Tag replacement</span>
+          <span class="tl-desc">— 48–72 hours</span>
+        </div>
+      </div>
+
+      <div class="cta-box">
+        <div class="cta-text">Piga simu. Sisi tuko tayari.</div>
+        <div class="cta-sub">Call us. We're ready for you.</div>
+      </div>
+    </div>
+
+    <div class="p-footer">
+      <p class="p-footer-text">We never put you on hold. Every call ends with you knowing the next step.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ VARIATION B: Infographic / Quick-glance ═══════ -->
+<div>
+  <div class="plabel">Option B — Quick-Glance Infographic</div>
+  <div class="poster2">
+    <div class="p2-hero">
+      <div class="p2-hero-ico">📞</div>
+      <div class="p2-hero-title">Unapopiga simu</div>
+      <div class="p2-hero-sub">When you call Tap2Eat — here's what to expect</div>
+    </div>
+
+    <div class="p2-body">
+      <div class="p2-grid">
+        <div class="p2-card green">
+          <div class="p2-card-num g">1</div>
+          <div class="p2-card-lbl">Sema yote<br>Speak freely</div>
+        </div>
+        <div class="p2-card amber">
+          <div class="p2-card-num a">2</div>
+          <div class="p2-card-lbl">Tunarudia<br>We confirm</div>
+        </div>
+        <div class="p2-card amber">
+          <div class="p2-card-num a">3</div>
+          <div class="p2-card-lbl">Tunatatua<br>We resolve</div>
+        </div>
+        <div class="p2-card green">
+          <div class="p2-card-num g">4</div>
+          <div class="p2-card-lbl">Unajua ijayo<br>You know next steps</div>
+        </div>
+      </div>
+
+      <div class="timeline" style="margin-bottom:12px;">
+        <div class="tl-title">⏱ Muda wa kusubiri / How long</div>
+        <div class="tl-row"><div class="tl-dot green"></div><span class="tl-label">Salio / Balance</span><span class="tl-desc">— papo hapo / instantly</span></div>
+        <div class="tl-row"><div class="tl-dot amber"></div><span class="tl-label">Malipo / Payment</span><span class="tl-desc">— saa 24 / 24 hrs</span></div>
+        <div class="tl-row"><div class="tl-dot orange"></div><span class="tl-label">Tagi / Tag</span><span class="tl-desc">— saa 48–72</span></div>
+      </div>
+
+      <div class="p2-note">
+        🔒 Hatukuweki kwenye foleni.<br>We never put you on hold.
+      </div>
+    </div>
+
+    <div class="p-footer">
+      <p class="p-footer-text">Tap2Eat · Food4Education · Piga simu leo</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

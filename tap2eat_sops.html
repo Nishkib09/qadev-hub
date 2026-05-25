@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2Eat CX — Standard Operating Procedures</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;--leafy-faint:#f4faf3;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --blackboard:#1F1B1B;
+  --sophisticated:#E5E5C9;
+  --gray-light:#f7f5ee;--gray-mid:#e4e2d8;
+  --red:#c0392b;--red-pale:#fdecea;
+  --blue:#1565c0;--blue-pale:#e8eaf6;
+  --teal:#00695c;--teal-pale:#e0f2f1;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);}
+
+/* EDIT MODE */
+body.edit-mode [data-e]{outline:2px dashed var(--progressive);border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);background:rgba(255,140,0,0.07);}
+.ebar{position:fixed;bottom:0;left:0;right:0;background:var(--carrot);padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:900;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+.ebar.on{display:flex;}
+.ebar-l{font-size:13px;font-weight:700;color:white;}
+.ebar-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:var(--carrot-d);}
+.ebtn-x{background:rgba(255,255,255,.15);color:white;}
+
+/* HEADER */
+.hdr{background:var(--leafy);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-in{max-width:960px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.hdr-logo{display:flex;align-items:center;gap:10px;}
+.hdr-icos{display:flex;gap:4px;}
+.hico{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.hico.o{background:rgba(255,140,0,.25);}
+.hico.y{background:rgba(255,178,0,.25);}
+.hdr-txt .org{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.hdr-txt .ttl{font-size:14px;font-weight:800;color:white;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.hdr-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:14px;background:rgba(255,178,0,.18);color:var(--progressive);}
+.edit-toggle-btn{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:6px 14px;border-radius:18px;border:none;cursor:pointer;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);}
+.edit-toggle-btn:hover{background:rgba(255,255,255,.2);}
+
+/* TABS */
+.tabs-wrap{background:var(--blackboard);padding:0 28px;overflow-x:auto;display:flex;max-width:100%;}
+.tabs-wrap::-webkit-scrollbar{height:2px;}
+.tabs-wrap::-webkit-scrollbar-thumb{background:var(--progressive);}
+.tab{font-family:'Rubik',sans-serif;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.38);background:none;border:none;padding:13px 14px 11px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+.tab.active{color:var(--progressive);border-bottom-color:var(--progressive);}
+.tab:hover{color:rgba(255,255,255,.7);}
+
+/* MAIN */
+.main{max-width:960px;margin:0 auto;padding:28px 28px 90px;}
+.panel{display:none;}
+.panel.on{display:block;}
+
+/* SOP CARDS */
+.sop-header{border-radius:14px;padding:22px 26px;margin-bottom:18px;position:relative;overflow:hidden;}
+.sop-header::after{content:'';position:absolute;right:-30px;top:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.07);}
+.sh-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:6px;}
+.sh-title{font-size:22px;font-weight:800;color:white;margin-bottom:5px;}
+.sh-desc{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;}
+.sh-meta{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.sh-m{font-size:11px;font-weight:600;padding:4px 12px;border-radius:14px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);}
+
+.card{background:white;border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 14px rgba(31,27,27,.07);}
+.card-hd{padding:11px 20px;display:flex;align-items:center;gap:8px;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;}
+.card-hd.green{background:var(--leafy);color:white;}
+.card-hd.orange{background:var(--carrot);color:white;}
+.card-hd.amber{background:var(--progressive);color:var(--blackboard);}
+.card-hd.dark{background:var(--blackboard);color:white;}
+.card-hd.blue{background:var(--blue);color:white;}
+.card-hd.teal{background:var(--teal);color:white;}
+.card-hd.red{background:var(--red);color:white;}
+.cb{padding:18px 20px;}
+
+/* STEP LIST */
+.step-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+.step{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--gray-light);}
+.step:last-child{border-bottom:none;}
+.step-num{min-width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;color:white;margin-top:1px;}
+.sn-g{background:var(--leafy);}
+.sn-o{background:var(--carrot);}
+.sn-a{background:var(--progressive);color:var(--blackboard);}
+.sn-d{background:var(--blackboard);}
+.sn-b{background:var(--blue);}
+.sn-t{background:var(--teal);}
+.step-content{flex:1;}
+.step-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.step-body{font-size:12px;color:#555;line-height:1.65;}
+.step-script{background:var(--leafy-faint);border-left:3px solid var(--leafy);border-radius:0 6px 6px 0;padding:8px 12px;margin-top:8px;font-size:12px;color:var(--leafy);font-style:italic;line-height:1.6;}
+.step-script.orange{background:#fffbf5;border-left-color:var(--carrot);color:var(--carrot-d);}
+.step-script.red{background:var(--red-pale);border-left-color:var(--red);color:var(--red);}
+
+/* INFO BOXES */
+.info-box{border-radius:9px;padding:13px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;}
+.info-box.amber{background:#fff8e1;border-left:4px solid var(--progressive);}
+.info-box.red{background:var(--red-pale);border-left:4px solid var(--red);}
+.info-box.green{background:var(--leafy-pale);border-left:4px solid var(--leafy);}
+.info-box .ib-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.info-box .ib-text{font-size:12px;line-height:1.65;color:#444;}
+.info-box .ib-text strong{color:var(--blackboard);}
+
+/* METRIC PILLS */
+.metric-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.metric-pill{text-align:center;border-radius:10px;padding:12px 16px;flex:1;min-width:120px;}
+.mp-green{background:var(--leafy-pale);}
+.mp-orange{background:#fff3e0;}
+.mp-amber{background:#fff8e1;}
+.mp-blue{background:var(--blue-pale);}
+.mp-num{font-size:20px;font-weight:800;}
+.mp-num.g{color:var(--leafy);}
+.mp-num.o{color:var(--carrot-d);}
+.mp-num.a{color:var(--progressive-d);}
+.mp-num.b{color:var(--blue);}
+.mp-label{font-size:10px;font-weight:600;color:#888;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* DO DONT */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dd-col{border-radius:9px;overflow:hidden;border:1px solid var(--gray-mid);}
+.dd-hd{padding:9px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.dd-hd.do{background:var(--leafy);color:white;}
+.dd-hd.dont{background:var(--red);color:white;}
+.dd-body{background:white;padding:0;}
+.dd-item{padding:8px 14px;border-bottom:1px solid var(--gray-light);font-size:12px;display:flex;gap:7px;line-height:1.5;}
+.dd-item:last-child{border-bottom:none;}
+.dd-item.do::before{content:'✓';color:var(--leafy);font-weight:700;flex-shrink:0;}
+.dd-item.dont::before{content:'✗';color:var(--red);font-weight:700;flex-shrink:0;}
+
+/* ESCALATION MATRIX */
+.esc-table{width:100%;border-collapse:collapse;}
+.esc-table thead tr{background:var(--blackboard);color:white;}
+.esc-table thead th{padding:9px 13px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;text-align:left;}
+.esc-table tbody tr:nth-child(even){background:var(--gray-light);}
+.esc-table td{padding:10px 13px;font-size:12px;vertical-align:top;border-bottom:1px solid var(--gray-mid);}
+.esc-table td:first-child{font-weight:600;}
+.badge{display:inline-block;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:700;}
+.b-red{background:var(--red-pale);color:var(--red);}
+.b-amber{background:#fff3e0;color:var(--carrot-d);}
+.b-green{background:var(--leafy-pale);color:var(--leafy);}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.mbg.hide{display:none;}
+.mbox{background:white;border-radius:16px;padding:30px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);}
+.mico{font-size:34px;text-align:center;margin-bottom:12px;}
+.mttl{font-size:18px;font-weight:800;text-align:center;margin-bottom:5px;}
+.msub{font-size:13px;color:#888;text-align:center;margin-bottom:18px;line-height:1.5;}
+.minput{width:100%;padding:12px;border:2px solid var(--gray-mid);border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;}
+.minput:focus{border-color:var(--leafy);}
+.minput.shake{animation:shk .28s;}
+@keyframes shk{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px)};}
+.merr{font-size:12px;color:var(--red);text-align:center;min-height:17px;margin-bottom:10px;font-weight:600;}
+.mpri{width:100%;font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;padding:12px;border-radius:9px;border:none;background:var(--leafy);color:white;cursor:pointer;}
+.mcan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:9px;border-radius:9px;border:1px solid var(--gray-mid);background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+.mhint{font-size:11px;color:#ccc;text-align:center;margin-top:10px;line-height:1.5;}
+
+/* FOOTER */
+.footer{background:var(--blackboard);padding:18px 28px;text-align:center;}
+.footer p{font-size:11px;color:rgba(255,255,255,.28);line-height:1.6;}
+.footer strong{color:var(--progressive);}
+
+/* PRINT */
+@media print{.hdr,.tabs-wrap,.ebar,.edit-toggle-btn{display:none!important;}.panel{display:block!important;page-break-after:always;}.main{padding:0;}.card{box-shadow:none;border:1px solid #ccc;}}
+@media(max-width:640px){.hdr-in{padding:12px 16px;}.main{padding:20px 16px 90px;}.two-col{grid-template-columns:1fr;}.do-dont{grid-template-columns:1fr;}.metric-row{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-logo">
+      <div class="hdr-icos"><div class="hico o">🥕</div><div class="hico y">☎️</div></div>
+      <div class="hdr-txt">
+        <div class="org">Food4Education · Tap2Eat</div>
+        <div class="ttl">Standard Operating Procedures — CX</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="hdr-badge">🌍 Public Document</span>
+      <button class="edit-toggle-btn" onclick="openEditModal()">✏️ Edit</button>
+    </div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab active" onclick="sw(0)">📞 Inbound Calls</button>
+  <button class="tab" onclick="sw(1)">📤 Outbound Calls</button>
+  <button class="tab" onclick="sw(2)">💬 Chat (WA/SMS)</button>
+  <button class="tab" onclick="sw(3)">📧 Email</button>
+  <button class="tab" onclick="sw(4)">💾 CRM Data Entry</button>
+  <button class="tab" onclick="sw(5)">🚨 Escalation Protocol</button>
+</div>
+
+<div class="main">
+
+<!-- ════ 0 — INBOUND CALLS ════ -->
+<div class="panel on" id="p0">
+  <div class="sop-header" style="background:var(--leafy);">
+    <div class="sh-tag">SOP 01 · Customer Experience</div>
+    <div class="sh-title" data-e="ib-title" contenteditable="false">Inbound Call Handling</div>
+    <div class="sh-desc" data-e="ib-desc" contenteditable="false">The standard procedure every agent must follow from the moment an inbound call connects to the moment the CRM record is closed. No step is optional.</div>
+    <div class="sh-meta">
+      <span class="sh-m">AHT Target: ≤ 180 seconds</span>
+      <span class="sh-m">QA Score Target: ≥ 95%</span>
+      <span class="sh-m">FCR Target: ≥ 95%</span>
+      <span class="sh-m">Channel: Inbound Voice</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd amber">⏱️ Key Performance Targets</div>
+    <div class="cb">
+      <div class="metric-row">
+        <div class="metric-pill mp-green"><div class="mp-num g">≤180s</div><div class="mp-label">Average Handle Time</div></div>
+        <div class="metric-pill mp-orange"><div class="mp-num o">≥95%</div><div class="mp-label">QA Score</div></div>
+        <div class="metric-pill mp-amber"><div class="mp-num a">≥95%</div><div class="mp-label">First Call Resolution</div></div>
+        <div class="metric-pill mp-blue"><div class="mp-num b">≥98%</div><div class="mp-label">CRM Accuracy</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd green">📋 Step-by-Step Call Procedure</div>
+    <div class="cb">
+      <ul class="step-list">
+        <li class="step">
+          <span class="step-num sn-g">1</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s1t" contenteditable="false">Pre-Call Readiness</div>
+            <div class="step-body" data-e="ib-s1b" contenteditable="false">Before accepting a call, ensure your CRM is open and logged in, your headset is working, and you are at your workstation ready to type. Do not accept a call if you are mid-task on a previous CRM record. Complete wrap-up before going available.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-g">2</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s2t" contenteditable="false">Standard Opening</div>
+            <div class="step-body" data-e="ib-s2b" contenteditable="false">Answer within 3 rings. Use the approved greeting — include the time of day, programme name, your name, and an offer to assist. Do not deviate from the opening structure.</div>
+            <div class="step-script" data-e="ib-s2s" contenteditable="false">"Good morning/afternoon, thank you for calling Tap2Eat. My name is [Name] — how may I assist you today?"</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-g">3</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s3t" contenteditable="false">Caller Verification</div>
+            <div class="step-body" data-e="ib-s3b" contenteditable="false">Before accessing or discussing any account information, verify the caller's identity using two of the following: registered phone number, child's name, school name, or account PIN. Log the verification method used in CRM. Never skip verification — this is a critical compliance item.</div>
+            <div class="step-script orange" data-e="ib-s3s" contenteditable="false">"To protect your account, could I please confirm your [registered phone number / child's name]?"</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-g">4</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s4t" contenteditable="false">Active Listening & Issue Identification</div>
+            <div class="step-body" data-e="ib-s4b" contenteditable="false">Allow the caller to explain their issue without interruption. Use active listening cues ("I understand", "I hear you"). Do not begin troubleshooting until you have clearly identified the root issue. Repeat the issue back to confirm understanding before proceeding.</div>
+            <div class="step-script" data-e="ib-s4s" contenteditable="false">"Just to confirm I understand — you're reaching out about [restate issue]. Is that correct?"</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-g">5</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s5t" contenteditable="false">Open CRM & Review Account</div>
+            <div class="step-body" data-e="ib-s5b" contenteditable="false">Search the parent's account in CRM while the caller is still talking. Review account status, balance, school registration, and previous interaction history before offering any resolution. Never offer a resolution based on assumptions — always verify in CRM first.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-a">6</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s6t" contenteditable="false">Hold Procedure (If Required)</div>
+            <div class="step-body" data-e="ib-s6b" contenteditable="false">If you need to consult a resource or colleague, ask permission before placing on hold. State the reason and estimated wait time (maximum 60 seconds). Return before the estimated time if possible. Always thank the caller for holding.</div>
+            <div class="step-script orange" data-e="ib-s6s" contenteditable="false">"I'd like to look into this for you — would you mind holding for approximately one minute while I check?" ... "Thank you for holding, [Name]. I have the information you need."</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-g">7</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s7t" contenteditable="false">Resolution Delivery</div>
+            <div class="step-body" data-e="ib-s7b" contenteditable="false">Provide a clear, accurate, and complete resolution. Use simple language — avoid technical jargon. If the resolution involves action on the account, state what you are doing and what the outcome will be. Confirm the caller understands the resolution before closing.</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-d">8</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s8t" contenteditable="false">Escalation Decision</div>
+            <div class="step-body" data-e="ib-s8b" contenteditable="false">Escalate to the Team Lead only when: the issue involves a system error, safeguarding concern, legal complaint, refund above your authorisation, or unresolved issue after 2 attempts. Do not escalate for emotional tone alone — de-escalate first. If escalating, use a warm transfer (never cold-drop the caller).</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-g">9</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s9t" contenteditable="false">Closing Procedure</div>
+            <div class="step-body" data-e="ib-s9b" contenteditable="false">Before ending the call, confirm the issue has been resolved, offer further assistance, and close warmly. Never end a call abruptly. Use the approved closing script.</div>
+            <div class="step-script" data-e="ib-s9s" contenteditable="false">"Is there anything else I can help you with today? ... Thank you for calling Tap2Eat, [Name]. Have a lovely day."</div>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num sn-o">10</span>
+          <div class="step-content">
+            <div class="step-title" data-e="ib-s10t" contenteditable="false">Post-Call CRM Wrap-Up</div>
+            <div class="step-body" data-e="ib-s10b" contenteditable="false">Log the interaction in CRM immediately — before accepting another call. The log must include: contact reason, actions taken, resolution provided, and case status (resolved/escalated/pending). Incomplete or missing logs are a CRM accuracy failure and will be flagged in your QA evaluation.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd dark">✅ Do / ✗ Don't</div>
+    <div class="cb" style="padding:0;">
+      <div class="do-dont" style="padding:14px;gap:10px;">
+        <div class="dd-col">
+          <div class="dd-hd do">✓ Always Do</div>
+          <div class="dd-body">
+            <div class="dd-item do" data-e="ib-do1" contenteditable="false">Verify before discussing any account details</div>
+            <div class="dd-item do" data-e="ib-do2" contenteditable="false">Empathise before problem-solving</div>
+            <div class="dd-item do" data-e="ib-do3" contenteditable="false">Confirm the caller's understanding of the resolution</div>
+            <div class="dd-item do" data-e="ib-do4" contenteditable="false">Log CRM immediately after every call</div>
+            <div class="dd-item do" data-e="ib-do5" contenteditable="false">Use the caller's name throughout the call</div>
+          </div>
+        </div>
+        <div class="dd-col">
+          <div class="dd-hd dont">✗ Never Do</div>
+          <div class="dd-body">
+            <div class="dd-item dont" data-e="ib-dont1" contenteditable="false">Discuss account details without verification</div>
+            <div class="dd-item dont" data-e="ib-dont2" contenteditable="false">Place on hold without asking permission</div>
+            <div class="dd-item dont" data-e="ib-dont3" contenteditable="false">End a call without confirming resolution</div>
+            <div class="dd-item dont" data-e="ib-dont4" contenteditable="false">Offer a resolution without checking CRM first</div>
+            <div class="dd-item dont" data-e="ib-dont5" contenteditable="false">Delay CRM wrap-up to accept another call</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 1 — OUTBOUND CALLS ════ -->
+<div class="panel" id="p1">
+  <div class="sop-header" style="background:var(--carrot);">
+    <div class="sh-tag">SOP 02 · Customer Experience</div>
+    <div class="sh-title" data-e="ob-title" contenteditable="false">Outbound Call Handling</div>
+    <div class="sh-desc" data-e="ob-desc" contenteditable="false">Procedure for all agent-initiated calls — follow-ups, callbacks, and proactive parent outreach. Outbound calls carry the same quality standards as inbound.</div>
+    <div class="sh-meta">
+      <span class="sh-m">AHT Target: ≤ 180 seconds</span>
+      <span class="sh-m">Max Dial Attempts: 3</span>
+      <span class="sh-m">Channel: Outbound Voice</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd orange">📋 Step-by-Step Outbound Procedure</div>
+    <div class="cb">
+      <ul class="step-list">
+        <li class="step"><span class="step-num sn-o">1</span>
+          <div class="step-content"><div class="step-title" data-e="ob-s1t" contenteditable="false">Pre-Call Preparation</div>
+          <div class="step-body" data-e="ob-s1b" contenteditable="false">Before dialling, open the parent's CRM record and review: the reason for the callback, previous interaction notes, account status, and any open cases. Know the purpose of the call before dialling. Do not make an outbound call without reviewing the account first.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-o">2</span>
+          <div class="step-content"><div class="step-title" data-e="ob-s2t" contenteditable="false">Dial Attempt & Voicemail</div>
+          <div class="step-body" data-e="ob-s2b" contenteditable="false">Dial the registered number. If unanswered, wait for at least 8 rings before ending. Do not leave voicemail unless specifically instructed. Log the attempt in CRM with date and time. Maximum 3 dial attempts on the same day — space them at least 30 minutes apart. After 3 failed attempts, log as "Unreachable" and escalate to Team Lead for next steps.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-o">3</span>
+          <div class="step-content"><div class="step-title" data-e="ob-s3t" contenteditable="false">Outbound Opening & Verification</div>
+          <div class="step-body" data-e="ob-s3b" contenteditable="false">When connected, identify yourself and Tap2Eat before asking for any confirmation. Verify you are speaking with the correct person before stating the purpose of the call.</div>
+          <div class="step-script orange" data-e="ob-s3s" contenteditable="false">"Good morning/afternoon, my name is [Name] calling from Tap2Eat. Am I speaking with [Parent Name]? ... Thank you — I'm calling regarding [brief reason]. Is now a good time to talk?"</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-o">4</span>
+          <div class="step-content"><div class="step-title" data-e="ob-s4t" contenteditable="false">Call Purpose & Resolution</div>
+          <div class="step-body" data-e="ob-s4b" contenteditable="false">State the purpose clearly within the first 30 seconds. Provide the resolution, update, or information as prepared. Keep the call focused — outbound calls should be concise. Follow the same resolution quality standards as inbound: clear, accurate, confirmed by the parent.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-o">5</span>
+          <div class="step-content"><div class="step-title" data-e="ob-s5t" contenteditable="false">Handling Objections or New Issues</div>
+          <div class="step-body" data-e="ob-s5b" contenteditable="false">If the parent raises a new issue during the outbound call, use your judgement: if it is quick and straightforward, resolve it now. If it requires investigation, book a callback and log the new issue in CRM. Do not let a new issue extend the call beyond 180 seconds without cause.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-o">6</span>
+          <div class="step-content"><div class="step-title" data-e="ob-s6t" contenteditable="false">Close & CRM Log</div>
+          <div class="step-body" data-e="ob-s6b" contenteditable="false">Confirm the purpose of the call has been addressed, offer further assistance, and close professionally. Log the outcome in CRM immediately: reason for call, what was discussed, resolution, and case status.</div>
+          <div class="step-script orange" data-e="ob-s6s" contenteditable="false">"Is there anything else I can help you with today? ... Thank you for your time, [Name]. Have a great day."</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="info-box amber">
+    <div class="ib-icon">⚠️</div>
+    <div class="ib-text" data-e="ob-info" contenteditable="false"><strong>Data Privacy on Outbound Calls:</strong> If the person who answers is not the registered parent, do not disclose any account or programme information. State you will call back and log the attempt. Never leave account details with a third party.</div>
+  </div>
+</div>
+
+<!-- ════ 2 — CHAT (WA/SMS) ════ -->
+<div class="panel" id="p2">
+  <div class="sop-header" style="background:var(--blackboard);">
+    <div class="sh-tag">SOP 03 · Customer Experience</div>
+    <div class="sh-title" data-e="wa-title" contenteditable="false">Chat Handling — WhatsApp &amp; SMS</div>
+    <div class="sh-desc" data-e="wa-desc" contenteditable="false">Written channel communications require a different approach to voice — precision, clarity, and tone are everything when there is no vocal delivery to support the message.</div>
+    <div class="sh-meta">
+      <span class="sh-m">Response Time: ≤ 30 minutes (business hours)</span>
+      <span class="sh-m">QA Score Target: ≥ 95%</span>
+      <span class="sh-m">Channels: WhatsApp · SMS</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd dark">📋 Chat Handling Procedure</div>
+    <div class="cb">
+      <ul class="step-list">
+        <li class="step"><span class="step-num sn-d">1</span>
+          <div class="step-content"><div class="step-title" data-e="wa-s1t" contenteditable="false">Acknowledge Within 30 Minutes</div>
+          <div class="step-body" data-e="wa-s1b" contenteditable="false">All incoming WhatsApp or SMS messages must receive an acknowledgement within 30 minutes during business hours (8am–5pm, Monday–Friday). If a full resolution is not immediately possible, send an acknowledgement confirming you have received the message and will respond shortly.</div>
+          <div class="step-script" data-e="wa-s1s" contenteditable="false">"Hello [Name], thank you for contacting Tap2Eat. I've received your message and am looking into this for you now — I'll follow up shortly."</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">2</span>
+          <div class="step-content"><div class="step-title" data-e="wa-s2t" contenteditable="false">Verify Identity Before Discussing Account</div>
+          <div class="step-body" data-e="wa-s2b" contenteditable="false">Request verification via chat before discussing any account details. Ask the parent to confirm their registered phone number or child's full name. Log the verification method in CRM.</div>
+          <div class="step-script" data-e="wa-s2s" contenteditable="false">"To help you securely, could you please confirm the phone number registered on your Tap2Eat account?"</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">3</span>
+          <div class="step-content"><div class="step-title" data-e="wa-s3t" contenteditable="false">Tone & Language Standards</div>
+          <div class="step-body" data-e="wa-s3b" contenteditable="false">Written tone must be professional but warm. Use the parent's name. Write in complete sentences. Avoid abbreviations (e.g. "pls", "asap", "u"). Avoid ALL CAPS. Use emojis sparingly — only when they add warmth, never more than one per message. If the parent writes in Kiswahili, respond in Kiswahili or bilingual.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">4</span>
+          <div class="step-content"><div class="step-title" data-e="wa-s4t" contenteditable="false">Resolution via Chat</div>
+          <div class="step-body" data-e="wa-s4b" contenteditable="false">Resolve the issue fully in chat if possible. Provide clear, concise information in one message where possible — avoid sending multiple fragmented messages. If the issue requires a phone call, offer to call the parent and confirm a time.</div>
+          <div class="step-script" data-e="wa-s4s" contenteditable="false">"I can see the issue on your account. [Explanation of resolution]. This should be resolved within [timeframe]. Please let me know if you have any further questions."</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">5</span>
+          <div class="step-content"><div class="step-title" data-e="wa-s5t" contenteditable="false">Escalation from Chat</div>
+          <div class="step-body" data-e="wa-s5b" contenteditable="false">If the issue cannot be resolved via chat, escalate in one of two ways: (1) Offer a callback — confirm the parent's number and preferred time. (2) Escalate to the Team Lead for complex issues. Log the escalation reason in CRM. Do not leave a chat thread without a resolution or a clear next step communicated to the parent.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">6</span>
+          <div class="step-content"><div class="step-title" data-e="wa-s6t" contenteditable="false">Closing the Conversation</div>
+          <div class="step-body" data-e="wa-s6b" contenteditable="false">Once the issue is resolved, confirm resolution in the chat, invite the parent to return if they need further help, and close warmly. Log the complete interaction in CRM — including the platform (WhatsApp/SMS), issue, and outcome.</div>
+          <div class="step-script" data-e="wa-s6s" contenteditable="false">"I'm glad we could sort that out for you, [Name]. Don't hesitate to reach out if you need anything else. Have a great day! 😊"</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd dark">✅ Chat Do / ✗ Don't</div>
+    <div class="cb" style="padding:0;">
+      <div class="do-dont" style="padding:14px;">
+        <div class="dd-col">
+          <div class="dd-hd do">✓ Always Do</div>
+          <div class="dd-body">
+            <div class="dd-item do" data-e="wa-do1" contenteditable="false">Acknowledge within 30 minutes during business hours</div>
+            <div class="dd-item do" data-e="wa-do2" contenteditable="false">Write in complete sentences with the parent's name</div>
+            <div class="dd-item do" data-e="wa-do3" contenteditable="false">Verify identity before discussing the account</div>
+            <div class="dd-item do" data-e="wa-do4" contenteditable="false">Respond in the parent's language where possible</div>
+            <div class="dd-item do" data-e="wa-do5" contenteditable="false">Always close with a next step or confirmed resolution</div>
+          </div>
+        </div>
+        <div class="dd-col">
+          <div class="dd-hd dont">✗ Never Do</div>
+          <div class="dd-body">
+            <div class="dd-item dont" data-e="wa-dont1" contenteditable="false">Use abbreviations (pls, asap, u, lol)</div>
+            <div class="dd-item dont" data-e="wa-dont2" contenteditable="false">Write in all caps at any point</div>
+            <div class="dd-item dont" data-e="wa-dont3" contenteditable="false">Share account details without verification</div>
+            <div class="dd-item dont" data-e="wa-dont4" contenteditable="false">Leave a conversation without a resolution or next step</div>
+            <div class="dd-item dont" data-e="wa-dont5" contenteditable="false">Use more than one emoji per message</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 3 — EMAIL ════ -->
+<div class="panel" id="p3">
+  <div class="sop-header" style="background:var(--blue);">
+    <div class="sh-tag">SOP 04 · Customer Experience</div>
+    <div class="sh-title" data-e="em-title" contenteditable="false">Email Handling</div>
+    <div class="sh-desc" data-e="em-desc" contenteditable="false">Email responses require the highest level of written professionalism. Emails are formal records — they may be forwarded, quoted, or used in disputes. Every word matters.</div>
+    <div class="sh-meta">
+      <span class="sh-m">Response Time: ≤ 24 hours (business hours)</span>
+      <span class="sh-m">Tone: Formal but warm</span>
+      <span class="sh-m">Channel: Email</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd blue">📋 Email Response Procedure</div>
+    <div class="cb">
+      <ul class="step-list">
+        <li class="step"><span class="step-num sn-b">1</span>
+          <div class="step-content"><div class="step-title" data-e="em-s1t" contenteditable="false">Triage & Response Time</div>
+          <div class="step-body" data-e="em-s1b" contenteditable="false">All emails must be acknowledged within 24 business hours. Urgent emails (payment failures, complaints, account suspension) are prioritised and must be responded to within 4 hours. Flag any email involving a legal threat, media, or data concern to the Team Lead immediately — do not respond to these without approval.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-b">2</span>
+          <div class="step-content"><div class="step-title" data-e="em-s2t" contenteditable="false">Email Structure</div>
+          <div class="step-body" data-e="em-s2b" contenteditable="false">Every email response must contain: a personalised greeting with the parent's name, a reference to what they contacted us about, the resolution or next steps, a closing offer of further assistance, and a professional sign-off with your name, role, and contact channel.</div>
+          <div class="step-script" data-e="em-s2s" contenteditable="false">"Dear [Parent Name],<br><br>Thank you for reaching out to Tap2Eat. I am writing in response to your enquiry regarding [subject].<br><br>[Resolution/explanation].<br><br>Please do not hesitate to contact us if you need any further assistance. We are available on [phone/WhatsApp] during business hours.<br><br>Warm regards,<br>[Your Name] | Tap2Eat Customer Experience Team"</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-b">3</span>
+          <div class="step-content"><div class="step-title" data-e="em-s3t" contenteditable="false">Verification via Email</div>
+          <div class="step-body" data-e="em-s3b" contenteditable="false">If an email requires account-specific information and the identity is unclear, request verification before sharing details. Ask the parent to confirm their registered phone number or child's school by replying to the email. Log this in CRM.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-b">4</span>
+          <div class="step-content"><div class="step-title" data-e="em-s4t" contenteditable="false">Tone & Proofreading</div>
+          <div class="step-body" data-e="em-s4b" contenteditable="false">Always proofread before sending. Check spelling, grammar, and that the parent's name is spelled correctly throughout. Avoid casual language. Never use emojis in emails. Do not use bullet points excessively — write in clear paragraphs. If in doubt about the tone, read it aloud before sending.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-b">5</span>
+          <div class="step-content"><div class="step-title" data-e="em-s5t" contenteditable="false">CRM Logging</div>
+          <div class="step-body" data-e="em-s5b" contenteditable="false">Every email interaction must be logged in CRM: the date, channel (email), issue category, summary of response, and case status. Paste or summarise the key points of both the inbound email and your response. Do not log "email sent" without a summary.</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="info-box red">
+    <div class="ib-icon">🚫</div>
+    <div class="ib-text" data-e="em-warn" contenteditable="false"><strong>Never respond to emails requesting sensitive financial data, legal action threats, or media enquiries without Team Lead approval.</strong> Forward these immediately and do not draft a response yourself.</div>
+  </div>
+</div>
+
+<!-- ════ 4 — CRM DATA ENTRY ════ -->
+<div class="panel" id="p4">
+  <div class="sop-header" style="background:var(--teal);">
+    <div class="sh-tag">SOP 05 · Data Integrity</div>
+    <div class="sh-title" data-e="crm-title" contenteditable="false">CRM Data Entry &amp; Accuracy</div>
+    <div class="sh-desc" data-e="crm-desc" contenteditable="false">Every record you create or update feeds the reports and decisions that run this programme. Inaccurate data causes payment failures, missed communications, and poor service. Data accuracy is not optional — it is a KPI.</div>
+    <div class="sh-meta">
+      <span class="sh-m">CRM Accuracy Target: ≥ 98%</span>
+      <span class="sh-m">Log Every Interaction</span>
+      <span class="sh-m">No Delayed Wrap-Ups</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd teal">📋 Required Fields — Every Interaction</div>
+    <div class="cb">
+      <ul class="step-list">
+        <li class="step"><span class="step-num sn-t">1</span>
+          <div class="step-content"><div class="step-title" data-e="crm-s1t" contenteditable="false">Parent / Account Details</div>
+          <div class="step-body" data-e="crm-s1b" contenteditable="false">Verify and confirm: full parent name (no abbreviations), registered phone number (include country code: +254), child's full name, school name (exact as registered). If any of these details are incorrect or outdated, update them during the interaction and note the change.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-t">2</span>
+          <div class="step-content"><div class="step-title" data-e="crm-s2t" contenteditable="false">Interaction Log — Required Fields</div>
+          <div class="step-body" data-e="crm-s2b" contenteditable="false">Every CRM log must contain: Date and time, Channel (inbound call / outbound call / WhatsApp / SMS / email), Contact reason (use the correct category from the dropdown), Summary of what was discussed and what action was taken, Resolution status (Resolved / Escalated / Pending callback / Unresolved), Agent name (auto-populated — verify it is correct).</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-t">3</span>
+          <div class="step-content"><div class="step-title" data-e="crm-s3t" contenteditable="false">Case Categorisation</div>
+          <div class="step-body" data-e="crm-s3b" contenteditable="false">Always select the correct contact reason category. Do not use "Other" unless no category exists. If "Other" is selected, you must write a full description — it cannot be left blank. Incorrect categorisation skews reporting data and makes quality analysis inaccurate.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-t">4</span>
+          <div class="step-content"><div class="step-title" data-e="crm-s4t" contenteditable="false">Timing — Log Before Next Interaction</div>
+          <div class="step-body" data-e="crm-s4b" contenteditable="false">CRM wrap-up must be completed before accepting another call or responding to another chat. Batching logs at the end of a shift is a data integrity failure. Real-time logging ensures nothing is missed and details are accurate.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-t">5</span>
+          <div class="step-content"><div class="step-title" data-e="crm-s5t" contenteditable="false">Corrections & Amendments</div>
+          <div class="step-body" data-e="crm-s5b" contenteditable="false">If you discover an error in a CRM record, correct it immediately. Add an amendment note stating what was changed and when. Do not delete records. Do not create duplicate entries — search thoroughly before creating a new record. Report all duplicate accounts to the QA Assessor for cleanup.</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd teal">🔍 CRM Audit — What the QA Assessor Checks Weekly</div>
+    <div class="cb">
+      <div class="info-box green">
+        <div class="ib-icon">📊</div>
+        <div class="ib-text" data-e="crm-audit" contenteditable="false">The QA Assessor runs a weekly spot-check on 10–15 CRM records per agent. They check: all required fields are populated, the contact reason is correctly categorised, the case status matches what actually happened, the log was completed within the interaction wrap-up window, and no duplicate records exist for the same parent. A CRM score below 95% on any given week triggers a coaching session.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 5 — ESCALATION PROTOCOL ════ -->
+<div class="panel" id="p5">
+  <div class="sop-header" style="background:var(--red);">
+    <div class="sh-tag">SOP 06 · Escalation Management</div>
+    <div class="sh-title" data-e="esc-title" contenteditable="false">Escalation Protocol</div>
+    <div class="sh-desc" data-e="esc-desc" contenteditable="false">Escalation is not a failure — but unnecessary escalation is. This SOP tells you exactly when to escalate, who to escalate to, and how to hand over without losing the parent.</div>
+    <div class="sh-meta">
+      <span class="sh-m">FCR Target: ≥ 95%</span>
+      <span class="sh-m">Warm Transfers Only</span>
+      <span class="sh-m">All Escalations Logged in CRM</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd red">🚨 Escalation Decision Matrix</div>
+    <div class="cb" style="padding:0;">
+      <table class="esc-table">
+        <thead><tr><th>Scenario</th><th>Escalate?</th><th>To Whom</th><th>Urgency</th></tr></thead>
+        <tbody>
+          <tr><td data-e="esc-r1s" contenteditable="false">Parent is upset / frustrated</td><td><span class="badge b-green">No — De-escalate first</span></td><td>—</td><td style="font-size:11px;color:#555;">Handle in-call</td></tr>
+          <tr><td data-e="esc-r2s" contenteditable="false">System error preventing resolution</td><td><span class="badge b-red">Yes</span></td><td>Team Lead</td><td style="font-size:11px;color:var(--red);font-weight:700;">Immediate</td></tr>
+          <tr><td data-e="esc-r3s" contenteditable="false">Refund request above agent authorisation</td><td><span class="badge b-red">Yes</span></td><td>Team Lead</td><td style="font-size:11px;color:var(--carrot-d);font-weight:600;">Same call</td></tr>
+          <tr><td data-e="esc-r4s" contenteditable="false">Legal threat or mention of legal action</td><td><span class="badge b-red">Yes</span></td><td>Team Lead → Manager</td><td style="font-size:11px;color:var(--red);font-weight:700;">Immediate</td></tr>
+          <tr><td data-e="esc-r5s" contenteditable="false">Safeguarding concern (child welfare)</td><td><span class="badge b-red">Yes</span></td><td>Team Lead → Manager</td><td style="font-size:11px;color:var(--red);font-weight:700;">Immediate</td></tr>
+          <tr><td data-e="esc-r6s" contenteditable="false">Issue unresolved after 2 genuine attempts</td><td><span class="badge b-amber">Yes</span></td><td>Team Lead</td><td style="font-size:11px;color:var(--carrot-d);">Same shift</td></tr>
+          <tr><td data-e="esc-r7s" contenteditable="false">Data privacy / account breach concern</td><td><span class="badge b-red">Yes</span></td><td>Team Lead → Manager</td><td style="font-size:11px;color:var(--red);font-weight:700;">Immediate</td></tr>
+          <tr><td data-e="esc-r8s" contenteditable="false">Agent uncertain of correct resolution</td><td><span class="badge b-green">No — Use resources first</span></td><td>—</td><td style="font-size:11px;color:#555;">Check SOP / FAQ</td></tr>
+          <tr><td data-e="esc-r9s" contenteditable="false">Parent requests to speak with a manager</td><td><span class="badge b-amber">Attempt resolution first</span></td><td>Team Lead if unresolved</td><td style="font-size:11px;color:var(--carrot-d);">After 1 attempt</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd dark">🔄 Warm Transfer Procedure</div>
+    <div class="cb">
+      <ul class="step-list">
+        <li class="step"><span class="step-num sn-d">1</span>
+          <div class="step-content"><div class="step-title" data-e="esc-t1" contenteditable="false">Inform the Parent</div>
+          <div class="step-body" data-e="esc-t1b" contenteditable="false">Tell the parent you are transferring them and why. Give them the name of the person they will speak to. Never cold-transfer — always brief the receiving agent before connecting.</div>
+          <div class="step-script" data-e="esc-t1s" contenteditable="false">"I'm going to connect you with our Team Lead, [Name], who will be best placed to assist with this. Please hold for just a moment while I brief them."</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">2</span>
+          <div class="step-content"><div class="step-title" data-e="esc-t2" contenteditable="false">Brief the Receiving Agent</div>
+          <div class="step-body" data-e="esc-t2b" contenteditable="false">Before connecting the parent, brief the Team Lead in full: parent's name, account number, issue summary, what you have already tried, and why you are escalating. This prevents the parent from having to repeat themselves.</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">3</span>
+          <div class="step-content"><div class="step-title" data-e="esc-t3" contenteditable="false">Introduce the Transfer</div>
+          <div class="step-body" data-e="esc-t3b" contenteditable="false">Reconnect with the parent and make the introduction before stepping off the call.</div>
+          <div class="step-script" data-e="esc-t3s" contenteditable="false">"[Parent Name], I have [Team Lead Name] on the line who has all the details and will take great care of you from here."</div></div>
+        </li>
+        <li class="step"><span class="step-num sn-d">4</span>
+          <div class="step-content"><div class="step-title" data-e="esc-t4" contenteditable="false">Log in CRM Immediately</div>
+          <div class="step-body" data-e="esc-t4b" contenteditable="false">Log the escalation in CRM before doing anything else: reason, what was tried, who it was escalated to, and the time. Mark the case status as "Escalated". The Team Lead will update the case with the outcome.</div></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p><strong>CX Standard Operating Procedures — Tap2Eat · Food4Education</strong><br>
+  These SOPs apply to all CX interactions across all channels. Last updated by the Q&amp;T Lead. Public document — safe to share with agents and interns.</p>
+</footer>
+
+<!-- EDIT BAR -->
+<div class="ebar" id="ebar">
+  <div class="ebar-l">✏️ Edit Mode Active — click highlighted text to edit</div>
+  <div class="ebar-r">
+    <button class="ebtn ebtn-s" onclick="saveEdits()">💾 Save</button>
+    <button class="ebtn ebtn-x" onclick="exitEdit()">✕ Exit</button>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="mbg hide" id="edit-modal">
+  <div class="mbox">
+    <div class="mico">✏️</div>
+    <div class="mttl">Admin Edit Access</div>
+    <div class="msub">Enter your admin PIN to edit this document.</div>
+    <input class="minput" id="edit-pin" type="password" maxlength="6" placeholder="••••••"
+      onkeydown="if(event.key==='Enter')tryEdit()"
+      oninput="this.classList.remove('shake');document.getElementById('edit-err').textContent=''">
+    <div class="merr" id="edit-err"></div>
+    <button class="mpri" onclick="tryEdit()">Unlock Edit Mode</button>
+    <button class="mcan" onclick="closeEditModal()">Cancel</button>
+    <div class="mhint">Admin PIN is set by the Q&amp;T Lead in the Document Hub.</div>
+  </div>
+</div>
+
+<script>
+// ─── SHARED ADMIN PIN (reads from hub localStorage or fallback) ───
+const ADMIN_PIN = () => localStorage.getItem('t2e_pin_admin') || 'admin9';
+
+// ─── TABS ────────────────────────────────────────────────────────
+function sw(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('on',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── EDIT MODE ───────────────────────────────────────────────────
+let editOn=false;
+function openEditModal(){document.getElementById('edit-modal').classList.remove('hide');setTimeout(()=>document.getElementById('edit-pin').focus(),80);}
+function closeEditModal(){document.getElementById('edit-modal').classList.add('hide');document.getElementById('edit-pin').value='';document.getElementById('edit-err').textContent='';}
+function tryEdit(){
+  if(document.getElementById('edit-pin').value.trim()===ADMIN_PIN()){
+    closeEditModal();enableEdit();
+  } else {
+    const i=document.getElementById('edit-pin');
+    i.classList.add('shake');document.getElementById('edit-err').textContent='Incorrect PIN.';i.value='';i.focus();
+  }
+}
+function enableEdit(){
+  editOn=true;
+  document.body.classList.add('edit-mode');
+  document.getElementById('ebar').classList.add('on');
+  document.getElementById('edit-toggle-btn').textContent='✏️ Editing…';
+  document.querySelectorAll('[data-e]').forEach(e=>e.contentEditable='true');
+}
+function exitEdit(){
+  editOn=false;
+  document.body.classList.remove('edit-mode');
+  document.getElementById('ebar').classList.remove('on');
+  document.getElementById('edit-toggle-btn').textContent='✏️ Edit';
+  document.querySelectorAll('[data-e]').forEach(e=>e.contentEditable='false');
+}
+function saveEdits(){
+  const d={};
+  document.querySelectorAll('[data-e]').forEach(e=>d[e.dataset.e]=e.innerHTML);
+  localStorage.setItem('t2e_sop_edits',JSON.stringify(d));
+  showToast('Saved.','success');
+}
+function loadEdits(){
+  try{
+    const raw=localStorage.getItem('t2e_sop_edits');if(!raw)return;
+    const d=JSON.parse(raw);
+    Object.keys(d).forEach(k=>{const el=document.querySelector(`[data-e="${k}"]`);if(el)el.innerHTML=d[k];});
+  }catch(e){}
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────
+let tt;
+function showToast(msg,type){
+  let el=document.getElementById('sop-toast');
+  if(!el){el=document.createElement('div');el.id='sop-toast';el.style.cssText='position:fixed;bottom:76px;right:22px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;z-index:1100;box-shadow:0 4px 14px rgba(0,0,0,.12);';document.body.appendChild(el);}
+  el.textContent=msg;
+  el.style.display='block';
+  el.style.background=type==='success'?'#eaf3e8':'#fff8e1';
+  el.style.color=type==='success'?'#24631E':'#BF8500';
+  clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',2800);
+}
+
+document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEditModal();});
+loadEdits();
+</script>
+
+<!-- EDIT MODE OVERLAY -->
+<style>
+body.edit-mode [data-e]{outline:2px dashed #FFB200;border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid #FF8C00;}
+#_ebar2{position:fixed;bottom:0;left:0;right:0;background:#FF8C00;padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+#_ebar2.on{display:flex;}
+#_ebar2 ._ebl{font-size:13px;font-weight:700;color:white;}
+#_ebar2 ._ebr{display:flex;gap:8px;}
+#_efab2{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:#24631E;color:white;border:none;font-size:20px;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+#_efab2:hover{background:#3a7a34;}
+#_emod2{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#_emod2.hide{display:none;}
+._embox2{background:white;border-radius:16px;padding:28px;max-width:320px;width:100%;}
+#_epin2{width:100%;padding:12px;border:2px solid #e4e2d8;border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;box-sizing:border-box;}
+#_epin2:focus{border-color:#24631E;}
+#_epin2.shake{animation:_shk2 .28s;}
+@keyframes _shk2{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px);}}
+#_eerr2{font-size:12px;color:#c0392b;text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+._epri2{width:100%;font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;padding:11px;border-radius:9px;border:none;background:#24631E;color:white;cursor:pointer;}
+._ecan2{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:8px;border-radius:9px;border:1px solid #e4e2d8;background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+._ebtn2{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 14px;border-radius:18px;border:none;cursor:pointer;}
+._ebsave{background:white;color:#BF6900;}
+._ebxit{background:rgba(255,255,255,.15);color:white;}
+</style>
+<div id="_ebar2"><div class="_ebl">&#9998; Edit Mode &mdash; click any highlighted text to edit</div><div class="_ebr"><button class="_ebtn2 _ebsave" onclick="_saveE2()">&#128190; Save</button><button class="_ebtn2 _ebsave" onclick="_exportE2()">&#8595; Export</button><button class="_ebtn2 _ebxit" onclick="_exitE2()">&#10005; Exit</button></div></div>
+<button id="_efab2" onclick="_openEM2()" title="Edit this document">&#9998;</button>
+<div id="_emod2" class="hide"><div class="_embox2"><div style="font-size:28px;text-align:center;margin-bottom:10px;">&#9998;</div><div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:4px;">Edit Document</div><div style="font-size:12px;color:#888;text-align:center;margin-bottom:14px;">Enter Admin PIN to unlock editing on this page</div><input id="_epin2" type="password" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;"><div id="_eerr2"></div><button class="_epri2" onclick="_tryE2()">Unlock Editing</button><button class="_ecan2" onclick="_closeEM2()">Cancel</button><div style="font-size:10px;color:#ccc;text-align:center;margin-top:8px;">Admin PIN is managed in the Document Hub</div></div></div>
+<script>
+(function(){
+  var EK="t2e_pin_admin",DF="admin9",SK="t2e_edits_"+location.pathname.split("/").pop();
+  function gp(){return localStorage.getItem(EK)||DF;}
+  function _openEM2(){document.getElementById("_emod2").classList.remove("hide");setTimeout(function(){document.getElementById("_epin2").focus();},80);}
+  function _closeEM2(){document.getElementById("_emod2").classList.add("hide");document.getElementById("_epin2").value="";document.getElementById("_eerr2").textContent="";}
+  function _tryE2(){var v=document.getElementById("_epin2").value.trim();if(v===gp()){_closeEM2();_startE2();}else{var i=document.getElementById("_epin2");i.classList.add("shake");document.getElementById("_eerr2").textContent="Incorrect PIN.";i.value="";i.focus();}}
+  function _startE2(){document.body.classList.add("edit-mode");document.getElementById("_ebar2").classList.add("on");document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="true";});}
+  function _exitE2(){document.body.classList.remove("edit-mode");document.getElementById("_ebar2").classList.remove("on");document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="false";});}
+  function _saveE2(){var d={};document.querySelectorAll("[data-e]").forEach(function(el){d[el.getAttribute("data-e")]=el.innerHTML;});localStorage.setItem(SK,JSON.stringify(d));_st2("Saved.","#24631E");}
+  function _exportE2(){_saveE2();var h="<!DOCTYPE html>\n"+document.documentElement.outerHTML;var b=new Blob([h],{type:"text/html"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=location.pathname.split("/").pop().replace(".html","_edited.html");a.click();URL.revokeObjectURL(u);_st2("Exported!","#24631E");}
+  function _loadE2(){try{var r=localStorage.getItem(SK);if(!r)return;var d=JSON.parse(r);Object.keys(d).forEach(function(k){var el=document.querySelector("[data-e=\""+k+"\"]");if(el)el.innerHTML=d[k];});}catch(e){}}
+  var _et2;
+  function _st2(msg,bg){var t=document.getElementById("_est2");if(!t){t=document.createElement("div");t.id="_est2";t.style.cssText="position:fixed;bottom:72px;right:22px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;color:white;z-index:10001;box-shadow:0 3px 14px rgba(0,0,0,.15);";document.body.appendChild(t);}t.textContent=msg;t.style.background=bg;t.style.display="block";clearTimeout(_et2);_et2=setTimeout(function(){t.style.display="none";},2800);}
+  window._openEM2=_openEM2;window._closeEM2=_closeEM2;window._tryE2=_tryE2;window._exitE2=_exitE2;window._saveE2=_saveE2;window._exportE2=_exportE2;
+  document.getElementById("_epin2").addEventListener("keydown",function(e){if(e.key==="Enter")_tryE2();});
+  document.getElementById("_epin2").addEventListener("input",function(){this.classList.remove("shake");document.getElementById("_eerr2").textContent="";});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")_closeEM2();});
+  document.getElementById("_emod2").addEventListener("click",function(ev){if(ev.target===this)_closeEM2();});
+  _loadE2();
+})();
+</script>
+
+</body>
+</html>

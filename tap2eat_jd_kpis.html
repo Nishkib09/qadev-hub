@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2eat | Job Descriptions & KPIs</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sophisticated: #E5E5C9;
+    --sophisticated-d: #d4d4b0;
+    --progressive: #FFB200;
+    --progressive-d: #BF8500;
+    --carrot: #FF8C00;
+    --carrot-d: #BF6900;
+    --leafy: #24631E;
+    --leafy-light: #50624B;
+    --leafy-pale: #e8f0e6;
+    --blackboard: #1F1B1B;
+    --white: #FFFFFF;
+    --gray-light: #f7f5ee;
+    --gray-mid: #e8e6dc;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Rubik', sans-serif;
+    background: var(--sophisticated);
+    color: var(--blackboard);
+    min-height: 100vh;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--leafy);
+    color: white;
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,178,0,0.18) 0%, transparent 60%);
+  }
+  .cover-icons {
+    display: flex; gap: 12px; margin-bottom: 24px; position: relative;
+  }
+  .cover-icon {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+  .cover-icon.orange { background: rgba(255,140,0,0.25); }
+  .cover-icon.yellow { background: rgba(255,178,0,0.25); }
+  .cover-icon.cream  { background: rgba(229,229,201,0.2); }
+  .org-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--progressive);
+    margin-bottom: 8px; position: relative;
+  }
+  .cover h1 {
+    font-size: 28px; font-weight: 800; line-height: 1.2;
+    color: white; position: relative; margin-bottom: 8px;
+  }
+  .cover h1 span { color: var(--progressive); }
+  .cover-sub {
+    font-size: 13px; color: rgba(255,255,255,0.65);
+    position: relative;
+  }
+
+  /* ── TABS ── */
+  .tabs-wrap {
+    background: var(--leafy);
+    padding: 0 40px;
+    display: flex; gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .tab-btn {
+    font-family: 'Rubik', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    background: none; border: none;
+    padding: 14px 22px 12px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,0.85); }
+  .tab-btn.active {
+    color: var(--progressive);
+    border-bottom-color: var(--progressive);
+  }
+
+  /* ── CONTENT AREA ── */
+  .content { max-width: 900px; margin: 0 auto; padding: 36px 40px 60px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── SECTION CARD ── */
+  .card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 16px rgba(31,27,27,0.07);
+  }
+  .card-header {
+    background: var(--leafy);
+    color: white;
+    padding: 13px 22px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.8px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-header.orange { background: var(--carrot); }
+  .card-header.amber  { background: var(--progressive); color: var(--blackboard); }
+  .card-header .hicon { font-size: 14px; opacity: 0.8; }
+  .card-body { padding: 22px; }
+
+  /* ── JOB DETAILS GRID ── */
+  .details-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border: 1px solid var(--gray-mid); border-radius: 10px; overflow: hidden;
+  }
+  .detail-cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--gray-mid);
+    border-bottom: 1px solid var(--gray-mid);
+  }
+  .detail-cell:nth-child(2n) { border-right: none; }
+  .detail-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .detail-label {
+    font-size: 10px; font-weight: 700; color: var(--carrot);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px;
+  }
+  .detail-value { font-size: 14px; font-weight: 500; color: var(--blackboard); }
+
+  /* ── SUMMARY ── */
+  .summary-text {
+    font-size: 14px; line-height: 1.8; color: #444;
+    border-left: 4px solid var(--progressive);
+    padding-left: 16px;
+  }
+
+  /* ── RESPONSIBILITIES ── */
+  .resp-list { list-style: none; }
+  .resp-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-light);
+    font-size: 14px; line-height: 1.6;
+  }
+  .resp-list li:last-child { border-bottom: none; }
+  .resp-num {
+    min-width: 26px; height: 26px;
+    background: var(--leafy);
+    color: white; border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px; flex-shrink: 0;
+  }
+  .resp-num.orange { background: var(--carrot); }
+
+  /* ── KPI TABLE ── */
+  .kpi-table { width: 100%; border-collapse: collapse; }
+  .kpi-table thead tr { background: var(--blackboard); color: white; }
+  .kpi-table thead th {
+    padding: 11px 14px; font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; text-align: left;
+  }
+  .kpi-table tbody tr:nth-child(even) { background: var(--gray-light); }
+  .kpi-table tbody tr:hover { background: var(--leafy-pale); }
+  .kpi-table td { padding: 12px 14px; font-size: 13px; vertical-align: top; border-bottom: 1px solid var(--gray-mid); }
+  .kpi-table td:first-child { font-weight: 600; }
+
+  .kpi-no {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--sophisticated); color: var(--blackboard);
+    font-size: 11px; font-weight: 700; margin-right: 4px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+  .badge-target { background: #FFF3E0; color: var(--carrot-d); }
+  .badge-owner  { background: var(--leafy-pale); color: var(--leafy); }
+  .badge-support{ background: #FFF8E1; color: var(--progressive-d); }
+
+  /* ── OWNERSHIP LEGEND ── */
+  .legend-strip {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    padding: 14px 22px;
+    background: var(--gray-light);
+    border-top: 1px solid var(--gray-mid);
+    align-items: center;
+  }
+  .legend-label { font-size: 12px; color: #777; font-weight: 500; margin-right: 4px; }
+
+  /* ── ROLE EVOLUTION BANNER ── */
+  .evolution-banner {
+    display: flex; gap: 0; align-items: stretch;
+    background: white; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 16px rgba(31,27,27,0.07);
+    margin-bottom: 20px;
+  }
+  .evo-old, .evo-new {
+    flex: 1; padding: 20px 22px;
+  }
+  .evo-old { background: var(--gray-light); }
+  .evo-new { background: var(--leafy-pale); }
+  .evo-arrow {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 16px; background: var(--leafy); color: white;
+    font-size: 22px;
+  }
+  .evo-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .evo-tag.old { color: var(--carrot); }
+  .evo-tag.new { color: var(--leafy); }
+  .evo-title { font-size: 16px; font-weight: 700; color: var(--blackboard); }
+  .evo-desc  { font-size: 12px; color: #666; margin-top: 4px; }
+
+  /* ── COMPETENCY PILLS ── */
+  .competency-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
+  }
+  .competency-pill {
+    font-size: 12px; font-weight: 600;
+    padding: 5px 12px; border-radius: 20px;
+    border: 1.5px solid;
+  }
+  .pill-green { border-color: var(--leafy); color: var(--leafy); background: var(--leafy-pale); }
+  .pill-orange { border-color: var(--carrot); color: var(--carrot-d); background: #FFF3E0; }
+  .pill-amber  { border-color: var(--progressive-d); color: var(--progressive-d); background: #FFF8E1; }
+
+  /* ── DECORATIVE FOOD ICONS ── */
+  .food-deco {
+    position: fixed; top: 0; right: 0; width: 200px; height: 200px;
+    pointer-events: none; opacity: 0.04; z-index: 0;
+  }
+
+  @media print {
+    .tabs-wrap { display: none; }
+    .tab-panel { display: block !important; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-icons">
+    <div class="cover-icon orange">🥕</div>
+    <div class="cover-icon yellow">🌽</div>
+    <div class="cover-icon cream">📋</div>
+    <div class="cover-icon orange">☎️</div>
+  </div>
+  <div class="org-label">Food for Education · Tap2eat Programme</div>
+  <h1>CX Quality <span>&amp; Training</span><br>Role Framework</h1>
+  <div class="cover-sub">Quality Assessor &nbsp;·&nbsp; Quality &amp; Training Lead &nbsp;·&nbsp; Job Descriptions &amp; KPIs &nbsp;·&nbsp; Operations Division</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab-btn active" onclick="switchTab(0)">📋 Quality Assessor JD</button>
+  <button class="tab-btn" onclick="switchTab(1)">📊 Quality Assessor KPIs</button>
+  <button class="tab-btn" onclick="switchTab(2)">🌟 Quality &amp; Training Lead JD</button>
+  <button class="tab-btn" onclick="switchTab(3)">🎯 Q&amp;T Lead KPIs</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ══════════════════════════════════════════
+       TAB 0 — QA JD
+  ══════════════════════════════════════════ -->
+  <div class="tab-panel active" id="panel-0">
+
+    <!-- Job Details -->
+    <div class="card">
+      <div class="card-header"><span class="hicon">📌</span> Job Details</div>
+      <div class="card-body">
+        <div class="details-grid">
+          <div class="detail-cell">
+            <div class="detail-label">Job Title</div>
+            <div class="detail-value" data-e="jd-e1">Quality Assessor — Customer Experience</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Line Manager</div>
+            <div class="detail-value" data-e="jd-e2">Quality &amp; Training Lead</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Grade</div>
+            <div class="detail-value" data-e="jd-e3">N/A</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Direct Reports</div>
+            <div class="detail-value" data-e="jd-e4">N/A</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Department</div>
+            <div class="detail-value" data-e="jd-e5">Operations — Customer Experience</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Location</div>
+            <div class="detail-value" data-e="jd-e6">Food for Education Warehouse — Ruiru, Kenya</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Summary -->
+    <div class="card">
+      <div class="card-header orange"><span class="hicon">📝</span> Job Summary</div>
+      <div class="card-body">
+        <p class="summary-text" data-e="jd-e7">
+          The Quality Assessor is responsible for monitoring, evaluating, and scoring customer interactions across
+          all channels — including inbound and outbound calls, WhatsApp, SMS, and email — within the Tap2eat
+          call centre. Working under the Quality &amp; Training Lead, the Quality Assessor ensures every customer
+          interaction meets the programme's service standards, provides structured coaching feedback to agents,
+          and surfaces data-driven insights to support continuous improvement in customer experience, CRM
+          data integrity, and operational efficiency.
+        </p>
+      </div>
+    </div>
+
+    <!-- Roles & Responsibilities -->
+    <div class="card">
+      <div class="card-header amber"><span class="hicon">⚙️</span> Roles &amp; Responsibilities</div>
+      <div class="card-body">
+        <ul class="resp-list">
+          <li>
+            <span class="resp-num orange">1</span>
+            Monitor and evaluate agent interactions on a daily basis across calls, WhatsApp, SMS, and email using the approved QA scorecard, ensuring consistent and fair assessment of all agents.
+          </li>
+          <li>
+            <span class="resp-num orange">2</span>
+            Score agent interactions against established quality standards measuring consistency, professionalism, empathy, issue resolution, and adherence to Tap2eat service protocols.
+          </li>
+          <li>
+            <span class="resp-num orange">3</span>
+            Track First Call Resolution (FCR) rates by reviewing repeat contacts and escalation patterns, identifying root causes and flagging systemic issues to the Quality &amp; Training Lead.
+          </li>
+          <li>
+            <span class="resp-num orange">4</span>
+            Monitor Average Handle Time (AHT) per agent to identify outliers, inefficiencies, or agents who may require additional coaching on call flow or FAQ navigation.
+          </li>
+          <li>
+            <span class="resp-num orange">5</span>
+            Conduct weekly CRM data audits to validate parent and school contact details, flag duplicate or incomplete records, and ensure all interactions are logged accurately and promptly.
+          </li>
+          <li>
+            <span class="resp-num orange">6</span>
+            Deliver structured, constructive feedback to agents through regular one-on-one coaching sessions; document sessions and track improvement actions to closure.
+          </li>
+          <li>
+            <span class="resp-num orange">7</span>
+            Participate in calibration sessions with the Quality &amp; Training Lead and CX Manager to maintain consistency in scoring interpretations and alignment with organisational standards.
+          </li>
+          <li>
+            <span class="resp-num orange">8</span>
+            Identify patterns in agent errors or knowledge gaps and escalate recurring themes for inclusion in the next training cycle or quick-reference SOP updates.
+          </li>
+          <li>
+            <span class="resp-num orange">9</span>
+            Prepare and submit accurate weekly and monthly QA performance reports per agent — covering QA scores, FCR performance, AHT trends, and CRM accuracy — to the Quality &amp; Training Lead.
+          </li>
+          <li>
+            <span class="resp-num orange">10</span>
+            Support new agent onboarding by shadowing and scoring nesting-period calls, providing feedback against the onboarding quality rubric and reporting readiness assessments to the Lead.
+          </li>
+          <li>
+            <span class="resp-num orange">11</span>
+            Maintain and update QA documentation including scorecards, coaching logs, calibration notes, and dispute records in line with departmental standards.
+          </li>
+          <li>
+            <span class="resp-num orange">12</span>
+            Flag urgent quality risks — including complaints, compliance concerns, or data breaches observed during monitoring — to the Quality &amp; Training Lead immediately for escalation.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Core Competencies -->
+    <div class="card">
+      <div class="card-header"><span class="hicon">🌱</span> Core Competencies</div>
+      <div class="card-body">
+        <div class="competency-grid">
+          <span class="competency-pill pill-orange">Attention to Detail</span>
+          <span class="competency-pill pill-green">Active Listening</span>
+          <span class="competency-pill pill-amber">Analytical Thinking</span>
+          <span class="competency-pill pill-orange">Constructive Feedback</span>
+          <span class="competency-pill pill-green">CRM Proficiency</span>
+          <span class="competency-pill pill-amber">Report Writing</span>
+          <span class="competency-pill pill-orange">Objectivity &amp; Fairness</span>
+          <span class="competency-pill pill-green">Customer Empathy</span>
+          <span class="competency-pill pill-amber">Time Management</span>
+          <span class="competency-pill pill-orange">Confidentiality</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 1 — QA KPIs
+  ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-1">
+
+    <div class="card">
+      <div class="card-header orange"><span class="hicon">📊</span> Quality Assessor — KPI Framework</div>
+      <div class="card-body" style="padding:0;">
+        <table class="kpi-table">
+          <thead>
+            <tr>
+              <th style="width:28px;">#</th>
+              <th style="width:200px;">KPI</th>
+              <th style="width:90px;">Target</th>
+              <th>Description</th>
+              <th style="width:120px;">Actions to Own It</th>
+              <th style="width:90px;">Ownership</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="kpi-no">1</span></td>
+              <td style="font-weight:700;">Quality Assurance Score</td>
+              <td><span class="badge badge-target">≥ 95%</span></td>
+              <td style="font-size:13px; color:#555;">Measures the proportion of evaluated interactions that meet or exceed the QA scorecard benchmark across all channels (calls, WhatsApp, SMS, email).</td>
+              <td style="font-size:12px; color:#666;">Score minimum 5 interactions per agent per week; ensure scorecards are completed same-day; escalate disputes within 24 hours.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">2</span></td>
+              <td style="font-weight:700;">First Call Resolution (FCR)</td>
+              <td><span class="badge badge-target">≥ 95%</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of parent/school contacts resolved on the first interaction without requiring a follow-up, callback, or escalation.</td>
+              <td style="font-size:12px; color:#666;">Track repeat contacts per agent weekly; flag unresolved patterns to the Lead; coach on escalation decision-making.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">3</span></td>
+              <td style="font-weight:700;">Average Handle Time (AHT)</td>
+              <td><span class="badge badge-target">≤ 180 sec</span></td>
+              <td style="font-size:13px; color:#555;">Average duration of a customer interaction from initiation to wrap-up. Measures operational efficiency while maintaining quality and issue resolution.</td>
+              <td style="font-size:12px; color:#666;">Flag agents >20% above target for coaching; review call recordings to identify unnecessary holds, dead air, or navigation inefficiencies.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">4</span></td>
+              <td style="font-weight:700;">Call Monitoring Coverage</td>
+              <td><span class="badge badge-target">≥ 80%</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of agents who have received at least the minimum required number of scored evaluations in a given week. Ensures comprehensive, consistent oversight.</td>
+              <td style="font-size:12px; color:#666;">Maintain a weekly evaluation tracker; prioritise agents on PIP or with recent complaints; report any gaps to the Lead by Friday.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">5</span></td>
+              <td style="font-weight:700;">Coaching Session Completion</td>
+              <td><span class="badge badge-target">100%</span></td>
+              <td style="font-size:13px; color:#555;">Every agent who received a QA score below 90% in the review period must receive a documented coaching session within 5 working days of the evaluation.</td>
+              <td style="font-size:12px; color:#666;">Maintain a coaching log; issue signed feedback forms; track action items to completion and document in the QA system.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">6</span></td>
+              <td style="font-weight:700;">CRM Data Accuracy</td>
+              <td><span class="badge badge-target">≥ 98%</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of CRM records reviewed that are complete, accurate, and free from duplication. Ensures parent communication and programme reporting rest on reliable data.</td>
+              <td style="font-size:12px; color:#666;">Score CRM accuracy as a line item on every interaction scorecard; run weekly spot-check audits; flag inaccurate records to the agent same-day.</td>
+              <td><span class="badge badge-support">Supporting</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">7</span></td>
+              <td style="font-weight:700;">Calibration Attendance &amp; Alignment</td>
+              <td><span class="badge badge-target">100% / ≤5%</span></td>
+              <td style="font-size:13px; color:#555;">Full attendance at all calibration sessions; scoring variance between the QA Assessor and the Lead should remain within 5 percentage points on calibrated calls.</td>
+              <td style="font-size:12px; color:#666;">Prepare scored sample calls before each session; document disagreements and resolution; apply agreed interpretation updates to future scoring.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">8</span></td>
+              <td style="font-weight:700;">Reporting Timeliness</td>
+              <td><span class="badge badge-target">100% on-time</span></td>
+              <td style="font-size:13px; color:#555;">Weekly QA reports submitted to the Quality &amp; Training Lead by the agreed deadline each week, with zero missing agent entries.</td>
+              <td style="font-size:12px; color:#666;">Use the standard report template; complete evaluations daily rather than batching; flag data blockers 48 hours before deadline.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend-strip">
+        <span class="legend-label">Legend:</span>
+        <span class="badge badge-owner" style="font-size:11px;">Primary Owner</span> = solely accountable &nbsp;
+        <span class="badge badge-support" style="font-size:11px;">Supporting</span> = contributes to, owned by another role
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 2 — Q&T LEAD JD
+  ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-2">
+
+    <!-- Role Evolution -->
+    <div class="evolution-banner">
+      <div class="evo-old">
+        <div class="evo-tag old">Previous Role</div>
+        <div class="evo-title">Quality Assessor Officer</div>
+        <div class="evo-desc" data-e="jd-e8">Individual evaluation, scoring &amp; feedback delivery</div>
+      </div>
+      <div class="evo-arrow">→</div>
+      <div class="evo-new">
+        <div class="evo-tag new">Transformed To</div>
+        <div class="evo-title">Quality &amp; Training Lead</div>
+        <div class="evo-desc" data-e="jd-e9">System design, people leadership, strategic quality ownership</div>
+      </div>
+    </div>
+
+    <!-- Job Details -->
+    <div class="card">
+      <div class="card-header"><span class="hicon">📌</span> Job Details</div>
+      <div class="card-body">
+        <div class="details-grid">
+          <div class="detail-cell">
+            <div class="detail-label">Job Title</div>
+            <div class="detail-value" data-e="jd-e10">Quality &amp; Training Lead</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Line Manager</div>
+            <div class="detail-value" data-e="jd-e11">Technical Operations Manager</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Grade</div>
+            <div class="detail-value" data-e="jd-e12">Lead / Senior</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Direct Reports</div>
+            <div class="detail-value" data-e="jd-e13">Quality Assessors; CX Associates (training oversight)</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Department</div>
+            <div class="detail-value" data-e="jd-e14">Operations — Customer Experience</div>
+          </div>
+          <div class="detail-cell">
+            <div class="detail-label">Location</div>
+            <div class="detail-value" data-e="jd-e15">Food for Education Warehouse — Ruiru, Kenya</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Summary -->
+    <div class="card">
+      <div class="card-header orange"><span class="hicon">📝</span> Job Summary</div>
+      <div class="card-body">
+        <p class="summary-text" data-e="jd-e16">
+          The Quality &amp; Training Lead is responsible for designing, implementing, and continuously improving
+          the quality assurance framework and training ecosystem for the Tap2eat Customer Experience team.
+          This role leads a team of Quality Assessors, owns the end-to-end QA process across all customer
+          interaction channels, and drives strategic training programmes that build agent capability, improve
+          key CX metrics, and deliver an exceptional service experience to parents and schools enrolled in
+          the programme. The Lead translates quality data into actionable people-development strategies,
+          champions a culture of continuous improvement, and serves as the primary quality and learning
+          partner to CX leadership and the wider Operations division.
+        </p>
+      </div>
+    </div>
+
+    <!-- Roles & Responsibilities -->
+    <div class="card">
+      <div class="card-header amber"><span class="hicon">⚙️</span> Roles &amp; Responsibilities</div>
+      <div class="card-body">
+        <p style="font-size:12px; font-weight:700; color:var(--leafy); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:14px;">Quality Assurance Leadership</p>
+        <ul class="resp-list">
+          <li>
+            <span class="resp-num">1</span>
+            Design, own, and continuously evolve the QA scorecard, quality standards, and evaluation criteria for all customer interaction channels — ensuring alignment with the Tap2eat programme's service vision and operational goals.
+          </li>
+          <li>
+            <span class="resp-num">2</span>
+            Oversee and govern the daily and weekly QA evaluation process conducted by Quality Assessors; review scored interactions for calibration accuracy and consistency across the team.
+          </li>
+          <li>
+            <span class="resp-num">3</span>
+            Lead all calibration sessions across QA Assessors, CX Team Leads, and the CX Manager; establish scoring norms, resolve disputes, and publish aligned interpretation guidelines.
+          </li>
+          <li>
+            <span class="resp-num">4</span>
+            Analyse aggregate QA data to identify systemic quality trends, recurring agent error patterns, and channel-level performance gaps; develop targeted corrective action plans.
+          </li>
+          <li>
+            <span class="resp-num">5</span>
+            Own the escalation pathway for critical quality risks including compliance concerns, data integrity breaches, or repeated service failures; brief Operations leadership with recommended actions.
+          </li>
+        </ul>
+
+        <p style="font-size:12px; font-weight:700; color:var(--carrot); text-transform:uppercase; letter-spacing:1.2px; margin:18px 0 14px;">Training &amp; Development</p>
+        <ul class="resp-list">
+          <li>
+            <span class="resp-num orange">6</span>
+            Design and deliver structured onboarding training programmes for new CX agents covering product knowledge, communication standards, CRM navigation, escalation protocols, and Tap2eat programme specifics.
+          </li>
+          <li>
+            <span class="resp-num orange">7</span>
+            Identify skills gaps and training needs from QA data, customer feedback, and team performance metrics; develop and roll out targeted upskilling modules and refresher programmes.
+          </li>
+          <li>
+            <span class="resp-num orange">8</span>
+            Create, maintain, and update all training materials including SOPs, quick-reference guides, call scripts, FAQs, and e-learning content — ensuring materials remain current with programme changes.
+          </li>
+          <li>
+            <span class="resp-num orange">9</span>
+            Track training completion, post-training performance improvement, and knowledge retention; measure training effectiveness using QA scores pre/post intervention and report findings to leadership.
+          </li>
+          <li>
+            <span class="resp-num orange">10</span>
+            Manage nesting-period readiness assessments for new agents, certifying readiness to go live based on structured evaluation criteria, and providing structured recommendations to the CX Manager.
+          </li>
+        </ul>
+
+        <p style="font-size:12px; font-weight:700; color:var(--leafy); text-transform:uppercase; letter-spacing:1.2px; margin:18px 0 14px;">People Management &amp; Reporting</p>
+        <ul class="resp-list">
+          <li>
+            <span class="resp-num">11</span>
+            Line-manage Quality Assessors: set clear performance expectations, conduct regular one-on-ones, deliver performance reviews, provide professional development coaching, and manage attendance and accountability.
+          </li>
+          <li>
+            <span class="resp-num">12</span>
+            Produce and present weekly, monthly, and quarterly CX quality and training performance reports to the Technical Operations Manager and CX Manager, including trend analysis, intervention results, and forward recommendations.
+          </li>
+          <li>
+            <span class="resp-num">13</span>
+            Provide the People team with training and quality insights to support probation decisions, promotions, disciplinary processes, and headcount planning for the CX function.
+          </li>
+          <li>
+            <span class="resp-num">14</span>
+            Champion a culture of quality, accountability, and continuous learning within the CX team; model best-practice call handling and customer communication standards at all times.
+          </li>
+          <li>
+            <span class="resp-num">15</span>
+            Partner with the CRM and IT teams to ensure the quality monitoring toolset — call recording, QA management platform, and CRM — remains fit for purpose; flag capability gaps and propose enhancements.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Core Competencies -->
+    <div class="card">
+      <div class="card-header"><span class="hicon">🌱</span> Core Competencies</div>
+      <div class="card-body">
+        <div class="competency-grid">
+          <span class="competency-pill pill-green">Quality Framework Design</span>
+          <span class="competency-pill pill-orange">Training Facilitation</span>
+          <span class="competency-pill pill-amber">Data Analysis &amp; Reporting</span>
+          <span class="competency-pill pill-green">People Leadership</span>
+          <span class="competency-pill pill-orange">Stakeholder Communication</span>
+          <span class="competency-pill pill-amber">CRM &amp; Systems Proficiency</span>
+          <span class="competency-pill pill-green">Strategic Thinking</span>
+          <span class="competency-pill pill-orange">Performance Coaching</span>
+          <span class="competency-pill pill-amber">Change Management</span>
+          <span class="competency-pill pill-green">Instructional Design</span>
+          <span class="competency-pill pill-orange">Process Improvement</span>
+          <span class="competency-pill pill-amber">Customer Empathy</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 3 — Q&T LEAD KPIs
+  ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-3">
+
+    <div class="card">
+      <div class="card-header"><span class="hicon">🎯</span> Quality &amp; Training Lead — KPI Framework</div>
+      <div class="card-body" style="padding:0;">
+        <table class="kpi-table">
+          <thead>
+            <tr>
+              <th style="width:28px;">#</th>
+              <th style="width:220px;">KPI</th>
+              <th style="width:100px;">Target</th>
+              <th>Description &amp; Why It Matters</th>
+              <th style="width:130px;">How You Own It</th>
+              <th style="width:90px;">Ownership</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="kpi-no">1</span></td>
+              <td style="font-weight:700;">Team QA Score (Overall)</td>
+              <td><span class="badge badge-target">≥ 95%</span></td>
+              <td style="font-size:13px; color:#555;">The aggregate QA score across all agents for the period. Reflects the Lead's ability to set standards, build assessor consistency, and drive improvement through coaching and training interventions.</td>
+              <td style="font-size:12px; color:#666;">Run weekly reviews, lead calibration sessions, deploy targeted training when scores dip. Own the corrective action plan.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">2</span></td>
+              <td style="font-weight:700;">First Call Resolution (FCR)</td>
+              <td><span class="badge badge-target">≥ 95%</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of parent/school issues resolved on first contact, at team level. The Lead is accountable for building the SOPs, call-flow guides, and escalation frameworks that make FCR achievable.</td>
+              <td style="font-size:12px; color:#666;">Design clear escalation pathways, train on issue ownership, monitor repeat contacts weekly and address root causes in training.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">3</span></td>
+              <td style="font-weight:700;">Average Handle Time (Team)</td>
+              <td><span class="badge badge-target">≤ 180 sec</span></td>
+              <td style="font-size:13px; color:#555;">Team-level AHT. The Lead owns the training content — quick-reference FAQs, CRM navigation SOPs, and call management guides — that enables agents to handle contacts efficiently without sacrificing quality.</td>
+              <td style="font-size:12px; color:#666;">Develop and update quick-reference guides; run AHT coaching clinics; review outlier recordings and redesign content as needed.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">4</span></td>
+              <td style="font-weight:700;">Training Completion Rate</td>
+              <td><span class="badge badge-target">≥ 95%</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of agents who complete all assigned training modules (onboarding, refresher, upskilling) within the stipulated timeframe. Ensures the entire team operates with current product and process knowledge.</td>
+              <td style="font-size:12px; color:#666;">Maintain a training calendar; send reminders; partner with the CX Team Lead on scheduling; report incomplete completions with cause.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">5</span></td>
+              <td style="font-weight:700;">Post-Training Score Improvement</td>
+              <td><span class="badge badge-target">≥ 10%pts</span></td>
+              <td style="font-size:13px; color:#555;">Average QA score improvement for agents who received targeted training interventions, measured 30 days post-training against the 30-day pre-training baseline. Validates whether training is working.</td>
+              <td style="font-size:12px; color:#666;">Always record pre-training QA baseline; design assessments tied to learning objectives; run 30-day post-training QA deep-dives.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">6</span></td>
+              <td style="font-weight:700;">New Agent Onboarding Readiness</td>
+              <td><span class="badge badge-target">100% certified</span></td>
+              <td style="font-size:13px; color:#555;">Every new agent achieves the minimum certification score on the nesting readiness assessment before going fully live. No agent goes unsupervised without a documented sign-off from the Quality &amp; Training Lead.</td>
+              <td style="font-size:12px; color:#666;">Own the readiness scorecard; personally review nesting-period QA evaluations; provide structured certification reports to the CX Manager.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">7</span></td>
+              <td style="font-weight:700;">CRM Data Accuracy (Team)</td>
+              <td><span class="badge badge-target">≥ 98%</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of CRM records that are complete and accurate at team level. The Lead owns the training and standard that produces accurate data entry; QA Assessors score it per interaction.</td>
+              <td style="font-size:12px; color:#666;">Embed CRM accuracy in the QA scorecard; run weekly audits; train on correct data capture; escalate systemic issues to the CRM team.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">8</span></td>
+              <td style="font-weight:700;">QA Assessor Performance Score</td>
+              <td><span class="badge badge-target">≥ 90%</span></td>
+              <td style="font-size:13px; color:#555;">Composite score of QA Assessors' own performance against their KPIs — monitoring coverage, calibration alignment, coaching completion, and reporting timeliness. Reflects the Lead's effectiveness in managing the QA team.</td>
+              <td style="font-size:12px; color:#666;">Conduct monthly performance reviews with each assessor; track their KPIs weekly; provide coaching and development support proactively.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">9</span></td>
+              <td style="font-weight:700;">QA Reporting Delivery</td>
+              <td><span class="badge badge-target">100% on-time</span></td>
+              <td style="font-size:13px; color:#555;">Weekly, monthly, and quarterly quality and training performance reports submitted to the Technical Operations Manager and CX Manager on the agreed schedule, complete and with actionable recommendations.</td>
+              <td style="font-size:12px; color:#666;">Maintain a reporting calendar; use standardised templates; build dashboards where possible to reduce manual effort and ensure accuracy.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+            <tr>
+              <td><span class="kpi-no">10</span></td>
+              <td style="font-weight:700;">SOP / Training Material Currency</td>
+              <td><span class="badge badge-target">100% current</span></td>
+              <td style="font-size:13px; color:#555;">Percentage of SOPs, quick-reference guides, and training documents that are reviewed and updated within 10 working days of any programme change, product update, or process amendment. Prevents agents from operating on outdated information.</td>
+              <td style="font-size:12px; color:#666;">Subscribe to all programme change communications; maintain a document version log; audit material currency monthly and report gaps.</td>
+              <td><span class="badge badge-owner">Primary Owner</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend-strip">
+        <span class="legend-label">Legend:</span>
+        <span class="badge badge-owner" style="font-size:11px;">Primary Owner</span> = solely accountable for hitting and owning this metric &nbsp;
+        <span class="badge badge-support" style="font-size:11px;">Supporting</span> = contributes to but reports to someone else
+      </div>
+    </div>
+
+    <!-- Footer note -->
+    <div style="background:var(--leafy); border-radius:12px; padding:18px 22px; color:white; margin-top:20px; display:flex; gap:16px; align-items:flex-start;">
+      <span style="font-size:24px; flex-shrink:0;">🌽</span>
+      <div>
+        <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--progressive); margin-bottom:4px;">Leadership Note</div>
+        <div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.85);">
+          As Quality &amp; Training Lead, you no longer just monitor quality — you <em>create</em> the conditions for quality to exist. Your KPIs reflect accountability for the system, the people, and the results. 
+          The Quality Assessors you manage own the day-to-day evaluation; your job is to ensure they have the right tools, the right training, the right feedback, and the right standards to succeed. 
+          When the team wins on quality, that is your success to own.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /content -->
+
+<script>
+function switchTab(index) {
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
+  document.querySelectorAll('.tab-panel').forEach((panel, i) => {
+    panel.classList.toggle('active', i === index);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+<!-- EDIT MODE -->
+<style>
+body.edit-mode [data-e]{outline:2px dashed #FFB200;border-radius:3px;cursor:text;background:rgba(255,178,0,0.05);}
+body.edit-mode [data-e]:focus{outline:2px solid #FF8C00;background:rgba(255,140,0,0.07);}
+#ebar{position:fixed;bottom:0;left:0;right:0;background:#FF8C00;padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -3px 16px rgba(0,0,0,.2);}
+#ebar.on{display:flex;}
+#ebar .eb-l{font-size:13px;font-weight:700;color:white;}
+#ebar .eb-r{display:flex;gap:8px;}
+.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:18px;border:none;cursor:pointer;}
+.ebtn-s{background:white;color:#BF6900;}
+.ebtn-x{background:rgba(255,255,255,.15);color:white;}
+#efab{position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;background:#24631E;color:white;border:none;font-size:20px;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+#efab:hover{background:#3a7a34;}
+#emodal{position:fixed;inset:0;background:rgba(31,27,27,.6);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#emodal.hide{display:none;}
+.embox{background:white;border-radius:16px;padding:30px;max-width:320px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.22);}
+#epin{width:100%;padding:12px;border:2px solid #e4e2d8;border-radius:9px;font-family:'Rubik',sans-serif;font-size:20px;font-weight:700;text-align:center;letter-spacing:6px;outline:none;margin-bottom:5px;box-sizing:border-box;}
+#epin:focus{border-color:#24631E;}
+#epin.shake{animation:eshk .28s;}
+@keyframes eshk{0%,100%{transform:translateX(0);}30%{transform:translateX(-7px);}70%{transform:translateX(7px);}}
+#eerr{font-size:12px;color:#c0392b;text-align:center;min-height:16px;margin-bottom:10px;font-weight:600;}
+.epri{width:100%;font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;padding:12px;border-radius:9px;border:none;background:#24631E;color:white;cursor:pointer;}
+.ecan{width:100%;font-family:'Rubik',sans-serif;font-size:12px;padding:9px;border-radius:9px;border:1px solid #e4e2d8;background:none;color:#aaa;cursor:pointer;margin-top:7px;}
+</style>
+<div id="ebar">
+  <div class="eb-l">&#9998; Edit Mode active &mdash; click any highlighted text to edit</div>
+  <div class="eb-r">
+    <button class="ebtn ebtn-s" onclick="saveE()">&#128190; Save</button>
+    <button class="ebtn ebtn-s" onclick="exportE()">&#8595; Export</button>
+    <button class="ebtn ebtn-x" onclick="exitE()">&#10005; Exit</button>
+  </div>
+</div>
+<button id="efab" onclick="openEM()" title="Edit this document">&#9998;</button>
+<div id="emodal" class="hide">
+  <div class="embox">
+    <div style="font-size:30px;text-align:center;margin-bottom:10px;">&#9998;</div>
+    <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:4px;">Edit Document</div>
+    <div style="font-size:12px;color:#888;text-align:center;margin-bottom:16px;">Enter the Admin PIN to unlock editing on this page</div>
+    <input id="epin" type="password" maxlength="6" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
+    <div id="eerr"></div>
+    <button class="epri" onclick="tryE()">Unlock Editing</button>
+    <button class="ecan" onclick="closeEM()">Cancel</button>
+    <div style="font-size:10px;color:#ccc;text-align:center;margin-top:8px;">Admin PIN is managed in the Document Hub by the Q&amp;T Lead</div>
+  </div>
+</div>
+<script>
+(function(){
+  var EK="t2e_pin_admin", DF="admin9";
+  var SK="t2e_edits_"+location.pathname.split("/").pop();
+  function gp(){return localStorage.getItem(EK)||DF;}
+  function openEM(){document.getElementById("emodal").classList.remove("hide");setTimeout(function(){document.getElementById("epin").focus();},80);}
+  function closeEM(){document.getElementById("emodal").classList.add("hide");document.getElementById("epin").value="";document.getElementById("eerr").textContent="";}
+  function tryE(){
+    var v=document.getElementById("epin").value.trim();
+    if(v===gp()){closeEM();startE();}
+    else{var i=document.getElementById("epin");i.classList.add("shake");document.getElementById("eerr").textContent="Incorrect PIN.";i.value="";i.focus();}
+  }
+  function startE(){
+    document.body.classList.add("edit-mode");
+    document.getElementById("ebar").classList.add("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="true";});
+  }
+  function exitE(){
+    document.body.classList.remove("edit-mode");
+    document.getElementById("ebar").classList.remove("on");
+    document.querySelectorAll("[data-e]").forEach(function(el){el.contentEditable="false";});
+  }
+  function saveE(){
+    var d={};
+    document.querySelectorAll("[data-e]").forEach(function(el){d[el.getAttribute("data-e")]=el.innerHTML;});
+    localStorage.setItem(SK,JSON.stringify(d));
+    st("Changes saved to this browser.","#24631E");
+  }
+  function exportE(){
+    saveE();
+    var h="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    var b=new Blob([h],{type:"text/html"});
+    var u=URL.createObjectURL(b);
+    var a=document.createElement("a");
+    a.href=u;a.download=location.pathname.split("/").pop().replace(".html","_edited.html");
+    a.click();URL.revokeObjectURL(u);
+    st("Exported with edits baked in.","#24631E");
+  }
+  function loadE(){
+    try{
+      var r=localStorage.getItem(SK);
+      if(!r)return;
+      var d=JSON.parse(r);
+      Object.keys(d).forEach(function(k){
+        var el=document.querySelector('[data-e="'+k+'"]');
+        if(el)el.innerHTML=d[k];
+      });
+    }catch(e){}
+  }
+  var et;
+  function st(msg,bg){
+    var t=document.getElementById("_est");
+    if(!t){t=document.createElement("div");t.id="_est";t.style.cssText="position:fixed;bottom:70px;right:22px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;color:white;z-index:10001;box-shadow:0 3px 14px rgba(0,0,0,.15);";document.body.appendChild(t);}
+    t.textContent=msg;t.style.background=bg;t.style.display="block";
+    clearTimeout(et);et=setTimeout(function(){t.style.display="none";},2800);
+  }
+  window.openEM=openEM;window.closeEM=closeEM;window.tryE=tryE;window.exitE=exitE;window.saveE=saveE;window.exportE=exportE;
+  document.getElementById("epin").addEventListener("keydown",function(e){if(e.key==="Enter")tryE();});
+  document.getElementById("epin").addEventListener("input",function(){this.classList.remove("shake");document.getElementById("eerr").textContent="";});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeEM();});
+  document.getElementById("emodal").addEventListener("click",function(ev){if(ev.target===this)closeEM();});
+  loadE();
+})();
+</script>
+
+</body>
+</html>
