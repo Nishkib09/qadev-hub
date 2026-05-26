@@ -17,17 +17,14 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);}
-body.edit-mode [data-e]{outline:2px dashed var(--progressive);border-radius:3px;cursor:text;background:rgba(255,178,0,.05);}
-body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
+body.admin-edit [data-e]{outline:2px dashed var(--progressive);border-radius:3px;cursor:text;background:rgba(255,178,0,.05);}
+body.admin-edit [data-e]:focus{outline:2px solid var(--carrot);}
 
-/* EDIT BAR */
-.ebar{position:fixed;bottom:0;left:0;right:0;background:var(--carrot);padding:10px 24px;display:none;align-items:center;justify-content:space-between;z-index:900;}
-.ebar.on{display:flex;}
-.ebar-l{font-size:13px;font-weight:700;color:white;}
-.ebar-r{display:flex;gap:8px;}
-.ebtn{font-family:'Rubik',sans-serif;font-size:12px;font-weight:700;padding:7px 15px;border-radius:18px;border:none;cursor:pointer;}
-.ebtn-s{background:white;color:var(--carrot-d);}
-.ebtn-x{background:rgba(255,255,255,.18);color:white;}
+/* SAVE / SAVED INDICATOR */
+.hub-save-btn{display:none;font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:6px 13px;border-radius:20px;border:none;cursor:pointer;background:var(--carrot);color:white;margin-right:4px;}
+.hub-save-btn:hover{opacity:.84;}
+.saved-ind{display:none;font-size:10px;color:#7dd87a;font-weight:600;margin-right:6px;}
+.saved-ind.show{display:inline;}
 
 /* HEADER */
 .hdr{background:var(--leafy);position:sticky;top:0;z-index:200;box-shadow:0 2px 14px rgba(0,0,0,.2);}
@@ -203,8 +200,9 @@ body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
       </div>
     </div>
     <div class="hdr-r">
+      <span class="saved-ind" id="hub-saved">💾 Saved</span>
+      <button class="hub-save-btn" id="hub-save-btn" onclick="saveEdits()">💾 Save Hub</button>
       <span class="abadge ab-pub" id="abadge">🌍 Public</span>
-      <button class="hbtn edit" id="edit-btn" style="display:none" onclick="toggleEdit()">✏️ Edit Hub</button>
       <button class="hbtn login" id="login-btn" onclick="openLogin()">🔐 Sign In</button>
       <button class="hbtn logout" id="logout-btn" style="display:none" onclick="doLogout()">Sign Out</button>
     </div>
@@ -271,8 +269,8 @@ body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
     </div>
     <div class="acard">
       <div class="acard-ttl act-y">✏️ Edit Mode</div>
-      <p class="anote" style="margin-bottom:9px;">Toggle to edit text on this hub page. Each document also has its own ✏️ button (bottom-right corner) using this same Admin PIN.</p>
-      <button class="abtn abtn-y" style="width:100%;padding:9px;margin-bottom:7px;" onclick="toggleEdit()">✏️ Toggle Hub Edit Mode</button>
+      <p class="anote" style="margin-bottom:9px;">As admin, all hub text is automatically editable — just click and type. Changes save via local storage. Export bakes edits into a new HTML file.</p>
+      <button class="abtn abtn-y" style="width:100%;padding:9px;margin-bottom:7px;" onclick="saveEdits()">💾 Save Hub Changes</button>
       <button class="abtn abtn-gh" style="width:100%;padding:7px;" onclick="exportHub()">⬇ Export Hub with Edits</button>
     </div>
   </div>
@@ -356,6 +354,20 @@ body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
     </div>
   </div>
 
+  <div class="dcard" id="dc-training">
+    <div class="dc-head">
+      <div class="dc-ico ico-a">🎓</div>
+      <span class="dc-tag tag-agt">🟡 Agent PIN</span>
+      <div class="dc-title" data-e="trn-title">Call Centre Agent Training — Interaction Flow</div>
+      <div class="dc-desc" data-e="trn-desc">Full training module for new agents covering inbound call flow, SMS/WhatsApp standards, query classification, escalation matrix, and QA scorecard alignment. Includes scripts, role-plays, and a 10-question knowledge check.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Inbound Calls</span><span class="dtag">SMS/Chat</span><span class="dtag">Escalation</span><span class="dtag">Scorecard</span><span class="dtag">Do's &amp; Don'ts</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Agents · Interns · Trainers</div>
+      <span class="obtn obtn-locked" id="lnk-training">🔒 PIN Required</span>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── STAFF ── -->
@@ -410,6 +422,34 @@ body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
     </div>
   </div>
 
+  <div class="dcard" id="dc-tracker">
+    <div class="dc-head">
+      <div class="dc-ico ico-o">📊</div>
+      <span class="dc-tag tag-adm">🔴 Admin Only</span>
+      <div class="dc-title" data-e="tr-title">Intern Onboarding Tracker (Web)</div>
+      <div class="dc-desc" data-e="tr-desc">Live 4-week tracker for every intern cohort. Record gate scores, pass/fail results, and completion dates across Foundation, Core Skills, Nesting, and Sign-Off. Auto-saves to your browser.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">4-Week Plan</span><span class="dtag">Gate Tracking</span><span class="dtag">CSV Export</span><span class="dtag">Browser</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Q&amp;T Lead only</div>
+      <span class="obtn obtn-locked" id="lnk-tracker">🔒 Admin Only</span>
+    </div>
+  </div>
+
+  <div class="dcard" id="dc-tracker-xlsx">
+    <div class="dc-head">
+      <div class="dc-ico ico-o">📗</div>
+      <span class="dc-tag tag-adm">🔴 Admin Only</span>
+      <div class="dc-title" data-e="trx-title">Intern Onboarding Tracker (Excel)</div>
+      <div class="dc-desc" data-e="trx-desc">Editable .xlsx spreadsheet. Score validation (0-100), PASS/FAIL dropdowns, auto-calculating status column, live summary dashboard, and conditional formatting. Best for offline or shared-drive use.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">.xlsx</span><span class="dtag">Dropdowns</span><span class="dtag">Formulas</span><span class="dtag">Conditional Format</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Q&amp;T Lead only</div>
+      <span class="obtn obtn-locked" id="lnk-tracker-xlsx">🔒 Admin Only</span>
+    </div>
+  </div>
+
 </div>
 </div><!-- /main -->
 
@@ -417,54 +457,6 @@ body.edit-mode [data-e]:focus{outline:2px solid var(--carrot);}
   <p><strong>CX Quality &amp; Training Hub — Tap2Eat · Food4Education</strong><br>
   Ruiru, Kenya · Internal use · Public documents may be shared freely · Private documents require authorisation</p>
 </footer>
-
-<!-- EDIT BAR -->
-<div class="ebar" id="ebar">
-  <div class="ebar-l">✏️ Edit Mode — click any highlighted text to edit</div>
-  <div class="ebar-r">
-    <button class="ebtn ebtn-s" onclick="saveEdits()">💾 Save</button>
-    <button class="ebtn ebtn-s" onclick="exportHub()">⬇ Export</button>
-    <button class="ebtn ebtn-x" onclick="exitEdit()">✕ Exit</button>
-  </div>
-</div>
-
-<!-- LOGIN MODAL -->
-<div class="mbg hide" id="login-modal">
-  <div class="mbox">
-    <div class="mico">🔐</div>
-    <div class="mttl">Sign In</div>
-    <div class="msub">Choose your access level</div>
-
-    <div class="tier-list" id="tier-list">
-      <button class="tier-btn" onclick="sel('agent')">
-        <span class="ti">🟡</span>
-        <div><div class="tn">Agent Access</div><div class="td">Scorecard + SOPs + Onboarding + Assessments</div></div>
-      </button>
-      <button class="tier-btn" onclick="sel('staff')">
-        <span class="ti">🟢</span>
-        <div><div class="tn">Staff Access</div><div class="td">All above + QA Shadow Work Plan</div></div>
-      </button>
-      <button class="tier-btn" onclick="sel('admin')">
-        <span class="ti">🔴</span>
-        <div><div class="tn">Admin Access</div><div class="td">Everything + JDs/KPIs + Reports + Edit mode</div></div>
-      </button>
-    </div>
-
-    <div class="pentry" id="pentry">
-      <button class="pback" onclick="backToTiers()">← Back</button>
-      <div class="plbl" id="plbl"></div>
-      <input class="minput" id="pin-inp" type="password" maxlength="6" placeholder="••••••"
-        onkeydown="if(event.key==='Enter')tryLogin()"
-        oninput="this.classList.remove('shake');document.getElementById('pin-err').textContent=''">
-      <div class="merr" id="pin-err"></div>
-      <button class="mpri" onclick="tryLogin()">Unlock</button>
-      <button class="mcan" onclick="closeLogin()">Cancel</button>
-      <div class="mhint" id="phint"></div>
-    </div>
-
-    <button class="mcan" id="top-cancel" onclick="closeLogin()">Cancel</button>
-  </div>
-</div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -475,20 +467,22 @@ const DEF = { agent:'1234', staff:'2025', admin:'admin9' };
 const FILES = {
   onboarding: 'tap2eat_onboarding_kit.html',
   assessments: 'tap2eat_assessments.html',
+  training:    'f4e-training-flow.html',
   shadow:      'tap2eat_qa_shadow_workplan.html',
   jd:          'tap2eat_jd_kpis.html',
-  workload:    'tap2eat_lead_workload_reports.html'
+  workload:    'tap2eat_lead_workload_reports.html',
+  tracker:     'tap2eat_onboarding_tracker.html',
+  tracker_xlsx:'tap2eat_intern_onboarding_tracker.xlsx'
 };
 const ACCESS = {
-  onboarding:'agent', assessments:'agent',
+  onboarding:'agent', assessments:'agent', training:'agent',
   shadow:'staff',
-  jd:'admin', workload:'admin'
+  jd:'admin', workload:'admin', tracker:'admin', tracker_xlsx:'admin'
 };
 
 // ── STATE ───────────────────────────────────
 let tier = 'public';
 let selTier = '';
-let editOn = false;
 const TORD = { public:0, agent:1, staff:2, admin:3 };
 const can = needed => TORD[tier] >= TORD[needed];
 const gp = t => localStorage.getItem('t2e_pin_'+t) || DEF[t];
@@ -504,8 +498,14 @@ function applyUI() {
 
   document.getElementById('login-btn').style.display  = tier === 'public' ? '' : 'none';
   document.getElementById('logout-btn').style.display = tier !== 'public' ? '' : 'none';
-  document.getElementById('edit-btn').style.display   = tier === 'admin'  ? '' : 'none';
   document.getElementById('adm-panel').classList.toggle('on', tier === 'admin');
+
+  // Auto-enable editing for admin
+  if (tier === 'admin') {
+    enableHubEditing();
+  } else {
+    disableHubEditing();
+  }
 
   if (tier === 'admin') {
     document.getElementById('agt-pv').textContent = gp('agent');
@@ -543,7 +543,7 @@ function applyUI() {
 
 function doLogout() {
   tier = 'public';
-  if (editOn) exitEdit();
+  disableHubEditing();
   // Reset all links back to locked spans
   Object.keys(FILES).forEach(key => {
     const existing = document.getElementById('lnk-' + key);
@@ -626,29 +626,37 @@ function genPin() {
   toast('New agent PIN: ' + p + ' — share privately.', 'success');
 }
 
-// ── EDIT MODE ───────────────────────────────
-function toggleEdit() {
-  if (!editOn) {
-    editOn = true;
-    document.body.classList.add('edit-mode');
-    document.getElementById('ebar').classList.add('on');
-    document.getElementById('edit-btn').textContent = '✏️ Editing…';
-    document.querySelectorAll('[data-e]').forEach(e => e.contentEditable = 'true');
-    toast('Edit mode on — click highlighted text to edit.', 'info');
-  } else { saveEdits(); exitEdit(); }
+// ── EDIT MODE (automatic for admin) ──────────
+function enableHubEditing(){
+  document.body.classList.add('admin-edit');
+  document.querySelectorAll('[data-e]').forEach(e => e.contentEditable = 'true');
+  document.getElementById('hub-save-btn').style.display = '';
+  // Auto-save on any edit
+  document.querySelectorAll('[data-e]').forEach(e => {
+    e.removeEventListener('input', autoSaveHubEdit);
+    e.addEventListener('input', autoSaveHubEdit);
+  });
 }
-function exitEdit() {
-  editOn = false;
-  document.body.classList.remove('edit-mode');
-  document.getElementById('ebar').classList.remove('on');
-  document.getElementById('edit-btn').textContent = '✏️ Edit Hub';
+function disableHubEditing(){
+  document.body.classList.remove('admin-edit');
   document.querySelectorAll('[data-e]').forEach(e => e.contentEditable = 'false');
+  document.getElementById('hub-save-btn').style.display = 'none';
 }
+
+let hubSaveTimer;
+function autoSaveHubEdit(){
+  clearTimeout(hubSaveTimer);
+  hubSaveTimer = setTimeout(() => { saveEdits(); }, 400);
+}
+
 function saveEdits() {
   const d = {};
   document.querySelectorAll('[data-e]').forEach(e => d[e.getAttribute('data-e')] = e.innerHTML);
   localStorage.setItem('t2e_hub_edits', JSON.stringify(d));
-  toast('Hub changes saved.', 'success');
+  const si = document.getElementById('hub-saved');
+  si.classList.add('show');
+  clearTimeout(window._hubSavedTO);
+  window._hubSavedTO = setTimeout(() => si.classList.remove('show'), 2000);
 }
 function loadEdits() {
   try {

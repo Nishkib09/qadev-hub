@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F4E — Call Centre Agent Training: Customer Interaction Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --green:    #24631e;
+    --green-lt: #6a9a40;
+    --green-br: #92c73e;
+    --cream:    #e4e4c5;
+    --cream-lt: #f1f1e1;
+    --orange:   #f47920;
+    --orange-br:#ff8c00;
+    --yellow:   #fec132;
+    --dark:     #1f1b1b;
+    --red:      #d25827;
+    --berry:    #9d2e42;
+    --neutral:  #60666d;
+    --white:    #fffbea;
+    --blue:     #2c6f8c;
+    --blue-lt:  #e8f2f8;
+    --purple:   #6b3fa0;
+    --purple-lt:#f3edfa;
+  }
+
+  body {
+    font-family: 'Rubik', 'Segoe UI', system-ui, sans-serif;
+    background: var(--white);
+    color: var(--dark);
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .container { max-width: 1080px; margin: 0 auto; }
+
+  /* ---------- HEADER ---------- */
+  .header-bar {
+    background: var(--green);
+    color: var(--cream);
+    border-radius: 10px;
+    padding: 20px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header-bar .logo-area { display: flex; align-items: center; gap: 10px; }
+  .header-bar .logo-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: var(--orange-br);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #fff;
+  }
+  .header-bar .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-bar .logo-sub  { font-size: 11px; opacity: 0.75; }
+  .header-bar .tagline   { font-size: 13px; opacity: 0.85; margin-left: auto; text-align: right; line-height: 1.4; }
+
+  /* ---------- META BAR ---------- */
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;
+    font-size: 12px; color: var(--neutral);
+  }
+  .meta-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; background: #fff; border: 1px solid #e4e4c9; border-radius: 6px;
+  }
+
+  /* ---------- OBJECTIVES ---------- */
+  .objectives-box {
+    background: linear-gradient(135deg, #f0f7ee, #e8f2e8);
+    border: 2px solid var(--green-br);
+    border-radius: 10px;
+    padding: 18px 24px; margin-bottom: 24px;
+  }
+  .objectives-box h2 { color: var(--green); font-size: 16px; margin-bottom: 10px; }
+  .objectives-box ul { margin-left: 20px; color: var(--dark); font-size: 13px; }
+  .objectives-box li { margin-bottom: 4px; }
+
+  /* ---------- SECTION HEADER ---------- */
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin: 28px 0 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--green-br);
+  }
+  .section-header .num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--green); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+  }
+  .section-header h2 { font-size: 18px; color: var(--green); }
+
+  /* ---------- PART CARDS ---------- */
+  .part {
+    background: #fff; border-radius: 10px; margin-bottom: 20px;
+    overflow: hidden; border: 1px solid #e4e4c9;
+  }
+  .part-header {
+    padding: 12px 22px; font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .part-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 7px;
+    color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .part.call   .part-header { background: rgba(36,99,30,.08); color: var(--green); }
+  .part.call   .part-badge { background: var(--green); }
+  .part.sms    .part-header { background: rgba(244,121,32,.08); color: var(--orange); }
+  .part.sms    .part-badge { background: var(--orange); }
+  .part.esc    .part-header { background: rgba(157,46,66,.06); color: var(--berry); }
+  .part.esc    .part-badge { background: var(--berry); }
+  .part.qa     .part-header { background: rgba(107,63,160,.06); color: var(--purple); }
+  .part.qa     .part-badge { background: var(--purple); }
+  .part-body { padding: 18px 22px; }
+
+  /* ---------- FLOW NODES ---------- */
+  .flow-row { display: flex; align-items: flex-start; margin-bottom: 6px; flex-wrap: wrap; gap: 4px; }
+  .arrow { display: flex; align-items: center; color: var(--green-lt); font-size: 18px; padding: 0 6px; flex-shrink: 0; margin-top: 10px; font-weight: 700; }
+
+  .node {
+    background: #fff; border: 1.5px solid #e4e4c9; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px;
+    border-left-width: 4px;
+    transition: box-shadow .15s;
+  }
+  .node:hover { box-shadow: 0 0 0 3px rgba(36,99,30,.08); }
+
+  .node-greet     { border-left-color: var(--green); }
+  .node-verify    { border-left-color: var(--green-lt); }
+  .node-probe     { border-left-color: var(--orange); }
+  .node-resolve   { border-left-color: var(--yellow); }
+  .node-close     { border-left-color: var(--green-br); }
+  .node-escalate  { border-left-color: var(--red); }
+  .node-note      { border-left-color: var(--neutral); background: #fafaf7; }
+
+  .node-type {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.9px;
+    font-weight: 600; margin-bottom: 2px;
+  }
+  .node-greet    .node-type { color: var(--green); }
+  .node-verify   .node-type { color: var(--green-lt); }
+  .node-probe    .node-type { color: var(--orange); }
+  .node-resolve  .node-type { color: #b8860b; }
+  .node-close    .node-type { color: var(--green-br); }
+  .node-escalate .node-type { color: var(--red); }
+  .node-note     .node-type { color: var(--neutral); }
+
+  .node-title { font-weight: 600; font-size: 14px; color: var(--dark); }
+  .node-sub   { font-size: 11px; color: var(--neutral); margin-top: 3px; }
+
+  /* ---------- SCRIPTS ---------- */
+  .script-box {
+    margin: 8px 0; padding: 12px 16px;
+    border-radius: 8px; font-size: 13px;
+    background: #fafaf7; border: 1px solid #e4e4c9;
+  }
+  .script-box .script-label { font-size: 11px; font-weight: 700; color: var(--neutral); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+  .script-box .script-line { padding: 4px 0; border-bottom: 1px dotted #e4e4c9; }
+  .script-box .script-line:last-child { border-bottom: none; }
+  .script-box .speaker { font-weight: 700; color: var(--green); }
+  .script-box .speaker.cust { color: var(--orange); }
+
+  /* ---------- CHIPS ---------- */
+  .chip-row { display: flex; flex-wrap:wrap; gap: 6px; margin-top: 6px; }
+  .chip {
+    display: inline-block; padding: 4px 10px; border-radius: 5px;
+    font-size: 12px; border: 1px solid #e4e4c9; background: #fafaf7;
+  }
+  .chip.crit  { background: #fef5f2; border-color: #f5c6b6; color: #a63c1a; }
+  .chip.high  { background: #fff7f0; border-color: #f9d4b8; color: #9a4818; }
+  .chip.med   { background: #fffef7; border-color: #faeab8; color: #7a5e10; }
+  .chip.low   { background: #f4faf0; border-color: #c5e0b8; color: #3a6b20; }
+  .chip.good  { background: #f0faf0; border-color: #a0d8a0; color: #24631e; }
+  .chip.warn  { background: #fffaf0; border-color: #f9d4a0; color: #8a5a10; }
+  .chip.bad   { background: #fff5f2; border-color: #f5c6b6; color: #a63c1a; }
+
+  /* ---------- GRIDS ---------- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .info-card {
+    border: 1px solid #e4e4c9; border-radius: 8px; padding: 10px 14px;
+    background: #fafaf7; border-left-width: 4px; border-left-style: solid;
+  }
+  .info-card-title { font-weight: 700; font-size: 13px; color: var(--dark); margin-bottom: 3px; }
+  .info-card-items { font-size: 11px; color: var(--neutral); }
+
+  /* ---------- DIVIDER ---------- */
+  .divider { margin: 18px 0 12px; border-top: 2px dashed #e4e4c9; }
+
+  /* ---------- BADGE ---------- */
+  .badge-sm {
+    display: inline-block; padding: 1px 7px; border-radius: 4px;
+    font-size: 10px; font-weight: 700; margin-left: 5px;
+  }
+  .badge-red  { background: #fde8e4; color: var(--red); }
+  .badge-amber { background: #fff3e6; color: #b85c10; }
+  .badge-green { background: #e8f5e0; color: var(--green); }
+
+  /* ---------- TRAINER NOTES ---------- */
+  .trainer-note {
+    margin: 10px 0; padding: 12px 16px;
+    border-radius: 8px; display: flex; gap: 10px; font-size: 13px;
+  }
+  .trainer-note.info  { background: var(--blue-lt);   border: 1px solid #b8d8e8; color: #1a4d63; }
+  .trainer-note.tip   { background: #f0f7ee;          border: 1px solid #c8e0b8; color: #2e5a1e; }
+  .trainer-note.warn  { background: #fff5f2;          border: 1px solid #f5c6b6; color: #8b3a1a; }
+  .trainer-note.practice { background: var(--purple-lt); border: 1px solid #d0c0e8; color: #4a2a70; }
+  .tn-icon {
+    width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #fff;
+  }
+  .trainer-note.info     .tn-icon { background: var(--blue); }
+  .trainer-note.tip      .tn-icon { background: var(--green); }
+  .trainer-note.warn     .tn-icon { background: var(--red); }
+  .trainer-note.practice .tn-icon { background: var(--purple); }
+  .tn-content strong { display: block; margin-bottom: 3px; }
+
+  /* ---------- TABLES ---------- */
+  .ref-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  .ref-table th { background: var(--green); color: var(--cream); padding: 8px 12px; text-align: left; font-weight: 600; }
+  .ref-table td { padding: 8px 12px; border-bottom: 1px solid #e4e4c9; }
+  .ref-table tr:nth-child(even) td { background: #fafaf7; }
+
+  /* ---------- TIMELINE ---------- */
+  .timeline { position: relative; margin: 10px 0; padding-left: 28px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 3px; background: var(--green-br); border-radius: 2px;
+  }
+  .tl-item { position: relative; margin-bottom: 10px; }
+  .tl-dot {
+    position: absolute; left: -22px; top: 4px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid var(--green); background: #fff;
+  }
+  .tl-time { font-size: 11px; color: var(--neutral); font-weight: 600; }
+  .tl-body { font-size: 13px; color: var(--dark); margin-top: 2px; }
+
+  /* ---------- SCORECARD VISUAL ---------- */
+  .score-visual { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .score-segment {
+    flex: 1; min-width: 140px; text-align: center;
+    padding: 14px 10px; border-radius: 8px; border: 1px solid #e4e4c9;
+  }
+  .score-segment .score-num { font-size: 28px; font-weight: 800; }
+  .score-segment .score-label { font-size: 11px; color: var(--neutral); margin-top: 4px; }
+  .score-segment.green  .score-num { color: var(--green); }
+  .score-segment.orange .score-num { color: var(--orange); }
+  .score-segment.berry  .score-num { color: var(--berry); }
+  .score-segment.yellow .score-num { color: #b8860b; }
+
+  /* ---------- DO / DON'T ---------- */
+  .dodont { display: flex; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+  .dodont > div { flex: 1; min-width: 280px; border-radius: 8px; padding: 14px; }
+  .do { background: #e8f5e0; border: 2px solid var(--green-br); }
+  .dont { background: #fff5f2; border: 2px solid var(--red); }
+  .do h4 { color: var(--green); margin-bottom: 6px; }
+  .dont h4 { color: var(--red); margin-bottom: 6px; }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card {
+    border: 2px solid var(--purple); border-radius: 10px;
+    margin: 20px 0; overflow: hidden;
+  }
+  .quiz-header {
+    background: var(--purple-lt); padding: 12px 18px;
+    font-weight: 700; color: var(--purple); font-size: 15px;
+  }
+  .quiz-body { padding: 16px 18px; }
+  .quiz-q { margin-bottom: 14px; }
+  .quiz-q .q-text { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .quiz-q .q-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .q-opt {
+    padding: 6px 14px; border-radius: 6px; border: 1px solid #e4e4c9;
+    font-size: 12px; cursor: default; background: #fff;
+  }
+  .q-opt.correct { background: #e8f5e0; border-color: var(--green-br); color: var(--green); font-weight: 600; }
+  .q-opt.wrong   { background: #fff5f2; border-color: var(--red); color: var(--red); }
+
+  /* ---------- FOOTER ---------- */
+  .footer {
+    text-align: center; font-size: 11px; color: var(--neutral);
+    margin-top: 24px; padding-top: 16px; border-top: 1px solid #e4e4c9;
+  }
+
+  /* ---------- PRINT ---------- */
+  @media print {
+    body { background: #fff; padding: 0; font-size: 11px; }
+    .part, .quiz-card { break-inside: avoid; border: 1px solid #ccc; }
+    .trainer-note { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <div class="header-bar">
+    <div class="logo-area">
+      <div class="logo-icon">F4E</div>
+      <div>
+        <div class="logo-text">Food4Education</div>
+        <div class="logo-sub">Tap2Eat</div>
+      </div>
+    </div>
+    <div class="tagline">CX Call Centre Agent Training<br>Customer Interaction Flow &amp; Standards</div>
+  </div>
+
+  <!-- META -->
+  <div class="meta-bar">
+    <div class="meta-tag">v 2.0</div>
+    <div class="meta-tag">Duration: 90–120 min</div>
+    <div class="meta-tag">Audience: New Call Centre Agents</div>
+    <div class="meta-tag">Type: Facilitator-Led + Role Play</div>
+  </div>
+
+  <!-- ═══════════ LEARNING OBJECTIVES ═══════════ -->
+  <div class="objectives-box">
+    <h2>Learning Objectives</h2>
+    <ul>
+      <li>Execute the standard call greeting, verification, resolution, and closure flow</li>
+      <li>Classify customer inquiries correctly (Tag, Account, Payment, Registration, Complaint)</li>
+      <li>Apply probing techniques to fully understand the customer's question before responding</li>
+      <li>Match issues to the correct escalation path when resolution is beyond Tier 1 scope</li>
+      <li>Handle SMS and WhatsApp chats within the same quality standards as voice calls</li>
+      <li>Understand how each interaction stage maps to the QA scorecard</li>
+      <li>Meet the minimum quality benchmark of 85% QA score on all channels</li>
+    </ul>
+  </div>
+
+  <!-- TRAINER PREP -->
+  <div class="trainer-note info">
+    <div class="tn-icon">TR</div>
+    <div class="tn-content">
+      <strong>Trainer Preparation</strong>
+      <p>Before this session: Print one copy per trainee. Prepare 3 role-play scenarios (a Complaint call, a Registration inquiry, and a Payment follow-up). Have the escalation contact sheet and CRM demo ready. Trainees should have access to the Tap2Eat knowledge base.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 1: CHANNELS ═══════════ -->
+  <div class="section-header">
+    <span class="num">1</span>
+    <h2>Channels We Handle</h2>
+  </div>
+
+  <div class="grid-3">
+    <div class="info-card" style="border-left-color:var(--green);">
+      <div class="info-card-title">Inbound Calls</div>
+      <div class="info-card-items">Parents calling for support, inquiries, complaints. Highest volume channel. AHT target: 180s.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--orange);">
+      <div class="info-card-title">SMS / WhatsApp Chat</div>
+      <div class="info-card-items">Text-based support. Same quality standards as voice. Response time target: under 3 min.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--berry);">
+      <div class="info-card-title">Outbound Calls</div>
+      <div class="info-card-items">Follow-ups, payment reminders, satisfaction checks. Scripted but must be personalised.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 2: INBOUND CALL FLOW ═══════════ -->
+  <div class="section-header">
+    <span class="num">2</span>
+    <h2>Inbound Call Flow (The 5 Stages)</h2>
+  </div>
+
+  <div class="part call">
+    <div class="part-header"><span class="part-badge">C</span> Inbound Call Handling — End to End</div>
+    <div class="part-body">
+
+      <!-- Stage 1: Greeting -->
+      <div class="node node-greet" style="margin-bottom:8px;">
+        <div class="node-type">Stage 1 — Opening &amp; Greeting</div>
+        <div class="node-title">Pick up on or before the 3rd ring. Identify yourself and the programme.</div>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">Standard Greeting</div>
+        <div class="script-line"><span class="speaker">Agent:</span> "Good morning/afternoon, thank you for calling Food4Education Tap2Eat. My name is [Name]. How may I help you today?"</div>
+        <div class="script-line" style="margin-top:4px;"><span class="speaker">Swahili:</span> "Habari ya asubuhi/mchana, asante kwa kupiga simu Food4Education Tap2Eat. Jina langu ni [Name]. Nikusaidie vipi leo?"</div>
+      </div>
+
+      <div class="trainer-note tip">
+        <div class="tn-icon">QA</div>
+        <div class="tn-content">
+          <strong>Scorecard Alignment:</strong> QA scores the greeting on: answering speed, programme name stated, agent name given, warm tone. Missing any of these = points deducted.
+        </div>
+      </div>
+
+      <div class="arrow" style="justify-content:center;">&darr;</div>
+
+      <!-- Stage 2: Verification -->
+      <div class="node node-verify" style="margin-bottom:8px;">
+        <div class="node-type">Stage 2 — Account Verification</div>
+        <div class="node-title">Confirm the caller's identity. Ask for the registered phone number.</div>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">Verification Script</div>
+        <div class="script-line"><span class="speaker">Agent:</span> "To assist you better, may I have the phone number registered on your Tap2Eat account?"</div>
+        <div class="script-line"><span class="speaker cust">Caller:</span> "0712 345 678"</div>
+        <div class="script-line"><span class="speaker">Agent:</span> "Thank you. Let me pull up your account — one moment please."</div>
+      </div>
+
+      <div class="trainer-note warn">
+        <div class="tn-icon">!</div>
+        <div class="tn-content">
+          <strong>Never skip verification.</strong> A caller who cannot provide the registered number must be directed to visit a school rep or use an alternate verification method. Do NOT access or discuss account details without confirming identity.
+        </div>
+      </div>
+
+      <div class="arrow" style="justify-content:center;">&darr;</div>
+
+      <!-- Stage 3: Probing -->
+      <div class="node node-probe" style="margin-bottom:8px;">
+        <div class="node-type">Stage 3 — Probing &amp; Issue Identification</div>
+        <div class="node-title">Ask targeted questions to fully understand the issue before offering a solution.</div>
+      </div>
+
+      <div class="trainer-note tip">
+        <div class="tn-icon">Q</div>
+        <div class="tn-content">
+          <strong>Effective Probing Questions:</strong>
+          <p>"Can you tell me more about what happened?" | "When did you first notice this?" | "Is this the first time or has it happened before?" | "What outcome are you hoping for today?"</p>
+        </div>
+      </div>
+
+      <div class="trainer-note warn">
+        <div class="tn-icon">X</div>
+        <div class="tn-content">
+          <strong>Common mistake:</strong> Jumping to a solution before fully understanding the question. If a parent says "my child didn't eat," probe: Was the child present? Did they refuse the food or was it not served? Was there a tag issue? This distinguishes a food quality complaint from a tag malfunction.
+        </div>
+      </div>
+
+      <div class="arrow" style="justify-content:center;">&darr;</div>
+
+      <!-- Stage 4: Resolution -->
+      <div class="node node-resolve" style="margin-bottom:8px;">
+        <div class="node-type">Stage 4 — Resolution or Escalation</div>
+        <div class="node-title">Resolve what you can at Tier 1. Escalate what you cannot — to the right team.</div>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">Resolution Confirmation</div>
+        <div class="script-line"><span class="speaker">Agent:</span> "Based on what you've shared, here's what I can do for you today: [explain action]. Does that address your concern?"</div>
+      </div>
+
+      <div class="script-box" style="margin-top:8px;">
+        <div class="script-label">Escalation Handoff</div>
+        <div class="script-line"><span class="speaker">Agent:</span> "I'll need to involve our [Team Name] to resolve this fully. I've logged all the details and they'll reach you within [timeframe]. Your reference number is [ref]. Is there anything else I can help with in the meantime?"</div>
+      </div>
+
+      <div class="arrow" style="justify-content:center;">&darr;</div>
+
+      <!-- Stage 5: Closure -->
+      <div class="node node-close" style="margin-bottom:8px;">
+        <div class="node-type">Stage 5 — Closure &amp; CRM Logging</div>
+        <div class="node-title">Confirm satisfaction, thank the caller, and log everything in the CRM.</div>
+      </div>
+
+      <div class="script-box">
+        <div class="script-label">Standard Closure</div>
+        <div class="script-line"><span class="speaker">Agent:</span> "Is there anything else I can help you with today? Thank you for calling Food4Education Tap2Eat. Have a great day."</div>
+      </div>
+
+      <div class="trainer-note tip">
+        <div class="tn-icon">CR</div>
+        <div class="tn-content">
+          <strong>CRM Entry Checklist (complete before the next call):</strong>
+          <p>Account number &middot; Caller name &middot; Issue category &middot; Resolution or escalation team &middot; Reference number &middot; Notes in clear, specific language. Never write "helped parent" — write what you did.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 3: SMS/CHAT FLOW ═══════════ -->
+  <div class="section-header">
+    <span class="num">3</span>
+    <h2>SMS &amp; WhatsApp Chat Flow</h2>
+  </div>
+
+  <div class="part sms">
+    <div class="part-header"><span class="part-badge">S</span> SMS / WhatsApp Chat Standards</div>
+    <div class="part-body">
+
+      <div class="flow-row">
+        <div class="node node-greet">
+          <div class="node-type">Open</div>
+          <div class="node-title">Greeting &amp; ID</div>
+          <div class="node-sub">"Habari! Karibu Tap2Eat. Jina langu ni [Name]."</div>
+        </div>
+        <div class="arrow">&rarr;</div>
+        <div class="node node-probe">
+          <div class="node-type">Probe</div>
+          <div class="node-title">Understand First</div>
+          <div class="node-sub">Ask clarifying questions before answering</div>
+        </div>
+        <div class="arrow">&rarr;</div>
+        <div class="node node-resolve">
+          <div class="node-type">Resolve</div>
+          <div class="node-title">Clear &amp; Concise</div>
+          <div class="node-sub">One topic per message. No long blocks.</div>
+        </div>
+        <div class="arrow">&rarr;</div>
+        <div class="node node-close">
+          <div class="node-type">Close</div>
+          <div class="node-title">Warm Sign-off</div>
+          <div class="node-sub">"Asante. Tupo hapa ukihitaji msaada."</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid-2">
+        <div class="info-card" style="border-left-color:var(--green);">
+          <div class="info-card-title">Response Time</div>
+          <div class="info-card-items">First response within 3 minutes. If research needed, send a holding message: "Ninaangalia akaunti yako, subiri kidogo."</div>
+        </div>
+        <div class="info-card" style="border-left-color:var(--orange);">
+          <div class="info-card-title">Language &amp; Tone</div>
+          <div class="info-card-items">Conversational Swahili or English — not stiff. Use the customer's name. No ALL CAPS. No more than 3 messages without a question to the customer.</div>
+        </div>
+      </div>
+
+      <div class="trainer-note warn">
+        <div class="tn-icon">X</div>
+        <div class="tn-content">
+          <strong>SMS-specific mistakes to avoid:</strong>
+          <p>1. Sending duplicate messages. 2. Closing with "Asante kwa kuelewa" (presumptuous). 3. Copy-pasting the same template for every query. 4. Ending the chat without checking for additional questions. 5. Using overly formal Swahili that is hard to read on a phone screen.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 4: QUERY TYPES ═══════════ -->
+  <div class="section-header">
+    <span class="num">4</span>
+    <h2>Common Query Types &amp; How to Handle Each</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="info-card" style="border-left-color:var(--green);">
+      <div class="info-card-title">Tag Query</div>
+      <div class="info-card-items">Tag replacement, new tag issuance, lost tag reporting. Check: is the child still at the same school? Escalate to PDA / Area Lead if tag stock is low.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--orange);">
+      <div class="info-card-title">Account Query</div>
+      <div class="info-card-items">Account status, transfer child between schools, transfer funds between accounts, add child to existing account. May need Tech Support for system changes.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--yellow);">
+      <div class="info-card-title">Payment Query</div>
+      <div class="info-card-items">Paybill inquiry, reconciliation — "I paid but my balance didn't update." Collect M-Pesa confirmation code. Escalate to Tech Support for reconciliation.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--berry);">
+      <div class="info-card-title">Registration Query</div>
+      <div class="info-card-items">New parent wants to register, add a child to existing account. Guide them through the process. Escalate to PDA for registration forms if needed.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--red);">
+      <div class="info-card-title">Complaint</div>
+      <div class="info-card-items">Food quality, food portion, learner did not feed. This is the highest-sensitivity category. Acknowledge, empathise, document, escalate to Kitchen Ops / KM.</div>
+    </div>
+    <div class="info-card" style="border-left-color:var(--green-lt);">
+      <div class="info-card-title">Feedback / Suggestion</div>
+      <div class="info-card-items">General feedback or improvement ideas. Thank the customer, document clearly, and route to Customer Experience. No escalation urgency unless safety-related.</div>
+    </div>
+  </div>
+
+  <div class="trainer-note tip" style="margin-top:10px;">
+    <div class="tn-icon">CR</div>
+    <div class="tn-content">
+      <strong>CRM Category Mapping:</strong> Every interaction must be tagged with the correct category in the CRM. This feeds reporting, trend analysis, and resource allocation. Misclassifying a Complaint as an Inquiry means it won't show up in the complaints dashboard — and leadership won't know there's a problem.
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 5: ESCALATION MATRIX ═══════════ -->
+  <div class="section-header">
+    <span class="num">5</span>
+    <h2>Escalation Matrix — Who Handles What</h2>
+  </div>
+
+  <div class="part esc">
+    <div class="part-header"><span class="part-badge">E</span> Escalation Routes &amp; Urgency Classification</div>
+    <div class="part-body">
+
+      <div class="grid-2" style="margin-bottom:12px;">
+        <div class="info-card" style="border-left-color:var(--red);">
+          <div class="info-card-title">Critical — 12 hours</div>
+          <div class="info-card-items">Health or safety risk. Meals not served. Learner affected today. Issue likely to escalate publicly. <span class="badge-sm badge-red">Notify Team Lead immediately</span></div>
+        </div>
+        <div class="info-card" style="border-left-color:var(--orange);">
+          <div class="info-card-title">High — 24–48 hours</div>
+          <div class="info-card-items">Repeated complaints. Parent dissatisfied and expects prompt resolution. Multiple children affected.</div>
+        </div>
+        <div class="info-card" style="border-left-color:var(--yellow);">
+          <div class="info-card-title">Medium — 3–5 days</div>
+          <div class="info-card-items">Valid concern but no immediate risk. Isolated incident or clarification required.</div>
+        </div>
+        <div class="info-card" style="border-left-color:var(--green-lt);">
+          <div class="info-card-title">Low — Informational</div>
+          <div class="info-card-items">General feedback, suggestion, or inquiry. No direct impact on service delivery.</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="node" style="font-size:13px; font-weight:700; color:var(--dark); margin-bottom:8px;">Escalation Routing by Issue Type</div>
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Issue Category</th><th>Escalate To</th><th>Typical SLA</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Tag availability / Registration forms</td><td>PDA / Area Lead</td><td>48 hours</td></tr>
+          <tr><td>Food delivery / Quality / Safety / Portion</td><td>Kitchen Ops / Kitchen Manager</td><td>12–24 hours</td></tr>
+          <tr><td>Complaints / Clarifications / Service issues</td><td>Customer Experience Team</td><td>24–48 hours</td></tr>
+          <tr><td>Payment gateway / Balance / App / SMS</td><td>Tech Support</td><td>24–48 hours</td></tr>
+          <tr><td>Policy exception / Sensitive complaint</td><td>Team Lead (your direct supervisor)</td><td>Same day</td></tr>
+        </tbody>
+      </table>
+
+      <div class="trainer-note warn" style="margin-top:10px;">
+        <div class="tn-icon">!</div>
+        <div class="tn-content">
+          <strong>When in doubt, escalate.</strong> It is better to escalate something that could have been handled at Tier 1 than to keep something at Tier 1 that should have gone higher. If you're unsure, ask your Team Lead before closing the interaction.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 6: QA SCORECARD — INBOUND ═══════════ -->
+  <div class="section-header">
+    <span class="num">6</span>
+    <h2>QA Scorecard — How Your Calls Are Scored (Inbound)</h2>
+  </div>
+
+  <div class="part qa">
+    <div class="part-header"><span class="part-badge">I</span> Inbound Call Scorecard — 25 Questions, 100 Points</div>
+    <div class="part-body">
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Section</th><th>Questions</th><th>Points</th><th>Key Criteria</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Call Opening &amp; Structure</strong></td>
+            <td>Q1 &ndash; Q4</td>
+            <td><strong>11</strong></td>
+            <td>Preparedness (2) &bull; Standard opening (4) &bull; Personalization (2) &bull; Structured flow (3)</td>
+          </tr>
+          <tr>
+            <td><strong>2. Communication &amp; Soft Skills</strong></td>
+            <td>Q5 &ndash; Q10</td>
+            <td><strong>25</strong></td>
+            <td>Active listening (5) &bull; Tone/pace/volume (4) &bull; Word choice (4) &bull; Professionalism (4) &bull; Willingness to assist (4) &bull; Ownership (4)</td>
+          </tr>
+          <tr>
+            <td><strong>3. Process &amp; Compliance</strong></td>
+            <td>Q11 &ndash; Q15</td>
+            <td><strong>20</strong></td>
+            <td>Account verification (4) &bull; Troubleshooting steps (4) &bull; Escalation procedures (4) &bull; Correct disposition (4) &bull; Standard closing (4)</td>
+          </tr>
+          <tr>
+            <td><strong>4. Resolution Quality &amp; Accuracy</strong></td>
+            <td>Q16 &ndash; Q20</td>
+            <td><strong>26</strong></td>
+            <td>Correctly identify issue (6) &bull; Probe effectively (5) &bull; Accurate resolution (7) &bull; Offer alternatives (4) &bull; Confirm understanding (4)</td>
+          </tr>
+          <tr>
+            <td><strong>5. Customer Experience &amp; Efficiency</strong></td>
+            <td>Q21 &ndash; Q25</td>
+            <td><strong>18</strong></td>
+            <td>Handle objections (3) &bull; Avoid dead air (3) &bull; Preferred language (3) &bull; SLA 180s AHT (3) &bull; Confirm satisfaction &amp; further assistance (6)</td>
+          </tr>
+          <tr style="background:#fff5f2;">
+            <td colspan="4" style="color:var(--red); font-weight:600;">Total: 100 pts. Below 85% for 2 consecutive weeks = coaching. Below 75% = PIP.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="trainer-note warn" style="margin-top:10px;">
+        <div class="tn-icon">!</div>
+        <div class="tn-content">
+          <strong>Critical Compliance Checks (Automatic Overall Fail):</strong>
+          <p>No verification completed &bull; Data privacy breach &bull; Rude or inappropriate conduct &bull; Incorrect resolution with financial/reputational impact. Any one of these overrides the score.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 6b: QA SCORECARD — SMS ═══════════ -->
+  <div class="part" style="border-left: 4px solid var(--orange);">
+    <div class="part-header" style="background: rgba(244,121,32,.08); color: var(--orange);">
+      <span class="part-badge" style="background: var(--orange);">S</span> SMS / Chat Quality Audit — 14 Questions, 100 Points
+    </div>
+    <div class="part-body">
+
+      <table class="ref-table">
+        <thead>
+          <tr><th>Section</th><th>Questions</th><th>Points</th><th>Key Criteria</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Opening &amp; Greeting</strong></td>
+            <td>Q1 &ndash; Q3</td>
+            <td><strong>20</strong></td>
+            <td>Standard opening (6) &bull; Acknowledge &amp; willingness (7) &bull; Personalize beyond script (7)</td>
+          </tr>
+          <tr>
+            <td><strong>2. Account Verification</strong></td>
+            <td>Q4 &ndash; Q5</td>
+            <td><strong>20</strong> <span class="badge-sm badge-red">Critical</span></td>
+            <td>Proper verification process (10) &bull; Accurate &amp; timely verification (10)</td>
+          </tr>
+          <tr>
+            <td><strong>3. Issue Understanding &amp; Resolution</strong></td>
+            <td>Q6 &ndash; Q9</td>
+            <td><strong>30</strong></td>
+            <td>Probe effectively (7) &bull; Summarize &amp; confirm (8) &bull; Accurate resolution (10) <span class="badge-sm badge-red">Critical</span> &bull; Use resources (5)</td>
+          </tr>
+          <tr>
+            <td><strong>4. Service Quality</strong></td>
+            <td>Q10 &ndash; Q12</td>
+            <td><strong>20</strong></td>
+            <td>Empathy &amp; solution-oriented (8) &bull; Avoid back-and-forth / efficient (7) &bull; Proactive info (5)</td>
+          </tr>
+          <tr>
+            <td><strong>5. Communication &amp; Closure</strong></td>
+            <td>Q13 &ndash; Q14</td>
+            <td><strong>10</strong></td>
+            <td>No grammatical errors / unclear statements (5) &bull; Standard SMS closure procedure (5)</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- SCORING THRESHOLDS -->
+  <div class="trainer-note tip" style="margin-top:10px;">
+    <div class="tn-icon">QA</div>
+    <div class="tn-content">
+      <strong>Scoring Thresholds (Both Scorecards):</strong>
+      <p><strong>85%+</strong> = On track &middot; <strong>Below 85% for 2 consecutive weeks</strong> = Coaching session &middot; <strong>Below 75%</strong> = Performance Improvement Plan. The scorecard is a development tool, not punitive. Use QA feedback to improve.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 7: DO's & DON'Ts ═══════════ -->
+  <div class="section-header">
+    <span class="num">7</span>
+    <h2>Quick Reference: Do's &amp; Don'ts</h2>
+  </div>
+
+  <div class="dodont">
+    <div class="do">
+      <h4>DO</h4>
+      <div style="font-size:12px; line-height:1.8;">
+        Greet warmly — state your name and programme<br>
+        Verify account before discussing details<br>
+        Probe before you prescribe a solution<br>
+        Use the customer's name naturally<br>
+        Confirm understanding: "Have I addressed your concern?"<br>
+        Log every interaction in the CRM immediately<br>
+        Escalate when unsure — ask your Team Lead<br>
+        Keep SMS messages short and conversational<br>
+        Use simple, natural Swahili in chats<br>
+        Check for additional questions before closing
+      </div>
+    </div>
+    <div class="dont">
+      <h4>DON'T</h4>
+      <div style="font-size:12px; line-height:1.8;">
+        Skip the greeting or sound rushed<br>
+        Access an account without verification<br>
+        Answer before you fully understand the question<br>
+        Use "Asante kwa kuelewa" — it's dismissive<br>
+        Write vague CRM notes like "helped parent"<br>
+        Send duplicate SMS messages<br>
+        Close a chat without a warm sign-off<br>
+        Mark everything as Critical — use the criteria<br>
+        Escalate to the wrong department<br>
+        Leave a call without confirming next steps
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 8: SAMPLE DAY TIMELINE ═══════════ -->
+  <div class="section-header">
+    <span class="num">8</span>
+    <h2>A Day as a Call Centre Agent</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-time">7:45 AM</div>
+      <div class="tl-body">Log in to CRM and phone system. Review any overnight escalations. Check Team Lead handover notes.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-time">8:00 AM</div>
+      <div class="tl-body">Lines open. Handle inbound calls following the 5-stage flow. Log each interaction as you go.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color:var(--orange);"></div>
+      <div class="tl-time">10:00 AM</div>
+      <div class="tl-body">Check SMS/WhatsApp queue. Respond to pending chats. Ensure no chat is older than 5 minutes.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-time">12:30 PM</div>
+      <div class="tl-body">Lunch break (30 min). Ensure handover of any open cases to a colleague or note in CRM.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-time">1:00 PM</div>
+      <div class="tl-body">Afternoon shift. Handle calls, chats. Process outbound follow-ups from the morning's escalated cases.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color:var(--berry);"></div>
+      <div class="tl-time">3:30 PM</div>
+      <div class="tl-body">Review your CRM entries for the day. Ensure all interactions are categorised and closed correctly.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="border-color:var(--red);"></div>
+      <div class="tl-time">4:00 PM</div>
+      <div class="tl-body">Submit end-of-day summary to Team Lead: calls handled, escalations raised, any flags. Log out.</div>
+    </div>
+  </div>
+
+  <div class="trainer-note tip" style="margin-top:10px;">
+    <div class="tn-icon">R</div>
+    <div class="tn-content">
+      <strong>Rhythm tip:</strong> After every 3 calls, take 60 seconds to review your CRM entries. This prevents backlog and ensures accuracy. Do not wait until end of day to log everything — you will forget details.
+    </div>
+  </div>
+
+  <!-- ═══════════ SECTION 9: KNOWLEDGE CHECK ═══════════ -->
+  <div class="section-header">
+    <span class="num">9</span>
+    <h2>Knowledge Check</h2>
+  </div>
+
+  <div class="trainer-note info">
+    <div class="tn-icon">TR</div>
+    <div class="tn-content">
+      <strong>Trainer Instructions:</strong> Use these questions at the end of the session. Pass mark: 7/10 correct. Review incorrect answers as a group before certification.
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">Knowledge Check — 10 Questions</div>
+    <div class="quiz-body">
+
+      <div class="quiz-q">
+        <div class="q-text">1. What are the 5 stages of an inbound call?</div>
+        <div class="q-options">
+          <span class="q-opt correct">Greeting → Verification → Probing → Resolution → Closure</span>
+          <span class="q-opt wrong">Answer → Solve → Log → Close → Review</span>
+          <span class="q-opt wrong">Hello → Ask → Fix → Thanks → CRM</span>
+          <span class="q-opt wrong">Pick up → Talk → Hang up → Write notes → Next call</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">2. What three things MUST be in your greeting?</div>
+        <div class="q-options">
+          <span class="q-opt correct">Programme name, your name, warm tone</span>
+          <span class="q-opt wrong">Your name, the time, the weather</span>
+          <span class="q-opt wrong">The company name, the CEO's name, your ID number</span>
+          <span class="q-opt wrong">Hello, how are you, what's your problem</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">3. A parent says "I paid but my balance didn't update." This is a:</div>
+        <div class="q-options">
+          <span class="q-opt wrong">Registration Query</span>
+          <span class="q-opt correct">Payment Query</span>
+          <span class="q-opt wrong">Account Query</span>
+          <span class="q-opt wrong">Complaint</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">4. A child did not receive their meal today. What urgency level?</div>
+        <div class="q-options">
+          <span class="q-opt correct">Critical — 12 hours</span>
+          <span class="q-opt wrong">High — 24–48 hours</span>
+          <span class="q-opt wrong">Medium — 3–5 days</span>
+          <span class="q-opt wrong">Low — Informational</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">5. What should you do BEFORE answering a customer's question?</div>
+        <div class="q-options">
+          <span class="q-opt wrong">Put them on hold to think</span>
+          <span class="q-opt correct">Probe to fully understand the issue</span>
+          <span class="q-opt wrong">Check with your colleague first</span>
+          <span class="q-opt wrong">Give the most common answer for that topic</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">6. A payment reconciliation issue should be escalated to:</div>
+        <div class="q-options">
+          <span class="q-opt wrong">PDA / Area Lead</span>
+          <span class="q-opt wrong">Kitchen Manager</span>
+          <span class="q-opt correct">Tech Support</span>
+          <span class="q-opt wrong">Customer Experience</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">7. What is the target response time for SMS/WhatsApp chats?</div>
+        <div class="q-options">
+          <span class="q-opt wrong">Within 30 minutes</span>
+          <span class="q-opt wrong">Within 10 minutes</span>
+          <span class="q-opt correct">Within 3 minutes</span>
+          <span class="q-opt wrong">By end of day</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">8. Why should you avoid "Asante kwa kuelewa" as a closing phrase?</div>
+        <div class="q-options">
+          <span class="q-opt wrong">It's too formal</span>
+          <span class="q-opt correct">It assumes the customer is okay with the response — it's dismissive</span>
+          <span class="q-opt wrong">It's in Swahili and not all customers speak Swahili</span>
+          <span class="q-opt wrong">It takes too many characters in SMS</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">9. What should your CRM notes contain?</div>
+        <div class="q-options">
+          <span class="q-opt wrong">"Helped parent"</span>
+          <span class="q-opt wrong">A copy of the call recording</span>
+          <span class="q-opt correct">Specific actions taken, issue category, resolution or escalation details</span>
+          <span class="q-opt wrong">Only the customer's phone number and the date</span>
+        </div>
+      </div>
+
+      <div class="quiz-q">
+        <div class="q-text">10. A QA score below what threshold for 2 consecutive weeks triggers a coaching session?</div>
+        <div class="q-options">
+          <span class="q-opt wrong">95%</span>
+          <span class="q-opt correct">85%</span>
+          <span class="q-opt wrong">75%</span>
+          <span class="q-opt wrong">70%</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANSWER KEY -->
+  <div class="trainer-note info" style="margin-bottom:20px;">
+    <div class="tn-icon">K</div>
+    <div class="tn-content">
+      <strong>Answer Key (Trainer Only):</strong>
+      <p>1. Greeting → Verification → Probing → Resolution → Closure | 2. Programme name, your name, warm tone | 3. Payment Query | 4. Critical — 12 hours | 5. Probe to fully understand the issue | 6. Tech Support | 7. Within 3 minutes | 8. It assumes the customer is okay — dismissive | 9. Specific actions taken, category, resolution details | 10. 85%</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ COMPLETION RECORD ═══════════ -->
+  <div style="background:#f0f7ee; border:2px solid var(--green-br); border-radius:10px; padding:20px; text-align:center; margin-bottom:20px;">
+    <div style="color:var(--green); font-size:18px; font-weight:700; margin-bottom:8px;">Training Completion Record</div>
+    <div style="font-size:13px; color:var(--neutral); margin-bottom:12px;">This certifies that the named agent has completed the Food4Education Call Centre Agent Training module.</div>
+    <table style="margin:0 auto; border-collapse:collapse; font-size:13px;">
+      <tr><td style="padding:4px 12px 4px 0; color:var(--neutral); text-align:right;">Agent Name:</td><td style="padding:4px 0; border-bottom:1px solid var(--green-br); min-width:200px;"></td></tr>
+      <tr><td style="padding:4px 12px 4px 0; color:var(--neutral); text-align:right;">Trainer Name:</td><td style="padding:4px 0; border-bottom:1px solid var(--green-br);"></td></tr>
+      <tr><td style="padding:4px 12px 4px 0; color:var(--neutral); text-align:right;">Date:</td><td style="padding:4px 0; border-bottom:1px solid var(--green-br);"></td></tr>
+      <tr><td style="padding:4px 12px 4px 0; color:var(--neutral); text-align:right;">Knowledge Check Score:</td><td style="padding:4px 0; border-bottom:1px solid var(--green-br);"></td></tr>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Food4Education &mdash; CX Call Centre Agent Training &mdash; Confidential<br>
+    &copy; Food4Education. For internal training use only.
+  </div>
+
+</div>
+</body>
+</html>
