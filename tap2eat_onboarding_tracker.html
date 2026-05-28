@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2Eat | Intern Onboarding Tracker — 4-Week Programme</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sophisticated:#E5E5C9;--progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --blackboard:#1F1B1B;--gray-light:#f7f5ee;--gray-mid:#e4e2d8;
+  --red:#c0392b;--red-pale:#fdecea;
+  --ok-green:#27ae60;--ok-pale:#eafaf1;
+  --warn-amber:#e67e22;--warn-pale:#fef5e7;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--sophisticated);color:var(--blackboard);min-height:100vh;}
+
+.hdr{background:var(--leafy);position:sticky;top:0;z-index:200;box-shadow:0 2px 14px rgba(0,0,0,.2);}
+.hdr-in{max-width:1200px;margin:0 auto;padding:13px 28px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icos{display:flex;gap:4px;}
+.li{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.li.o{background:rgba(255,140,0,.25);}.li.y{background:rgba(255,178,0,.25);}.li.c{background:rgba(229,229,201,.18);}
+.logo-txt .org{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.logo-txt .name{font-size:14px;font-weight:800;color:white;}
+.hbtn{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:6px 13px;border-radius:20px;border:none;cursor:pointer;}
+.hbtn.back{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12);}
+
+.hero{background:linear-gradient(135deg,var(--leafy),var(--leafy-mid));padding:36px 28px 32px;overflow:hidden;position:relative;}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,178,0,.07);}
+.hero-in{max-width:1200px;margin:0 auto;position:relative;}
+.hero h1{font-size:26px;font-weight:900;color:white;line-height:1.1;margin-bottom:6px;}
+.hero h1 em{color:var(--progressive);font-style:normal;}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.55);}
+
+.main{max-width:1200px;margin:0 auto;padding:20px 28px 100px;}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.toolbar-l{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tbtn2{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;padding:8px 16px;border-radius:20px;border:none;cursor:pointer;transition:opacity .18s;}
+.tbtn2:hover{opacity:.84;}
+.tbtn2.add{background:var(--leafy);color:white;}
+.tbtn2.export{background:var(--blackboard);color:white;}
+.tbtn2.reset{background:var(--red);color:white;}
+.tbtn2.cohort{background:var(--progressive);color:var(--blackboard);}
+.cohort-label{font-size:12px;font-weight:600;color:#888;margin-right:4px;}
+.cohort-name{font-size:14px;font-weight:800;color:var(--blackboard);padding:4px 10px;background:white;border-radius:8px;border:1px solid var(--gray-mid);outline:none;font-family:'Rubik',sans-serif;width:180px;}
+.cohort-name:focus{border-color:var(--leafy);}
+.saved-indicator{font-size:10px;color:var(--ok-green);font-weight:600;display:none;align-items:center;gap:4px;}
+.saved-indicator.show{display:flex;}
+
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px;}
+.scard{background:white;border-radius:10px;padding:14px 16px;box-shadow:0 2px 10px rgba(31,27,27,.06);text-align:center;}
+.scard-num{font-size:28px;font-weight:900;line-height:1;}
+.scard-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#999;margin-top:3px;}
+.scard.green .scard-num{color:var(--ok-green);}
+.scard.amber .scard-num{color:var(--warn-amber);}
+.scard.red .scard-num{color:var(--red);}
+.scard.dark .scard-num{color:var(--blackboard);}
+.scard.leaf .scard-num{color:var(--leafy);}
+
+.table-wrap{overflow-x:auto;border-radius:12px;background:white;box-shadow:0 2px 14px rgba(31,27,27,.08);}
+table{width:100%;border-collapse:collapse;min-width:1100px;}
+thead th{background:var(--blackboard);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:11px 10px;text-align:center;white-space:nowrap;position:sticky;top:0;}
+thead th:first-child{border-radius:12px 0 0 0;text-align:left;padding-left:16px;}
+thead th:last-child{border-radius:0 12px 0 0;}
+thead th.phase-wk{font-weight:800;letter-spacing:.5px;}
+.gate-row th{background:#f0f0e8;color:var(--blackboard);font-size:9px;font-weight:600;text-transform:none;letter-spacing:.3px;padding:7px 10px;}
+.gate-row th:first-child{padding-left:16px;}
+
+tbody td{padding:9px 10px;text-align:center;font-size:12px;border-bottom:1px solid var(--gray-mid);font-weight:500;}
+tbody td:first-child{text-align:left;padding-left:16px;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--gray-light);}
+
+.intern-name{display:block;width:100%;border:none;background:transparent;font-family:'Rubik',sans-serif;font-size:13px;font-weight:700;outline:none;border-radius:3px;padding:4px 4px;text-align:left;cursor:text;}
+.intern-name:focus{background:var(--leafy-pale);}
+.intern-name::placeholder{font-weight:400;color:#ccc;}
+
+input.intern-cell{width:100%;border:none;background:transparent;font-family:'Rubik',sans-serif;font-size:12px;font-weight:500;text-align:center;outline:none;border-radius:3px;padding:4px 2px;cursor:text;}
+input.intern-cell:focus{background:var(--leafy-pale);}
+input.intern-cell.score{width:55px;}
+input.intern-cell.date{width:85px;}
+
+select.pass-select{font-family:'Rubik',sans-serif;font-size:11px;font-weight:700;border:none;background:transparent;outline:none;cursor:pointer;text-align:center;width:100%;padding:2px 0;border-radius:4px;appearance:none;-webkit-appearance:none;}
+select.pass-select:focus{background:var(--leafy-pale);}
+select.pass-select option{font-weight:600;}
+
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;}
+.badge.pass{background:var(--ok-pale);color:var(--ok-green);}
+.badge.fail{background:var(--red-pale);color:var(--red);}
+.badge.pend{background:var(--warn-pale);color:var(--warn-amber);}
+.badge.comp{background:var(--ok-pale);color:var(--ok-green);}
+.badge.prog{background:var(--leafy-pale);color:var(--leafy-mid);}
+.badge.ns{background:var(--gray-mid);color:#888;}
+
+.del-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 4px;border-radius:4px;color:#ccc;transition:color .15s;font-weight:700;line-height:1;}
+.del-btn:hover{color:var(--red);}
+
+.foot-note{font-size:10px;color:#aaa;margin-top:16px;text-align:center;line-height:1.6;}
+
+.gate-key{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:16px;padding:12px 16px;background:white;border-radius:10px;box-shadow:0 2px 10px rgba(31,27,27,.06);}
+.gate-key-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#999;margin-right:4px;}
+.gate-kv{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;}
+
+.hint-tip{font-size:11px;color:#999;text-align:center;margin-top:14px;}
+.hint-tip strong{color:var(--leafy);}
+
+@media(max-width:800px){
+  .hdr-in,.main{padding-left:16px;padding-right:16px;}
+  .hero{padding:28px 16px 24px;}.hero h1{font-size:20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-in">
+    <div class="logo">
+      <div class="logo-icos">
+        <div class="li o">🥕</div><div class="li y">🌽</div><div class="li c">🥬</div>
+      </div>
+      <div class="logo-txt">
+        <div class="org">Food4Education · Tap2Eat</div>
+        <div class="name">Intern Onboarding Tracker</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="saved-indicator" id="saved-ind">💾 Saved</span>
+      <button class="hbtn back" onclick="goBack()">← Hub</button>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-in">
+    <h1>4-Week Intern <em>Onboarding Tracker</em></h1>
+    <p class="hero-sub">Just type. Everything saves automatically. Select PASS or FAIL from the dropdowns — no toggles, no extra steps.</p>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="toolbar">
+  <div class="toolbar-l">
+    <span class="cohort-label">Cohort:</span>
+    <input class="cohort-name" id="cohort-name" placeholder="e.g. May 2026 — Batch A" oninput="autoSave()">
+    <button class="tbtn2 add" onclick="addIntern()">+ Add Intern</button>
+    <button class="tbtn2 cohort" onclick="addBatch(5)">+ Add 5</button>
+  </div>
+  <div style="display:flex;gap:6px;">
+    <button class="tbtn2 export" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="tbtn2 reset" onclick="resetAll()">↺ Reset</button>
+  </div>
+</div>
+
+<div class="gate-key">
+  <span class="gate-key-lbl">Gate Criteria:</span>
+  <span class="gate-kv">📘 WK1 — Written Exam <span class="badge pass">80%+</span></span>
+  <span class="gate-kv">🎙 WK2 — Mock Calls <span class="badge pass">75%+</span></span>
+  <span class="gate-kv">📞 WK3 — Live Calls <span class="badge pass">80%+</span></span>
+  <span class="gate-kv">🏁 WK4 — Final Sign-Off <span class="badge pass">85%+</span></span>
+</div>
+
+<div class="summary-cards" id="summary"></div>
+
+<div class="table-wrap">
+  <table id="tracker-table">
+    <thead>
+      <tr>
+        <th style="width:30px;">#</th>
+        <th style="width:160px;text-align:left;">Intern Name</th>
+        <th style="width:100px;">Start Date</th>
+        <th class="phase-wk" colspan="3" style="background:var(--leafy);font-size:11px;">📘 Week 1 — Foundation</th>
+        <th class="phase-wk" colspan="3" style="background:var(--leafy-mid);font-size:11px;">🎙 Week 2 — Core Skills</th>
+        <th class="phase-wk" colspan="3" style="background:var(--carrot);font-size:11px;">📞 Week 3 — Nesting</th>
+        <th class="phase-wk" colspan="3" style="background:var(--progressive-d);font-size:11px;">🏁 Week 4 — Sign-Off</th>
+        <th style="width:110px;">Overall Status</th>
+        <th style="width:160px;">Notes</th>
+        <th style="width:30px;"></th>
+      </tr>
+      <tr class="gate-row">
+        <th></th><th></th><th></th>
+        <th>Score %</th><th>Result</th><th>Date</th>
+        <th>Score %</th><th>Result</th><th>Date</th>
+        <th>Score %</th><th>Result</th><th>Date</th>
+        <th>Score %</th><th>Result</th><th>Date</th>
+        <th></th><th></th><th></th>
+      </tr>
+    </thead>
+    <tbody id="intern-rows"></tbody>
+  </table>
+</div>
+
+<p class="hint-tip"><strong>Tip:</strong> Everything you type saves instantly to your browser. Use <strong>Export CSV</strong> to share with leadership. Open on the <strong>same browser and computer</strong> to see your data next time.</p>
+
+</div>
+
+<script>
+let interns = [];
+let saveTimer = null;
+const STORAGE_KEY = 't2e_onboarding_tracker';
+const COHORT_KEY = 't2e_tracker_cohort';
+
+const DEFAULT_INTERNS = [
+  {name:'', start:'', w1score:'', w1pass:'', w1date:'', w2score:'', w2pass:'', w2date:'', w3score:'', w3pass:'', w3date:'', w4score:'', w4pass:'', w4date:'', notes:''}
+];
+
+// ── DATA ─────────────────────────────────────
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ interns = JSON.parse(raw); return; }
+  }catch(e){}
+  interns = JSON.parse(JSON.stringify(DEFAULT_INTERNS));
+  document.getElementById('cohort-name').value = '';
+}
+
+function readRow(row){
+  // row is a <tr> element
+  const int = {};
+  int.name    = row.querySelector('.intern-name') ? row.querySelector('.intern-name').value : '';
+  int.start   = row.querySelector('.inp-start') ? row.querySelector('.inp-start').value : '';
+  int.w1score = row.querySelector('.inp-w1s') ? row.querySelector('.inp-w1s').value : '';
+  int.w1pass  = row.querySelector('.inp-w1p') ? row.querySelector('.inp-w1p').value : '';
+  int.w1date  = row.querySelector('.inp-w1d') ? row.querySelector('.inp-w1d').value : '';
+  int.w2score = row.querySelector('.inp-w2s') ? row.querySelector('.inp-w2s').value : '';
+  int.w2pass  = row.querySelector('.inp-w2p') ? row.querySelector('.inp-w2p').value : '';
+  int.w2date  = row.querySelector('.inp-w2d') ? row.querySelector('.inp-w2d').value : '';
+  int.w3score = row.querySelector('.inp-w3s') ? row.querySelector('.inp-w3s').value : '';
+  int.w3pass  = row.querySelector('.inp-w3p') ? row.querySelector('.inp-w3p').value : '';
+  int.w3date  = row.querySelector('.inp-w3d') ? row.querySelector('.inp-w3d').value : '';
+  int.w4score = row.querySelector('.inp-w4s') ? row.querySelector('.inp-w4s').value : '';
+  int.w4pass  = row.querySelector('.inp-w4p') ? row.querySelector('.inp-w4p').value : '';
+  int.w4date  = row.querySelector('.inp-w4d') ? row.querySelector('.inp-w4d').value : '';
+  int.notes   = row.querySelector('.intern-notes') ? row.querySelector('.intern-notes').value : '';
+  return int;
+}
+
+function readAllRows(){
+  const rows = document.querySelectorAll('#intern-rows tr');
+  interns = [];
+  rows.forEach(row => interns.push(readRow(row)));
+}
+
+function persist(){
+  readAllRows();
+  const cname = document.getElementById('cohort-name').value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(interns));
+  localStorage.setItem(COHORT_KEY, cname);
+  // Flash saved indicator
+  const si = document.getElementById('saved-ind');
+  si.classList.add('show');
+  clearTimeout(window._savedFade);
+  window._savedFade = setTimeout(() => si.classList.remove('show'), 1500);
+}
+
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persist, 300);
+}
+
+// ── RENDER ───────────────────────────────────
+function getStatus(int){
+  if(int.w4pass && int.w4pass.toUpperCase() === 'PASS') return 'Completed';
+  if(int.w1pass && int.w1pass.toUpperCase() === 'PASS') return 'In Progress';
+  if(int.name && int.name.trim()) return 'In Progress';
+  if(int.start) return 'In Progress';
+  return 'Not Started';
+}
+
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderAll(){
+  const savedCohort = localStorage.getItem(COHORT_KEY) || '';
+  document.getElementById('cohort-name').value = savedCohort;
+
+  // Summary
+  let total = interns.length;
+  let completed = 0, inProgress = 0, notStarted = 0;
+  let wk1pass = 0, wk2pass = 0, wk3pass = 0, wk4pass = 0;
+
+  interns.forEach(int => {
+    const s = getStatus(int);
+    if(s === 'Completed') completed++;
+    else if(s === 'In Progress') inProgress++;
+    else notStarted++;
+    if(int.w1pass && int.w1pass.toUpperCase() === 'PASS') wk1pass++;
+    if(int.w2pass && int.w2pass.toUpperCase() === 'PASS') wk2pass++;
+    if(int.w3pass && int.w3pass.toUpperCase() === 'PASS') wk3pass++;
+    if(int.w4pass && int.w4pass.toUpperCase() === 'PASS') wk4pass++;
+  });
+
+  document.getElementById('summary').innerHTML =
+    `<div class="scard leaf"><div class="scard-num">${total}</div><div class="scard-lbl">Total Interns</div></div>` +
+    `<div class="scard green"><div class="scard-num">${completed}</div><div class="scard-lbl">Completed</div></div>` +
+    `<div class="scard amber"><div class="scard-num">${inProgress}</div><div class="scard-lbl">In Progress</div></div>` +
+    `<div class="scard red"><div class="scard-num">${notStarted}</div><div class="scard-lbl">Not Started</div></div>` +
+    `<div class="scard green"><div class="scard-num">${wk4pass}</div><div class="scard-lbl">Passed WK4 Sign-Off</div></div>` +
+    `<div class="scard dark"><div class="scard-num">${wk1pass}/${wk2pass}/${wk3pass}</div><div class="scard-lbl">Gate Pass WK1/2/3</div></div>`;
+
+  // Rows
+  const tbody = document.getElementById('intern-rows');
+  tbody.innerHTML = '';
+  interns.forEach((int, i) => {
+    const status = getStatus(int);
+    const badgeCls = status === 'Completed' ? 'comp' : (status === 'In Progress' ? 'prog' : 'ns');
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td style="color:#bbb;font-size:11px;">${i+1}</td>` +
+      `<td><input class="intern-name" type="text" placeholder="Enter name" value="${esc(int.name)}" oninput="autoSave()"></td>` +
+      `<td><input class="intern-cell date inp-start" type="date" value="${esc(int.start)}" oninput="autoSave()"></td>` +
+      `<td><input class="intern-cell score inp-w1s" type="number" min="0" max="100" placeholder="%" value="${esc(int.w1score)}" oninput="autoSave()"></td>` +
+      `<td><select class="pass-select inp-w1p" onchange="autoSave()"><option value="" ${!int.w1pass?'selected':''}>—</option><option value="PASS" ${int.w1pass==='PASS'?'selected':''}>PASS</option><option value="FAIL" ${int.w1pass==='FAIL'?'selected':''}>FAIL</option></select></td>` +
+      `<td><input class="intern-cell date inp-w1d" type="date" value="${esc(int.w1date)}" oninput="autoSave()"></td>` +
+      `<td><input class="intern-cell score inp-w2s" type="number" min="0" max="100" placeholder="%" value="${esc(int.w2score)}" oninput="autoSave()"></td>` +
+      `<td><select class="pass-select inp-w2p" onchange="autoSave()"><option value="" ${!int.w2pass?'selected':''}>—</option><option value="PASS" ${int.w2pass==='PASS'?'selected':''}>PASS</option><option value="FAIL" ${int.w2pass==='FAIL'?'selected':''}>FAIL</option></select></td>` +
+      `<td><input class="intern-cell date inp-w2d" type="date" value="${esc(int.w2date)}" oninput="autoSave()"></td>` +
+      `<td><input class="intern-cell score inp-w3s" type="number" min="0" max="100" placeholder="%" value="${esc(int.w3score)}" oninput="autoSave()"></td>` +
+      `<td><select class="pass-select inp-w3p" onchange="autoSave()"><option value="" ${!int.w3pass?'selected':''}>—</option><option value="PASS" ${int.w3pass==='PASS'?'selected':''}>PASS</option><option value="FAIL" ${int.w3pass==='FAIL'?'selected':''}>FAIL</option></select></td>` +
+      `<td><input class="intern-cell date inp-w3d" type="date" value="${esc(int.w3date)}" oninput="autoSave()"></td>` +
+      `<td><input class="intern-cell score inp-w4s" type="number" min="0" max="100" placeholder="%" value="${esc(int.w4score)}" oninput="autoSave()"></td>` +
+      `<td><select class="pass-select inp-w4p" onchange="autoSave()"><option value="" ${!int.w4pass?'selected':''}>—</option><option value="PASS" ${int.w4pass==='PASS'?'selected':''}>PASS</option><option value="FAIL" ${int.w4pass==='FAIL'?'selected':''}>FAIL</option></select></td>` +
+      `<td><input class="intern-cell date inp-w4d" type="date" value="${esc(int.w4date)}" oninput="autoSave()"></td>` +
+      `<td><span class="badge ${badgeCls}">${status}</span></td>` +
+      `<td><input class="intern-cell intern-notes" type="text" placeholder="Notes..." value="${esc(int.notes)}" oninput="autoSave()" style="text-align:left;width:140px;"></td>` +
+      `<td><button class="del-btn" onclick="deleteIntern(${i})" title="Remove">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── ACTIONS ──────────────────────────────────
+function addIntern(){
+  interns.push({name:'', start:'', w1score:'', w1pass:'', w1date:'', w2score:'', w2pass:'', w2date:'', w3score:'', w3pass:'', w3date:'', w4score:'', w4pass:'', w4date:'', notes:''});
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(interns));
+  renderAll();
+}
+
+function addBatch(n){
+  for(let j=0;j<n;j++) interns.push({name:'', start:'', w1score:'', w1pass:'', w1date:'', w2score:'', w2pass:'', w2date:'', w3score:'', w3pass:'', w3date:'', w4score:'', w4pass:'', w4date:'', notes:''});
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(interns));
+  renderAll();
+}
+
+function deleteIntern(i){
+  if(!confirm('Remove ' + (interns[i].name || 'intern #'+(i+1)) + ' from tracker?')) return;
+  interns.splice(i,1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(interns));
+  renderAll();
+}
+
+function exportCSV(){
+  // Read current state from DOM, use for export only (don't persist back)
+  const domInterns = [];
+  document.querySelectorAll('#intern-rows tr').forEach(row => domInterns.push(readRow(row)));
+  let csv = 'Intern Name,Start Date,W1 Score %,W1 Result,W1 Date,W2 Score %,W2 Result,W2 Date,W3 Score %,W3 Result,W3 Date,W4 Score %,W4 Result,W4 Date,Overall Status,Notes\n';
+  domInterns.forEach(int => {
+    csv += [
+      '"'+(int.name||'').replace(/"/g,'""')+'"', int.start||'', int.w1score||'', int.w1pass||'', int.w1date||'',
+      int.w2score||'', int.w2pass||'', int.w2date||'', int.w3score||'', int.w3pass||'', int.w3date||'',
+      int.w4score||'', int.w4pass||'', int.w4date||'', getStatus(int), '"'+(int.notes||'').replace(/"/g,'""')+'"'
+    ].join(',') + '\n';
+  });
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const cohort = document.getElementById('cohort-name').value || 'tracker';
+  a.download = 'tap2eat_intern_tracker_' + cohort.replace(/[^a-z0-9]/gi,'_') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetAll(){
+  if(!confirm('Clear ALL intern data? This cannot be undone.')) return;
+  interns = JSON.parse(JSON.stringify(DEFAULT_INTERNS));
+  document.getElementById('cohort-name').value = '';
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(interns));
+  localStorage.removeItem(COHORT_KEY);
+  renderAll();
+}
+
+function goBack(){
+  window.location.href = 'tap2eat_document_hub.html';
+}
+
+// ── INIT ─────────────────────────────────────
+loadData();
+renderAll();
+</script>
+</body>
+</html>
