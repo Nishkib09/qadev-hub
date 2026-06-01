@@ -481,6 +481,38 @@ body.admin-edit [data-e]:focus{outline:2px solid var(--carrot);}
 </div>
 </div><!-- /main -->
 
+<!-- LOGIN MODAL -->
+<div class="mbg hide" id="login-modal">
+  <div class="mbox">
+    <div class="mico">🔐</div>
+    <div class="mttl">Sign In</div>
+    <div class="msub">Choose your access level</div>
+    <div class="tier-list" id="tier-list">
+      <button class="tier-btn" onclick="sel('agent')">
+        <span class="ti">🟡</span>
+        <div><div class="tn">Agent Access</div><div class="td">Scorecard + SOPs + Onboarding + Assessments</div></div>
+      </button>
+      <button class="tier-btn" onclick="sel('staff')">
+        <span class="ti">🟢</span>
+        <div><div class="tn">Staff Access</div><div class="td">All above + QA Shadow Work Plan</div></div>
+      </button>
+      <button class="tier-btn" onclick="sel('admin')">
+        <span class="ti">🔴</span>
+        <div><div class="tn">Admin Access</div><div class="td">Everything + JDs/KPIs + Reports + Edit mode</div></div>
+      </button>
+    </div>
+    <div class="pentry" id="pentry">
+      <button class="pback" id="top-cancel" onclick="backToTiers()">← Back</button>
+      <div class="plbl" id="plbl">Enter PIN</div>
+      <input class="minput" id="pin-inp" type="password" maxlength="6" placeholder="••••••" onkeydown="if(event.key==='Enter')tryLogin()" oninput="this.classList.remove('shake');document.getElementById('pin-err').textContent=''">
+      <div class="merr" id="pin-err"></div>
+      <button class="mpri" onclick="tryLogin()">Unlock</button>
+      <button class="mcan" onclick="closeLogin()">Cancel</button>
+      <div class="mhint" id="phint"></div>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
   <p><strong>CX Quality &amp; Training Hub — Tap2Eat · Food4Education</strong><br>
   Ruiru, Kenya · Internal use · Public documents may be shared freely · Private documents require authorisation</p>
