@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2Eat — Call Handling Training Slides</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --blackboard:#1F1B1B;--sophisticated:#E5E5C9;
+  --gray-light:#f7f5ee;--gray-mid:#e4e2d8;--red:#c0392b;--red-pale:#fdecea;
+  --white:#FFFFFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--blackboard);color:var(--white);overflow:hidden;height:100vh;}
+
+.slide-container{position:relative;width:100%;height:100vh;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;padding:60px 80px;text-align:center;}
+.slide.active{display:flex;}
+
+/* Slide 1 - Title */
+.s1{background:linear-gradient(135deg,var(--leafy) 0%,var(--leafy-mid) 60%,#1a4a17 100%);}
+.s1 .hero-emoji{font-size:72px;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.s1 h1{font-size:44px;font-weight:900;line-height:1.15;margin-bottom:12px;}
+.s1 h1 em{color:var(--progressive);font-style:normal;}
+.s1 .sub{font-size:16px;color:rgba(255,255,255,.6);max-width:600px;}
+.s1 .icons-row{display:flex;gap:12px;margin-top:20px;}
+.s1 .icons-row span{font-size:28px;}
+
+/* Slide 2 - The Opening */
+.s2{background:var(--white);color:var(--blackboard);align-items:stretch;padding:60px 80px;}
+.s2 .slide-title{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.s2 .slide-title .ico{font-size:36px;width:60px;height:60px;background:var(--leafy-pale);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s2 .slide-title h2{font-size:28px;font-weight:800;text-align:left;}
+.s2 .split{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;}
+.s2 .box{border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;}
+.s2 .box.good{background:var(--leafy-pale);border:2px solid var(--leafy);}
+.s2 .box.bad{background:var(--red-pale);border:2px solid #ffcdd2;}
+.s2 .box-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.s2 .good .box-label{color:var(--leafy);}
+.s2 .bad .box-label{color:var(--red);}
+.s2 .box-body{font-size:13px;line-height:1.7;color:#555;flex:1;}
+.s2 .box-body .script{background:white;border-radius:8px;padding:12px 14px;margin:8px 0;font-weight:500;border-left:3px solid var(--leafy);}
+.s2 .bad .box-body .script{border-left-color:var(--red);}
+
+/* Slide 3 - Empathy */
+.s3{background:var(--white);color:var(--blackboard);align-items:stretch;padding:60px 80px;}
+.s3 .slide-title{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.s3 .slide-title .ico{font-size:36px;width:60px;height:60px;background:#fff3e0;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s3 .slide-title h2{font-size:28px;font-weight:800;text-align:left;}
+.s3 .chat-mock{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto;}
+.s3 .chat-bubble{padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.5;max-width:85%;}
+.s3 .chat-bubble.agent{background:var(--gray-mid);color:var(--blackboard);align-self:flex-start;border-bottom-left-radius:4px;}
+.s3 .chat-bubble.parent{background:var(--leafy);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
+.s3 .chat-bubble.bad-agent{background:var(--red-pale);color:var(--red);align-self:flex-start;border:1px solid #ffcdd2;border-bottom-left-radius:4px;}
+.s3 .chat-label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;margin-top:2px;align-self:flex-start;}
+.s3 .parent-label{align-self:flex-end;}
+.s3 .verdict{font-size:14px;font-weight:700;margin-top:12px;text-align:center;}
+
+/* Slide 4 - Hold & Transfer */
+.s4{background:var(--white);color:var(--blackboard);align-items:stretch;padding:60px 80px;}
+.s4 .slide-title{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.s4 .slide-title .ico{font-size:36px;width:60px;height:60px;background:#fff8e1;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s4 .slide-title h2{font-size:28px;font-weight:800;text-align:left;}
+.s4 .rules{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;}
+.s4 .rule{background:var(--gray-light);border-radius:12px;padding:18px 20px;display:flex;gap:12px;align-items:flex-start;}
+.s4 .rule-num{width:32px;height:32px;background:var(--leafy);color:white;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+.s4 .rule-text{font-size:13px;line-height:1.6;color:#444;}
+.s4 .rule-text strong{color:var(--blackboard);}
+
+/* Slide 5 - Closing */
+.s5{background:linear-gradient(135deg,var(--blackboard) 0%,#2a2525 100%);color:var(--white);}
+.s5 h2{font-size:32px;font-weight:800;margin-bottom:10px;}
+.s5 h2 em{color:var(--progressive);font-style:normal;}
+.s5 .checklist{display:flex;flex-direction:column;gap:10px;margin:24px 0;text-align:left;}
+.s5 .check-item{display:flex;gap:10px;align-items:center;font-size:14px;color:rgba(255,255,255,.8);padding:10px 16px;background:rgba(255,255,255,.06);border-radius:10px;}
+.s5 .check-item .icon{font-size:20px;flex-shrink:0;}
+.s5 .final-emoji{font-size:48px;margin-top:16px;}
+
+/* Navigation */
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:100;}
+.nav-btn{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.nav-btn:hover{background:var(--progressive);border-color:var(--progressive);color:var(--blackboard);}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:all .2s;}
+.nav-dot.active{background:var(--progressive);transform:scale(1.4);}
+.s2 .nav-btn,.s3 .nav-btn,.s4 .nav-btn{border-color:rgba(0,0,0,.15);color:var(--blackboard);}
+.s2 .nav-dot,.s3 .nav-dot,.s4 .nav-dot{background:rgba(0,0,0,.15);}
+.s2 .nav-dot.active,.s3 .nav-dot.active,.s4 .nav-dot.active{background:var(--leafy);}
+
+.slide-num{position:fixed;top:24px;right:28px;font-size:12px;font-weight:700;color:rgba(255,255,255,.35);z-index:100;letter-spacing:2px;}
+.s2 .slide-num,.s3 .slide-num,.s4 .slide-num{color:rgba(0,0,0,.2);}
+
+.back-link{position:fixed;top:24px;left:28px;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);z-index:100;text-decoration:none;display:flex;align-items:center;gap:4px;}
+.back-link:hover{color:var(--progressive);}
+.s2 .back-link,.s3 .back-link,.s4 .back-link{color:rgba(0,0,0,.3);}
+.s2 .back-link:hover,.s3 .back-link:hover,.s4 .back-link:hover{color:var(--leafy);}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">← Back to Hub</a>
+<div class="slide-num" id="slide-num">1 / 5</div>
+
+<div class="slide-container">
+
+  <!-- SLIDE 1 — TITLE -->
+  <div class="slide s1 active">
+    <div class="hero-emoji">☎️</div>
+    <h1>Tap2Eat<br><em>Call Handling Standards</em></h1>
+    <p class="sub">Master the call structure that delivers quality, builds trust, and keeps every parent feeling heard — every single time.</p>
+    <div class="icons-row">
+      <span>🥬</span><span>⭐</span><span>✏️</span><span>😊</span><span>➕</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — THE OPENING -->
+  <div class="slide s2">
+    <div class="slide-title">
+      <div class="ico">✏️</div>
+      <h2>The Opening — First 15 Seconds</h2>
+    </div>
+    <div class="split">
+      <div class="box good">
+        <div class="box-label">✅ GOOD — Scored 5/5</div>
+        <div class="box-body">
+          <div class="script">"Good morning! Thank you for calling Tap2Eat. My name is Nancy — how may I assist you today?" 😊</div>
+          <p style="font-size:12px;color:var(--leafy);margin-top:8px;">✔ Time-of-day greeting<br>✔ Programme name stated<br>✔ Agent name given<br>✔ Offer to assist<br>✔ Warm, confident tone</p>
+        </div>
+      </div>
+      <div class="box bad">
+        <div class="box-label">❌ BAD — Scored 1/5</div>
+        <div class="box-body">
+          <div class="script">"Hello? … Yes, speak. What do you want?"</div>
+          <p style="font-size:12px;color:var(--red);margin-top:8px;">✗ No time-of-day greeting<br>✗ No programme name<br>✗ No agent name<br>✗ No warmth — sounds annoyed<br>✗ Parent already feels unwelcome</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — EMPATHY & TONE -->
+  <div class="slide s3">
+    <div class="slide-title">
+      <div class="ico">😊</div>
+      <h2>Empathy & Tone — The Difference It Makes</h2>
+    </div>
+    <p style="font-size:13px;color:#888;margin-bottom:16px;text-align:center;">A real interaction — parent reporting that their child missed 3 days of meals</p>
+    <div class="chat-mock">
+      <div class="chat-label parent-label">Parent</div>
+      <div class="chat-bubble parent">My child has not eaten for three days now! I have money on the account — what is happening?!</div>
+
+      <div class="chat-label" style="color:var(--red);">Agent (Bad)</div>
+      <div class="chat-bubble bad-agent">That's not our problem. The school handles the food. Call them.</div>
+
+      <div class="chat-label" style="color:var(--leafy);">Agent (Good)</div>
+      <div class="chat-bubble agent">I completely understand how worrying that must be — let me look into this for you right now. Can I have your registered phone number so I can pull up your account? 🥬</div>
+    </div>
+    <div class="verdict" style="color:var(--leafy);">⭐ The good response scored 9/9 on empathy. The bad response triggered a Critical Compliance Failure.</div>
+  </div>
+
+  <!-- SLIDE 4 — HOLD & TRANSFER -->
+  <div class="slide s4">
+    <div class="slide-title">
+      <div class="ico">➕</div>
+      <h2>Hold & Transfer — The Right Way</h2>
+    </div>
+    <div class="rules">
+      <div class="rule">
+        <div class="rule-num">1</div>
+        <div class="rule-text"><strong>Ask permission first</strong><br>"May I place you on a brief hold while I check that?" — never hold without asking.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">2</div>
+        <div class="rule-text"><strong>Give an estimated time</strong><br>"This should take about one minute." — updates the parent and sets expectations.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">3</div>
+        <div class="rule-text"><strong>Warm transfer only</strong><br>Brief the next person before passing the call. "I have Mr. Mwangi on the line regarding a school transfer — he's been verified."</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">4</div>
+        <div class="rule-text"><strong>Never hold to manage AHT</strong><br>Putting a parent on hold because your timer is running high is a QA failure. Quality over speed — always.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — CLOSING -->
+  <div class="slide s5">
+    <h2>The Close — <em>Lasting Impression</em></h2>
+    <div class="checklist">
+      <div class="check-item"><span class="icon">🥬</span> Confirm the issue is fully resolved</div>
+      <div class="check-item"><span class="icon">✏️</span> "Is there anything else I can help you with today?"</div>
+      <div class="check-item"><span class="icon">😊</span> "Thank you for calling Tap2Eat, [Name]. Have a lovely day."</div>
+      <div class="check-item"><span class="icon">⭐</span> Log CRM immediately — before the next call</div>
+    </div>
+    <div class="final-emoji">🥬⭐😊</div>
+    <p style="color:rgba(255,255,255,.5);margin-top:10px;font-size:13px;">A rushed close erases 3 minutes of great service.</p>
+  </div>
+
+  <!-- SLIDE 5.5 — ADDITIONAL RESOURCE -->
+  <div class="slide s5" style="display:none;">
+    <h2>Additional Resource</h2>
+    <div style="background:rgba(255,178,0,.12);border:1px solid rgba(255,178,0,.3);border-radius:14px;padding:24px 32px;margin-top:20px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:10px;">😊</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px;">Infusing Emotion in Customer Care</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;">PowerPoint presentation — download to use in training sessions</div>
+      <a href="tap2eat_emotion_in_customer_care.pptx" style="display:inline-block;background:var(--progressive);color:var(--blackboard);padding:10px 22px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;">⬇ Download PPTX</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button class="nav-btn" onclick="prev()">←</button>
+  <span class="nav-dot active" onclick="go(0)"></span>
+  <span class="nav-dot" onclick="go(1)"></span>
+  <span class="nav-dot" onclick="go(2)"></span>
+  <span class="nav-dot" onclick="go(3)"></span>
+  <span class="nav-dot" onclick="go(4)"></span>
+  <button class="nav-btn" onclick="next()">→</button>
+</div>
+
+<script>
+let cur=0;const N=5;
+function go(i){
+  document.querySelectorAll('.slide').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.nav-dot').forEach((d,j)=>d.classList.toggle('active',j===i));
+  document.getElementById('slide-num').textContent=(i+1)+' / '+N;
+  cur=i;
+}
+function next(){go((cur+1)%N);}
+function prev(){go((cur-1+N)%N);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>

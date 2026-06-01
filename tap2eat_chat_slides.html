@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap2Eat — WhatsApp & SMS Handling Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --leafy:#24631E;--leafy-mid:#3a7a34;--leafy-pale:#eaf3e8;
+  --progressive:#FFB200;--progressive-d:#BF8500;
+  --carrot:#FF8C00;--carrot-d:#BF6900;
+  --blackboard:#1F1B1B;--sophisticated:#E5E5C9;
+  --gray-light:#f7f5ee;--gray-mid:#e4e2d8;--red:#c0392b;--red-pale:#fdecea;
+  --white:#FFFFFF;--teal:#00695c;--teal-pale:#e0f2f1;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rubik',sans-serif;background:var(--blackboard);color:var(--white);overflow:hidden;height:100vh;}
+
+.slide-container{position:relative;width:100%;height:100vh;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;padding:60px 80px;text-align:center;}
+.slide.active{display:flex;}
+
+/* Slide 1 - Title */
+.s1{background:linear-gradient(135deg,var(--leafy) 0%,var(--leafy-mid) 60%,#1a4a17 100%);}
+.s1 .hero-emoji{font-size:72px;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.s1 h1{font-size:42px;font-weight:900;line-height:1.15;margin-bottom:12px;}
+.s1 h1 em{color:var(--progressive);font-style:normal;}
+.s1 .sub{font-size:16px;color:rgba(255,255,255,.6);max-width:600px;}
+.s1 .icons-row{display:flex;gap:12px;margin-top:20px;}
+.s1 .icons-row span{font-size:28px;}
+
+/* Slide 2 - Response Times */
+.s2{background:var(--white);color:var(--blackboard);align-items:stretch;padding:60px 80px;}
+.s2 .slide-title{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.s2 .slide-title .ico{font-size:36px;width:60px;height:60px;background:var(--leafy-pale);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s2 .slide-title h2{font-size:28px;font-weight:800;text-align:left;}
+.s2 .time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;flex:1;align-content:center;}
+.s2 .time-card{background:var(--gray-light);border-radius:14px;padding:24px 20px;text-align:center;border:1px solid var(--gray-mid);}
+.s2 .time-card .emoji{font-size:40px;margin-bottom:10px;}
+.s2 .time-card .time{font-size:32px;font-weight:900;color:var(--leafy);margin-bottom:6px;}
+.s2 .time-card .label{font-size:13px;font-weight:700;color:var(--blackboard);margin-bottom:4px;}
+.s2 .time-card .detail{font-size:11px;color:#888;line-height:1.5;}
+
+/* Slide 3 - Tone & Professionalism */
+.s3{background:var(--white);color:var(--blackboard);align-items:stretch;padding:50px 80px;}
+.s3 .slide-title{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.s3 .slide-title .ico{font-size:36px;width:60px;height:60px;background:#fff8e1;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s3 .slide-title h2{font-size:26px;font-weight:800;text-align:left;}
+.s3 .chat-area{display:flex;flex-direction:column;gap:8px;max-width:520px;margin:0 auto;}
+.s3 .chat-header{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;padding:6px 0;text-align:center;}
+.s3 .msg{max-width:80%;padding:10px 14px;border-radius:10px;font-size:12px;line-height:1.6;}
+.s3 .msg.parent{background:var(--leafy);color:white;align-self:flex-end;border-bottom-right-radius:3px;}
+.s3 .msg.agent-good{background:var(--leafy-pale);color:var(--leafy);align-self:flex-start;border:1px solid #b6dab0;border-bottom-left-radius:3px;}
+.s3 .msg.agent-bad{background:var(--red-pale);color:var(--red);align-self:flex-start;border:1px solid #ffcdd2;border-bottom-left-radius:3px;}
+.s3 .agent-label{font-size:9px;font-weight:700;color:#aaa;text-transform:uppercase;margin-top:2px;align-self:flex-start;margin-left:4px;}
+.s3 .parent-label{margin-left:auto;margin-right:4px;}
+
+/* Slide 4 - Common Mistakes */
+.s4{background:var(--white);color:var(--blackboard);align-items:stretch;padding:50px 80px;}
+.s4 .slide-title{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.s4 .slide-title .ico{font-size:36px;width:60px;height:60px;background:var(--red-pale);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s4 .slide-title h2{font-size:26px;font-weight:800;text-align:left;}
+.s4 .mistakes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;align-content:center;}
+.s4 .mistake{background:var(--gray-light);border-radius:10px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;border-left:3px solid var(--red);}
+.s4 .mistake .m-emoji{font-size:22px;flex-shrink:0;}
+.s4 .mistake .m-title{font-size:13px;font-weight:700;color:var(--blackboard);margin-bottom:3px;}
+.s4 .mistake .m-desc{font-size:11px;color:#666;line-height:1.5;}
+
+/* Slide 5 - Templates */
+.s5{background:linear-gradient(135deg,var(--blackboard) 0%,#2a2525 100%);color:var(--white);align-items:stretch;padding:50px 80px;}
+.s5 h2{font-size:28px;font-weight:800;text-align:center;margin-bottom:8px;}
+.s5 h2 em{color:var(--progressive);font-style:normal;}
+.s5 .template-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;align-content:center;}
+.s5 .template{background:rgba(255,255,255,.07);border-radius:12px;padding:16px 18px;text-align:left;border:1px solid rgba(255,255,255,.08);}
+.s5 .template .t-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--progressive);margin-bottom:8px;}
+.s5 .template .t-text{font-size:12px;line-height:1.7;color:rgba(255,255,255,.75);}
+.s5 .final-emoji{font-size:40px;margin-top:14px;text-align:center;}
+
+/* Navigation */
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:100;}
+.nav-btn{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.nav-btn:hover{background:var(--progressive);border-color:var(--progressive);color:var(--blackboard);}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:all .2s;}
+.nav-dot.active{background:var(--progressive);transform:scale(1.4);}
+.s2 .nav-btn,.s3 .nav-btn,.s4 .nav-btn{border-color:rgba(0,0,0,.15);color:var(--blackboard);}
+.s2 .nav-dot,.s3 .nav-dot,.s4 .nav-dot{background:rgba(0,0,0,.15);}
+.s2 .nav-dot.active,.s3 .nav-dot.active,.s4 .nav-dot.active{background:var(--leafy);}
+
+.slide-num{position:fixed;top:24px;right:28px;font-size:12px;font-weight:700;color:rgba(255,255,255,.35);z-index:100;letter-spacing:2px;}
+.s2 .slide-num,.s3 .slide-num,.s4 .slide-num{color:rgba(0,0,0,.2);}
+
+.back-link{position:fixed;top:24px;left:28px;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);z-index:100;text-decoration:none;display:flex;align-items:center;gap:4px;}
+.back-link:hover{color:var(--progressive);}
+.s2 .back-link,.s3 .back-link,.s4 .back-link{color:rgba(0,0,0,.3);}
+.s2 .back-link:hover,.s3 .back-link:hover,.s4 .back-link:hover{color:var(--leafy);}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">← Back to Hub</a>
+<div class="slide-num" id="slide-num">1 / 5</div>
+
+<div class="slide-container">
+
+  <!-- SLIDE 1 — TITLE -->
+  <div class="slide s1 active">
+    <div class="hero-emoji">💬</div>
+    <h1>Tap2Eat<br><em>WhatsApp &amp; SMS Standards</em></h1>
+    <p class="sub">Written channels carry no tone of voice — your words alone build trust, resolve issues, and represent the programme.</p>
+    <div class="icons-row">
+      <span>🥬</span><span>✏️</span><span>😊</span><span>⭐</span><span>➕</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — RESPONSE TIMES -->
+  <div class="slide s2">
+    <div class="slide-title">
+      <div class="ico">⏱️</div>
+      <h2>Response Time Standards</h2>
+    </div>
+    <div class="time-grid">
+      <div class="time-card">
+        <div class="emoji">💬</div>
+        <div class="time">30<span style="font-size:14px;font-weight:600;"> min</span></div>
+        <div class="label">WhatsApp &amp; SMS</div>
+        <div class="detail">First acknowledgement within 30 minutes during business hours (8am–5pm)</div>
+      </div>
+      <div class="time-card">
+        <div class="emoji">📧</div>
+        <div class="time">24<span style="font-size:14px;font-weight:600;"> hrs</span></div>
+        <div class="label">Standard Email</div>
+        <div class="detail">Response within 24 business hours for non-urgent emails</div>
+      </div>
+      <div class="time-card">
+        <div class="emoji">🚨</div>
+        <div class="time">4<span style="font-size:14px;font-weight:600;"> hrs</span></div>
+        <div class="label">Urgent Email</div>
+        <div class="detail">Payment failures, complaints, account suspension — respond within 4 hours</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — TONE & PROFESSIONALISM -->
+  <div class="slide s3">
+    <div class="slide-title">
+      <div class="ico">✏️</div>
+      <h2>Tone & Professional Writing — Real Chat</h2>
+    </div>
+    <div class="chat-area">
+      <div class="chat-header">⬇ Actual WhatsApp interaction ⬇</div>
+
+      <div class="parent-label">Parent · 10:14</div>
+      <div class="msg parent">Hello, my child's meal didn't come today and I topped up yesterday. Please help me understand what is happening.</div>
+
+      <div class="agent-label">Agent ❌ (Bad)</div>
+      <div class="msg agent-bad">check ur account we sent the meals</div>
+      <div style="font-size:10px;color:var(--red);margin:4px 0 12px 4px;">✗ No greeting · No empathy · Rude tone · Incomplete sentence · No name used</div>
+
+      <div class="agent-label">Agent ✅ (Good)</div>
+      <div class="msg agent-good">Good morning, [Name]. 😊 I'm sorry to hear that — I understand how concerning that must be. Let me check your account now. Could you please confirm the phone number registered on your Tap2Eat account so I can look into this right away? 🥬</div>
+      <div style="font-size:10px;color:var(--leafy);margin:4px 0 0 4px;">✔ Greeting · Empathy · Parent's name · Clear request · Warm emojis · Professional tone</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — COMMON MISTAKES -->
+  <div class="slide s4">
+    <div class="slide-title">
+      <div class="ico">➗</div>
+      <h2>Common Mistakes That Cost Quality Points</h2>
+    </div>
+    <div class="mistakes-grid">
+      <div class="mistake">
+        <div class="m-emoji">💀</div>
+        <div>
+          <div class="m-title">Dropping the parent</div>
+          <div class="m-desc">"I will check and get back to you" — then radio silence. Always give a timeframe and follow up.</div>
+        </div>
+      </div>
+      <div class="mistake">
+        <div class="m-emoji">😤</div>
+        <div>
+          <div class="m-title">Defensive or dismissive</div>
+          <div class="m-desc">"That's not our fault" / "You should have checked" — never blame the parent. Own the issue.</div>
+        </div>
+      </div>
+      <div class="mistake">
+        <div class="m-emoji">📝</div>
+        <div>
+          <div class="m-title">SMS-style shorthand</div>
+          <div class="m-desc">"pls send details", "k", "ok sori" — write in full sentences. You're not texting a friend.</div>
+        </div>
+      </div>
+      <div class="mistake">
+        <div class="m-emoji">🔇</div>
+        <div>
+          <div class="m-title">No closure or confirmation</div>
+          <div class="m-desc">Ending without confirming the parent is satisfied. Always ask "Is there anything else I can help with?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — TEMPLATES -->
+  <div class="slide s5">
+    <h2>Approved Message <em>Templates</em></h2>
+    <div class="template-grid">
+      <div class="template">
+        <div class="t-label">✏️ First Response</div>
+        <div class="t-text">"Good [morning/afternoon], [Name]. Thank you for reaching out to Tap2Eat. 😊 How may I assist you today? 🥬"</div>
+      </div>
+      <div class="template">
+        <div class="t-label">😊 Apology</div>
+        <div class="t-text">"I'm really sorry to hear that, [Name]. That is not the experience we want for you. Let me look into this right now and get it sorted for you."</div>
+      </div>
+      <div class="template">
+        <div class="t-label">⭐ Resolution Confirmed</div>
+        <div class="t-text">"I've [action taken], [Name]. Your [issue] is now resolved. 😊 Is there anything else I can help you with today? 🥬"</div>
+      </div>
+      <div class="template">
+        <div class="t-label">➕ Pending Follow-Up</div>
+        <div class="t-text">"I'm still looking into [issue], [Name]. I'll have an update for you by [time] today and will message you as soon as I know more. Thank you for your patience. 😊"</div>
+      </div>
+    </div>
+    <div class="final-emoji">🥬 ✏️ ⭐ 😊 ➕</div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button class="nav-btn" onclick="prev()">←</button>
+  <span class="nav-dot active" onclick="go(0)"></span>
+  <span class="nav-dot" onclick="go(1)"></span>
+  <span class="nav-dot" onclick="go(2)"></span>
+  <span class="nav-dot" onclick="go(3)"></span>
+  <span class="nav-dot" onclick="go(4)"></span>
+  <button class="nav-btn" onclick="next()">→</button>
+</div>
+
+<script>
+let cur=0;const N=5;
+function go(i){
+  document.querySelectorAll('.slide').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.nav-dot').forEach((d,j)=>d.classList.toggle('active',j===i));
+  document.getElementById('slide-num').textContent=(i+1)+' / '+N;
+  cur=i;
+}
+function next(){go((cur+1)%N);}
+function prev(){go((cur-1+N)%N);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();});
+</script>
+</body>
+</html>

@@ -368,6 +368,34 @@ body.admin-edit [data-e]:focus{outline:2px solid var(--carrot);}
     </div>
   </div>
 
+  <div class="dcard" id="dc-call_slides">
+    <div class="dc-head">
+      <div class="dc-ico ico-a">☎️</div>
+      <span class="dc-tag tag-agt">🟡 Agent PIN</span>
+      <div class="dc-title">Call Handling Training Slides — 5 Slides</div>
+      <div class="dc-desc">Slide deck covering opening standards, empathy &amp; tone with real bad-service examples, hold &amp; transfer protocol, and closing standards. Includes Infusing Emotion in Customer Care module.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Opening</span><span class="dtag">Empathy</span><span class="dtag">Hold/Transfer</span><span class="dtag">Closing</span><span class="dtag">Emotion PPT</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Agents · Interns · Trainers</div>
+      <span class="obtn obtn-locked" id="lnk-call_slides">🔒 PIN Required</span>
+    </div>
+  </div>
+
+  <div class="dcard" id="dc-chat_slides">
+    <div class="dc-head">
+      <div class="dc-ico ico-a">💬</div>
+      <span class="dc-tag tag-agt">🟡 Agent PIN</span>
+      <div class="dc-title">WhatsApp &amp; SMS Handling Slides — 5 Slides</div>
+      <div class="dc-desc">Slide deck covering response time standards, professional tone with real bad-service chat examples, common mistakes, and approved message templates for every scenario.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Response Times</span><span class="dtag">Tone</span><span class="dtag">Mistakes</span><span class="dtag">Templates</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Agents · Interns · Trainers</div>
+      <span class="obtn obtn-locked" id="lnk-chat_slides">🔒 PIN Required</span>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── STAFF ── -->
@@ -472,12 +500,16 @@ const FILES = {
   jd:          'tap2eat_jd_kpis.html',
   workload:    'tap2eat_lead_workload_reports.html',
   tracker:     'tap2eat_onboarding_tracker.html',
-  tracker_xlsx:'tap2eat_intern_onboarding_tracker.xlsx'
+  tracker_xlsx:'tap2eat_intern_onboarding_tracker.xlsx',
+  call_slides: 'tap2eat_call_handling_slides.html',
+  chat_slides: 'tap2eat_chat_slides.html',
+  emotion_pptx: 'tap2eat_emotion_in_customer_care.pptx'
 };
 const ACCESS = {
   onboarding:'agent', assessments:'agent', training:'agent',
   shadow:'staff',
-  jd:'admin', workload:'admin', tracker:'admin', tracker_xlsx:'admin'
+  jd:'admin', workload:'admin', tracker:'admin', tracker_xlsx:'admin',
+  call_slides:'agent', chat_slides:'agent', emotion_pptx:'agent'
 };
 
 // ── STATE ───────────────────────────────────
