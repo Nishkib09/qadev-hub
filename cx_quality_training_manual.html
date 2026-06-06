@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CX Quality & Training Manual — Tap2Eat · Food4Education</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --leafy: #24631E;
+  --leafy-mid: #3A7A34;
+  --leafy-br: #92C73E;
+  --leafy-pale: #EAF3E8;
+  --orange: #F47920;
+  --orange-br: #FF8C00;
+  --yellow: #FEC132;
+  --yellow-lt: #FFF8E5;
+  --red: #C0392B;
+  --red-pale: #FDECEA;
+  --berry: #9D2E42;
+  --berry-lt: #F9EDF0;
+  --blue: #2C6F8C;
+  --blue-lt: #E8F2F8;
+  --purple: #6B3FA0;
+  --purple-lt: #F3EDFA;
+  --cream: #E4E4C5;
+  --cream-lt: #F1F1E1;
+  --white: #FFFBEA;
+  --dark: #1F1B1B;
+  --neutral: #60666D;
+  --gray-light: #F7F5EE;
+  --gray-mid: #E4E2D8;
+  --shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Rubik','Segoe UI',system-ui,sans-serif;
+  background: #1a1a1a;
+  color: var(--dark);
+  overflow: hidden;
+  height: 100vh;
+  user-select: none;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 60px 80px;
+  background: var(--white);
+  overflow-y: auto;
+}
+.slide.active { display: flex; }
+.slide.dark { background: var(--dark); color: #fff; }
+.slide.cream { background: var(--cream-lt); }
+
+.slide-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+}
+.slide-header .logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 15px; color: var(--leafy);
+}
+.slide-header .logo .icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--orange-br); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 16px;
+}
+.slide-header .slide-num {
+  font-size: 12px; font-weight: 500; color: var(--neutral);
+  background: var(--gray-light); padding: 4px 12px; border-radius: 20px;
+}
+.dark .slide-header .slide-num { background: rgba(255,255,255,.12); color: rgba(255,255,255,.7); }
+
+.slide-body {
+  max-width: 900px; width: 100%;
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+h2 { font-size: 36px; font-weight: 800; line-height: 1.2; }
+h3 { font-size: 22px; font-weight: 700; }
+h4 { font-size: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+
+.badge {
+  display: inline-block; padding: 4px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+}
+.badge-green { background: var(--leafy-pale); color: var(--leafy); }
+.badge-orange { background: #FFF0E0; color: var(--orange); }
+.badge-red { background: var(--red-pale); color: var(--red); }
+.badge-purple { background: var(--purple-lt); color: var(--purple); }
+.badge-blue { background: var(--blue-lt); color: var(--blue); }
+.dark .badge-green { background: rgba(146,199,62,.2); color: var(--leafy-br); }
+
+.chip { display:inline-block; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:600; }
+.chip-crit { background: var(--red-pale); color: var(--red); }
+.chip-auto { background: #FFF0E0; color: var(--orange); }
+
+.grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid-4 { display:grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+.card {
+  background: #fff; border-radius: 12px; padding: 18px 20px;
+  box-shadow: var(--shadow); border: 1px solid var(--gray-mid);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.dark .card { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.1); color: #fff; }
+
+.card-head { display:flex; align-items:center; justify-content:space-between; }
+.card-title { font-weight:700; font-size:15px; }
+.card-marks { font-size:13px; font-weight:700; color: var(--leafy); padding:2px 10px; background:var(--leafy-pale); border-radius:10px; }
+.dark .card-marks { background: rgba(146,199,62,.2); color: var(--leafy-br); }
+
+.card-item { font-size:13px; line-height:1.5; color: var(--neutral); padding:4px 0; border-bottom:1px solid var(--gray-mid); display:flex; justify-content:space-between; gap:8px; }
+.card-item:last-child { border-bottom:none; }
+.dark .card-item { color: rgba(255,255,255,.7); border-color: rgba(255,255,255,.08); }
+.card-item .pts { font-weight:600; color: var(--leafy); white-space:nowrap; font-size:12px; }
+.dark .card-item .pts { color: var(--leafy-br); }
+
+.script-box {
+  background: var(--gray-light); border-radius: 12px; padding: 18px 22px;
+  border-left: 4px solid var(--orange-br); font-size: 14px; line-height: 1.7;
+}
+.script-box .label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--orange); margin-bottom: 8px;
+}
+.script-box .line { margin:4px 0; }
+.script-box .speaker { font-weight:700; color: var(--leafy); }
+.script-box .speaker-client { font-weight:700; color: var(--neutral); }
+
+.trainer-note {
+  padding: 14px 18px; border-radius: 10px; font-size: 13px; line-height: 1.6;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.trainer-note .tn-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.tn-info { background: var(--blue-lt); border-left: 3px solid var(--blue); }
+.tn-tip { background: var(--leafy-pale); border-left: 3px solid var(--leafy); }
+.tn-warn { background: var(--red-pale); border-left: 3px solid var(--red); }
+.tn-practice { background: var(--purple-lt); border-left: 3px solid var(--purple); }
+
+.scorecard-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.hero-title { font-size: 48px; font-weight: 900; line-height: 1.1; }
+.hero-sub { font-size: 18px; font-weight: 400; color: var(--neutral); margin-top: 8px; }
+.hero-org { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--leafy); margin-bottom: 8px; }
+
+.stat-row { display:flex; gap: 20px; margin-top: 28px; }
+.stat { text-align:center; }
+.stat-val { font-size: 32px; font-weight:800; color: var(--leafy); }
+.stat-lbl { font-size: 12px; color: var(--neutral); margin-top: 2px; }
+.dark .stat-val { color: var(--leafy-br); }
+.dark .stat-lbl { color: rgba(255,255,255,.6); }
+
+.process-row { display:flex; gap:0; margin-top:16px; }
+.process-step {
+  flex:1; text-align:center; padding:14px 10px; position:relative;
+  background: var(--leafy-pale); border-radius: 8px; font-size:12px; font-weight:600;
+}
+.process-step::after {
+  content: '→'; position:absolute; right:-14px; top:50%; transform:translateY(-50%);
+  font-size:20px; color: var(--leafy-mid); z-index:2;
+}
+.process-step:last-child::after { content:none; }
+
+.section-header {
+  display:flex; align-items:center; gap:12px;
+  padding-bottom:8px; border-bottom:2px solid var(--leafy-br);
+}
+.section-num {
+  width:32px; height:32px; border-radius:50%; background: var(--leafy);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:14px; flex-shrink:0;
+}
+.section-title { font-size:18px; font-weight:700; }
+
+.lg-text { font-size: 16px; line-height: 1.6; color: var(--neutral); }
+
+nav { position:fixed; bottom:32px; left:50%; transform:translateX(-50%); z-index:100; display:flex; align-items:center; gap:16px; }
+.nav-btn {
+  width:42px; height:42px; border-radius:50%; border:2px solid var(--gray-mid);
+  background: rgba(255,255,255,.9); color: var(--dark); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:700; transition: all .15s;
+}
+.nav-btn:hover { background: var(--leafy); color:#fff; border-color: var(--leafy); }
+.nav-dots { display:flex; gap:8px; }
+.nav-dot {
+  width:10px; height:10px; border-radius:50%; background: var(--gray-mid);
+  cursor:pointer; transition:all .2s;
+}
+.nav-dot.active { background: var(--leafy); width:28px; border-radius:10px; }
+
+@media print {
+  body { overflow:visible; height:auto; }
+  .slide { position:static; display:block !important; page-break-after:always; height:auto; }
+  nav { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: TITLE -->
+<div class="slide active" id="s1">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">1 / 12</div>
+  </div>
+  <div class="slide-body" style="text-align:center;align-items:center;">
+    <div class="hero-org">CX Quality & Training Hub</div>
+    <div class="hero-title">Customer Experience<br>QA Training Manual</div>
+    <div class="hero-sub">Tap2Eat · Food for Education · Ruiru, Kenya</div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-val">4</div><div class="stat-lbl">Scorecard Dockets</div></div>
+      <div class="stat"><div class="stat-val">100</div><div class="stat-lbl">Points Per Docket</div></div>
+      <div class="stat"><div class="stat-val">77</div><div class="stat-lbl">Total Criteria</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: WHAT IS QA -->
+<div class="slide cream" id="s2">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">2 / 12</div>
+  </div>
+  <div class="slide-body">
+    <h2>What is Quality Assurance?</h2>
+    <p class="lg-text">QA is the process of <strong>monitoring and analyzing</strong> phone calls, emails, messages, and customer conversations — ensuring all interactions meet the established standard.</p>
+    <div class="grid-3" style="margin-top:16px;">
+      <div class="card">
+        <div style="font-size:28px;">🎧</div>
+        <div class="card-title">Monitor</div>
+        <div style="font-size:13px;color:var(--neutral);">Listen to calls, review chats, audit CRM entries</div>
+      </div>
+      <div class="card">
+        <div style="font-size:28px;">📊</div>
+        <div class="card-title">Analyze</div>
+        <div style="font-size:13px;color:var(--neutral);">Score against standard criteria, identify gaps</div>
+      </div>
+      <div class="card">
+        <div style="font-size:28px;">📈</div>
+        <div class="card-title">Improve</div>
+        <div style="font-size:13px;color:var(--neutral);">Coach agents, calibrate standards, drive quality up</div>
+      </div>
+    </div>
+    <div class="trainer-note tn-tip" style="margin-top:20px;">
+      <span class="tn-icon">💡</span>
+      <div><strong>Key Skills for QA:</strong> Active listening, attention to detail, objectivity, coaching ability, product knowledge, and report writing.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: INBOUND CALL SCORECARD (Combined) -->
+<div class="slide" id="s3">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">3 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">Inbound Call Scorecard</div>
+      <span class="badge badge-green">25 Criteria · 100 pts</span>
+    </div>
+    <div class="scorecard-grid">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">1. Call Opening & Structure</div>
+          <div class="card-marks">11 pts</div>
+        </div>
+        <div class="card-item"><span>Preparedness before engaging caller</span><span class="pts">2</span></div>
+        <div class="card-item"><span>Standard opening procedure followed</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Personalized the interaction</span><span class="pts">2</span></div>
+        <div class="card-item"><span>Structured and logical call flow</span><span class="pts">3</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">2. Communication & Soft Skills</div>
+          <div class="card-marks">25 pts</div>
+        </div>
+        <div class="card-item"><span>Active listening demonstrated</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Tone, pace, and volume appropriate</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Right choice of words used</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Professionalism throughout call</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Willingness to assist demonstrated</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Ownership and accountability shown</span><span class="pts">4</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">3. Process & Compliance</div>
+          <div class="card-marks">20 pts</div>
+        </div>
+        <div class="card-item"><span>Correct account verification completed</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Set troubleshooting steps followed</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Correct escalation procedures followed</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Correct call disposition selected</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Standard closing procedure followed</span><span class="pts">4</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">4. Resolution Quality & Accuracy</div>
+          <div class="card-marks">26 pts</div>
+        </div>
+        <div class="card-item"><span>Correctly identified customer's issue</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Effective probing for information</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Accurate and complete resolution</span><span class="pts">7</span></div>
+        <div class="card-item"><span>Additional info/alternatives provided</span><span class="pts">4</span></div>
+        <div class="card-item"><span>Confirmed caller's understanding</span><span class="pts">4</span></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-head">
+          <div class="card-title">5. Customer Experience & Efficiency</div>
+          <div class="card-marks">18 pts</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="card-item" style="flex:1;min-width:180px;"><span>Managed objections professionally</span><span class="pts">3</span></span>
+          <span class="card-item" style="flex:1;min-width:180px;"><span>Avoided silence / dead air</span><span class="pts">3</span></span>
+          <span class="card-item" style="flex:1;min-width:180px;"><span>Used caller's preferred language</span><span class="pts">3</span></span>
+          <span class="card-item" style="flex:1;min-width:180px;"><span>Handled within SLA (180s AHT)</span><span class="pts">3</span></span>
+          <span class="card-item" style="flex:1;min-width:180px;"><span>Confirmed satisfaction & offered further assistance</span><span class="pts">6</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="trainer-note tn-warn" style="margin-top:8px;">
+      <span class="tn-icon">⚠️</span>
+      <div><strong>Critical Compliance Checks (Auto-Fail):</strong> No verification completed · Data privacy breach · Rude conduct · Incorrect resolution with financial/reputational impact. <em>Any checked → score overridden to 0.</em></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: INBOUND SCRIPTS -->
+<div class="slide cream" id="s4">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">4 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">1a</div>
+      <div class="section-title">Inbound Call Scripts</div>
+      <span class="badge badge-orange">Standard Opening</span>
+    </div>
+    <div class="script-box">
+      <div class="label">Opening</div>
+      <div class="line"><span class="speaker">Agent:</span> Asante kwa kupiga Tap2Eat, jina langu ni <em>[Insert Name]</em>. Nazungumza na nani mzazi?</div>
+      <div class="line"><span class="speaker-client">Client:</span> Mentions name</div>
+      <div class="line"><span class="speaker">Agent:</span> Bi/Bw <em>[Client Name]</em> — nikuhudumie vipi?</div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--leafy);">
+      <div class="label" style="color:var(--leafy);">Issue Understanding (Paraphrasing)</div>
+      <div class="line"><span class="speaker-client">Client:</span> Mentions issue faced</div>
+      <div class="line"><span class="speaker">Agent:</span> <em>(If complaint)</em> Samahani sana Bi/Bw, unanieleza kwamba <em>[paraphrase issue with clear analysis]</em></div>
+      <div class="line" style="color:var(--neutral);font-size:13px;">If client called to seek information: Skip power words, proceed to resolution.</div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--purple);">
+      <div class="label" style="color:var(--purple);">Resolution & CSAT</div>
+      <div class="line"><span class="speaker">Agent:</span> Issue resolution based on troubleshooting framework or guidelines provided.</div>
+      <div class="line"><span class="speaker">Agent:</span> Bw/Bi, natumai umeridhika na huduma ya leo — una swali lingine lolote?</div>
+      <div class="line" style="font-size:13px;color:var(--neutral);">If client says otherwise: Samahani Bw/Bi, tunaomba utupe muda mchache tusuluhishe tatizo lako kisha tutakupigia. <em>(For issues requiring consultation)</em></div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--leafy-mid);">
+      <div class="label" style="color:var(--leafy-mid);">Closure</div>
+      <div class="line"><span class="speaker">Agent:</span> Asante kwa kuchagua Tap2Eat, umehudumiwa na <em>[Agent Name]</em>, uwe na siku/usiku/sikukuu/wikendi njema.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: OUTBOUND CALL SCORECARD (Combined) -->
+<div class="slide" id="s5">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">5 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">Outbound Call Scorecard</div>
+      <span class="badge badge-orange">18 Criteria · 100 pts · Campaign-Focused</span>
+    </div>
+    <div class="scorecard-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title">1. Call Preparation & Opening</div><div class="card-marks">15 pts</div></div>
+        <div class="card-item"><span>Prepared with correct customer context & campaign objective</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Clearly introduced self and organization</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Clearly stated purpose of call early</span><span class="pts">5</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">2. Communication Quality</div><div class="card-marks">18 pts</div></div>
+        <div class="card-item"><span>Active listening — no interruptions</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Clear, concise language — tone, pace, volume</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Professional and respectful throughout</span><span class="pts">6</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">3. Engagement & Probing</div><div class="card-marks">12 pts</div></div>
+        <div class="card-item"><span>Asked relevant questions to understand customer</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Tailored conversation based on responses</span><span class="pts">6</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">4. Influence & Ownership</div><div class="card-marks">18 pts</div></div>
+        <div class="card-item"><span>Clearly explained required action</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Demonstrated accountability & willingness to assist</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Handled objections/hesitation effectively</span><span class="pts">6</span><span class="chip" style="margin-left:4px;">N/A ok</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">5. Customer Experience</div><div class="card-marks">10 pts</div></div>
+        <div class="card-item"><span>Empathetic, courteous, and polite</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Built trust and confidence in program/service</span><span class="pts">5</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">6. Resolution & Clarity</div><div class="card-marks">15 pts</div></div>
+        <div class="card-item"><span>Provided accurate and complete information</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Confirmed understanding of next steps</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Confirmed customer willingness/commitment to act</span><span class="pts">5</span></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-head"><div class="card-title">7. Closing & Compliance</div><div class="card-marks">12 pts</div></div>
+        <div style="display:flex;gap:16px;">
+          <span class="card-item" style="flex:1;"><span>Standard closing procedure followed</span><span class="pts">6</span></span>
+          <span class="card-item" style="flex:1;"><span>Correct disposition logged</span><span class="pts">6</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: OUTBOUND SCRIPTS -->
+<div class="slide cream" id="s6">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">6 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">2a</div>
+      <div class="section-title">Outbound Call Scripts</div>
+      <span class="badge badge-orange">Missed Call Follow-up</span>
+    </div>
+    <div class="script-box">
+      <div class="label">Missed Call Follow-up — Opening</div>
+      <div class="line"><span class="speaker">Agent:</span> Hello, habari yako. Jina langu ni <em>[Name]</em>, nakupigia kutoka Tap2Eat. Kwa upande wetu tumepata missed call — nikuhudumie vipi?</div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--leafy);">
+      <div class="label" style="color:var(--leafy);">Issue Understanding & Resolution</div>
+      <div class="line"><span class="speaker">Agent:</span> <em>(If complaint)</em> Samahani sana Bi/Bw, unanieleza kwamba <em>[paraphrase issue]</em></div>
+      <div class="line" style="font-size:13px;color:var(--neutral);">If client called to seek information: Skip power words.</div>
+      <div class="line"><span class="speaker">Agent:</span> Issue resolution based on troubleshooting framework or guidelines.</div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--purple);">
+      <div class="label" style="color:var(--purple);">CSAT & Further Assistance</div>
+      <div class="line"><span class="speaker">Agent:</span> Bw/Bi, natumai umeridhika na huduma ya leo — una swali lingine lolote?</div>
+      <div class="line" style="font-size:13px;color:var(--neutral);">If not satisfied: Samahani Bw/Bi, tunaomba utupe muda mchache tusuluhishe tatizo lako kisha tutakupigia.</div>
+    </div>
+    <div class="trainer-note tn-tip">
+      <span class="tn-icon">💡</span>
+      <div><strong>Payment Education (Closure):</strong> "Unajua kwamba akaunti number yako ni ile nambari ulisajili nayo watoto? Wakati wowote ukifanya malipo, hata ukitumia simu nyingine, hakikisha unatumia paybill sahihi na nambari sahihi kama nambari ya akaunti. Waweza pia bonyeza <em>[USSD per region]</em> ukitumia simu yenye laini uliyoitumia kujisajiri kuona balance yako. Asante kwa kuchagua huduma za Tap2Eat, uwe na siku njema."</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: CSAT SURVEY SCORECARD (Combined) -->
+<div class="slide" id="s7">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">7 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">CSAT Survey Scorecard</div>
+      <span class="badge badge-purple">20 Criteria · 100 pts</span>
+    </div>
+    <div class="scorecard-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title">1. Call Preparation & Opening</div><div class="card-marks">20 pts</div></div>
+        <div class="card-item"><span>Prepared with correct customer details & survey context</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Introduced self and organization clearly</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Informed customer call may be recorded (where applicable)</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Clearly stated purpose of call (survey)</span><span class="pts">5</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">2. Communication Quality</div><div class="card-marks">15 pts</div></div>
+        <div class="card-item"><span>Active listening demonstrated</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Clear communication — tone, pace, language</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Professional and respectful throughout</span><span class="pts">5</span></div>
+      </div>
+      <div class="card" style="border:2px solid var(--red);">
+        <div class="card-head"><div class="card-title">3. Survey Delivery</div><div class="card-marks">15 pts</div><span class="chip chip-crit">CRITICAL</span></div>
+        <div class="card-item"><span>Asked all questions exactly as designed — no leading/rephrasing bias</span><span class="pts">5</span><span class="chip chip-crit">CRIT</span></div>
+        <div class="card-item"><span>Maintained neutrality — no influencing/prompting responses</span><span class="pts">5</span><span class="chip chip-crit">CRIT</span></div>
+        <div class="card-item"><span>Allowed customer adequate time to respond</span><span class="pts">5</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">4. Data Accuracy & Integrity</div><div class="card-marks">15 pts</div></div>
+        <div class="card-item"><span>Recorded responses accurately and completely</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Avoided assumptions or altering customer responses</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Captured NPS score & verbatim feedback accurately</span><span class="pts">5</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">5. Customer Experience</div><div class="card-marks">10 pts</div></div>
+        <div class="card-item"><span>Courteous, empathetic, and patient</span><span class="pts">5</span></div>
+        <div class="card-item"><span>Willingness to assist if customer had concerns</span><span class="pts">5</span><span class="chip" style="margin-left:4px;">N/A ok</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">6. Value Addition & Support</div><div class="card-marks">10 pts</div></div>
+        <div class="card-item"><span>Provided relevant additional information (without derailing survey)</span><span class="pts">5</span><span class="chip" style="margin-left:4px;">N/A ok</span></div>
+        <div class="card-item"><span>Handled questions/concerns appropriately</span><span class="pts">5</span><span class="chip" style="margin-left:4px;">N/A ok</span></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-head"><div class="card-title">7. Closing & Compliance</div><div class="card-marks">15 pts</div></div>
+        <div style="display:flex;gap:12px;">
+          <span class="card-item" style="flex:1;"><span>Standard closing procedure followed</span><span class="pts">5</span></span>
+          <span class="card-item" style="flex:1;"><span>Thanked customer for time & participation</span><span class="pts">5</span></span>
+          <span class="card-item" style="flex:1;"><span>Correct disposition selected</span><span class="pts">5</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: SMS QUALITY SCORECARD (Combined) -->
+<div class="slide cream" id="s8">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">8 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">SMS Quality Audit</div>
+      <span class="badge badge-blue">14 Criteria · 100 pts</span>
+    </div>
+    <div class="scorecard-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title">1. Opening & Greeting</div><div class="card-marks">20 pts</div></div>
+        <div class="card-item"><span>Adhered to standard SMS/chat opening procedure</span><span class="pts">6</span></div>
+        <div class="card-item"><span>Acknowledged customer's request & showed willingness to assist</span><span class="pts">7</span></div>
+        <div class="card-item"><span>Personalized the conversation — humanized beyond script</span><span class="pts">7</span></div>
+      </div>
+      <div class="card" style="border:2px solid var(--red);">
+        <div class="card-head"><div class="card-title">2. Account Verification</div><div class="card-marks">20 pts</div><span class="chip chip-crit">CRITICAL</span></div>
+        <div class="card-item"><span>Followed proper account verification without unnecessary delays</span><span class="pts">10</span><span class="chip chip-crit">CRIT</span></div>
+        <div class="card-item"><span>Verification was accurate and completed in timely manner</span><span class="pts">10</span><span class="chip chip-crit">CRIT</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">3. Issue Understanding & Resolution</div><div class="card-marks">30 pts</div></div>
+        <div class="card-item"><span>Probed effectively to understand customer's issue</span><span class="pts">7</span></div>
+        <div class="card-item"><span>Summarized and confirmed issue before offering solution</span><span class="pts">8</span></div>
+        <div class="card-item"><span>Provided accurate and complete information</span><span class="pts">10</span><span class="chip chip-crit">CRIT</span></div>
+        <div class="card-item"><span>Used appropriate resources (KB, escalation) when required</span><span class="pts">5</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">4. Service Quality</div><div class="card-marks">20 pts</div></div>
+        <div class="card-item"><span>Demonstrated empathy & solution-oriented approach</span><span class="pts">8</span></div>
+        <div class="card-item"><span>Avoided unnecessary back-and-forth — kept it efficient</span><span class="pts">7</span></div>
+        <div class="card-item"><span>Proactively offered additional helpful information</span><span class="pts">5</span></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-head"><div class="card-title">5. Communication & Closure</div><div class="card-marks">10 pts</div></div>
+        <div style="display:flex;gap:12px;">
+          <span class="card-item" style="flex:1;"><span>Avoided grammatical errors, unclear statements, punctuation issues</span><span class="pts">5</span></span>
+          <span class="card-item" style="flex:1;"><span>Adhered to standard SMS/chat closure procedure</span><span class="pts">5</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: SMS RESPONSE MANAGEMENT -->
+<div class="slide" id="s9">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">9 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">4a</div>
+      <div class="section-title">SMS Response Management</div>
+      <span class="badge badge-blue">Communication Standards</span>
+    </div>
+    <p class="lg-text">Effective management of SMS communications is crucial for ensuring a positive customer experience. This covers how to appropriately respond to SMS messages received from clients, maintaining professionalism and efficiency.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Objectives of SMS Response Management</div>
+        <div class="card-item"><span>Provide timely and accurate responses to client inquiries or feedback</span></div>
+        <div class="card-item"><span>Ensure consistency and clarity in communication</span></div>
+        <div class="card-item"><span>Address customer concerns and maintain high service quality</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">SMS Drive</div>
+        <div class="card-item"><span>Sending targeted messages to prompt specific customer actions, responses, or information</span></div>
+        <div class="card-item"><span>Used for campaigns, surveys, and outbound communication initiatives</span></div>
+      </div>
+    </div>
+    <div class="trainer-note tn-info" style="margin-top:12px;">
+      <span class="tn-icon">📱</span>
+      <div><strong>Best Practices:</strong> Respond within SLA timeframe · Use the customer's language · Proofread before sending · Maintain professional tone · Follow standard templates where applicable · Always include agent name/identifier.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: SURVEY & WELCOME SCRIPTS -->
+<div class="slide cream" id="s10">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">10 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Survey & Welcome Call Scripts</div>
+    </div>
+    <div class="script-box">
+      <div class="label">Survey Opening</div>
+      <div class="line"><span class="speaker">Agent:</span> Hello, habari yako. Jina langu ni <em>[Name]</em>, nakupigia kutoka Tap2Eat. Natumai nazungumza na <em>[Parent Name]</em>.</div>
+      <div class="line"><span class="speaker">Agent:</span> <em>(If parent confirms)</em> Bi/Bw <em>[Name]</em>, ningependa kukuuliza maswali machache kuhusu huduma zetu. Una muda ama nikupigie baadae?</div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--leafy);">
+      <div class="label" style="color:var(--leafy);">Welcome Call — Opening</div>
+      <div class="line"><span class="speaker">Agent:</span> Hello, habari yako. Jina langu ni <em>[Name]</em>, nakupigia kutoka Tap2Eat. Natumai nazungumza na <em>[Client Name]</em>.</div>
+      <div class="line" style="font-size:13px;color:var(--neutral);">If not client — mention that you will call back later to speak to the parent.</div>
+    </div>
+    <div class="script-box" style="border-left-color:var(--purple);">
+      <div class="label" style="color:var(--purple);">Welcome Call — Feedback Sourcing</div>
+      <div class="line"><span class="speaker">Agent:</span> Bi/Bw <em>[Parent Name]</em> / Mzazi, kwa upande wetu tunaona una watoto <em>[Number of kids]</em> ambao wanakula na Food for Education. Unaeza tueleza services ama experience yenu imekuaje?</div>
+      <div class="line"><span class="speaker-client">Client:</span> Narrates experience</div>
+      <div class="line"><span class="speaker">Agent:</span> Kuna upande wowote ambao ungependa Food 4 Education ibadilishe kabla watoto warudi shule?</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: CLIENT EDUCATION -->
+<div class="slide" id="s11">
+  <div class="slide-header">
+    <div class="logo"><div class="icon">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num">11 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Client Education</div>
+      <span class="badge badge-green">During Welcome Calls</span>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div style="font-size:24px;">⌚</div>
+        <div class="card-title">Watch Replacement</div>
+        <div class="card-item"><span>Ask: "Umewahi replace saa ya mtoto?"</span></div>
+        <div class="card-item"><span>Educate on replacement process and amount</span></div>
+        <div class="card-item"><span>Explain where and how to replace</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;">📱</div>
+        <div class="card-title">Balance Check (USSD)</div>
+        <div class="card-item"><span>Ask: "Unajua kuangalia salio ya account yako?"</span></div>
+        <div class="card-item"><span>Educate on USSD steps: <em>*---#</em></span></div>
+        <div class="card-item"><span>Walk through the menu options</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:24px;">💳</div>
+        <div class="card-title">Payment (Paybill)</div>
+        <div class="card-item"><span>Ask: "Umepata ugumu wowote unapofanya malipo?"</span></div>
+        <div class="card-item"><span>Educate on correct Paybill number</span></div>
+        <div class="card-item"><span>Explain: account number = registration phone number</span></div>
+      </div>
+    </div>
+    <div class="script-box" style="margin-top:16px;border-left-color:var(--leafy-mid);">
+      <div class="label" style="color:var(--leafy-mid);">Closure</div>
+      <div class="line"><span class="speaker">Agent:</span> Una swali lingine lolote?</div>
+      <div class="line" style="font-size:13px;color:var(--neutral);">If yes — answer based on product knowledge. If no — close as below.</div>
+      <div class="line"><span class="speaker">Agent:</span> Asante sana kwa kuchagua Tap2Eat. Umehudumiwa na <em>[Agent Name]</em>. Uwe na siku njema.</div>
+    </div>
+    <div class="trainer-note tn-info">
+      <span class="tn-icon">📞</span>
+      <div><strong>Tungependa pia kukujulisha:</strong> Wakati wowote unahitaji usaidizi, waweza tupigia kwa <em>[mention support number]</em>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12: SUMMARY & END -->
+<div class="slide" style="background:var(--leafy);color:#fff;" id="s12">
+  <div class="slide-header">
+    <div class="logo" style="color:var(--cream);"><div class="icon" style="background:var(--yellow);color:var(--dark);">F4E</div>Food4Education · Tap2Eat</div>
+    <div class="slide-num" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);">12 / 12</div>
+  </div>
+  <div class="slide-body" style="text-align:center;align-items:center;">
+    <h2 style="color:#fff;">Happy Dialing!</h2>
+    <div style="color:rgba(255,255,255,.8);font-size:16px;margin-top:12px;">Quality is everyone's responsibility.</div>
+    <div style="display:flex;gap:32px;margin-top:40px;">
+      <div class="stat"><div class="stat-val" style="color:var(--yellow);">4</div><div class="stat-lbl" style="color:rgba(255,255,255,.7);">Dockets</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--yellow);">77</div><div class="stat-lbl" style="color:rgba(255,255,255,.7);">Criteria</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--yellow);">100</div><div class="stat-lbl" style="color:rgba(255,255,255,.7);">% Standard</div></div>
+    </div>
+    <div style="margin-top:40px;font-size:14px;color:rgba(255,255,255,.6);">
+      CX Quality & Training Hub — Tap2Eat · Food4Education — Ruiru, Kenya
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav>
+  <button class="nav-btn" onclick="prev()" title="Previous">◀</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" onclick="next()" title="Next">▶</button>
+</nav>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+const dotsContainer = document.getElementById('dots');
+for (let i = 0; i < total; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => go(i);
+  dotsContainer.appendChild(dot);
+}
+
+function go(idx) {
+  if (idx < 0 || idx >= total) return;
+  slides[current].classList.remove('active');
+  dotsContainer.children[current].classList.remove('active');
+  current = idx;
+  slides[current].classList.add('active');
+  dotsContainer.children[current].classList.add('active');
+}
+
+function next() { go(current + 1); }
+function prev() { go(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prev();
+});
+</script>
+
+</body>
+</html>
