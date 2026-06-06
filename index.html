@@ -321,20 +321,7 @@ body.admin-edit [data-e]:focus{outline:2px solid var(--carrot);}
     </div>
   </div>
 
-  <div class="dcard">
-    <div class="dc-head">
-      <div class="dc-ico ico-g">🎧</div>
-      <span class="dc-tag tag-pub">🌍 Public</span>
-      <div class="dc-title" data-e="tm-title">CX Quality &amp; Training Manual — 12 Slides</div>
-      <div class="dc-desc" data-e="tm-desc">Complete QA training slide deck covering all 4 scorecard dockets (Inbound, Outbound, CSAT Survey, SMS), call scripts, SMS response management, welcome call scripts, and client education. Updated to match the Combined Audit Scorecards.</div>
-    </div>
-    <div class="dc-tags"><span class="dtag">Slides</span><span class="dtag">Scorecards</span><span class="dtag">Scripts</span><span class="dtag">SMS</span><span class="dtag">Client Education</span></div>
-    <div class="dc-foot">
-      <div class="dc-aud">👥 Agents · Interns · QA Learners</div>
-      <a class="obtn obtn-pub" href="cx_quality_training_manual.html" target="_blank">Open ↗</a>
-    </div>
-  </div>
-</div>
+
 
 <!-- ── AGENT ── -->
 <div class="sec-lbl">🟡 Agent Access — PIN Required</div>
@@ -506,6 +493,20 @@ body.admin-edit [data-e]:focus{outline:2px solid var(--carrot);}
     </div>
   </div>
 
+  <div class="dcard" id="dc-manual">
+    <div class="dc-head">
+      <div class="dc-ico ico-o">🎧</div>
+      <span class="dc-tag tag-adm">🔴 Admin Only</span>
+      <div class="dc-title" data-e="tm-title">CX Quality &amp; Training Manual — 12 Slides</div>
+      <div class="dc-desc" data-e="tm-desc">Complete QA training slide deck covering all 4 scorecard dockets (Inbound, Outbound, CSAT Survey, SMS), call scripts, SMS response management, welcome call scripts, and client education. Updated to match the Combined Audit Scorecards.</div>
+    </div>
+    <div class="dc-tags"><span class="dtag">Slides</span><span class="dtag">Scorecards</span><span class="dtag">Scripts</span><span class="dtag">SMS</span><span class="dtag">Client Education</span></div>
+    <div class="dc-foot">
+      <div class="dc-aud">👤 Q&amp;T Lead only</div>
+      <span class="obtn obtn-locked" id="lnk-manual">🔒 Admin Only</span>
+    </div>
+  </div>
+
 </div>
 </div><!-- /main -->
 
@@ -563,12 +564,13 @@ const FILES = {
   tracker_xlsx:'tap2eat_intern_onboarding_tracker.xlsx',
   call_slides: 'tap2eat_call_handling_slides.html',
   chat_slides: 'tap2eat_chat_slides.html',
-  emotion_pptx: 'tap2eat_emotion_in_customer_care.pptx'
+  emotion_pptx: 'tap2eat_emotion_in_customer_care.pptx',
+  manual:       'cx_quality_training_manual.html'
 };
 const ACCESS = {
   onboarding:'agent', assessments:'agent', training:'agent',
   shadow:'staff',
-  jd:'admin', workload:'admin', tracker:'admin', tracker_xlsx:'admin',
+  jd:'admin', workload:'admin', tracker:'admin', tracker_xlsx:'admin', manual:'admin',
   call_slides:'agent', chat_slides:'agent', emotion_pptx:'agent'
 };
 
