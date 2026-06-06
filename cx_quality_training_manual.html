@@ -715,6 +715,8 @@ nav { position:fixed; bottom:32px; left:50%; transform:translateX(-50%); z-index
   <button class="nav-btn" onclick="prev()" title="Previous">◀</button>
   <div class="nav-dots" id="dots"></div>
   <button class="nav-btn" onclick="next()" title="Next">▶</button>
+  <button class="nav-btn edit-btn" id="edit-btn" title="Edit (Admin PIN)" onclick="promptEditPIN()" style="width:42px;height:42px;border-radius:50%;border:2px solid var(--leafy);background:var(--leafy);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;transition:all .15s;margin-left:8px;">✏</button>
+  <button class="nav-btn save-btn" id="save-nav-btn" title="Save Edits" onclick="saveEdits()" style="width:42px;height:42px;border-radius:50%;border:2px solid var(--orange);background:var(--orange);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-left:4px;">💾</button>
 </nav>
 
 <script>
@@ -751,18 +753,6 @@ document.addEventListener('keydown', e => {
 
 <!-- EDIT MODE -->
 <style>
-.edit-float {
-  position:fixed; bottom:90px; right:20px; z-index:200;
-  width:44px; height:44px; border-radius:50%;
-  background:var(--leafy); color:#fff; border:none;
-  font-size:18px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,.25);
-  display:flex; align-items:center; justify-content:center;
-  transition:transform .2s,background .2s;
-}
-.edit-float:hover { transform:scale(1.1); background:var(--leafy-mid); }
-.edit-float.active { background:var(--carrot); }
-.edit-float.save-btn { background:var(--orange-br); bottom:140px; font-size:12px; font-weight:700; display:none; }
-.edit-float.save-btn.show { display:flex; }
 body.edit-mode [data-e]{ outline:2px dashed var(--orange-br); border-radius:4px; cursor:text; }
 body.edit-mode [data-e]:focus { outline:2px solid var(--carrot); }
 .pin-modal {
@@ -787,8 +777,6 @@ body.edit-mode [data-e]:focus { outline:2px solid var(--carrot); }
 }
 .pin-box .err { color:var(--red); font-size:12px; min-height:18px; margin:4px 0; }
 </style>
-<button class="edit-float" id="edit-float" title="Edit (Admin)" onclick="promptEditPIN()">✏️</button>
-<button class="edit-float save-btn" id="save-float" onclick="saveEdits()">💾</button>
 <div class="pin-modal hide" id="pin-modal">
   <div class="pin-box">
     <div style="font-size:13px;font-weight:700;">🔴 Admin Edit PIN</div>
@@ -827,9 +815,10 @@ function checkEditPIN() {
 function enableEdit() {
   editOn = true;
   document.body.classList.add('edit-mode');
-  document.getElementById('edit-float').classList.add('active');
-  document.getElementById('edit-float').textContent = '✓';
-  document.getElementById('save-float').classList.add('show');
+  document.getElementById('edit-btn').style.background = 'var(--carrot)';
+  document.getElementById('edit-btn').style.borderColor = 'var(--carrot)';
+  document.getElementById('edit-btn').textContent = '✓';
+  document.getElementById('save-nav-btn').style.display = 'flex';
   document.querySelectorAll('.slide-body,.script-box,.trainer-note,.card').forEach(el => {
     el.setAttribute('data-e','');
     el.contentEditable = 'true';
@@ -841,9 +830,10 @@ function exitEdit() {
   saveEdits();
   editOn = false;
   document.body.classList.remove('edit-mode');
-  document.getElementById('edit-float').classList.remove('active');
-  document.getElementById('edit-float').textContent = '✏️';
-  document.getElementById('save-float').classList.remove('show');
+  document.getElementById('edit-btn').style.background = 'var(--leafy)';
+  document.getElementById('edit-btn').style.borderColor = 'var(--leafy)';
+  document.getElementById('edit-btn').textContent = '✏';
+  document.getElementById('save-nav-btn').style.display = 'none';
   document.querySelectorAll('[data-e]').forEach(el => el.contentEditable = 'false');
 }
 
