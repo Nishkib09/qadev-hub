@@ -673,6 +673,12 @@
       <div id="submit-status" class="submit-status"></div>
       <div id="queue-indicator" style="display:none; margin-top:8px; font-size:12px; color:var(--amber);"></div>
 
+      <div id="debug-panel" style="display:none; background:#1a1a2e; color:#0f0; font-family:monospace; font-size:11px; padding:12px; border-radius:8px; margin-top:12px; border:1px solid #333; max-height:200px; overflow-y:auto;"></div>
+      <div style="margin-top:8px;">
+        <button class="btn-secondary" onclick="testConnection()" style="font-size:11px; padding:4px 10px;">Test Connection</button>
+        <button class="btn-secondary" onclick="toggleDebug()" style="font-size:11px; padding:4px 10px; margin-left:4px;">Toggle Debug</button>
+      </div>
+
       <br>
       <details>
         <summary>⚙️ How to connect your Google Sheet (UPDATED SCRIPT — Action Required) &nbsp;<span style="font-size:11px;color:var(--red);font-weight:600;">— Must re-deploy for email & Drive to work</span></summary>
@@ -1883,22 +1889,33 @@ ${improvementsText}
       status.textContent = 'Preparing submission\u2026';
 
       if (audioInput && audioInput.files.length > 0) {
+        logDebug('Reading ' + audioInput.files.length + ' file(s)...');
         for (let i = 0; i < audioInput.files.length; i++) {
           const file = audioInput.files[i];
+          logDebug('File ' + (i+1) + ': ' + file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB, type: ' + file.type + ')');
           const reader = new FileReader();
           await new Promise((resolve, reject) => {
             reader.onload = () => {
+              var dataUrl = reader.result;
+              var b64len = dataUrl ? dataUrl.length : 0;
               filesPayload.push({
-                fileData: reader.result,
+                fileData: dataUrl,
                 fileName: file.name,
                 fileMimeType: file.type
               });
+              logDebug('File ' + (i+1) + ' read OK. base64 length: ' + b64len);
               resolve();
             };
-            reader.onerror = reject;
+            reader.onerror = function() {
+              logDebug('File ' + (i+1) + ' READ ERROR');
+              reject(reader.error);
+            };
             reader.readAsDataURL(file);
           });
         }
+        logDebug('All files read. filesPayload.length=' + filesPayload.length);
+      } else {
+        logDebug('No file selected in audio-upload input');
       }
 
       let iterImprovements = [];
@@ -1971,6 +1988,8 @@ ${improvementsText}
 
       status.textContent = emailPaused ? 'Queuing audit (emails paused)...' : 'Sending to Google Sheets...';
       console.log('Submitting audit — agent:', agName, '| files:', filesPayload.length, '| paused:', emailPaused);
+      logDebug('Payload: agent="' + agName + '" files=' + filesPayload.length + ' paused=' + emailPaused + ' email=' + (agEmail || 'none'));
+      logDebug('Payload size: ~' + Math.round(JSON.stringify(payload).length / 1024) + ' KB');
       if (agEmail && filesPayload.length === 0 && document.getElementById('audio-upload').files.length > 0) {
         showToast('WARNING: File was selected but not read. Re-select the recording file and try again.', 'error');
         btn.textContent = 'Submit to Google Sheets';
@@ -1979,12 +1998,14 @@ ${improvementsText}
       }
 
       try {
+        logDebug('Sending POST to: ' + url.substring(0, 60) + '...');
         await fetch(url, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        logDebug('POST sent (no-cors: cannot read response). Check email for [Diag] footer.');
         if (emailPaused) {
           showToast(`Audit saved to sheet. Queued for later email (${queuedAudits.length} pending).`, 'info');
         } else {
@@ -2051,6 +2072,66 @@ ${improvementsText}
     function copyScript() {
       const text = document.getElementById('script-block').textContent;
       navigator.clipboard.writeText(text).then(() => showToast('Script copied to clipboard.', 'info'));
+    }
+
+    function logDebug(msg) {
+      var panel = document.getElementById('debug-panel');
+      if (!panel) return;
+      panel.style.display = 'block';
+      var line = document.createElement('div');
+      line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+      panel.appendChild(line);
+      panel.scrollTop = panel.scrollHeight;
+    }
+
+    function toggleDebug() {
+      var panel = document.getElementById('debug-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function testConnection() {
+      var url = localStorage.getItem('combined_audit_sheet_url');
+      if (!url) { showToast('No sheet URL configured.', 'error'); return; }
+      logDebug('Testing connection to: ' + url.substring(0, 60) + '...');
+      try {
+        var resp = await fetch(url, { method: 'GET', mode: 'no-cors' });
+        logDebug('GET response type: ' + resp.type + ' (status: ' + resp.status + ')');
+        if (resp.type === 'opaque') {
+          logDebug('Opaque response = server is reachable (CORS blocks reading body)');
+        }
+      } catch (err) {
+        logDebug('GET FAILED: ' + err.message);
+        showToast('Connection failed: ' + err.message, 'error');
+        return;
+      }
+      try {
+        var testPayload = {
+          auditType: 'Test',
+          headers: ['Test'],
+          row: ['Connection test'],
+          agentName: 'Test',
+          agentEmail: '',
+          files: [],
+          timestamp: new Date().toLocaleString(),
+          pct: '0%',
+          emailSettings: { send: false, to: '', cc: '', subject: '', body: '' }
+        };
+        logDebug('Sending test POST...');
+        var resp2 = await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(testPayload)
+        });
+        logDebug('POST response type: ' + resp2.type + ' (status: ' + resp2.status + ')');
+        if (resp2.type === 'opaque') {
+          logDebug('POST succeeded (opaque = server received it)');
+          showToast('Connection OK. Server received test payload.', 'info');
+        }
+      } catch (err) {
+        logDebug('POST FAILED: ' + err.message);
+        showToast('POST failed: ' + err.message, 'error');
+      }
     }
 
     const prevUrl = localStorage.getItem('sms_audit_sheet_url');
