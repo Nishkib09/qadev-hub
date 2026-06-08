@@ -804,7 +804,15 @@ function doPost(e) {
     }
 
     return ContentService
-      .createTextOutput(JSON.stringify({ status: "success" }))
+      .createTextOutput(JSON.stringify({
+        status: "success",
+        debug: {
+          filesReceived: d.files ? d.files.length : 0,
+          agentName: d.agentName || "(empty)",
+          filesUploaded: fileUrls.length,
+          firstUrl: fileUrls.length > 0 ? fileUrls[0] : "(none)"
+        }
+      }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
@@ -1614,12 +1622,13 @@ function doGet() {
         try {
           const qa = queuedAudits[i];
           qa.emailSettings.send = true;
-          await fetch(url, {
+          const resp = await fetch(url, {
             method: 'POST',
-            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(qa)
           });
+          const result = await resp.json();
+          if (result.status === 'error') throw new Error(result.msg);
           sent++;
         } catch (e) {
           failed++;
@@ -2023,12 +2032,26 @@ ${improvementsText}
       }
 
       try {
-        await fetch(url, {
+        const resp = await fetch(url, {
           method: 'POST',
-          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        const result = await resp.json();
+        if (result.status === 'error') {
+          showToast('Server error: ' + (result.msg || 'Unknown'), 'error');
+          status.textContent = 'Server error — ' + (result.msg || 'check Apps Script logs');
+          btn.textContent = 'Submit to Google Sheets';
+          btn.disabled = false;
+          if (emailPaused) {
+            queuedAudits.pop();
+            try { localStorage.setItem('queued_audits', JSON.stringify(queuedAudits)); } catch(e) {}
+          }
+          return;
+        }
+        if (result.debug) {
+          console.log('Apps Script debug:', result.debug);
+        }
         if (emailPaused) {
           showToast(`Audit saved to sheet. Queued for later email (${queuedAudits.length} pending).`, 'info');
         } else {
