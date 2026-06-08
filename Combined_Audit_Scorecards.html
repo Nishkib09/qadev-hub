@@ -652,7 +652,8 @@
       <div class="card" style="border: 1px dashed var(--blue);">
         <div class="card-body">
           <label id="upload-label" style="font-size:12px; font-weight:600; color:var(--blue); display:block; margin-bottom:6px;">📎 Upload Call Recording(s) (Optional)</label>
-          <input type="file" id="audio-upload" accept="audio/*, video/*" multiple style="font-size:13px; width:100%;">
+          <input type="file" id="audio-upload" accept="audio/*, video/*" multiple style="font-size:13px; width:100%;" onchange="updateFileStatus()">
+          <div id="file-status" style="font-size:12px; margin-top:6px; display:none;"></div>
           <div id="upload-desc" style="font-size:11px; color:var(--g400); margin-top:6px;">The file(s) will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.</div>
         </div>
       </div>
@@ -729,15 +730,19 @@ function doPost(e) {
         var safeType = d.auditType.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
 
         for (var j = 0; j < d.files.length; j++) {
-          var f = d.files[j];
-          var ext = f.fileName.split(".").pop();
-          var markedFileName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
+          try {
+            var f = d.files[j];
+            var ext = f.fileName.split(".").pop();
+            var markedFileName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
 
-          var splitBase = f.fileData.split(",");
-          var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
-          var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
-          var uploadedFile = agentFolder.createFile(blob);
-          fileUrls.push(uploadedFile.getUrl());
+            var splitBase = f.fileData.split(",");
+            var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
+            var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
+            var uploadedFile = agentFolder.createFile(blob);
+            fileUrls.push(uploadedFile.getUrl());
+          } catch (fileErr) {
+            fileUrls.push("Upload failed: " + fileErr.toString());
+          }
         }
       }
       fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
@@ -828,6 +833,20 @@ function doGet() {
 
     let emailPaused = JSON.parse(localStorage.getItem('email_send_paused')) || false;
     let queuedAudits = JSON.parse(localStorage.getItem('queued_audits')) || [];
+
+    function updateFileStatus() {
+      const inp = document.getElementById('audio-upload');
+      const st = document.getElementById('file-status');
+      if (!inp || !st) return;
+      if (inp.files.length === 0) {
+        st.style.display = 'none';
+        return;
+      }
+      const names = Array.from(inp.files).map(f => f.name + ' (' + (f.size / 1024 / 1024).toFixed(1) + ' MB)').join(', ');
+      st.style.display = 'block';
+      st.style.color = 'var(--green)';
+      st.innerHTML = '✅ Loaded: ' + names;
+    }
 
     function autoFillEmail() {
       const sel = document.getElementById('ag-name');
@@ -1235,6 +1254,7 @@ function doGet() {
           }
         }
         document.getElementById('audit-panels').style.display = 'block';
+        updateFileStatus();
         refreshAll();
         updateQueueIndicator();
       } else if (type === 'agents') {
@@ -1951,6 +1971,13 @@ ${improvementsText}
       }
 
       status.textContent = emailPaused ? 'Queuing audit (emails paused)...' : 'Sending to Google Sheets...';
+      console.log('Submitting audit — agent:', agName, '| files:', filesPayload.length, '| paused:', emailPaused);
+      if (agEmail && filesPayload.length === 0 && document.getElementById('audio-upload').files.length > 0) {
+        showToast('WARNING: File was selected but not read. Re-select the recording file and try again.', 'error');
+        btn.textContent = 'Submit to Google Sheets';
+        btn.disabled = false;
+        return;
+      }
 
       try {
         await fetch(url, {
