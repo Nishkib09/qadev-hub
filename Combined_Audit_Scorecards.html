@@ -672,7 +672,6 @@
       </div>
       <div id="submit-status" class="submit-status"></div>
       <div id="queue-indicator" style="display:none; margin-top:8px; font-size:12px; color:var(--amber);"></div>
-      <div id="debug-status" style="margin-top:14px; padding:12px; border-radius:var(--rs); background:var(--g100); border:1px solid var(--border); font-size:12px; font-family:monospace; display:none; white-space:pre-wrap; color:var(--g800);"></div>
 
       <br>
       <details>
@@ -695,7 +694,6 @@ function doPost(e) {
 
     var fileUrls = [];
     var fileUrlStr = "No files attached";
-    var attachments = [];
 
     if (!d.emailOnly) {
       // --- 1. Write to Google Sheet ---
@@ -719,13 +717,8 @@ function doPost(e) {
           agentFolder = agentIter.next();
         } else {
           agentFolder = rootFolder.createFolder(agentFolderName);
-        }
-
-        if (d.agentEmail) {
-          try {
+          if (d.agentEmail) {
             agentFolder.addViewer(d.agentEmail);
-          } catch (shareFolderErr) {
-            // Ignore sharing error if user is not Google-associated
           }
         }
 
@@ -746,18 +739,7 @@ function doPost(e) {
             var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
             var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
             var uploadedFile = agentFolder.createFile(blob);
-            
-            // Explicitly share each file individually to guarantee agent access
-            if (d.agentEmail) {
-              try {
-                uploadedFile.addViewer(d.agentEmail);
-              } catch (shareFileErr) {
-                // Ignore individual file sharing error
-              }
-            }
-            
             fileUrls.push(uploadedFile.getUrl());
-            attachments.push(blob);
           } catch (fileErr) {
             fileUrls.push("Upload failed: " + fileErr.toString());
           }
@@ -794,25 +776,20 @@ function doPost(e) {
       var emailParams = {
         to: d.emailSettings.to,
         subject: d.emailSettings.subject,
-        htmlBody: body,
+        htmlBody: body
+          + '<hr style="margin-top:20px;"><p style="font-size:11px;color:#888;">[Server diagnostic]' +
+          ' | Files in payload: ' + (d.files ? d.files.length : 0) +
+          ' | Agent name received: "' + (d.agentName || '(empty)') + '"' +
+          ' | Files uploaded to Drive: ' + fileUrls.length +
+          (fileUrls.length > 0 ? ' | First URL: ' + fileUrls[0] : '') +
+          '</p>',
         cc: ccList
       };
-      if (attachments.length > 0) {
-        emailParams.attachments = attachments;
-      }
       MailApp.sendEmail(emailParams);
     }
 
     return ContentService
-      .createTextOutput(JSON.stringify({
-        status: "success",
-        debug: {
-          filesReceived: d.files ? d.files.length : 0,
-          agentName: d.agentName || "(empty)",
-          filesUploaded: fileUrls.length,
-          firstUrl: fileUrls.length > 0 ? fileUrls[0] : "(none)"
-        }
-      }))
+      .createTextOutput(JSON.stringify({ status: "success" }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
@@ -1622,13 +1599,12 @@ function doGet() {
         try {
           const qa = queuedAudits[i];
           qa.emailSettings.send = true;
-          const resp = await fetch(url, {
+          await fetch(url, {
             method: 'POST',
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(qa)
           });
-          const result = await resp.json();
-          if (result.status === 'error') throw new Error(result.msg);
           sent++;
         } catch (e) {
           failed++;
@@ -1703,7 +1679,6 @@ function doGet() {
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
-      let fileAttachmentText = (currentAuditType === 'sms') ? 'screenshots' : 'call recording';
       const emailBody = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
@@ -1712,7 +1687,7 @@ function doGet() {
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find attached the ${fileAttachmentText}:</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
 <p style="margin:0 0 16px 0;">[Call Recording Link]</p>
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
@@ -1782,8 +1757,6 @@ ${improvementsText}
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
-      let fileAttachmentText = (currentAuditType === 'sms') ? 'screenshots' : 'call recording';
-
       box.innerHTML = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
@@ -1792,7 +1765,7 @@ ${improvementsText}
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find attached the ${fileAttachmentText}:</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
 <p style="margin:0 0 16px 0;">${linkStr}</p>
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
@@ -1911,12 +1884,6 @@ ${improvementsText}
       const audioInput = document.getElementById('audio-upload');
       let filesPayload = [];
 
-      const debugDiv = document.getElementById('debug-status');
-      if (debugDiv) {
-        debugDiv.style.display = 'block';
-        debugDiv.textContent = `[DEBUG] Starting submission...\n- Agent: "${agName}" (${agEmail})\n- Files selected: ${audioInput ? audioInput.files.length : 0}\n- Endpoint: ${url ? url.substring(0, 45) + '...' : 'None'}`;
-      }
-
       btn.textContent = 'Preparing\u2026';
       btn.disabled = true;
       status.style.display = 'block';
@@ -1937,15 +1904,6 @@ ${improvementsText}
             };
             reader.onerror = reject;
             reader.readAsDataURL(file);
-          });
-        }
-      }
-
-      if (debugDiv) {
-        debugDiv.textContent += `\n- Files read successfully: ${filesPayload.length}`;
-        if (filesPayload.length > 0) {
-          filesPayload.forEach((f, idx) => {
-            debugDiv.textContent += `\n  * File ${idx+1}: "${f.fileName}" (${f.fileMimeType}, ${(f.fileData.length / 1024 / 1024).toFixed(2)} MB base64)`;
           });
         }
       }
@@ -1973,8 +1931,8 @@ ${improvementsText}
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
-      let fileAttachmentText = (currentAuditType === 'sms') ? 'screenshots' : 'call recording';
-      let emailBodyHtml = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
+      let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
+      let emailBodyHtml = emBodyContent || `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDateStr} for phone number ${phoneNumStr}.</p>
 <p style="margin:0 0 12px 0;">Total Score: <b>${pct}%</b></p>
@@ -1982,7 +1940,7 @@ ${improvementsText}
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find attached the ${fileAttachmentText}:</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
 <p style="margin:0 0 16px 0;">[Call Recording Link]</p>
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
@@ -2027,40 +1985,19 @@ ${improvementsText}
         return;
       }
 
-      if (debugDiv) {
-        debugDiv.textContent += `\n- Sending fetch request (payload size: ${(JSON.stringify(payload).length / 1024).toFixed(1)} KB)...`;
-      }
-
       try {
-        const resp = await fetch(url, {
+        await fetch(url, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const result = await resp.json();
-        if (result.status === 'error') {
-          showToast('Server error: ' + (result.msg || 'Unknown'), 'error');
-          status.textContent = 'Server error — ' + (result.msg || 'check Apps Script logs');
-          btn.textContent = 'Submit to Google Sheets';
-          btn.disabled = false;
-          if (emailPaused) {
-            queuedAudits.pop();
-            try { localStorage.setItem('queued_audits', JSON.stringify(queuedAudits)); } catch(e) {}
-          }
-          return;
-        }
-        if (result.debug) {
-          console.log('Apps Script debug:', result.debug);
-        }
         if (emailPaused) {
           showToast(`Audit saved to sheet. Queued for later email (${queuedAudits.length} pending).`, 'info');
         } else {
           showToast('Audit submitted! Email sent to agent automatically.', 'success');
         }
         status.textContent = 'Last submitted: ' + new Date().toLocaleTimeString();
-        if (debugDiv) {
-          debugDiv.textContent += `\n- Request sent successfully (mode: no-cors).`;
-        }
         updateQueueIndicator();
         setTimeout(() => {
           btn.textContent = 'Submit to Google Sheets';
@@ -2069,9 +2006,6 @@ ${improvementsText}
       } catch (err) {
         showToast('Submission failed. Check your Apps Script URL and try again.', 'error');
         status.textContent = 'Submission failed \u2014 check your connection URL.';
-        if (debugDiv) {
-          debugDiv.textContent += `\n- Request failed: ${err.toString()}`;
-        }
         btn.textContent = 'Submit to Google Sheets';
         btn.disabled = false;
         if (emailPaused) {
