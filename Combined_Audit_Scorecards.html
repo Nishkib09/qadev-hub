@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Combined Quality & Training Audits</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1a2744;
+      --teal: #0d6e56;
+      --teal-lt: #e1f5ee;
+      --teal-md: #1d9e75;
+      --green: #3b6d11;
+      --green-lt: #eaf3de;
+      --amber: #ba7517;
+      --amber-lt: #faeeda;
+      --red: #a32d2d;
+      --red-lt: #fcebeb;
+      --blue: #185fa5;
+      --blue-lt: #e6f1fb;
+      --g50: #f9f9f7;
+      --g100: #f1efe8;
+      --g200: #d3d1c7;
+      --g400: #888780;
+      --g600: #5f5e5a;
+      --g800: #3a3937;
+      --g900: #2c2c2a;
+      --border: #e2dfd8;
+      --r: 10px;
+      --rs: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Rubik', -apple-system, 'Segoe UI', Helvetica, sans-serif;
+      background: var(--g50);
+      color: var(--g900);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--teal);
+    }
+
+    /* Layout */
+    .topbar {
+      background: var(--navy);
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar h1 {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: .01em;
+      margin: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score-pill {
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 6px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: var(--rs);
+      color: var(--g600);
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      background: var(--g50);
+      color: var(--g900);
+    }
+
+    .tab.active {
+      background: var(--teal-lt);
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 14px;
+    }
+
+    .card-hd {
+      background: var(--g100);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: var(--r) var(--r) 0 0;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--g800);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .card-pts {
+      font-size: 12px;
+      color: var(--g600);
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    /* Form */
+    .ag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--g600);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      font-size: 13px;
+      color: var(--g900);
+      background: #fff;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid var(--teal);
+      outline-offset: -1px;
+    }
+
+    /* Score bar */
+    .score-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .sc-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 12px 14px;
+    }
+
+    .sc-lbl {
+      font-size: 11px;
+      color: var(--g400);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+
+    .sc-val {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--g900);
+    }
+
+    .sc-val.exc {
+      color: var(--green);
+    }
+
+    .sc-val.good {
+      color: var(--blue);
+    }
+
+    .sc-val.sat {
+      color: var(--amber);
+    }
+
+    .sc-val.poor {
+      color: var(--red);
+    }
+
+    .pb-track {
+      background: var(--g100);
+      border-radius: 4px;
+      height: 6px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .pb-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0%;
+      transition: width .4s, background .4s;
+    }
+
+    .crit-flag {
+      display: none;
+      background: var(--red-lt);
+      color: var(--red);
+      border: 1px solid #f0a0a0;
+      border-radius: var(--rs);
+      padding: 8px 14px;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    /* Criteria */
+    .cr-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .cr-row:first-child {
+      border-top: none;
+    }
+
+    .cr-label {
+      flex: 1;
+      font-size: 13px;
+      color: var(--g900);
+      line-height: 1.45;
+    }
+
+    .cr-pts {
+      font-size: 11px;
+      color: var(--g400);
+      white-space: nowrap;
+      min-width: 52px;
+      text-align: right;
+    }
+
+    .cr-btns {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .yb,
+    .nb {
+      padding: 5px 14px;
+      border-radius: var(--rs);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--g600);
+      transition: all .15s;
+    }
+
+    .yb:hover {
+      border-color: var(--teal-md);
+      color: var(--teal);
+    }
+
+    .nb:hover {
+      border-color: #e24b4a;
+      color: var(--red);
+    }
+
+    .yb.active {
+      background: var(--green-lt);
+      border-color: #97c459;
+      color: var(--green);
+    }
+
+    .nb.active {
+      background: var(--red-lt);
+      border-color: #f09595;
+      color: var(--red);
+    }
+
+    .na-btn {
+      padding: 5px 10px;
+      border-radius: var(--rs);
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--g400);
+    }
+
+    .na-btn.active {
+      background: var(--g100);
+      color: var(--g600);
+    }
+
+    .crit-tag {
+      display: inline-block;
+      font-size: 10px;
+      background: var(--red-lt);
+      color: var(--red);
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: 6px;
+      font-weight: 500;
+      vertical-align: middle;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 10px 22px;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      border-radius: var(--rs);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-md);
+    }
+
+    .btn-primary:disabled {
+      background: var(--g200);
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      padding: 10px 22px;
+      background: #fff;
+      color: var(--g800);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: var(--g100);
+    }
+
+    .btn-danger {
+      padding: 10px 22px;
+      background: #fff;
+      color: var(--red);
+      border: 1px solid #f09595;
+      border-radius: var(--rs);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* Setup panel */
+    .setup-panel {
+      background: var(--blue-lt);
+      border: 1px solid #b5d4f4;
+      border-radius: var(--r);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .setup-panel h3 {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+
+    .setup-url {
+      display: flex;
+      gap: 8px;
+    }
+
+    .setup-url input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid #b5d4f4;
+      border-radius: var(--rs);
+      font-size: 12px;
+    }
+
+    .setup-url button {
+      padding: 7px 14px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--rs);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .connected-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--green-lt);
+      color: var(--green);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Instructions */
+    details {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    details summary {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--g800);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    details summary::after {
+      content: '▸';
+      color: var(--g400);
+    }
+
+    details[open] summary::after {
+      content: '▾';
+    }
+
+    .instructions-body {
+      padding: 0 16px 16px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--g600);
+    }
+
+    .code-block {
+      background: var(--g900);
+      color: #a9dc76;
+      border-radius: var(--rs);
+      padding: 12px 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      margin: 10px 0;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    .copy-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      cursor: pointer;
+      color: var(--g600);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: var(--rs);
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 999;
+      display: none;
+      max-width: 340px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+    }
+
+    .toast.success {
+      background: var(--green-lt);
+      color: var(--green);
+      border: 1px solid #97c459;
+    }
+
+    .toast.error {
+      background: var(--red-lt);
+      color: var(--red);
+      border: 1px solid #f09595;
+    }
+
+    .toast.info {
+      background: var(--blue-lt);
+      color: var(--blue);
+      border: 1px solid #b5d4f4;
+    }
+
+    .submit-status {
+      font-size: 12px;
+      color: var(--g400);
+      margin-top: 8px;
+      display: none;
+    }
+
+    @media(max-width:600px) {
+      .score-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .cr-row {
+        flex-wrap: wrap;
+      }
+
+      .cr-pts {
+        min-width: unset;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <h1 id="top-title">Combined Quality Audit</h1>
+    <div class="topbar-right">
+      <div class="score-pill"><span id="top-score">0</span> / 100</div>
+      <div id="top-rating" style="font-size:12px;opacity:.8;">–</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- Tabs for Navigation -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('inbound')" id="tab-inbound">Inbound Call Scorecard</div>
+      <div class="tab" onclick="switchTab('outbound')" id="tab-outbound">Outbound Call Scorecard</div>
+      <div class="tab" onclick="switchTab('survey')" id="tab-survey">CSAT Survey Scorecard</div>
+      <div class="tab" onclick="switchTab('sms')" id="tab-sms">SMS Quality Audit</div>
+      <div class="tab" onclick="switchTab('agents')" id="tab-agents">Manage Agents</div>
+      <div class="tab" onclick="switchTab('email')" id="tab-email">Email & Feedback Export</div>
+    </div>
+
+    <!-- AUDIT PANELS SECTION -->
+    <div id="audit-panels">
+      <!-- Google Sheets Setup -->
+      <div class="setup-panel" id="setup-panel">
+        <h3>Google Sheets connection</h3>
+        <p style="font-size:12px;color:var(--blue);margin-bottom:10px;">Paste your Apps Script Web App URL below to
+          automatically send audit results to your Google Sheet.</p>
+        <div class="setup-url">
+          <input type="text" id="sheet-url" placeholder="https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec" />
+          <button onclick="saveUrl()">Save</button>
+        </div>
+        <div id="conn-status" style="margin-top:8px;font-size:12px;"></div>
+      </div>
+
+      <!-- Audit Details -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Audit details</span></div>
+        <div class="card-body">
+          <div class="ag-grid" id="ag-grid-cont">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Score Bar -->
+      <div class="score-bar">
+        <div class="sc-card">
+          <div class="sc-lbl">Score</div>
+          <div class="sc-val"><span id="s-pts">0</span><span style="font-size:14px;font-weight:400;color:var(--g400)"> /
+              <span id="s-max">100</span></span></div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-lbl">Percentage</div>
+          <div class="sc-val" id="s-pct">–</div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-lbl">Rating</div>
+          <div class="sc-val" id="s-rate" style="font-size:15px;">–</div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-lbl">Unanswered</div>
+          <div class="sc-val" id="s-unans">0</div>
+        </div>
+      </div>
+      <div class="pb-track">
+        <div class="pb-fill" id="pbar"></div>
+      </div>
+      <div id="crit-flag" class="crit-flag">A critical item was triggered — this conversation requires immediate
+        coaching follow-up.</div>
+
+      <!-- Criteria Sections -->
+      <div id="sections"></div>
+
+      <!-- Custom Special Info (e.g. FCR / CSAT) -->
+      <div id="specials"></div>
+
+      <!-- Training Flag -->
+      <div class="card" style="border-color:var(--teal-md);">
+        <div class="card-body" style="background:var(--teal-lt); border-radius:var(--rs); padding: 12px 16px;">
+          <label
+            style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--teal-md); cursor:pointer;">
+            <input type="checkbox" id="training-flag" style="width:16px; height:16px; accent-color:var(--teal-md);">
+            Flag this conversation to be used for training (Perfect Call / High Value)
+          </label>
+        </div>
+      </div>
+
+      <!-- Audio Upload -->
+      <div class="card" style="border: 1px dashed var(--blue);">
+        <div class="card-body">
+          <label id="upload-label" style="font-size:12px; font-weight:600; color:var(--blue); display:block; margin-bottom:6px;">📎 Upload Call Recording(s) (Optional)</label>
+          <input type="file" id="audio-upload" accept="audio/*, video/*" multiple style="font-size:13px; width:100%;">
+          <div id="upload-desc" style="font-size:11px; color:var(--g400); margin-top:6px;">The file(s) will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.</div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">General Call Overview & Coaching Notes</span></div>
+        <div class="card-body">
+          <textarea id="notes" rows="4"
+            style="width:100%;resize:vertical;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);"
+            placeholder="Record key strengths, improvement areas, or general call overview..."></textarea>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="btn-row">
+        <button class="btn-primary" id="submit-btn" onclick="submitAudit()">Submit to Google Sheets</button>
+        <button class="btn-secondary" onclick="printPage()">Print / save PDF</button>
+        <button class="btn-danger" onclick="resetForm()">Reset form</button>
+      </div>
+      <div id="submit-status" class="submit-status"></div>
+
+      <!-- Setup Instructions -->
+      <br>
+      <details>
+        <summary>⚙️ How to connect your Google Sheet (UPDATED SCRIPT — Action Required) &nbsp;<span
+            style="font-size:11px;color:var(--red);font-weight:600;">— Must re-deploy for email & Drive to work</span></summary>
+        <div class="instructions-body">
+          <p style="background: var(--red-lt); color: var(--red); padding: 10px; border-radius: var(--rs); margin-bottom: 15px; font-weight: 500;">
+            ⚠️ IMPORTANT: If you have already deployed a previous version, you MUST paste the new script below and re-deploy as a new version. This activates the automatic email sending and Google Drive recording uploads.</p>
+          <p><strong>Step 1:</strong> Open your Google Sheet → <strong>Extensions → Apps Script</strong>.</p>
+          <p style="margin-top:8px;"><strong>Step 2:</strong> <u>Select all existing code and delete it</u>, then paste the new script below:</p>
+          <div style="position:relative;">
+            <button class="copy-btn" style="position:absolute;top:8px;right:8px;" onclick="copyScript()">Copy</button>
+            <div class="code-block" id="script-block">// ============================================================
+// QA Audit Script — Per-Agent Folder + Auto Email
+// Paste this ENTIRE block into your Apps Script editor
+// ============================================================
+
+function doPost(e) {
+  try {
+    var d = JSON.parse(e.postData.contents);
+    var doc = SpreadsheetApp.getActiveSpreadsheet();
+
+    // --- 1. Write to Google Sheet ---
+    var sheetName = d.auditType;
+    var sheet = doc.getSheetByName(sheetName);
+    if (!sheet) {
+      sheet = doc.insertSheet(sheetName);
+      sheet.appendRow(d.headers);
+    }
+
+    // --- 2. Handle Audio File / Screenshot Upload ---
+    var fileUrls = [];
+    if (d.files && d.files.length > 0 && d.agentName) {
+
+      // Get or create root "QA Recordings" folder
+      var rootFolderName = "QA Recordings";
+      var rootIter = DriveApp.getFoldersByName(rootFolderName);
+      var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder(rootFolderName);
+
+      // Get or create per-agent subfolder
+      var agentFolderName = d.agentName;
+      var agentIter = rootFolder.getFoldersByName(agentFolderName);
+      var agentFolder;
+      if (agentIter.hasNext()) {
+        agentFolder = agentIter.next();
+      } else {
+        agentFolder = rootFolder.createFolder(agentFolderName);
+        // Share the agent's folder ONLY with that agent (view only)
+        if (d.agentEmail) {
+          agentFolder.addViewer(d.agentEmail);
+        }
+      }
+
+      var today = new Date();
+      var dateStr = today.getFullYear() + "-"
+        + String(today.getMonth() + 1).padStart(2, "0") + "-"
+        + String(today.getDate()).padStart(2, "0");
+      var safeName = d.agentName.replace(/\s+/g, "_");
+      var safeType = d.auditType.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+
+      for (var j = 0; j < d.files.length; j++) {
+        var f = d.files[j];
+        var ext = f.fileName.split(".").pop();
+        var markedFileName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
+        
+        var splitBase = f.fileData.split(",");
+        var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
+        var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
+        var uploadedFile = agentFolder.createFile(blob);
+        fileUrls.push(uploadedFile.getUrl());
+      }
+    }
+    var fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
+
+    // --- 3. Replace placeholder in sheet row with Drive link ---
+    for (var i = 0; i < d.row.length; i++) {
+      if (d.row[i] === "[UPLOADING...]") {
+        d.row[i] = fileUrlStr;
+      }
+    }
+    sheet.appendRow(d.row);
+
+    // --- 4. Send Automatic Email to Agent (CC Evaluator) ---
+    if (d.emailSettings && d.emailSettings.to) {
+      var body = d.emailSettings.body;
+      if (fileUrls.length > 0) {
+        var linksHtml = fileUrls.map(function(url) { return "<a href='" + url + "'>" + url + "</a>"; }).join("<br><br>");
+        body = body.replace("[Call Recording Link]", linksHtml);
+        // Fallback if placeholder not found
+        if (body.indexOf(linksHtml) === -1) {
+          body += "<br><p>Attached files:<br>" + linksHtml + "</p>";
+        }
+      } else {
+        body = body.replace("[Call Recording Link]", "No files attached.");
+      }
+      var emailParams = {
+        to: d.emailSettings.to,
+        subject: d.emailSettings.subject,
+        htmlBody: body,
+        cc: d.emailSettings.cc + ',teresia.nyokabi@food4education.org'
+      };
+      MailApp.sendEmail(emailParams);
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", msg: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet() {
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "ok" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</div>
+          </div>
+          <p style="margin-top:8px;"><strong>Step 3 — Deploy as NEW version:</strong> In Apps Script, click <strong>Deploy → Manage Deployments</strong>. Click the ✏️ pencil/edit icon on your existing deployment. Change the <strong>Version</strong> dropdown to <strong>"New version"</strong>. Keep type as <strong>Web app</strong>, "Execute as" = <strong>Me</strong>, "Who has access" = <strong>Anyone</strong>. Click <strong>Deploy</strong>.</p>
+          <p style="margin-top:8px; background:var(--blue-lt); color:var(--blue); padding:10px; border-radius:var(--rs);"><strong>Step 3b — Authorize permissions (critical):</strong> After deploying, Google will show an <strong>"Authorization required"</strong> popup. Click <strong>"Review Permissions"</strong> → choose your Google account → click <strong>"Advanced"</strong> → <strong>"Go to [your project] (unsafe)"</strong> → <strong>"Allow"</strong>. This grants the script permission to send emails and save files to your Drive. Without this step, emails and recording uploads will NOT work.</p>
+          <p style="margin-top:8px;"><strong>Step 4:</strong> The deployment URL stays the same — you do NOT need to paste it again. Your existing saved connection will work automatically with the new script version.</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- AGENTS PANEL -->
+    <div id="agents-panel" style="display:none;"></div>
+
+    <!-- EMAIL PANEL -->
+    <div id="email-panel" style="display:none;"></div>
+
+  </div><!-- end wrap -->
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Agent Logic
+    const defaultAgents = [
+      { name: "Adah Achieng", email: "adah.achieng@food4education.org" },
+      { name: "Brian Gichuhi", email: "brian.gichuhi@food4education.org" },
+      { name: "Eddy Wanjiku", email: "eddy.gathogo@food4education.org" },
+      { name: "Gerald Macharia", email: "gerald.macharia@food4education.org" },
+      { name: "Janipher Achieng", email: "janipher@food4education.org" },
+      { name: "Joan Wachira", email: "joan.wachira@food4education.org" },
+      { name: "John Gitungi", email: "john.gitungi@food4education.org" },
+      { name: "Lilian Kemunto", email: "lilian.kemunto@food4education.org" },
+      { name: "Louisa Chikete", email: "louisa.chikete@food4education.org" },
+      { name: "Magdalene Mukami", email: "magdaline.njeru@food4education.org" },
+      { name: "Nancy Waweru", email: "nancy.waweru@food4education.org" }
+    ];
+
+    let agents = JSON.parse(localStorage.getItem('managed_agents')) || defaultAgents;
+
+    function autoFillEmail() {
+      const sel = document.getElementById('ag-name');
+      if (!sel) return;
+      const agent = agents.find(a => a.name === sel.value);
+      const emEl = document.getElementById('ag-email');
+      if (emEl) emEl.value = agent ? agent.email : '';
+    }
+
+    function addAgent() {
+      const nameEl = document.getElementById('new-ag-name');
+      const emailEl = document.getElementById('new-ag-email');
+      if (!nameEl.value || !emailEl.value) {
+        showToast('Please enter both name and email.', 'error');
+        return;
+      }
+      agents.push({ name: nameEl.value.trim(), email: emailEl.value.trim() });
+      agents.sort((a, b) => a.name.localeCompare(b.name));
+      localStorage.setItem('managed_agents', JSON.stringify(agents));
+      nameEl.value = '';
+      emailEl.value = '';
+      showToast('Agent added successfully.', 'success');
+      renderAgentsTab();
+      rebuildAgentSelects();
+    }
+
+    function deleteAgent(idx) {
+      if (!confirm(`Remove agent ${agents[idx].name}?`)) return;
+      agents.splice(idx, 1);
+      localStorage.setItem('managed_agents', JSON.stringify(agents));
+      showToast('Agent removed.', 'success');
+      renderAgentsTab();
+      rebuildAgentSelects();
+    }
+
+    function rebuildAgentSelects() {
+      const sel = document.getElementById('ag-name');
+      if (!sel) return;
+      const currentVal = sel.value;
+      sel.innerHTML = `<option value="">-- Select Agent --</option>` + agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+      sel.value = currentVal; // Restore selection if any
+    }
+
+    function formatImprovement(q) {
+      let text = q.label.trim();
+      if (text.endsWith('?')) text = text.slice(0, -1);
+      text = text.replace(/\s*\(if applicable\)$/i, '');
+
+      // Strip question-style prefixes
+      text = text.replace(/^did the agent /i, '');
+      text = text.replace(/^was the agent'?s? /i, '');
+      text = text.replace(/^was the /i, '');
+      text = text.replace(/^were the /i, '');
+      text = text.replace(/^were /i, '');
+
+      // Strip leading verbs common in QA questions
+      text = text.replace(/^(demonstrate|maintain|follow|use|show|provide|offer|confirm|manage|handle|probe|correctly|personalize|ask|tailor|build|record|capture|avoid|keep|allow|inform|thank|check|make|log|select|state|adhered to the|acknowledged the|personalized the)\s+/i, '');
+
+      // Strip trailing qualifiers and common endings
+      text = text.replace(/\s+(appropriately|effectively|professionally|properly|correctly|accurately|clearly|completely)\s*$/i, '');
+      text = text.replace(/\s+before engaging the caller$/i, '');
+      text = text.replace(/\s+and ready$/i, '');
+      text = text.replace(/\s+throughout the call$/i, '');
+      text = text.replace(/\s+completed$/i, '');
+      text = text.replace(/\s+followed$/i, '');
+      text = text.replace(/\s+selected$/i, '');
+      text = text.replace(/\s+offered accurate and complete$/i, '');
+      text = text.replace(/\s+offered$/i, '');
+      text = text.replace(/\s+within sla \(180 aht\)$/i, '');
+      text = text.replace(/\s+handled$/i, '');
+      text = text.replace(/\s+and protect the company image$/i, '');
+      text = text.replace(/\s+and offer further assistance before closing$/i, '');
+
+      // Strip stray leading words
+      text = text.replace(/^the\s+/i, '');
+      text = text.replace(/^correct\s+/i, '');
+      text = text.replace(/^set\s+/i, '');
+      text = text.replace(/^standard\s+/i, '');
+
+      text = text.trim();
+      if (!text) text = q.label.replace(/\?$/, '');
+
+      // Title case with lowercase conjunctions/prepositions
+      text = text.replace(/\b\w+/g, function(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); });
+      text = text.replace(/\b(And|The|Of|In|To|For|With|Or|A|An|At|By|On|If|As|Sla|Aht)\b/g, function(m) { return m.toLowerCase(); });
+      text = text.charAt(0).toUpperCase() + text.slice(1);
+
+      return '<li><i>' + text + ' [Lost ' + q.pts + ' points]</i></li>';
+    }
+
+    // Data Definitions
+    const AUDITS = {
+      inbound: {
+        id: 'inbound',
+        title: 'Inbound Scorecard',
+        numQuestions: 25,
+        fields: [
+          { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
+          { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
+          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'teresia.nyokabi@food4education.org' },
+          { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
+          { id: 'call-date', label: 'Date the call was received', type: 'date' },
+          { id: 'call-type', label: 'Type of call', type: 'select', options: ['New Caller', 'Complaint Escalation', 'Follow-up'] },
+          { id: 'post-call-survey', label: 'Post call survey done (Optional)', type: 'select', options: ['NPS', 'Food Satisfaction', 'CES'] },
+          { id: 'audit-date', label: 'Audit date', type: 'date' }
+        ],
+        sections: [
+          {
+            id: 's2', title: 'Call Opening & Structure', criteria: [
+              { id: 'q1', label: 'Was the agent prepared and ready before engaging the caller?', pts: 2, crit: false, na: false },
+              { id: 'q2', label: 'Did the agent follow the set standard opening procedure?', pts: 4, crit: false, na: false },
+              { id: 'q3', label: 'Did the agent personalize the interaction appropriately?', pts: 2, crit: false, na: false },
+              { id: 'q4', label: 'Did the agent maintain a structured and logical call flow?', pts: 3, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's3', title: 'Communication & Soft Skills', criteria: [
+              { id: 'q5', label: 'Did the agent demonstrate active listening?', pts: 5, crit: false, na: false },
+              { id: 'q6', label: 'Was the agent\'s tone, pace, and volume appropriate?', pts: 4, crit: false, na: false },
+              { id: 'q7', label: 'Did the agent use the right choice of words?', pts: 4, crit: false, na: false },
+              { id: 'q8', label: 'Did the agent maintain professionalism throughout the call?', pts: 4, crit: false, na: false },
+              { id: 'q9', label: 'Did the agent demonstrate willingness to assist?', pts: 4, crit: false, na: false },
+              { id: 'q10', label: 'Did the agent show ownership and accountability?', pts: 4, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's4', title: 'Process & Compliance', criteria: [
+              { id: 'q11', label: 'Was the correct account verification process completed?', pts: 4, crit: false, na: false },
+              { id: 'q12', label: 'Were the set troubleshooting steps followed?', pts: 4, crit: false, na: false },
+              { id: 'q13', label: 'Were correct escalation procedures followed (if applicable)?', pts: 4, crit: false, na: false },
+              { id: 'q14', label: 'Was the correct call disposition selected?', pts: 4, crit: false, na: false },
+              { id: 'q15', label: 'Did the agent follow the set standard closing procedure?', pts: 4, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's5', title: 'Resolution Quality & Accuracy', criteria: [
+              { id: 'q16', label: 'Did the agent correctly identify the customer\'s issue?', pts: 6, crit: false, na: false },
+              { id: 'q17', label: 'Did the agent probe effectively to gather necessary information?', pts: 5, crit: false, na: false },
+              { id: 'q18', label: 'Was the resolution offered accurate and complete?', pts: 7, crit: false, na: false },
+              { id: 'q19', label: 'Did the agent provide relevant additional information or alternatives (if applicable)?', pts: 4, crit: false, na: false },
+              { id: 'q20', label: 'Did the agent confirm the caller\'s understanding of the resolution?', pts: 4, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's6', title: 'Customer Experience & Efficiency', criteria: [
+              { id: 'q21', label: 'Did the agent manage objections professionally and protect the company image? (if applicable)', pts: 3, crit: false, na: false },
+              { id: 'q22', label: 'Did the agent avoid unnecessary silence or dead air?', pts: 3, crit: false, na: false },
+              { id: 'q23', label: 'Did the agent use the caller\'s preferred language?', pts: 3, crit: false, na: false },
+              { id: 'q24', label: 'Was the call handled within SLA (180 AHT)?', pts: 3, crit: false, na: false },
+              { id: 'q25', label: 'Did the agent confirm satisfaction and offer further assistance before closing?', pts: 6, crit: false, na: false }
+            ]
+          }
+        ],
+        specials: [
+          {
+            id: 's7', title: 'Critical Compliance Checks (Non-Scored - Mandatory Review)',
+            desc: 'If any of the below occurred, overall call score is overridden and flagged as a critical failure.',
+            type: 'checkboxes',
+            options: [
+              { label: 'No verification completed' },
+              { label: 'Data privacy breach - sharing account information without verification' },
+              { label: 'Rude or inappropriate call handling conduct' },
+              { label: 'Incorrect resolution with financial or reputational impact' }
+            ]
+          },
+          {
+            id: 's8', title: 'Customer Sentiment & Resolution',
+            type: 'custom',
+            html: `
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; padding: 10px 0;">
+            <div class="field">
+              <label>CSAT/VOC Proxy (Manual)</label>
+              <select id="voc-select" style="margin-top: 4px;">
+                  <option value="">-- Select Score --</option>
+                  <option value="5">5</option>
+                  <option value="4">4</option>
+                  <option value="3">3</option>
+                  <option value="2">2</option>
+                  <option value="1">1</option>
+              </select>
+            </div>
+            <div class="field">
+              <label style="line-height:1.4;">First Call Resolution (FCR) - Was the issue fully resolved or clearly set on the correct resolution path?</label>
+              <select id="fcr-select" style="margin-top: 4px;">
+                  <option value="">-- Select --</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        `
+          }
+        ]
+      },
+      sms: {
+        id: 'sms',
+        title: 'SMS Quality Audit',
+        numQuestions: 14,
+        fields: [
+          { id: 'ag-name', label: 'Agent name', type: 'agent-select' },
+          { id: 'ag-email', label: 'Agent email', type: 'email', readonly: true },
+          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
+          { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
+          { id: 'conv-date', label: 'Conversation date', type: 'date' },
+          { id: 'audit-date', label: 'Audit date', type: 'date' }
+        ],
+        sections: [
+          {
+            id: 'op', title: 'Opening & greeting', criteria: [
+              { id: 'q1', label: 'Adhered to the standard SMS/chat opening procedure', pts: 6, crit: false, na: false },
+              { id: 'q2', label: 'Acknowledged the customer\'s request and showed willingness to assist', pts: 7, crit: false, na: false },
+              { id: 'q3', label: 'Personalized the conversation — humanized the interaction beyond the script', pts: 7, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'vr', title: 'Account verification', criteria: [
+              { id: 'q4', label: 'Followed proper account verification procedures without unnecessary delays', pts: 10, crit: true, na: false },
+              { id: 'q5', label: 'Verification was accurate and completed in a timely manner', pts: 10, crit: true, na: false }
+            ]
+          },
+          {
+            id: 'ir', title: 'Issue understanding & resolution', criteria: [
+              { id: 'q6', label: 'Probed effectively to fully understand the customer\'s issue before responding', pts: 7, crit: false, na: false },
+              { id: 'q7', label: 'Summarized and confirmed the issue with the customer before offering a solution', pts: 8, crit: false, na: false },
+              { id: 'q8', label: 'Provided accurate and complete information to resolve the issue', pts: 10, crit: true, na: false },
+              { id: 'q9', label: 'Used appropriate resources (knowledge base, escalation) when required', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'sq', title: 'Service quality', criteria: [
+              { id: 'q10', label: 'Demonstrated empathy and maintained a solution-oriented approach throughout', pts: 8, crit: false, na: false },
+              { id: 'q11', label: 'Avoided unnecessary back-and-forth — kept the conversation efficient', pts: 7, crit: false, na: false },
+              { id: 'q12', label: 'Proactively offered additional helpful information to the customer', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'cc', title: 'Communication & closure', criteria: [
+              { id: 'q13', label: 'Avoided grammatical errors, unclear statements, and punctuation issues', pts: 5, crit: false, na: false },
+              { id: 'q14', label: 'Adhered to the standard SMS/chat closure procedure', pts: 5, crit: false, na: false }
+            ]
+          }
+        ],
+        specials: []
+      },
+      outbound: {
+        id: 'outbound',
+        title: 'Outbound Call Scorecard (Campaign-Focused)',
+        numQuestions: 18,
+        fields: [
+          { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
+          { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
+          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
+          { id: 'campaign-name', label: 'Campaign Name', type: 'text' },
+          { id: 'call-date', label: 'Date of the call', type: 'date' },
+          { id: 'audit-date', label: 'Audit date', type: 'date' }
+        ],
+        sections: [
+          {
+            id: 'o_s1', title: '1. Call Preparation & Opening', criteria: [
+              { id: 'o_q1', label: 'Was the agent prepared with the correct customer context and campaign objective?', pts: 5, crit: false, na: false },
+              { id: 'o_q2', label: 'Did the agent clearly introduce themselves and the organization?', pts: 5, crit: false, na: false },
+              { id: 'o_q3', label: 'Did the agent clearly state the purpose of the call early?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'o_s2', title: '2. Communication Quality', criteria: [
+              { id: 'o_q4', label: 'Did the agent demonstrate active listening (no interruptions, relevant responses)?', pts: 6, crit: false, na: false },
+              { id: 'o_q5', label: 'Did the agent use clear, concise, and appropriate language (tone, pace, volume)?', pts: 6, crit: false, na: false },
+              { id: 'o_q6', label: 'Was the agent professional and respectful throughout the call?', pts: 6, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'o_s3', title: '3. Engagement & Probing', criteria: [
+              { id: 'o_q7', label: 'Did the agent ask relevant questions to understand the customer’s situation?', pts: 6, crit: false, na: false },
+              { id: 'o_q8', label: 'Did the agent tailor the conversation based on customer responses (not scripted only)?', pts: 6, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'o_s4', title: '4. Influence & Ownership', criteria: [
+              { id: 'o_q9', label: 'Did the agent clearly explain the required action (e.g., tag replacement, top-up, attendance)?', pts: 6, crit: false, na: false },
+              { id: 'o_q10', label: 'Did the agent demonstrate accountability and willingness to assist?', pts: 6, crit: false, na: false },
+              { id: 'o_q11', label: 'Did the agent handle objections or hesitation effectively?', pts: 6, crit: false, na: true }
+            ]
+          },
+          {
+            id: 'o_s5', title: '5. Customer Experience', criteria: [
+              { id: 'o_q12', label: 'Was the agent empathetic, courteous, and polite?', pts: 5, crit: false, na: false },
+              { id: 'o_q13', label: 'Did the agent build trust and confidence in the program/service?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'o_s6', title: '6. Resolution & Clarity', criteria: [
+              { id: 'o_q14', label: 'Did the agent provide accurate and complete information?', pts: 5, crit: false, na: false },
+              { id: 'o_q15', label: 'Did the agent confirm understanding of next steps with the customer?', pts: 5, crit: false, na: false },
+              { id: 'o_q16', label: 'Did the agent confirm customer willingness/commitment to act?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'o_s7', title: '7. Closing & Compliance', criteria: [
+              { id: 'o_q17', label: 'Did the agent follow the standard closing procedure?', pts: 6, crit: false, na: false },
+              { id: 'o_q18', label: 'Did the agent correctly log/select the appropriate disposition?', pts: 6, crit: false, na: false }
+            ]
+          }
+        ],
+        specials: []
+      },
+      survey: {
+        id: 'survey',
+        title: 'Consumer Satisfaction Survey Calls',
+        numQuestions: 20,
+        fields: [
+          { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
+          { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
+          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
+          { id: 'call-date', label: 'Date the call was made', type: 'date' },
+          { id: 'audit-date', label: 'Audit date', type: 'date' }
+        ],
+        sections: [
+          {
+            id: 'sv_s1', title: '1. Call Preparation & Opening', criteria: [
+              { id: 'sv_q1', label: 'Was the agent prepared with the correct customer details and survey context?', pts: 5, crit: false, na: false },
+              { id: 'sv_q2', label: 'Did the agent introduce themselves and the organization clearly?', pts: 5, crit: false, na: false },
+              { id: 'sv_q3', label: 'Did the agent inform the customer that the call may be recorded (where applicable)?', pts: 5, crit: false, na: false },
+              { id: 'sv_q4', label: 'Did the agent clearly state the purpose of the call (survey)?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'sv_s2', title: '2. Communication Quality', criteria: [
+              { id: 'sv_q5', label: 'Did the agent demonstrate active listening?', pts: 5, crit: false, na: false },
+              { id: 'sv_q6', label: 'Did the agent communicate clearly using appropriate tone, pace, and language?', pts: 5, crit: false, na: false },
+              { id: 'sv_q7', label: 'Was the agent professional and respectful throughout the call?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'sv_s3', title: '3. Survey Delivery (Critical Section)', criteria: [
+              { id: 'sv_q8', label: 'Did the agent ask all survey questions exactly as designed (no leading or rephrasing bias)?', pts: 5, crit: true, na: false },
+              { id: 'sv_q9', label: 'Did the agent maintain neutrality (no influencing or prompting responses)?', pts: 5, crit: true, na: false },
+              { id: 'sv_q10', label: 'Did the agent allow the customer adequate time to respond without interruption?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'sv_s4', title: '4. Data Accuracy & Integrity', criteria: [
+              { id: 'sv_q11', label: 'Did the agent record responses accurately and completely?', pts: 5, crit: false, na: false },
+              { id: 'sv_q12', label: 'Did the agent avoid assumptions or altering customer responses?', pts: 5, crit: false, na: false },
+              { id: 'sv_q13', label: 'Did the agent capture the NPS score and verbatim feedback accurately?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 'sv_s5', title: '5. Customer Experience', criteria: [
+              { id: 'sv_q14', label: 'Was the agent courteous, empathetic, and patient?', pts: 5, crit: false, na: false },
+              { id: 'sv_q15', label: 'Did the agent demonstrate willingness to assist if the customer had concerns?', pts: 5, crit: false, na: true }
+            ]
+          },
+          {
+            id: 'sv_s6', title: '6. Value Addition & Support', criteria: [
+              { id: 'sv_q16', label: 'Did the agent provide relevant additional information when appropriate (without derailing the survey)?', pts: 5, crit: false, na: true },
+              { id: 'sv_q17', label: 'Did the agent handle any questions or concerns appropriately?', pts: 5, crit: false, na: true }
+            ]
+          },
+          {
+            id: 'sv_s7', title: '7. Closing & Compliance', criteria: [
+              { id: 'sv_q18', label: 'Did the agent follow the standard closing procedure?', pts: 5, crit: false, na: false },
+              { id: 'sv_q19', label: 'Did the agent thank the customer for their time and participation?', pts: 5, crit: false, na: false },
+              { id: 'sv_q20', label: 'Did the agent correctly select the appropriate disposition?', pts: 5, crit: false, na: false }
+            ]
+          }
+        ],
+        specials: []
+      }
+    };
+
+    let currentAuditType = null;
+    let scores = {};
+
+    function switchTab(type) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + type).classList.add('active');
+
+      document.getElementById('audit-panels').style.display = 'none';
+      document.getElementById('agents-panel').style.display = 'none';
+      document.getElementById('email-panel').style.display = 'none';
+
+      if (type === 'sms' || type === 'inbound' || type === 'outbound' || type === 'survey') {
+        if (currentAuditType !== type) {
+          currentAuditType = type;
+          scores = {};
+          document.getElementById('notes').value = '';
+
+          const config = AUDITS[type];
+          document.title = config.title;
+          document.getElementById('top-title').textContent = config.title;
+
+          renderFields(config.fields);
+          renderSections(config.sections);
+          renderSpecials(config.specials);
+
+          if (document.getElementById('audit-date')) {
+            document.getElementById('audit-date').value = new Date().toISOString().split('T')[0];
+          }
+          autoFillEmail();
+        }
+        const uploadLabel = document.getElementById('upload-label');
+        const uploadDesc = document.getElementById('upload-desc');
+        const uploadInput = document.getElementById('audio-upload');
+        if (uploadLabel && uploadInput && uploadDesc) {
+          if (type === 'sms') {
+            uploadLabel.textContent = '📎 Upload Screenshots (Optional)';
+            uploadInput.accept = 'image/*';
+            uploadDesc.textContent = 'Screenshots will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.';
+          } else {
+            uploadLabel.textContent = '📎 Upload Call Recording(s) (Optional)';
+            uploadInput.accept = 'audio/*, video/*';
+            uploadDesc.textContent = 'The file(s) will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB (MP3 recommended).';
+          }
+        }
+        document.getElementById('audit-panels').style.display = 'block';
+        refreshAll();
+      } else if (type === 'agents') {
+        document.getElementById('agents-panel').style.display = 'block';
+        renderAgentsTab();
+      } else if (type === 'email') {
+        document.getElementById('email-panel').style.display = 'block';
+        if (!currentAuditType) {
+          document.getElementById('email-panel').innerHTML = '<div style="padding:20px;text-align:center;color:var(--g600);">Please start an audit first.</div>';
+        } else {
+          renderEmailTab();
+        }
+      }
+    }
+
+    function renderFields(fields) {
+      const cont = document.getElementById('ag-grid-cont');
+      cont.innerHTML = fields.map(f => {
+        let input = '';
+        let defVal = f.default ? f.default : '';
+
+        if (f.type === 'agent-select') {
+          input = `<select id="${f.id}" onchange="autoFillEmail()">
+                <option value="">-- Select Agent --</option>
+                ${agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
+            </select>`;
+        } else if (f.type === 'select') {
+          input = `<select id="${f.id}">
+                <option value="">-- Select --</option>
+                ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>`;
+        } else {
+          let rdonly = f.readonly ? `readonly style="background:var(--g100); color:var(--g600);"` : '';
+          input = `<input type="${f.type}" id="${f.id}" placeholder="${f.placeholder || ''}" value="${defVal}" ${rdonly}>`;
+        }
+        return `<div class="field"><label>${f.label}</label>${input}</div>`;
+      }).join('');
+    }
+
+    function renderSections(sections) {
+      const cont = document.getElementById('sections');
+      cont.innerHTML = sections.map(sec => {
+        let maxPts = sec.criteria.reduce((sum, q) => sum + (q.pts || 0), 0);
+        return `<div class="card">
+        <div class="card-hd">
+          <span class="card-title">${sec.title}</span>
+          <span class="card-pts"><span id="sec-e-${sec.id}">0</span> / ${maxPts} pts</span>
+        </div>
+        <div class="card-body" style="padding:0;">
+          ${sec.criteria.map(q => `
+            <div class="cr-row" id="row-${q.id}">
+              <div class="cr-label">${q.label}${q.crit ? '<span class="crit-tag">Critical Point</span>' : ''}</div>
+              <div class="cr-pts">[${q.pts} pts]</div>
+              <div class="cr-btns">
+                <button class="yb" id="${q.id}-y" onclick="pick('${q.id}','yes','${sec.id}')">Yes</button>
+                <button class="nb" id="${q.id}-n" onclick="pick('${q.id}','no','${sec.id}')">No</button>
+                ${q.na ? `<button class="na-btn" id="${q.id}-na" onclick="pick('${q.id}','na','${sec.id}')">N/A</button>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderSpecials(specials) {
+      const cont = document.getElementById('specials');
+      if (!specials || specials.length === 0) {
+        cont.innerHTML = '';
+        return;
+      }
+      cont.innerHTML = specials.map(sec => {
+        return `<div class="card">
+          <div class="card-hd"><span class="card-title" style="color:var(--g800);">${sec.title}</span></div>
+          <div class="card-body">
+            ${sec.desc ? `<p style="font-size:12px;margin-bottom:12px;color:var(--red); font-weight: 500;">${sec.desc}</p>` : ''}
+            ${sec.type === 'checkboxes' ? `
+              <div style="display:flex;flex-direction:column;gap:10px;">
+              ${sec.options.map((o, i) => `
+                 <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
+                   <input type="checkbox" class="crit-cb" value="${o.label}" onchange="refreshAll()" style="width: 16px; height: 16px; accent-color: var(--red);">
+                   ${o.label}
+                 </label>
+              `).join('')}
+              </div>
+            ` : sec.html}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function pick(qid, val, sid) {
+      scores[qid] = val;
+      const config = AUDITS[currentAuditType];
+      const q = config.sections.flatMap(s => s.criteria).find(c => c.id === qid);
+      document.getElementById(qid + '-y').classList.toggle('active', val === 'yes');
+      document.getElementById(qid + '-n').classList.toggle('active', val === 'no');
+      if (q.na) document.getElementById(qid + '-na').classList.toggle('active', val === 'na');
+      refreshSec(sid);
+      refreshAll();
+    }
+
+    function refreshSec(sid) {
+      // Handled by refreshAll
+    }
+
+    function refreshAll() {
+      const config = AUDITS[currentAuditType];
+      if (!config) return;
+      let earned = 0, possible = 0, answered = 0, critFail = false;
+
+      config.sections.forEach(sec => sec.criteria.forEach(q => {
+        const v = scores[q.id];
+        if (v !== undefined) answered++;
+        if (v === 'na') return;
+        possible += q.pts;
+        if (v === 'yes') earned += q.pts;
+        if (q.crit && v === 'no') critFail = true;
+      }));
+
+      // Special checkboxes override
+      document.querySelectorAll('.crit-cb').forEach(cb => {
+        if (cb.checked) critFail = true;
+      });
+
+      if (critFail) {
+        earned = 0;
+      }
+      
+      // Update section scores visually
+      config.sections.forEach(sec => {
+        let secEarned = 0;
+        if (!critFail) {
+           sec.criteria.forEach(q => { if (scores[q.id] === 'yes') secEarned += q.pts; });
+        }
+        const el = document.getElementById('sec-e-' + sec.id);
+        if (el) el.textContent = secEarned;
+      });
+
+      const pct = possible > 0 ? Math.round(earned / possible * 100) : 0;
+      const unanswered = config.numQuestions - answered;
+
+      const ptsEl = document.getElementById('s-pts');
+      if (ptsEl) ptsEl.textContent = earned;
+      const maxEl = document.getElementById('s-max');
+      if (maxEl) maxEl.textContent = possible;
+      const topScore = document.getElementById('top-score');
+      if (topScore) topScore.textContent = earned;
+      const unEl = document.getElementById('s-unans');
+      if (unEl) unEl.textContent = unanswered;
+      const pctEl = document.getElementById('s-pct');
+      if (pctEl) pctEl.textContent = answered > 0 ? pct + '%' : '–';
+
+      const pb = document.getElementById('pbar');
+      if (pb) pb.style.width = pct + '%';
+
+      const re = document.getElementById('s-rate');
+      const tr = document.getElementById('top-rating');
+      let rating = '–', cls = '', pbColor = '#888780';
+
+      if (answered > 0 || critFail) {
+        if (critFail) { rating = 'Critical Fail / Override'; cls = 'poor'; pbColor = '#e24b4a'; }
+        else if (pct >= 96) { rating = 'Excellent'; cls = 'exc'; pbColor = '#639922'; }
+        else if (pct >= 86) { rating = 'Good'; cls = 'good'; pbColor = '#378add'; }
+        else if (pct >= 70) { rating = 'Satisfactory'; cls = 'sat'; pbColor = '#ef9f27'; }
+        else { rating = 'Needs improvement'; cls = 'poor'; pbColor = '#e24b4a'; }
+      }
+
+      if (re) {
+        re.textContent = rating;
+        re.className = 'sc-val ' + cls;
+      }
+      if (tr) tr.textContent = rating;
+      if (pb) pb.style.background = pbColor;
+      const flg = document.getElementById('crit-flag');
+      if (flg) flg.style.display = critFail ? 'block' : 'none';
+    }
+
+    function renderAgentsTab() {
+      const cont = document.getElementById('agents-panel');
+      cont.innerHTML = `
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Manage Agents</span></div>
+        <div class="card-body">
+           <table style="width:100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-bottom: 20px;">
+             <thead>
+                 <tr style="border-bottom: 1px solid var(--border);"><th style="padding:10px 8px;">Agent Name</th><th style="padding:10px 8px;">Email Address</th><th style="padding:10px 8px; width: 80px;">Action</th></tr>
+             </thead>
+             <tbody>
+                 ${agents.map((a, idx) => `
+                   <tr style="border-bottom: 1px solid var(--g100);">
+                     <td style="padding:10px 8px; font-weight:500;">${a.name}</td>
+                     <td style="padding:10px 8px; color:var(--g600);">${a.email}</td>
+                     <td style="padding:10px 8px;"><button style="background:var(--red-lt); color:var(--red); border:1px solid #f0a0a0; padding:6px 10px; border-radius:4px; font-size:11px; font-weight:500; cursor:pointer;" onclick="deleteAgent(${idx})">Remove</button></td>
+                   </tr>
+                 `).join('')}
+                 ${agents.length === 0 ? `<tr><td colspan="3" style="padding:20px; text-align:center; color:var(--g400);">No agents added.</td></tr>` : ''}
+             </tbody>
+           </table>
+           
+           <div style="background: var(--g50); padding: 16px; border-radius: var(--rs); border: 1px solid var(--border);">
+             <p style="font-size:12px; font-weight:600; color:var(--g800); margin-bottom:8px;">Add New Agent</p>
+             <div style="display:flex; gap: 10px; flex-wrap:wrap;">
+                 <input type="text" id="new-ag-name" placeholder="Agent Name" style="flex:1; min-width:150px; padding:8px 12px; border:1px solid var(--border); border-radius:4px; font-size:13px;">
+                 <input type="email" id="new-ag-email" placeholder="Email Address" style="flex:1; min-width:150px; padding:8px 12px; border:1px solid var(--border); border-radius:4px; font-size:13px;">
+                 <button class="btn-primary" onclick="addAgent()">Add Agent</button>
+             </div>
+           </div>
+        </div>
+      </div>
+    `;
+    }
+
+    function renderEmailTab() {
+      const config = AUDITS[currentAuditType];
+      const agNameEl = document.getElementById('ag-name');
+      const agName = agNameEl ? agNameEl.value : '[Agent Name]';
+      const agEmailEl = document.getElementById('ag-email');
+      const agEmail = agEmailEl ? agEmailEl.value : '';
+      const notesEl = document.getElementById('notes');
+      const notes = notesEl ? notesEl.value : '';
+      const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
+      let evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
+      evEmail = evEmail ? `${evEmail}, Terry Nyokabi <teresia.nyokabi@food4education.org>` : 'Terry Nyokabi <teresia.nyokabi@food4education.org>';
+      const sPct = document.getElementById('s-pct').textContent;
+      const sRate = document.getElementById('s-rate').textContent;
+      
+      let auditDateEl = document.getElementById('audit-date');
+      let auditDate = auditDateEl && auditDateEl.value ? auditDateEl.value : '[Date]';
+      let phoneEl = document.getElementById('caller-num') || document.getElementById('cx-phone') || document.getElementById('sms-num');
+      let phoneNumber = phoneEl && phoneEl.value ? phoneEl.value : '[Phone Number]';
+
+      let improvements = [];
+      config.sections.forEach(sec => sec.criteria.forEach(q => {
+        if (scores[q.id] === 'no') {
+          improvements.push(formatImprovement(q));
+        }
+      }));
+      document.querySelectorAll('.crit-cb').forEach(cb => {
+        if (cb.checked) improvements.push(`<li><i>CRITICAL FAILURE: ${cb.value}</i></li>`);
+      });
+
+      let improvementsText = improvements.length > 0 ? `<ul style="margin:4px 0 12px 0; padding-left:20px;">${improvements.join('')}</ul>` : '<p style="margin:0 0 12px 0;"><i>No specific areas of improvement flagged (Perfect!).</i></p>';
+      
+      let generalNotes = notes.replace(/\n/g, '<br>') || 'None';
+
+      let scoreText = '';
+      if (currentAuditType === 'inbound') scoreText = 'inbound call score';
+      else if (currentAuditType === 'outbound') scoreText = 'outbound call score';
+      else if (currentAuditType === 'survey') scoreText = 'csat survey call score';
+      else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
+      else scoreText = `${config.title} score`;
+
+      const emailBody = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
+<p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
+<p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
+<p style="margin:0 0 12px 0;">Total Score: <b>${sPct}</b></p>
+<p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
+${improvementsText}
+<p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
+<p style="margin:0 0 16px 0;">${generalNotes}</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
+<p style="margin:0 0 16px 0;">[Call Recording Link]</p>
+<p style="margin:0;">Best regards,<br>QA Team</p>
+</div>`;
+
+      const cont = document.getElementById('email-panel');
+      cont.innerHTML = `
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Send Audit Summary & Recording</span></div>
+        <div class="card-body">
+           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom:12px;">
+               <div class="field">
+                 <label>Evaluator Email (Sender / CC)</label>
+                 <input type="text" id="em-sender" value="${evEmail}" readonly style="background:var(--g50); color:var(--g600);">
+               </div>
+               <div class="field">
+                 <label>Agent Email (To)</label>
+                 <input type="text" id="em-to" value="${agEmail}" readonly style="background:var(--g50); color:var(--g600);">
+               </div>
+           </div>
+           
+           <div class="field" style="margin-bottom:16px;">
+             <label>Call Recording Link (e.g., Google Drive URL)</label>
+             <input type="text" id="em-link" placeholder="Paste recording link here..." oninput="updateEmailBody()">
+           </div>
+           
+            <div class="field" style="margin-bottom:20px;">
+              <label>Preview Email Content <span style="font-weight:400;color:var(--teal);font-size:11px;">(Click the email below to edit areas of improvement and general feedback before sending)</span></label>
+              <div id="em-body" contenteditable="true" style="width:100%; min-height:250px; border-radius:var(--rs); border:1px solid var(--border); padding:12px; font-size:14px; font-family:Georgia, serif; line-height:1.5; background:#fff; overflow-y:auto;" onfocus="this.style.borderColor='var(--teal-md)';" onblur="this.style.borderColor='var(--border)';">${emailBody}</div>
+            </div>
+           
+           <div style="display:flex; gap:10px; flex-wrap:wrap;">
+             <button class="btn-primary" onclick="openEmailClient()">Open in Email Client (Outlook / Gmail)</button>
+             <button class="btn-secondary" onclick="copyEmailBody()">Copy Template to Clipboard</button>
+           </div>
+        </div>
+      </div>
+    `;
+    }
+
+    function updateEmailBody() {
+      const link = document.getElementById('em-link').value;
+      const box = document.getElementById('em-body');
+      if (!box) return;
+
+      let linkStr = link ? `${link}` : `[Call Recording Link]`;
+      const agNameEl = document.getElementById('ag-name');
+      const agName = agNameEl ? agNameEl.value : '[Agent Name]';
+      const config = AUDITS[currentAuditType];
+      const sPct = document.getElementById('s-pct').textContent;
+      const sRate = document.getElementById('s-rate').textContent;
+      const notesEl = document.getElementById('notes');
+      const notes = notesEl ? notesEl.value : '';
+      
+      let auditDateEl = document.getElementById('audit-date');
+      let auditDate = auditDateEl && auditDateEl.value ? auditDateEl.value : '[Date]';
+      let phoneEl = document.getElementById('caller-num') || document.getElementById('cx-phone') || document.getElementById('sms-num');
+      let phoneNumber = phoneEl && phoneEl.value ? phoneEl.value : '[Phone Number]';
+
+      let improvements = [];
+      config.sections.forEach(sec => sec.criteria.forEach(q => {
+        if (scores[q.id] === 'no') {
+          improvements.push(formatImprovement(q));
+        }
+      }));
+      document.querySelectorAll('.crit-cb').forEach(cb => {
+        if (cb.checked) improvements.push(`<li><i>CRITICAL FAILURE: ${cb.value}</i></li>`);
+      });
+
+      let improvementsText = improvements.length > 0 ? `<ul style="margin:4px 0 12px 0; padding-left:20px;">${improvements.join('')}</ul>` : '<p style="margin:0 0 12px 0;"><i>No specific areas of improvement flagged (Perfect!).</i></p>';;
+      
+      let generalNotes = notes.replace(/\n/g, '<br>') || 'None';
+
+      let scoreText = '';
+      if (currentAuditType === 'inbound') scoreText = 'inbound call score';
+      else if (currentAuditType === 'outbound') scoreText = 'outbound call score';
+      else if (currentAuditType === 'survey') scoreText = 'csat survey call score';
+      else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
+      else scoreText = `${config.title} score`;
+
+      box.innerHTML = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
+<p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
+<p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
+<p style="margin:0 0 12px 0;">Total Score: <b>${sPct}</b></p>
+<p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
+${improvementsText}
+<p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
+<p style="margin:0 0 16px 0;">${generalNotes}</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
+<p style="margin:0 0 16px 0;">${linkStr}</p>
+<p style="margin:0;">Best regards,<br>QA Team</p>
+</div>`;
+    }
+
+    function openEmailClient() {
+      const to = document.getElementById('em-to').value;
+      let cc = document.getElementById('em-sender').value;
+      if (!cc) cc = 'vinceciana.wairimu@food4education.org';
+      const agn = document.getElementById('ag-name').value || 'Agent';
+      const subject = encodeURIComponent(`${AUDITS[currentAuditType].title} Results - ${agn}`);
+      // mailto doesn't support HTML, convert basic tags to text
+      let textBody = document.getElementById('em-body').innerText;
+      const body = encodeURIComponent(textBody);
+
+      window.location.href = `mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+    }
+
+    function copyEmailBody() {
+      const box = document.getElementById('em-body');
+      const range = document.createRange();
+      range.selectNodeContents(box);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      navigator.clipboard.writeText(box.innerText).then(() => {
+        showToast('Email body text copied to clipboard!', 'info');
+      });
+    }
+
+    function saveUrl() {
+      const url = document.getElementById('sheet-url').value.trim();
+      if (!url.startsWith('https://script.google.com')) {
+        showToast('Please enter a valid Apps Script URL.', 'error'); return;
+      }
+      localStorage.setItem('combined_audit_sheet_url', url);
+      updateConnStatus(url);
+      showToast('Google Sheets URL saved.', 'success');
+    }
+
+    function updateConnStatus(url) {
+      const el = document.getElementById('conn-status');
+      if (url) {
+        el.innerHTML = '<span class="connected-badge">&#10003; Connected</span> &nbsp;<span style="font-size:11px;color:var(--g400);">Audits will be sent to your sheet.</span>';
+      } else {
+        el.innerHTML = '<span style="color:var(--amber);font-size:12px;">No sheet connected. Audits won\'t be saved automatically.</span>';
+      }
+    }
+
+    async function submitAudit() {
+      const url = localStorage.getItem('combined_audit_sheet_url');
+      const btn = document.getElementById('submit-btn');
+      const status = document.getElementById('submit-status');
+
+      if (!url) { showToast('Connect your Google Sheet first (see setup instructions).', 'error'); return; }
+
+      const config = AUDITS[currentAuditType];
+      const unanswered = config.numQuestions - Object.keys(scores).length;
+      if (unanswered > 0) {
+        if (!confirm(`${unanswered} question(s) are still unanswered. Submit anyway?`)) return;
+      }
+
+      let earned = 0, possible = 0, critFail = false;
+      config.sections.forEach(sec => sec.criteria.forEach(q => {
+        const v = scores[q.id];
+        if (v === 'na') return;
+        possible += q.pts;
+        if (v === 'yes') earned += q.pts;
+        if (q.crit && v === 'no') critFail = true;
+      }));
+
+      let issues = [];
+      document.querySelectorAll('.crit-cb').forEach(cb => {
+        if (cb.checked) { critFail = true; issues.push(cb.value); }
+      });
+
+      const pct = possible > 0 ? Math.round(earned / possible * 100) : 0;
+      const rating = critFail ? 'Critical fail' :
+        pct >= 96 ? 'Excellent' : pct >= 86 ? 'Good' :
+          pct >= 70 ? 'Satisfactory' : 'Needs improvement';
+
+      let headers = ['Timestamp', 'Audit Type'];
+      let row = [new Date().toLocaleString(), config.title];
+
+      config.fields.forEach(f => {
+        headers.push(f.label);
+        let el = document.getElementById(f.id);
+        row.push(el ? el.value : '');
+      });
+
+      config.sections.forEach(sec => sec.criteria.forEach(q => {
+        headers.push('(' + q.pts + 'pts) ' + q.label);
+        row.push(scores[q.id] || '–');
+      }));
+
+      if (config.specials.length > 0) {
+        headers.push('Critical Compliance Violations');
+        row.push(issues.length > 0 ? issues.join(', ') : 'None');
+
+        headers.push('CSAT/VOC Proxy');
+        const vocEl = document.getElementById('voc-select');
+        row.push(vocEl ? vocEl.value : '');
+
+        headers.push('First Call Resolution (FCR)');
+        const fcrEl = document.getElementById('fcr-select');
+        row.push(fcrEl ? fcrEl.value : '');
+      }
+
+      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Flagged for Training', 'Call Recording Link');
+      let trFlag = document.getElementById('training-flag');
+      row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]');
+
+      // --- Collect agent info for per-agent Drive folder ---
+      const agNameEl = document.getElementById('ag-name');
+      const agName = agNameEl ? agNameEl.value : '';
+      const agEmailEl = document.getElementById('ag-email');
+      const agEmail = agEmailEl ? agEmailEl.value : '';
+      const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
+      const evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
+
+      // --- Read audio file(s) if uploaded ---
+      const audioInput = document.getElementById('audio-upload');
+      let filesPayload = [];
+
+      btn.textContent = 'Preparing…';
+      btn.disabled = true;
+      status.style.display = 'block';
+      status.textContent = 'Preparing submission…';
+
+      if (audioInput && audioInput.files.length > 0) {
+        for (let i = 0; i < audioInput.files.length; i++) {
+          const file = audioInput.files[i];
+          const reader = new FileReader();
+          await new Promise((resolve, reject) => {
+            reader.onload = () => {
+              filesPayload.push({
+                fileData: reader.result,
+                fileName: file.name,
+                fileMimeType: file.type
+              });
+              resolve();
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+      }
+
+      // --- Build email body ---
+      let iterImprovements = [];
+      config.sections.forEach(sec => sec.criteria.forEach(q => {
+        if (scores[q.id] === 'no') {
+          iterImprovements.push(formatImprovement(q));
+        }
+      }));
+      document.querySelectorAll('.crit-cb').forEach(cb => {
+        if (cb.checked) iterImprovements.push(`<li><i>CRITICAL FAILURE: ${cb.value}</i></li>`);
+      });
+      let improvementsText = iterImprovements.length > 0 ? `<ul style="margin-top:4px; margin-bottom:16px;">${iterImprovements.join('')}</ul>` : '<p style="margin-bottom:16px;"><i>No specific areas of improvement flagged (Perfect!).</i></p>';
+      
+      let generalNotes = document.getElementById('notes').value || 'None';
+      generalNotes = generalNotes.replace(/\n/g, '<br>');
+
+      let auditDateEl = document.getElementById('audit-date');
+      let auditDate = auditDateEl && auditDateEl.value ? auditDateEl.value : '[Date]';
+      let phoneEl = document.getElementById('caller-num') || document.getElementById('cx-phone') || document.getElementById('sms-num');
+      let phoneNumber = phoneEl && phoneEl.value ? phoneEl.value : '[Phone Number]';
+
+      let scoreText = '';
+      if (currentAuditType === 'inbound') scoreText = 'inbound call score';
+      else if (currentAuditType === 'outbound') scoreText = 'outbound call score';
+      else if (currentAuditType === 'survey') scoreText = 'csat survey call score';
+      else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
+      else scoreText = `${config.title} score`;
+
+      let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
+      let emailBodyHtml = emBodyContent || `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
+<p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
+<p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
+<p style="margin:0 0 12px 0;">Total Score: <b>${pct}%</b></p>
+<p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
+${improvementsText}
+<p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
+<p style="margin:0 0 16px 0;">${generalNotes}</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
+<p style="margin:0 0 16px 0;">[Call Recording Link]</p>
+<p style="margin:0;">Best regards,<br>QA Team</p>
+</div>`;
+
+      // --- Build full payload ---
+      const payload = {
+        auditType: config.title,
+        headers: headers,
+        row: row,
+        agentName: agName,
+        agentEmail: agEmail,
+        files: filesPayload,
+        emailSettings: {
+          send: agEmail ? true : false,
+          to: agEmail,
+          cc: evEmail ? `${evEmail}, Terry Nyokabi <teresia.nyokabi@food4education.org>` : 'Terry Nyokabi <teresia.nyokabi@food4education.org>',
+          subject: `${config.title} Results — ${agName}`,
+          body: emailBodyHtml
+        }
+      };
+
+      status.textContent = 'Sending to Google Sheets…';
+
+      try {
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        showToast('Audit submitted! Email sent to agent automatically.', 'success');
+        status.textContent = 'Last submitted: ' + new Date().toLocaleTimeString();
+
+        setTimeout(() => {
+          btn.textContent = 'Submit to Google Sheets';
+          btn.disabled = false;
+        }, 1500);
+      } catch (err) {
+        showToast('Submission failed. Check your Apps Script URL and try again.', 'error');
+        status.textContent = 'Submission failed — check your connection URL.';
+        btn.textContent = 'Submit to Google Sheets';
+        btn.disabled = false;
+      }
+    }
+
+    function printPage() { window.print(); }
+
+    function resetForm() {
+      if (!confirm('Reset all scores and fields?')) return;
+      const config = AUDITS[currentAuditType];
+      scores = {};
+      document.querySelectorAll('.yb,.nb,.na-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.crit-cb').forEach(cb => cb.checked = false);
+      const vocEl = document.getElementById('voc-select');
+      if (vocEl) vocEl.value = '';
+      const fcrEl = document.getElementById('fcr-select');
+      if (fcrEl) fcrEl.value = '';
+      document.getElementById('notes').value = '';
+      const tFlag = document.getElementById('training-flag');
+      if (tFlag) tFlag.checked = false;
+      config.fields.forEach(f => {
+        let el = document.getElementById(f.id);
+        if (el) {
+          if (f.type === 'agent-select' || f.type === 'select') el.value = '';
+          else el.value = f.default ? f.default : '';
+        }
+      });
+      if (document.getElementById('audit-date')) {
+        document.getElementById('audit-date').value = new Date().toISOString().split('T')[0];
+      }
+      refreshAll();
+      config.sections.forEach(s => {
+        let secE = document.getElementById('sec-e-' + s.id);
+        if (secE) secE.textContent = '0';
+      });
+    }
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + type;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 4000);
+    }
+
+    function copyScript() {
+      const text = document.getElementById('script-block').textContent;
+      navigator.clipboard.writeText(text).then(() => showToast('Script copied to clipboard.', 'info'));
+    }
+
+    // Init
+    const prevUrl = localStorage.getItem('sms_audit_sheet_url');
+    const savedUrl = localStorage.getItem('combined_audit_sheet_url') || prevUrl;
+    if (savedUrl) {
+      document.getElementById('sheet-url').value = savedUrl;
+      localStorage.setItem('combined_audit_sheet_url', savedUrl);
+    }
+    updateConnStatus(savedUrl);
+    switchTab('inbound'); // Default init
+  </script>
+</body>
+
+</html>
