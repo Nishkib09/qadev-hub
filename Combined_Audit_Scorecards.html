@@ -691,61 +691,65 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     var doc = SpreadsheetApp.getActiveSpreadsheet();
 
-    // --- 1. Write to Google Sheet ---
-    var sheetName = d.auditType;
-    var sheet = doc.getSheetByName(sheetName);
-    if (!sheet) {
-      sheet = doc.insertSheet(sheetName);
-      sheet.appendRow(d.headers);
-    }
-
-    // --- 2. Handle Audio File / Screenshot Upload ---
     var fileUrls = [];
-    if (d.files && d.files.length > 0 && d.agentName) {
-      var rootFolderName = "QA Recordings";
-      var rootIter = DriveApp.getFoldersByName(rootFolderName);
-      var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder(rootFolderName);
+    var fileUrlStr = "No files attached";
 
-      var agentFolderName = d.agentName;
-      var agentIter = rootFolder.getFoldersByName(agentFolderName);
-      var agentFolder;
-      if (agentIter.hasNext()) {
-        agentFolder = agentIter.next();
-      } else {
-        agentFolder = rootFolder.createFolder(agentFolderName);
-        if (d.agentEmail) {
-          agentFolder.addViewer(d.agentEmail);
+    if (!d.emailOnly) {
+      // --- 1. Write to Google Sheet ---
+      var sheetName = d.auditType;
+      var sheet = doc.getSheetByName(sheetName);
+      if (!sheet) {
+        sheet = doc.insertSheet(sheetName);
+        sheet.appendRow(d.headers);
+      }
+
+      // --- 2. Handle Audio File / Screenshot Upload ---
+      if (d.files && d.files.length > 0 && d.agentName) {
+        var rootFolderName = "QA Recordings";
+        var rootIter = DriveApp.getFoldersByName(rootFolderName);
+        var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder(rootFolderName);
+
+        var agentFolderName = d.agentName;
+        var agentIter = rootFolder.getFoldersByName(agentFolderName);
+        var agentFolder;
+        if (agentIter.hasNext()) {
+          agentFolder = agentIter.next();
+        } else {
+          agentFolder = rootFolder.createFolder(agentFolderName);
+          if (d.agentEmail) {
+            agentFolder.addViewer(d.agentEmail);
+          }
+        }
+
+        var today = new Date();
+        var dateStr = today.getFullYear() + "-"
+          + String(today.getMonth() + 1).padStart(2, "0") + "-"
+          + String(today.getDate()).padStart(2, "0");
+        var safeName = d.agentName.replace(/\s+/g, "_");
+        var safeType = d.auditType.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+
+        for (var j = 0; j < d.files.length; j++) {
+          var f = d.files[j];
+          var ext = f.fileName.split(".").pop();
+          var markedFileName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
+
+          var splitBase = f.fileData.split(",");
+          var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
+          var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
+          var uploadedFile = agentFolder.createFile(blob);
+          fileUrls.push(uploadedFile.getUrl());
         }
       }
+      fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
 
-      var today = new Date();
-      var dateStr = today.getFullYear() + "-"
-        + String(today.getMonth() + 1).padStart(2, "0") + "-"
-        + String(today.getDate()).padStart(2, "0");
-      var safeName = d.agentName.replace(/\s+/g, "_");
-      var safeType = d.auditType.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
-
-      for (var j = 0; j < d.files.length; j++) {
-        var f = d.files[j];
-        var ext = f.fileName.split(".").pop();
-        var markedFileName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
-        
-        var splitBase = f.fileData.split(",");
-        var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
-        var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
-        var uploadedFile = agentFolder.createFile(blob);
-        fileUrls.push(uploadedFile.getUrl());
+      // --- 3. Replace placeholder in sheet row with Drive link ---
+      for (var i = 0; i < d.row.length; i++) {
+        if (d.row[i] === "[UPLOADING...]") {
+          d.row[i] = fileUrlStr;
+        }
       }
+      sheet.appendRow(d.row);
     }
-    var fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
-
-    // --- 3. Replace placeholder in sheet row with Drive link ---
-    for (var i = 0; i < d.row.length; i++) {
-      if (d.row[i] === "[UPLOADING...]") {
-        d.row[i] = fileUrlStr;
-      }
-    }
-    sheet.appendRow(d.row);
 
     // --- 4. Send Automatic Email to Agent (CC Evaluator + Terry) ---
     if (d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
@@ -1569,6 +1573,14 @@ function doGet() {
         try {
           const qa = queuedAudits[i];
           qa.emailSettings.send = true;
+          qa.emailOnly = true;
+          delete qa.files;
+          delete qa.row;
+          delete qa.headers;
+          qa.emailSettings.body = qa.emailSettings.body.replace(
+            /\[Call Recording Link\]/gi,
+            'Call recording was uploaded to your QA Recordings folder in Google Drive during the audit.'
+          );
           await fetch(url, {
             method: 'POST',
             mode: 'no-cors',
@@ -1936,7 +1948,22 @@ ${improvementsText}
       };
 
       if (emailPaused && agEmail) {
-        queuedAudits.push(payload);
+        const queueEntry = {
+          auditType: payload.auditType,
+          agentName: payload.agentName,
+          agentEmail: payload.agentEmail,
+          timestamp: payload.timestamp,
+          pct: payload.pct,
+          emailOnly: true,
+          emailSettings: {
+            send: false,
+            to: payload.emailSettings.to,
+            cc: payload.emailSettings.cc,
+            subject: payload.emailSettings.subject,
+            body: payload.emailSettings.body
+          }
+        };
+        queuedAudits.push(queueEntry);
         localStorage.setItem('queued_audits', JSON.stringify(queuedAudits));
         payload.emailSettings.send = false;
       }
