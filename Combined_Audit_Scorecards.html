@@ -694,6 +694,7 @@ function doPost(e) {
 
     var fileUrls = [];
     var fileUrlStr = "No files attached";
+    var attachments = [];
 
     if (!d.emailOnly) {
       // --- 1. Write to Google Sheet ---
@@ -717,8 +718,13 @@ function doPost(e) {
           agentFolder = agentIter.next();
         } else {
           agentFolder = rootFolder.createFolder(agentFolderName);
-          if (d.agentEmail) {
+        }
+
+        if (d.agentEmail) {
+          try {
             agentFolder.addViewer(d.agentEmail);
+          } catch (shareFolderErr) {
+            // Ignore sharing error if user is not Google-associated
           }
         }
 
@@ -739,7 +745,18 @@ function doPost(e) {
             var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
             var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
             var uploadedFile = agentFolder.createFile(blob);
+            
+            // Explicitly share each file individually to guarantee agent access
+            if (d.agentEmail) {
+              try {
+                uploadedFile.addViewer(d.agentEmail);
+              } catch (shareFileErr) {
+                // Ignore individual file sharing error
+              }
+            }
+            
             fileUrls.push(uploadedFile.getUrl());
+            attachments.push(blob);
           } catch (fileErr) {
             fileUrls.push("Upload failed: " + fileErr.toString());
           }
@@ -779,6 +796,9 @@ function doPost(e) {
         htmlBody: body,
         cc: ccList
       };
+      if (attachments.length > 0) {
+        emailParams.attachments = attachments;
+      }
       MailApp.sendEmail(emailParams);
     }
 
@@ -1673,6 +1693,7 @@ function doGet() {
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
+      let fileAttachmentText = (currentAuditType === 'sms') ? 'screenshots' : 'call recording';
       const emailBody = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
@@ -1681,7 +1702,7 @@ function doGet() {
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the ${fileAttachmentText}:</p>
 <p style="margin:0 0 16px 0;">[Call Recording Link]</p>
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
@@ -1751,6 +1772,8 @@ ${improvementsText}
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
+      let fileAttachmentText = (currentAuditType === 'sms') ? 'screenshots' : 'call recording';
+
       box.innerHTML = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
@@ -1759,7 +1782,7 @@ ${improvementsText}
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the ${fileAttachmentText}:</p>
 <p style="margin:0 0 16px 0;">${linkStr}</p>
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
@@ -1925,8 +1948,8 @@ ${improvementsText}
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
-      let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
-      let emailBodyHtml = emBodyContent || `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
+      let fileAttachmentText = (currentAuditType === 'sms') ? 'screenshots' : 'call recording';
+      let emailBodyHtml = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDateStr} for phone number ${phoneNumStr}.</p>
 <p style="margin:0 0 12px 0;">Total Score: <b>${pct}%</b></p>
@@ -1934,7 +1957,7 @@ ${improvementsText}
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find attached the call recording:</p>
+<p style="margin:0 0 2px 0;">Kindly find attached the ${fileAttachmentText}:</p>
 <p style="margin:0 0 16px 0;">[Call Recording Link]</p>
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
