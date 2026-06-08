@@ -672,6 +672,7 @@
       </div>
       <div id="submit-status" class="submit-status"></div>
       <div id="queue-indicator" style="display:none; margin-top:8px; font-size:12px; color:var(--amber);"></div>
+      <div id="debug-status" style="margin-top:14px; padding:12px; border-radius:var(--rs); background:var(--g100); border:1px solid var(--border); font-size:12px; font-family:monospace; display:none; white-space:pre-wrap; color:var(--g800);"></div>
 
       <br>
       <details>
@@ -1901,6 +1902,12 @@ ${improvementsText}
       const audioInput = document.getElementById('audio-upload');
       let filesPayload = [];
 
+      const debugDiv = document.getElementById('debug-status');
+      if (debugDiv) {
+        debugDiv.style.display = 'block';
+        debugDiv.textContent = `[DEBUG] Starting submission...\n- Agent: "${agName}" (${agEmail})\n- Files selected: ${audioInput ? audioInput.files.length : 0}\n- Endpoint: ${url ? url.substring(0, 45) + '...' : 'None'}`;
+      }
+
       btn.textContent = 'Preparing\u2026';
       btn.disabled = true;
       status.style.display = 'block';
@@ -1921,6 +1928,15 @@ ${improvementsText}
             };
             reader.onerror = reject;
             reader.readAsDataURL(file);
+          });
+        }
+      }
+
+      if (debugDiv) {
+        debugDiv.textContent += `\n- Files read successfully: ${filesPayload.length}`;
+        if (filesPayload.length > 0) {
+          filesPayload.forEach((f, idx) => {
+            debugDiv.textContent += `\n  * File ${idx+1}: "${f.fileName}" (${f.fileMimeType}, ${(f.fileData.length / 1024 / 1024).toFixed(2)} MB base64)`;
           });
         }
       }
@@ -2002,6 +2018,10 @@ ${improvementsText}
         return;
       }
 
+      if (debugDiv) {
+        debugDiv.textContent += `\n- Sending fetch request (payload size: ${(JSON.stringify(payload).length / 1024).toFixed(1)} KB)...`;
+      }
+
       try {
         await fetch(url, {
           method: 'POST',
@@ -2015,6 +2035,9 @@ ${improvementsText}
           showToast('Audit submitted! Email sent to agent automatically.', 'success');
         }
         status.textContent = 'Last submitted: ' + new Date().toLocaleTimeString();
+        if (debugDiv) {
+          debugDiv.textContent += `\n- Request sent successfully (mode: no-cors).`;
+        }
         updateQueueIndicator();
         setTimeout(() => {
           btn.textContent = 'Submit to Google Sheets';
@@ -2023,6 +2046,9 @@ ${improvementsText}
       } catch (err) {
         showToast('Submission failed. Check your Apps Script URL and try again.', 'error');
         status.textContent = 'Submission failed \u2014 check your connection URL.';
+        if (debugDiv) {
+          debugDiv.textContent += `\n- Request failed: ${err.toString()}`;
+        }
         btn.textContent = 'Submit to Google Sheets';
         btn.disabled = false;
         if (emailPaused) {
