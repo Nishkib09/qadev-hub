@@ -683,20 +683,21 @@
           <div style="position:relative;">
             <button class="copy-btn" style="position:absolute;top:8px;right:8px;" onclick="copyScript()">Copy</button>
             <div class="code-block" id="script-block">// ============================================================
-// QA Audit Script — Per-Agent Folder + Auto Email
-// Paste this ENTIRE block into your Apps Script editor
+// QA Audit Script — Per-Agent Folder + Auto Email + Diagnostics
 // ============================================================
 
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
     var doc = SpreadsheetApp.getActiveSpreadsheet();
-
     var fileUrls = [];
     var fileUrlStr = "No files attached";
 
+    var diag = 'Payload: files=' + (d.files ? d.files.length : 0) +
+               ', agentName="' + (d.agentName || 'EMPTY') + '"' +
+               ', emailOnly=' + (d.emailOnly ? 'yes' : 'no');
+
     if (!d.emailOnly) {
-      // --- 1. Write to Google Sheet ---
       var sheetName = d.auditType;
       var sheet = doc.getSheetByName(sheetName);
       if (!sheet) {
@@ -704,92 +705,84 @@ function doPost(e) {
         sheet.appendRow(d.headers);
       }
 
-      // --- 2. Handle Audio File / Screenshot Upload ---
       if (d.files && d.files.length > 0 && d.agentName) {
-        var rootFolderName = "QA Recordings";
-        var rootIter = DriveApp.getFoldersByName(rootFolderName);
-        var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder(rootFolderName);
+        var rootIter = DriveApp.getFoldersByName("QA Recordings");
+        var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
 
-        var agentFolderName = d.agentName;
-        var agentIter = rootFolder.getFoldersByName(agentFolderName);
+        var agentIter = rootFolder.getFoldersByName(d.agentName);
         var agentFolder;
         if (agentIter.hasNext()) {
           agentFolder = agentIter.next();
         } else {
-          agentFolder = rootFolder.createFolder(agentFolderName);
-          if (d.agentEmail) {
-            agentFolder.addViewer(d.agentEmail);
-          }
+          agentFolder = rootFolder.createFolder(d.agentName);
         }
+        if (d.agentEmail) { try { agentFolder.addViewer(d.agentEmail); } catch(e) {} }
 
         var today = new Date();
         var dateStr = today.getFullYear() + "-"
           + String(today.getMonth() + 1).padStart(2, "0") + "-"
           + String(today.getDate()).padStart(2, "0");
-        var safeName = d.agentName.replace(/\s+/g, "_");
-        var safeType = d.auditType.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+        var safeName = d.agentName.replace(/[^a-zA-Z0-9]/g, "_");
+        var safeType = d.auditType.replace(/[^a-zA-Z0-9]/g, "_");
 
         for (var j = 0; j < d.files.length; j++) {
           try {
             var f = d.files[j];
             var ext = f.fileName.split(".").pop();
-            var markedFileName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
-
-            var splitBase = f.fileData.split(",");
-            var base64 = splitBase[1] ? splitBase[1] : splitBase[0];
-            var blob = Utilities.newBlob(Utilities.base64Decode(base64), f.fileMimeType, markedFileName);
-            var uploadedFile = agentFolder.createFile(blob);
-            fileUrls.push(uploadedFile.getUrl());
+            var markedName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
+            var parts = f.fileData.split(",");
+            var b64 = parts.length > 1 ? parts[1] : parts[0];
+            var bytes = Utilities.base64Decode(b64);
+            var file = agentFolder.createFile(markedName, bytes, f.fileMimeType || "audio/mpeg");
+            if (d.agentEmail && file) { try { file.addViewer(d.agentEmail); } catch(e) {} }
+            fileUrls.push(file.getUrl());
+            diag += ' | File' + (j+1) + '=OK';
           } catch (fileErr) {
-            fileUrls.push("Upload failed: " + fileErr.toString());
+            diag += ' | File' + (j+1) + '=FAIL:' + fileErr.toString();
           }
         }
+      } else {
+        diag += ' | Upload skipped: files=' + (d.files ? d.files.length : 0) + ' agentName=' + (d.agentName || 'empty');
       }
-      fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
 
-      // --- 3. Replace placeholder in sheet row with Drive link ---
+      fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
+      diag += ' | Drive URLs: ' + fileUrls.length;
+
       for (var i = 0; i < d.row.length; i++) {
-        if (d.row[i] === "[UPLOADING...]") {
-          d.row[i] = fileUrlStr;
-        }
+        if (d.row[i] === "[UPLOADING...]") d.row[i] = fileUrlStr;
       }
       sheet.appendRow(d.row);
     }
 
-    // --- 4. Send Automatic Email to Agent (CC Evaluator + Terry) ---
     if (d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
       var body = d.emailSettings.body;
       if (fileUrls.length > 0) {
-        var linksHtml = fileUrls.map(function(url) { return "<a href='" + url + "'>" + url + "</a>"; }).join("<br><br>");
-        var replaced = body.replace(/\[Call Recording Link\]/gi, linksHtml);
-        if (replaced.indexOf(linksHtml) === -1) {
-          replaced += "<br><p>Call recording link(s):<br>" + linksHtml + "</p>";
+        var driveLinks = fileUrls.filter(function(u) { return u.indexOf('http') === 0; });
+        if (driveLinks.length > 0) {
+          var linksHtml = driveLinks.map(function(url) { return '<a href="' + url + '">' + url + '</a>'; }).join('<br><br>');
+          var newBody = body.replace(/\[Call Recording Link\]/gi, linksHtml);
+          if (newBody === body) { newBody += '<br><p><b>Call Recording Link(s):</b><br>' + linksHtml + '</p>'; }
+          body = newBody;
+        } else {
+          body = body.replace(/\[Call Recording Link\]/gi, 'Upload attempted but all Drive links failed: ' + fileUrls.join(', '));
         }
-        body = replaced;
       } else {
-        body = body.replace(/\[Call Recording Link\]/gi, "No call recording attached.");
+        body = body.replace(/\[Call Recording Link\]/gi, 'No recording uploaded. ' + diag);
       }
-      var ccList = d.emailSettings.cc || '';
-      if (ccList.indexOf('teresia.nyokabi@food4education.org') === -1) {
-        ccList += (ccList ? ',' : '') + 'teresia.nyokabi@food4education.org';
+
+      body += '<hr style="margin-top:20px;border:none;border-top:1px solid #ddd;">' +
+              '<p style="font-size:11px;color:#888;">[Diag] ' + diag + '</p>';
+
+      var cc = d.emailSettings.cc || '';
+      if (cc.indexOf('teresia.nyokabi@food4education.org') === -1) {
+        cc += (cc ? ',' : '') + 'teresia.nyokabi@food4education.org';
       }
-      var emailParams = {
-        to: d.emailSettings.to,
-        subject: d.emailSettings.subject,
-        htmlBody: body
-          + '<hr style="margin-top:20px;"><p style="font-size:11px;color:#888;">[Server diagnostic]' +
-          ' | Files in payload: ' + (d.files ? d.files.length : 0) +
-          ' | Agent name received: "' + (d.agentName || '(empty)') + '"' +
-          ' | Files uploaded to Drive: ' + fileUrls.length +
-          (fileUrls.length > 0 ? ' | First URL: ' + fileUrls[0] : '') +
-          '</p>',
-        cc: ccList
-      };
-      MailApp.sendEmail(emailParams);
+      MailApp.sendEmail({ to: d.emailSettings.to, subject: d.emailSettings.subject, htmlBody: body, cc: cc });
+      diag += ' | Email sent';
     }
 
     return ContentService
-      .createTextOutput(JSON.stringify({ status: "success" }))
+      .createTextOutput(JSON.stringify({ status: "success", debug: diag }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
