@@ -688,11 +688,7 @@
           <p style="margin-top:8px;"><strong>Step 2:</strong> <u>Select all existing code and delete it</u>, then paste the new script below:</p>
           <div style="position:relative;">
             <button class="copy-btn" style="position:absolute;top:8px;right:8px;" onclick="copyScript()">Copy</button>
-            <div class="code-block" id="script-block">// ============================================================
-// QA Audit Script — Per-Agent Folder + Auto Email + Diagnostics
-// ============================================================
-
-function doPost(e) {
+            <div class="code-block" id="script-block">function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
     var doc = SpreadsheetApp.getActiveSpreadsheet();
@@ -705,7 +701,93 @@ function doPost(e) {
                ', agentName="' + (d.agentName || 'EMPTY') + '"' +
                ', emailOnly=' + (d.emailOnly ? 'yes' : 'no');
 
-    if (!d.emailOnly) {
+    // --- Resolve Agent Folder in Drive (early) ---
+    var agentFolder;
+    if (d.agentName) {
+      try {
+        var rootIter = DriveApp.getFoldersByName("QA Recordings");
+        var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
+
+        var agentIter = rootFolder.getFoldersByName(d.agentName);
+        if (agentIter.hasNext()) {
+          agentFolder = agentIter.next();
+        } else {
+          agentFolder = rootFolder.createFolder(d.agentName);
+        }
+
+        if (d.agentEmail) {
+          try { agentFolder.addViewer(d.agentEmail); } catch(e) {}
+        }
+        agentFolderUrl = agentFolder.getUrl();
+      } catch (folderErr) {
+        diag += ' | FolderResolve=FAIL:' + folderErr.toString();
+      }
+    }
+
+    // --- Decode files for email attachments ---
+    if (d.files && d.files.length > 0) {
+      var today = new Date();
+      var dateStr = today.getFullYear() + "-"
+        + String(today.getMonth() + 1).padStart(2, "0") + "-"
+        + String(today.getDate()).padStart(2, "0");
+      var safeName = (d.agentName || "Agent").replace(/[^a-zA-Z0-9]/g, "_");
+      var safeType = (d.auditType || "Audit").replace(/[^a-zA-Z0-9]/g, "_");
+
+      for (var j = 0; j < d.files.length; j++) {
+        try {
+          var f = d.files[j];
+          var ext = f.fileName.split(".").pop();
+          var markedName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
+
+          var parts = f.fileData.split(",");
+          var b64 = parts.length > 1 ? parts[1] : parts[0];
+          var bytes = Utilities.base64Decode(b64);
+          var blob = Utilities.newBlob(bytes, f.fileMimeType || "audio/mpeg", markedName);
+          attachments.push(blob);
+        } catch (fileErr) {
+          diag += ' | FileDecode' + (j+1) + '=FAIL:' + fileErr.toString();
+        }
+      }
+    }
+
+    if (d.emailOnly) {
+      // --- Update Status in Google Sheet (no new row) ---
+      try {
+        var sheetName = d.auditType;
+        var sheet = doc.getSheetByName(sheetName);
+        if (sheet) {
+          var data = sheet.getDataRange().getValues();
+          var foundRowIndex = -1;
+          for (var r = data.length - 1; r >= 1; r--) {
+            if (data[r][0] == d.timestamp) {
+              foundRowIndex = r + 1; // 1-based index
+              break;
+            }
+          }
+          if (foundRowIndex !== -1) {
+            var headers = data[0];
+            var statusCol = headers.indexOf("Email Sent Status") + 1;
+            var timeCol = headers.indexOf("Email Sent Timestamp") + 1;
+
+            if (statusCol > 0) {
+              sheet.getRange(foundRowIndex, statusCol).setValue("Sent");
+            }
+            if (timeCol > 0) {
+              sheet.getRange(foundRowIndex, timeCol).setValue(new Date().toLocaleString());
+            }
+            diag += ' | SheetUpdate=OK (row ' + foundRowIndex + ')';
+          } else {
+            diag += ' | SheetUpdate=ROW_NOT_FOUND (ts=' + d.timestamp + ')';
+          }
+        } else {
+          diag += ' | SheetUpdate=SHEET_NOT_FOUND (' + sheetName + ')';
+        }
+      } catch (sheetUpdateErr) {
+        diag += ' | SheetUpdate=FAIL:' + sheetUpdateErr.toString();
+      }
+
+    } else {
+      // --- Normal Submit: Write to Google Sheet & Upload to Drive ---
       var sheetName = d.auditType;
       var sheet = doc.getSheetByName(sheetName);
       if (!sheet) {
@@ -713,70 +795,37 @@ function doPost(e) {
         sheet.appendRow(d.headers);
       }
 
-      // --- Resolve Agent Folder in Drive ---
-      var agentFolder;
-      if (d.agentName) {
-        try {
-          var rootIter = DriveApp.getFoldersByName("QA Recordings");
-          var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
-
-          var agentIter = rootFolder.getFoldersByName(d.agentName);
-          if (agentIter.hasNext()) {
-            agentFolder = agentIter.next();
-          } else {
-            agentFolder = rootFolder.createFolder(d.agentName);
-          }
-
-          if (d.agentEmail) {
-            try { agentFolder.addViewer(d.agentEmail); } catch(e) {}
-          }
-          agentFolderUrl = agentFolder.getUrl();
-        } catch (folderErr) {
-          diag += ' | FolderResolve=FAIL:' + folderErr.toString();
-        }
-      }
-
-      if (d.files && d.files.length > 0 && agentFolder) {
-        var today = new Date();
-        var dateStr = today.getFullYear() + "-"
-          + String(today.getMonth() + 1).padStart(2, "0") + "-"
-          + String(today.getDate()).padStart(2, "0");
-        var safeName = d.agentName.replace(/[^a-zA-Z0-9]/g, "_");
-        var safeType = d.auditType.replace(/[^a-zA-Z0-9]/g, "_");
-
-        for (var j = 0; j < d.files.length; j++) {
+      // Upload files to Google Drive (if any and folder is resolved)
+      if (attachments.length > 0 && agentFolder) {
+        for (var j = 0; j < attachments.length; j++) {
           try {
-            var f = d.files[j];
-            var ext = f.fileName.split(".").pop();
-            var markedName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
-            var parts = f.fileData.split(",");
-            var b64 = parts.length > 1 ? parts[1] : parts[0];
-            var bytes = Utilities.base64Decode(b64);
-            var blob = Utilities.newBlob(bytes, f.fileMimeType || "audio/mpeg", markedName);
+            var blob = attachments[j];
             var file = agentFolder.createFile(blob);
-            if (d.agentEmail && file) { try { file.addViewer(d.agentEmail); } catch(e) {} }
+            if (d.agentEmail && file) {
+              try { file.addViewer(d.agentEmail); } catch(e) {}
+            }
             fileUrls.push(file.getUrl());
-            attachments.push(blob); // Store the uncorrupted blob for email attachment
-            diag += ' | File' + (j+1) + '=OK';
-          } catch (fileErr) {
-            diag += ' | File' + (j+1) + '=FAIL:' + fileErr.toString();
+            diag += ' | File' + (j+1) + '=DriveOK';
+          } catch (uploadErr) {
+            diag += ' | File' + (j+1) + '=DriveFAIL:' + uploadErr.toString();
           }
         }
-      } else {
-        diag += ' | Upload skipped: files=' + (d.files ? d.files.length : 0) + ' agentFolder=' + (agentFolder ? 'OK' : 'null');
       }
 
       fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
       diag += ' | Drive URLs: ' + fileUrls.length;
 
+      // --- Write Drive links to sheet ---
       for (var i = 0; i < d.row.length; i++) {
         if (d.row[i] === "[UPLOADING...]") d.row[i] = fileUrlStr;
       }
       sheet.appendRow(d.row);
     }
 
+    // --- Send Email ---
     if (d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
       var body = d.emailSettings.body;
+
       if (agentFolderUrl) {
         var folderLinkHtml = '<a href="' + agentFolderUrl + '">All Audited Calls Folder</a>';
         body = body.replace(/\[Call Recording Link\]/gi, folderLinkHtml);
@@ -784,17 +833,24 @@ function doPost(e) {
         body = body.replace(/\[Call Recording Link\]/gi, 'No folder link available (no recordings uploaded).');
       }
 
-
-
       var cc = d.emailSettings.cc || '';
       if (cc.indexOf('teresia.nyokabi@food4education.org') === -1) {
         cc += (cc ? ',' : '') + 'teresia.nyokabi@food4education.org';
       }
-      var mailOptions = { to: d.emailSettings.to, subject: d.emailSettings.subject, htmlBody: body, cc: cc };
+
+      var mailOptions = {
+        to: d.emailSettings.to,
+        subject: d.emailSettings.subject,
+        htmlBody: body,
+        cc: cc
+      };
+
       if (attachments && attachments.length > 0) {
         mailOptions.attachments = attachments;
       }
+
       MailApp.sendEmail(mailOptions);
+
       diag += ' | Email sent';
     }
 
@@ -1609,6 +1665,7 @@ function doGet() {
         try {
           const qa = queuedAudits[i];
           qa.emailSettings.send = true;
+          qa.emailOnly = true;
           await fetch(url, {
             method: 'POST',
             mode: 'no-cors',
@@ -1846,6 +1903,7 @@ ${attachmentText}
     }
 
     async function submitAudit() {
+      const submissionTimestamp = new Date().toLocaleString();
       const url = localStorage.getItem('combined_audit_sheet_url');
       const btn = document.getElementById('submit-btn');
       const status = document.getElementById('submit-status');
@@ -1878,7 +1936,7 @@ ${attachmentText}
         pct >= 70 ? 'Satisfactory' : 'Needs improvement';
 
       let headers = ['Timestamp', 'Audit Type'];
-      let row = [new Date().toLocaleString(), config.title];
+      let row = [submissionTimestamp, config.title];
 
       config.fields.forEach(f => {
         headers.push(f.label);
@@ -1902,9 +1960,12 @@ ${attachmentText}
         row.push(fcrEl ? fcrEl.value : '');
       }
 
-      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Flagged for Training', 'Call Recording Link');
+      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Flagged for Training', 'Call Recording Link', 'Email Sent Status', 'Email Sent Timestamp');
       let trFlag = document.getElementById('training-flag');
-      row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]');
+      const isEmailPaused = emailPaused && agEmail;
+      const emailStatus = isEmailPaused ? 'Pending' : (agEmail ? 'Sent' : 'No Email Provided');
+      const emailTime = isEmailPaused ? '' : (agEmail ? submissionTimestamp : '');
+      row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]', emailStatus, emailTime);
 
       const agNameEl = document.getElementById('ag-name');
       const agName = agNameEl ? agNameEl.value : '';
@@ -2004,7 +2065,7 @@ ${attachmentText}
         agentName: agName,
         agentEmail: agEmail,
         files: filesPayload,
-        timestamp: new Date().toLocaleString(),
+        timestamp: submissionTimestamp,
         pct: pct + '%',
         emailSettings: {
           send: agEmail && !emailPaused ? true : false,

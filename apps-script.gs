@@ -15,8 +15,93 @@ function doPost(e) {
                ', agentName="' + (d.agentName || 'EMPTY') + '"' +
                ', emailOnly=' + (d.emailOnly ? 'yes' : 'no');
 
-    if (!d.emailOnly) {
-      // --- Write to Google Sheet ---
+    // --- Resolve Agent Folder in Drive (early) ---
+    var agentFolder;
+    if (d.agentName) {
+      try {
+        var rootIter = DriveApp.getFoldersByName("QA Recordings");
+        var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
+
+        var agentIter = rootFolder.getFoldersByName(d.agentName);
+        if (agentIter.hasNext()) {
+          agentFolder = agentIter.next();
+        } else {
+          agentFolder = rootFolder.createFolder(d.agentName);
+        }
+
+        if (d.agentEmail) {
+          try { agentFolder.addViewer(d.agentEmail); } catch(e) {}
+        }
+        agentFolderUrl = agentFolder.getUrl();
+      } catch (folderErr) {
+        diag += ' | FolderResolve=FAIL:' + folderErr.toString();
+      }
+    }
+
+    // --- Decode files for email attachments ---
+    if (d.files && d.files.length > 0) {
+      var today = new Date();
+      var dateStr = today.getFullYear() + "-"
+        + String(today.getMonth() + 1).padStart(2, "0") + "-"
+        + String(today.getDate()).padStart(2, "0");
+      var safeName = (d.agentName || "Agent").replace(/[^a-zA-Z0-9]/g, "_");
+      var safeType = (d.auditType || "Audit").replace(/[^a-zA-Z0-9]/g, "_");
+
+      for (var j = 0; j < d.files.length; j++) {
+        try {
+          var f = d.files[j];
+          var ext = f.fileName.split(".").pop();
+          var markedName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
+
+          var parts = f.fileData.split(",");
+          var b64 = parts.length > 1 ? parts[1] : parts[0];
+          var bytes = Utilities.base64Decode(b64);
+          var blob = Utilities.newBlob(bytes, f.fileMimeType || "audio/mpeg", markedName);
+          attachments.push(blob);
+        } catch (fileErr) {
+          diag += ' | FileDecode' + (j+1) + '=FAIL:' + fileErr.toString();
+        }
+      }
+    }
+
+    if (d.emailOnly) {
+      // --- Update Status in Google Sheet (no new row) ---
+      try {
+        var sheetName = d.auditType;
+        var sheet = doc.getSheetByName(sheetName);
+        if (sheet) {
+          var data = sheet.getDataRange().getValues();
+          var foundRowIndex = -1;
+          for (var r = data.length - 1; r >= 1; r--) {
+            if (data[r][0] == d.timestamp) {
+              foundRowIndex = r + 1; // 1-based index
+              break;
+            }
+          }
+          if (foundRowIndex !== -1) {
+            var headers = data[0];
+            var statusCol = headers.indexOf("Email Sent Status") + 1;
+            var timeCol = headers.indexOf("Email Sent Timestamp") + 1;
+
+            if (statusCol > 0) {
+              sheet.getRange(foundRowIndex, statusCol).setValue("Sent");
+            }
+            if (timeCol > 0) {
+              sheet.getRange(foundRowIndex, timeCol).setValue(new Date().toLocaleString());
+            }
+            diag += ' | SheetUpdate=OK (row ' + foundRowIndex + ')';
+          } else {
+            diag += ' | SheetUpdate=ROW_NOT_FOUND (ts=' + d.timestamp + ')';
+          }
+        } else {
+          diag += ' | SheetUpdate=SHEET_NOT_FOUND (' + sheetName + ')';
+        }
+      } catch (sheetUpdateErr) {
+        diag += ' | SheetUpdate=FAIL:' + sheetUpdateErr.toString();
+      }
+
+    } else {
+      // --- Normal Submit: Write to Google Sheet & Upload to Drive ---
       var sheetName = d.auditType;
       var sheet = doc.getSheetByName(sheetName);
       if (!sheet) {
@@ -24,63 +109,21 @@ function doPost(e) {
         sheet.appendRow(d.headers);
       }
 
-      // --- Resolve Agent Folder in Drive ---
-      var agentFolder;
-      if (d.agentName) {
-        try {
-          var rootIter = DriveApp.getFoldersByName("QA Recordings");
-          var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
-
-          var agentIter = rootFolder.getFoldersByName(d.agentName);
-          if (agentIter.hasNext()) {
-            agentFolder = agentIter.next();
-          } else {
-            agentFolder = rootFolder.createFolder(d.agentName);
-          }
-
-          if (d.agentEmail) {
-            try { agentFolder.addViewer(d.agentEmail); } catch(e) {}
-          }
-          agentFolderUrl = agentFolder.getUrl();
-        } catch (folderErr) {
-          diag += ' | FolderResolve=FAIL:' + folderErr.toString();
-        }
-      }
-
-      // --- Upload files to Drive ---
-      if (d.files && d.files.length > 0 && agentFolder) {
-        var today = new Date();
-        var dateStr = today.getFullYear() + "-"
-          + String(today.getMonth() + 1).padStart(2, "0") + "-"
-          + String(today.getDate()).padStart(2, "0");
-        var safeName = d.agentName.replace(/[^a-zA-Z0-9]/g, "_");
-        var safeType = d.auditType.replace(/[^a-zA-Z0-9]/g, "_");
-
-        for (var j = 0; j < d.files.length; j++) {
+      // Upload files to Google Drive (if any and folder is resolved)
+      if (attachments.length > 0 && agentFolder) {
+        for (var j = 0; j < attachments.length; j++) {
           try {
-            var f = d.files[j];
-            var ext = f.fileName.split(".").pop();
-            var markedName = safeName + "_" + safeType + "_" + dateStr + "_" + (j+1) + "." + ext;
-
-            var parts = f.fileData.split(",");
-            var b64 = parts.length > 1 ? parts[1] : parts[0];
-            var bytes = Utilities.base64Decode(b64);
-            var blob = Utilities.newBlob(bytes, f.fileMimeType || "audio/mpeg", markedName);
+            var blob = attachments[j];
             var file = agentFolder.createFile(blob);
-
             if (d.agentEmail && file) {
               try { file.addViewer(d.agentEmail); } catch(e) {}
             }
-
             fileUrls.push(file.getUrl());
-            attachments.push(blob); // Store the uncorrupted blob for email attachment
-            diag += ' | File' + (j+1) + '=OK';
-          } catch (fileErr) {
-            diag += ' | File' + (j+1) + '=FAIL:' + fileErr.toString();
+            diag += ' | File' + (j+1) + '=DriveOK';
+          } catch (uploadErr) {
+            diag += ' | File' + (j+1) + '=DriveFAIL:' + uploadErr.toString();
           }
         }
-      } else {
-        diag += ' | Upload skipped: files=' + (d.files ? d.files.length : 0) + ' agentFolder=' + (agentFolder ? 'OK' : 'null');
       }
 
       fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
@@ -103,8 +146,6 @@ function doPost(e) {
       } else {
         body = body.replace(/\[Call Recording Link\]/gi, 'No folder link available (no recordings uploaded).');
       }
-
-
 
       var cc = d.emailSettings.cc || '';
       if (cc.indexOf('teresia.nyokabi@food4education.org') === -1) {
