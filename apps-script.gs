@@ -76,20 +76,11 @@ function doPost(e) {
 
           // 1. Ensure new columns/headers are present in the sheet
           if (d.headers && d.headers.length > 0) {
-            var headersModified = false;
-            for (var h = 0; h < d.headers.length; h++) {
-              var hName = d.headers[h];
-              if (headers.indexOf(hName) === -1) {
-                sheet.getRange(1, h + 1).setValue(hName);
-                headersModified = true;
-              }
-            }
-            if (headersModified) {
-              // Re-read values and headers after dynamically adding them
-              values = sheet.getDataRange().getValues();
-              displayValues = sheet.getDataRange().getDisplayValues();
-              headers = values[0];
-            }
+            ensureHeaders(sheet, d.headers);
+            // Re-read values and headers after ensuring they are correct
+            values = sheet.getDataRange().getValues();
+            displayValues = sheet.getDataRange().getDisplayValues();
+            headers = values[0];
           }
 
           var foundRowIndex = -1;
@@ -200,7 +191,9 @@ function doPost(e) {
       var sheet = doc.getSheetByName(sheetName);
       if (!sheet) {
         sheet = doc.insertSheet(sheetName);
-        sheet.appendRow(d.headers);
+      }
+      if (d.headers && d.headers.length > 0) {
+        ensureHeaders(sheet, d.headers);
       }
 
       // Upload files to Google Drive (if any and folder is resolved)
@@ -274,4 +267,22 @@ function doGet() {
   return ContentService
     .createTextOutput(JSON.stringify({ status: "ok" }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function ensureHeaders(sheet, expectedHeaders) {
+  if (!expectedHeaders || expectedHeaders.length === 0) return;
+  var lastCol = sheet.getLastColumn();
+  var currentHeaders = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+  var isMismatch = currentHeaders.length !== expectedHeaders.length;
+  if (!isMismatch) {
+    for (var i = 0; i < expectedHeaders.length; i++) {
+      if (currentHeaders[i] !== expectedHeaders[i]) {
+        isMismatch = true;
+        break;
+      }
+    }
+  }
+  if (isMismatch) {
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
+  }
 }
