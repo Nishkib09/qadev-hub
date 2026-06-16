@@ -8,6 +8,8 @@ function doPost(e) {
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     var fileUrls = [];
     var fileUrlStr = "No files attached";
+    var attachments = [];
+    var agentFolderUrl = "";
 
     var diag = 'Payload: files=' + (d.files ? d.files.length : 0) +
                ', agentName="' + (d.agentName || 'EMPTY') + '"' +
@@ -22,23 +24,31 @@ function doPost(e) {
         sheet.appendRow(d.headers);
       }
 
+      // --- Resolve Agent Folder in Drive ---
+      var agentFolder;
+      if (d.agentName) {
+        try {
+          var rootIter = DriveApp.getFoldersByName("QA Recordings");
+          var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
+
+          var agentIter = rootFolder.getFoldersByName(d.agentName);
+          if (agentIter.hasNext()) {
+            agentFolder = agentIter.next();
+          } else {
+            agentFolder = rootFolder.createFolder(d.agentName);
+          }
+
+          if (d.agentEmail) {
+            try { agentFolder.addViewer(d.agentEmail); } catch(e) {}
+          }
+          agentFolderUrl = agentFolder.getUrl();
+        } catch (folderErr) {
+          diag += ' | FolderResolve=FAIL:' + folderErr.toString();
+        }
+      }
+
       // --- Upload files to Drive ---
-      if (d.files && d.files.length > 0 && d.agentName) {
-        var rootIter = DriveApp.getFoldersByName("QA Recordings");
-        var rootFolder = rootIter.hasNext() ? rootIter.next() : DriveApp.createFolder("QA Recordings");
-
-        var agentIter = rootFolder.getFoldersByName(d.agentName);
-        var agentFolder;
-        if (agentIter.hasNext()) {
-          agentFolder = agentIter.next();
-        } else {
-          agentFolder = rootFolder.createFolder(d.agentName);
-        }
-
-        if (d.agentEmail) {
-          try { agentFolder.addViewer(d.agentEmail); } catch(e) {}
-        }
-
+      if (d.files && d.files.length > 0 && agentFolder) {
         var today = new Date();
         var dateStr = today.getFullYear() + "-"
           + String(today.getMonth() + 1).padStart(2, "0") + "-"
@@ -62,13 +72,14 @@ function doPost(e) {
             }
 
             fileUrls.push(file.getUrl());
+            attachments.push(file); // Store the file for email attachment
             diag += ' | File' + (j+1) + '=OK';
           } catch (fileErr) {
             diag += ' | File' + (j+1) + '=FAIL:' + fileErr.toString();
           }
         }
       } else {
-        diag += ' | Upload skipped: files=' + (d.files ? d.files.length : 0) + ' agentName=' + (d.agentName || 'empty');
+        diag += ' | Upload skipped: files=' + (d.files ? d.files.length : 0) + ' agentFolder=' + (agentFolder ? 'OK' : 'null');
       }
 
       fileUrlStr = fileUrls.length > 0 ? fileUrls.join("\n") : "No files attached";
@@ -85,22 +96,11 @@ function doPost(e) {
     if (d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
       var body = d.emailSettings.body;
 
-      if (fileUrls.length > 0) {
-        var driveLinks = fileUrls.filter(function(u) { return u.indexOf('http') === 0; });
-        if (driveLinks.length > 0) {
-          var linksHtml = driveLinks.map(function(url) {
-            return '<a href="' + url + '">' + url + '</a>';
-          }).join('<br><br>');
-          var newBody = body.replace(/\[Call Recording Link\]/gi, linksHtml);
-          if (newBody === body) {
-            newBody += '<br><p><b>Call Recording Link(s):</b><br>' + linksHtml + '</p>';
-          }
-          body = newBody;
-        } else {
-          body = body.replace(/\[Call Recording Link\]/gi, 'Upload attempted but all Drive links failed: ' + fileUrls.join(', '));
-        }
+      if (agentFolderUrl) {
+        var folderLinkHtml = '<a href="' + agentFolderUrl + '">All Audited Calls Folder</a>';
+        body = body.replace(/\[Call Recording Link\]/gi, folderLinkHtml);
       } else {
-        body = body.replace(/\[Call Recording Link\]/gi, 'No recording uploaded. ' + diag);
+        body = body.replace(/\[Call Recording Link\]/gi, 'No folder link available (no recordings uploaded).');
       }
 
       body += '<hr style="margin-top:20px;border:none;border-top:1px solid #ddd;">' +
@@ -111,12 +111,18 @@ function doPost(e) {
         cc += (cc ? ',' : '') + 'teresia.nyokabi@food4education.org';
       }
 
-      MailApp.sendEmail({
+      var mailOptions = {
         to: d.emailSettings.to,
         subject: d.emailSettings.subject,
         htmlBody: body,
         cc: cc
-      });
+      };
+
+      if (attachments && attachments.length > 0) {
+        mailOptions.attachments = attachments;
+      }
+
+      MailApp.sendEmail(mailOptions);
 
       diag += ' | Email sent';
     }
