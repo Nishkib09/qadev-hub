@@ -2303,7 +2303,7 @@ function doGet() {
         }
       }
 
-      const emailBody = `<div style="font-family: 'Rubik', sans-serif; font-size: 14px; line-height: 1.6; color: #222;">
+      const emailBody = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
 ${crmReasonText}
@@ -2337,7 +2337,7 @@ ${attachmentText}
            </div>
             <div class="field" style="margin-bottom:20px;">
               <label>Preview Email Content <span style="font-weight:400;color:var(--teal);font-size:11px;">(Click the email below to edit areas of improvement and general feedback before sending)</span></label>
-              <div id="em-body" contenteditable="true" style="width:100%; min-height:250px; border-radius:var(--rs); border:1px solid var(--border); padding:12px; font-size:14px; font-family:'Rubik', sans-serif; line-height:1.5; background:#fff; overflow-y:auto;" onfocus="this.style.borderColor='var(--teal-md)';" onblur="this.style.borderColor='var(--border)';">${emailBody}</div>
+              <div id="em-body" contenteditable="true" style="width:100%; min-height:250px; border-radius:var(--rs); border:1px solid var(--border); padding:12px; font-size:14px; font-family:Georgia, serif; line-height:1.5; background:#fff; overflow-y:auto;" onfocus="this.style.borderColor='var(--teal-md)';" onblur="this.style.borderColor='var(--border)';">${emailBody}</div>
             </div>
            <div style="display:flex; gap:10px; flex-wrap:wrap;">
              <button class="btn-primary" onclick="openEmailClient()">Open in Email Client (Outlook / Gmail)</button>
@@ -2396,7 +2396,7 @@ ${attachmentText}
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
-      box.innerHTML = `<div style="font-family: 'Rubik', sans-serif; font-size: 14px; line-height: 1.6; color: #222;">
+      box.innerHTML = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
 <p style="margin:0 0 12px 0;">Total Score: <b>${sPct}</b></p>
@@ -2605,7 +2605,7 @@ ${attachmentText}
       }
 
       let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
-      let emailBodyHtml = emBodyContent || `<div style="font-family: 'Rubik', sans-serif; font-size: 14px; line-height: 1.6; color: #222;">
+      let emailBodyHtml = emBodyContent || `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDateStr} for phone number ${phoneNumStr}.</p>
 ${crmReasonText}
