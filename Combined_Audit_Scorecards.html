@@ -573,7 +573,77 @@
     @media(max-width:600px) {
       .score-bar { grid-template-columns: repeat(2, 1fr); }
       .cr-row { flex-wrap: wrap; }
-      .cr-pts { min-width: unset; }
+      .cr-pts {
+        min-width: unset;
+      }
+    }
+
+    /* Call Reason Selector styles */
+    .reason-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .reason-tab {
+      background: var(--g50);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--g600);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .reason-tab:hover {
+      background: var(--g100);
+      color: var(--g900);
+    }
+
+    .reason-tab.active {
+      background: var(--teal-lt);
+      border-color: var(--teal-md);
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .reason-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 8px;
+    }
+
+    .reason-option-btn {
+      display: flex;
+      align-items: center;
+      text-align: left;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      background: #fff;
+      font-size: 12px;
+      color: var(--g800);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+    }
+
+    .reason-option-btn:hover {
+      background: var(--g50);
+      border-color: var(--g400);
+    }
+
+    .reason-option-btn.active {
+      background: var(--teal-lt);
+      border-color: var(--teal-md);
+      color: var(--teal);
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px var(--teal-md);
     }
   </style>
 </head>
@@ -614,6 +684,18 @@
       <div class="card">
         <div class="card-hd"><span class="card-title">Audit details</span></div>
         <div class="card-body"><div class="ag-grid" id="ag-grid-cont"></div></div>
+      </div>
+
+      <!-- Call Reason Selection (Granular) -->
+      <div class="card" id="call-reason-card">
+        <div class="card-hd">
+          <span class="card-title">Audited Call Reason (Granular)</span>
+          <span id="selected-reason-summary" style="font-size: 12px; font-weight: 500; color: var(--teal);">None selected</span>
+        </div>
+        <div class="card-body" style="padding: 12px;">
+          <div class="reason-tabs" id="reason-tabs-container"></div>
+          <div class="reason-options" id="reason-options-container"></div>
+        </div>
       </div>
 
       <div class="score-bar">
@@ -1091,6 +1173,157 @@ function doGet() {
       return '<li><i>' + text + ' [Lost ' + q.pts + ' points]</i></li>';
     }
 
+    // Call Reason Selector logic & data
+    const CALL_REASONS = {
+      "1. Tag Replacement": [
+        "Understands process (just given education) — will top up later",
+        "Tag replacement fee paid — wants issuance only",
+        "Lost tag reporting — proceed with replacement (after educating)",
+        "Lost tag reporting — ask for disabling & tracing",
+        "Lost tag reporting — does not have money to replace at the moment",
+        "Lost tag reporting — not willing to replace (too many times lost)",
+        "New tag issuance (first time, not replacement)"
+      ],
+      "2. Feed Requests": [
+        "Request to feed child — forgot tag at home",
+        "Request to feed child — lost their tag",
+        "Request to feed child — lost tag too many times, parent not willing to replace"
+      ],
+      "3. Payment / Paybill": [
+        "Paybill inquiry — forgot the paybill number",
+        "How to pay — already knows the paybill",
+        "How to pay — the whole process",
+        "Account number inquiry in payment process",
+        "Payment has not reflected — paid correctly",
+        "Proof of payment / statement request"
+      ],
+      "4. Balance Inquiry": [
+        "Balance inquiry — doesn't have airtime (needs offline/USSD help)",
+        "Balance inquiry — received top-up reminder with wrong balance",
+        "Balance inquiry — not the primary account owner",
+        "Balance inquiry — just to confirm",
+        "Balance inquiry — after replacement",
+        "Balance inquiry — after feeding (confirm if child ate)",
+        "Balance inquiry — via USSD",
+        "Balance inquiry — doesn't receive top-up reminder messages"
+      ],
+      "5. Feeding Discrepancies": [
+        "Child did not eat — money was deducted",
+        "Child did not eat — account had enough funds, money was NOT deducted",
+        "Child did not eat — tap showed 0 balance but account had enough funds (system issue)",
+        "Child did not eat — parent had topped up but balance did not reflect"
+      ],
+      "6. Reconciliation / Errors": [
+        "Reconciliation request — parent is aware of the error",
+        "Refund — partial",
+        "Refund — full"
+      ],
+      "7. Account Management — Parent": [
+        "Add child to account",
+        "Remove child from account",
+        "Account closure / deactivation — program opt out",
+        "Account closure / deactivation — deceased",
+        "Account closure / deactivation — transferred (to another program/school)",
+        "Account closure / deactivation — graduated",
+        "Edit parent's name",
+        "Edit parent's phone number",
+        "Change of account ownership — from one parent to another"
+      ],
+      "8. Account Management — Child / School": [
+        "Change of child details — grade",
+        "Change of school details on child",
+        "Transfer child — to another school (interschool transfer)",
+        "Transfer funds — between accounts"
+      ],
+      "9. Funds Usage Inquiry": [
+        "Funds usage inquiry — how were funds used / statement request"
+      ],
+      "10. Registration / Onboarding": [
+        "Register new parent",
+        "Register new school",
+        "Start dates confirmation"
+      ],
+      "11. Complaint / Escalation": [
+        "Complaint — service to child in school",
+        "Complaint - service by an agent at call centre",
+        "Complaint- service by an agent in school",
+        "Complaint — technical / system issue",
+        "Escalation — unresolved prior issue"
+      ],
+      "12. Follow-up": [
+        "Follow-up — on previous issue / ticket"
+      ],
+      "13. Feedback": [
+        "General feedback / suggestion"
+      ],
+      "14. Non-CX (Business Development / HR / Procurement)": [
+        "Supply tender request",
+        "Job / employment request",
+        "Partnership request",
+        "Award invitation outreach"
+      ]
+    };
+
+    let selectedCategory = "1. Tag Replacement";
+    let selectedReason = "";
+
+    function renderCallReasonSelector() {
+      const tabsCont = document.getElementById('reason-tabs-container');
+      const optsCont = document.getElementById('reason-options-container');
+      if (!tabsCont || !optsCont) return;
+
+      // Render category tabs
+      tabsCont.innerHTML = Object.keys(CALL_REASONS).map(cat => {
+        const isActive = cat === selectedCategory;
+        const cleanName = cat.replace(/^\d+\.\s*/, '');
+        return `<button type="button" class="reason-tab ${isActive ? 'active' : ''}" onclick="selectReasonCategory('${cat.replace(/'/g, "\\'")}')">${cleanName}</button>`;
+      }).join('');
+
+      // Render options
+      const options = CALL_REASONS[selectedCategory] || [];
+      optsCont.innerHTML = options.map(opt => {
+        const fullValue = `${selectedCategory} — ${opt}`;
+        const isActive = fullValue === selectedReason;
+        return `<button type="button" class="reason-option-btn ${isActive ? 'active' : ''}" onclick="selectReason('${selectedCategory.replace(/'/g, "\\'")}', '${opt.replace(/'/g, "\\'")}')">${opt}</button>`;
+      }).join('');
+    }
+
+    function selectReasonCategory(cat) {
+      selectedCategory = cat;
+      renderCallReasonSelector();
+    }
+
+    function selectReason(cat, opt) {
+      const fullValue = `${cat} — ${opt}`;
+      selectedReason = fullValue;
+      
+      const summaryEl = document.getElementById('selected-reason-summary');
+      if (summaryEl) {
+        summaryEl.textContent = fullValue;
+      }
+
+      const fieldEl = document.getElementById('audited-reason');
+      if (fieldEl) {
+        fieldEl.value = fullValue;
+      }
+
+      renderCallReasonSelector();
+    }
+
+    function clearCallReasonSelection() {
+      selectedReason = "";
+      selectedCategory = "1. Tag Replacement";
+      const summaryEl = document.getElementById('selected-reason-summary');
+      if (summaryEl) {
+        summaryEl.textContent = "None selected";
+      }
+      const fieldEl = document.getElementById('audited-reason');
+      if (fieldEl) {
+        fieldEl.value = "";
+      }
+      renderCallReasonSelector();
+    }
+
     const AUDITS = {
       inbound: {
         id: 'inbound',
@@ -1103,6 +1336,8 @@ function doGet() {
           { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
           { id: 'call-date', label: 'Date the call was received', type: 'date' },
           { id: 'call-type', label: 'Type of call', type: 'select', options: ['New Caller', 'Complaint Escalation', 'Follow-up'] },
+          { id: 'crm-reason', label: 'CRM Selected Reason', type: 'text' },
+          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
           { id: 'post-call-survey', label: 'Post call survey done (Optional)', type: 'select', options: ['NPS', 'Food Satisfaction', 'CES'] },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1204,6 +1439,8 @@ function doGet() {
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
           { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
+          { id: 'crm-reason', label: 'CRM Selected Reason', type: 'text' },
+          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
           { id: 'conv-date', label: 'Conversation date', type: 'date' },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1255,6 +1492,7 @@ function doGet() {
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
           { id: 'campaign-name', label: 'Campaign Name', type: 'text' },
+          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
           { id: 'call-date', label: 'Date of the call', type: 'date' },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1317,6 +1555,7 @@ function doGet() {
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
+          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
           { id: 'call-date', label: 'Date the call was made', type: 'date' },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1399,6 +1638,7 @@ function doGet() {
           renderFields(config.fields);
           renderSections(config.sections);
           renderSpecials(config.specials);
+          clearCallReasonSelection();
 
           if (document.getElementById('audit-date')) {
             document.getElementById('audit-date').value = new Date().toISOString().split('T')[0];
@@ -2241,6 +2481,7 @@ ${attachmentText}
       document.getElementById('notes').value = '';
       const tFlag = document.getElementById('training-flag');
       if (tFlag) tFlag.checked = false;
+      clearCallReasonSelection();
       config.fields.forEach(f => {
         let el = document.getElementById(f.id);
         if (el) {
