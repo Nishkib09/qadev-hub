@@ -38,8 +38,8 @@
       padding: 0;
     }
 
-    input, select, textarea, button {
-      font-family: inherit;
+    input, select, textarea, button, select option {
+      font-family: 'Rubik', -apple-system, 'Segoe UI', Helvetica, sans-serif !important;
     }
 
     body {
@@ -702,15 +702,27 @@
 
           <details style="margin-top: 14px; border: 1px dashed var(--border); border-radius: var(--rs); background: var(--g50);">
             <summary style="font-size: 12px; color: var(--teal); font-weight: 500; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-              <span>➕ Add Custom Category or Sub-Reason</span>
+              <span>➕ Add/Edit Call Categories & Sub-Reasons</span>
             </summary>
             <div style="padding: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
               <!-- Add Category -->
               <div>
                 <label style="display:block; font-size:11px; font-weight:600; color:var(--g600); margin-bottom:4px; text-transform:uppercase;">Add New Category</label>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                  <input type="text" id="new-category-name" placeholder="Category Name (e.g. 15. Promotions)" style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px;">
-                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px; background: var(--blue);" onclick="handleAddCategory()">Add Category</button>
+                  <input type="text" id="new-category-name" placeholder="Category Name (e.g. 15. Promotions)" style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; font-family: 'Rubik', sans-serif;">
+                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px; background: var(--blue); font-family: 'Rubik', sans-serif;" onclick="handleAddCategory()">Add Category</button>
+                </div>
+              </div>
+              <div style="border-top: 1px dashed var(--border); margin: 2px 0;"></div>
+              <!-- Edit Existing Category -->
+              <div>
+                <label style="display:block; font-size:11px; font-weight:600; color:var(--g600); margin-bottom:4px; text-transform:uppercase;">Edit/Rename Existing Category</label>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <select id="edit-category-select" onchange="handleCategorySelectChange()" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; min-width: 150px; background:#fff; height: 30px; font-family: 'Rubik', sans-serif;">
+                    <!-- Populated dynamically -->
+                  </select>
+                  <input type="text" id="edit-category-name" placeholder="New Category Name..." style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; font-family: 'Rubik', sans-serif;">
+                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px; background: var(--teal); font-family: 'Rubik', sans-serif;" onclick="handleEditCategory()">Save Changes</button>
                 </div>
               </div>
               <div style="border-top: 1px dashed var(--border); margin: 2px 0;"></div>
@@ -718,11 +730,11 @@
               <div>
                 <label style="display:block; font-size:11px; font-weight:600; color:var(--g600); margin-bottom:4px; text-transform:uppercase;">Add New Sub-Reason Option</label>
                 <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                  <select id="add-to-category-select" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; min-width: 150px; background:#fff; height: 30px;">
+                  <select id="add-to-category-select" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; min-width: 150px; background:#fff; height: 30px; font-family: 'Rubik', sans-serif;">
                     <!-- Populated dynamically -->
                   </select>
-                  <input type="text" id="new-subreason-name" placeholder="Granular sub-reason text..." style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px;">
-                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="handleAddSubReason()">Add Sub-Reason</button>
+                  <input type="text" id="new-subreason-name" placeholder="Granular sub-reason text..." style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; font-family: 'Rubik', sans-serif;">
+                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px; font-family: 'Rubik', sans-serif;" onclick="handleAddSubReason()">Add Sub-Reason</button>
                 </div>
               </div>
             </div>
@@ -1370,12 +1382,93 @@ function doGet() {
 
     function populateCategoryDropdown() {
       const selectEl = document.getElementById('add-to-category-select');
-      if (!selectEl) return;
-      selectEl.innerHTML = Object.keys(CALL_REASONS).map(cat => {
+      const editSelectEl = document.getElementById('edit-category-select');
+      if (!selectEl && !editSelectEl) return;
+      
+      const optionsHtml = Object.keys(CALL_REASONS).map(cat => {
         const cleanName = cat.replace(/^\d+\.\s*/, '');
-        return `<option value="${cat.replace(/'/g, "\\'")}">${cleanName}</option>`;
+        const escapedValue = cat.replace(/"/g, '&quot;');
+        return `<option value="${escapedValue}">${cleanName}</option>`;
       }).join('');
-      selectEl.value = selectedCategory;
+
+      if (selectEl) {
+        selectEl.innerHTML = optionsHtml;
+        selectEl.value = selectedCategory;
+      }
+      
+      if (editSelectEl) {
+        editSelectEl.innerHTML = optionsHtml;
+        editSelectEl.value = selectedCategory;
+        const inputEl = document.getElementById('edit-category-name');
+        if (inputEl) {
+          inputEl.value = selectedCategory;
+        }
+      }
+    }
+
+    function handleCategorySelectChange() {
+      const selectEl = document.getElementById('edit-category-select');
+      const inputEl = document.getElementById('edit-category-name');
+      if (selectEl && inputEl) {
+        inputEl.value = selectEl.value;
+      }
+    }
+
+    function handleEditCategory() {
+      const selectEl = document.getElementById('edit-category-select');
+      const inputEl = document.getElementById('edit-category-name');
+      if (!selectEl || !inputEl) return;
+      
+      const oldCat = selectEl.value;
+      const newCat = inputEl.value.trim();
+      
+      if (!oldCat) {
+        showToast('Please select a category to edit.', 'error');
+        return;
+      }
+      if (!newCat) {
+        showToast('Category name cannot be empty.', 'error');
+        return;
+      }
+      if (oldCat === newCat) {
+        showToast('No changes made to the category name.', 'info');
+        return;
+      }
+      if (CALL_REASONS[newCat] && newCat !== oldCat) {
+        showToast('A category with this name already exists.', 'error');
+        return;
+      }
+      
+      // Preserve key insertion order when renaming
+      const updatedReasons = {};
+      Object.keys(CALL_REASONS).forEach(key => {
+        if (key === oldCat) {
+          updatedReasons[newCat] = CALL_REASONS[oldCat];
+        } else {
+          updatedReasons[key] = CALL_REASONS[key];
+        }
+      });
+      
+      CALL_REASONS = updatedReasons;
+      localStorage.setItem('custom_call_reasons', JSON.stringify(CALL_REASONS));
+      
+      if (selectedCategory === oldCat) {
+        selectedCategory = newCat;
+      }
+      
+      // Update form field values if the active scorecard displays this category
+      const catField = document.getElementById('audited-category');
+      if (catField && catField.value === oldCat.replace(/^\d+\.\s*/, '')) {
+        catField.value = newCat.replace(/^\d+\.\s*/, '');
+        const summaryEl = document.getElementById('selected-reason-summary');
+        const subField = document.getElementById('audited-subreason');
+        if (summaryEl && subField && subField.value) {
+          summaryEl.textContent = `${newCat.replace(/^\d+\.\s*/, '')} — ${subField.value}`;
+        }
+      }
+      
+      showToast('Category renamed successfully!', 'success');
+      renderCallReasonSelector();
     }
 
     function handleAddCategory() {
