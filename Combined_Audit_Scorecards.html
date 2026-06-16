@@ -695,6 +695,34 @@
         <div class="card-body" style="padding: 12px;">
           <div class="reason-tabs" id="reason-tabs-container"></div>
           <div class="reason-options" id="reason-options-container"></div>
+
+          <details style="margin-top: 14px; border: 1px dashed var(--border); border-radius: var(--rs); background: var(--g50);">
+            <summary style="font-size: 12px; color: var(--teal); font-weight: 500; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+              <span>➕ Add Custom Category or Sub-Reason</span>
+            </summary>
+            <div style="padding: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
+              <!-- Add Category -->
+              <div>
+                <label style="display:block; font-size:11px; font-weight:600; color:var(--g600); margin-bottom:4px; text-transform:uppercase;">Add New Category</label>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <input type="text" id="new-category-name" placeholder="Category Name (e.g. 15. Promotions)" style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px;">
+                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px; background: var(--blue);" onclick="handleAddCategory()">Add Category</button>
+                </div>
+              </div>
+              <div style="border-top: 1px dashed var(--border); margin: 2px 0;"></div>
+              <!-- Add Sub-Reason to Active Category -->
+              <div>
+                <label style="display:block; font-size:11px; font-weight:600; color:var(--g600); margin-bottom:4px; text-transform:uppercase;">Add New Sub-Reason Option</label>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <select id="add-to-category-select" style="padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; min-width: 150px; background:#fff; height: 30px;">
+                    <!-- Populated dynamically -->
+                  </select>
+                  <input type="text" id="new-subreason-name" placeholder="Granular sub-reason text..." style="flex: 1; min-width: 180px; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px;">
+                  <button type="button" class="btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="handleAddSubReason()">Add Sub-Reason</button>
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -977,9 +1005,6 @@
           try {
             var blob = attachments[j];
             var file = agentFolder.createFile(blob);
-            if (d.agentEmail && file) {
-              try { file.addViewer(d.agentEmail); } catch(e) {}
-            }
             fileUrls.push(file.getUrl());
             diag += ' | File' + (j+1) + '=DriveOK';
           } catch (uploadErr) {
@@ -1174,7 +1199,8 @@ function doGet() {
     }
 
     // Call Reason Selector logic & data
-    const CALL_REASONS = {
+    // Call Reason Selector logic & data
+    const DEFAULT_CALL_REASONS = {
       "1. Tag Replacement": [
         "Understands process (just given education) — will top up later",
         "Tag replacement fee paid — wants issuance only",
@@ -1264,6 +1290,8 @@ function doGet() {
       ]
     };
 
+    let CALL_REASONS = JSON.parse(localStorage.getItem('custom_call_reasons')) || DEFAULT_CALL_REASONS;
+
     let selectedCategory = "1. Tag Replacement";
     let selectedReason = "";
 
@@ -1286,6 +1314,9 @@ function doGet() {
         const isActive = fullValue === selectedReason;
         return `<button type="button" class="reason-option-btn ${isActive ? 'active' : ''}" onclick="selectReason('${selectedCategory.replace(/'/g, "\\'")}', '${opt.replace(/'/g, "\\'")}')">${opt}</button>`;
       }).join('');
+
+      // Populate dropdown too
+      populateCategoryDropdown();
     }
 
     function selectReasonCategory(cat) {
@@ -1297,14 +1328,19 @@ function doGet() {
       const fullValue = `${cat} — ${opt}`;
       selectedReason = fullValue;
       
+      const cleanCat = cat.replace(/^\d+\.\s*/, '');
       const summaryEl = document.getElementById('selected-reason-summary');
       if (summaryEl) {
-        summaryEl.textContent = fullValue;
+        summaryEl.textContent = `${cleanCat} — ${opt}`;
       }
 
-      const fieldEl = document.getElementById('audited-reason');
-      if (fieldEl) {
-        fieldEl.value = fullValue;
+      const catField = document.getElementById('audited-category');
+      if (catField) {
+        catField.value = cleanCat;
+      }
+      const subField = document.getElementById('audited-subreason');
+      if (subField) {
+        subField.value = opt;
       }
 
       renderCallReasonSelector();
@@ -1317,10 +1353,77 @@ function doGet() {
       if (summaryEl) {
         summaryEl.textContent = "None selected";
       }
-      const fieldEl = document.getElementById('audited-reason');
-      if (fieldEl) {
-        fieldEl.value = "";
+      const catField = document.getElementById('audited-category');
+      if (catField) {
+        catField.value = "";
       }
+      const subField = document.getElementById('audited-subreason');
+      if (subField) {
+        subField.value = "";
+      }
+      renderCallReasonSelector();
+    }
+
+    function populateCategoryDropdown() {
+      const selectEl = document.getElementById('add-to-category-select');
+      if (!selectEl) return;
+      selectEl.innerHTML = Object.keys(CALL_REASONS).map(cat => {
+        const cleanName = cat.replace(/^\d+\.\s*/, '');
+        return `<option value="${cat.replace(/'/g, "\\'")}">${cleanName}</option>`;
+      }).join('');
+      selectEl.value = selectedCategory;
+    }
+
+    function handleAddCategory() {
+      const inputEl = document.getElementById('new-category-name');
+      if (!inputEl) return;
+      const catName = inputEl.value.trim();
+      if (!catName) {
+        showToast('Please enter a category name.', 'error');
+        return;
+      }
+      if (CALL_REASONS[catName]) {
+        showToast('Category already exists.', 'error');
+        return;
+      }
+      CALL_REASONS[catName] = [];
+      localStorage.setItem('custom_call_reasons', JSON.stringify(CALL_REASONS));
+      inputEl.value = '';
+      showToast('Category added successfully!', 'success');
+      selectedCategory = catName;
+      renderCallReasonSelector();
+    }
+
+    function handleAddSubReason() {
+      const selectEl = document.getElementById('add-to-category-select');
+      const inputEl = document.getElementById('new-subreason-name');
+      if (!selectEl || !inputEl) return;
+      
+      const targetCat = selectEl.value;
+      const subReasonText = inputEl.value.trim();
+      
+      if (!targetCat) {
+        showToast('Please select a category.', 'error');
+        return;
+      }
+      if (!subReasonText) {
+        showToast('Please enter a sub-reason option.', 'error');
+        return;
+      }
+      if (!CALL_REASONS[targetCat]) {
+        showToast('Selected category does not exist.', 'error');
+        return;
+      }
+      if (CALL_REASONS[targetCat].includes(subReasonText)) {
+        showToast('Sub-reason option already exists in this category.', 'error');
+        return;
+      }
+      
+      CALL_REASONS[targetCat].push(subReasonText);
+      localStorage.setItem('custom_call_reasons', JSON.stringify(CALL_REASONS));
+      inputEl.value = '';
+      showToast('Sub-reason option added successfully!', 'success');
+      selectedCategory = targetCat;
       renderCallReasonSelector();
     }
 
@@ -1337,7 +1440,8 @@ function doGet() {
           { id: 'call-date', label: 'Date the call was received', type: 'date' },
           { id: 'call-type', label: 'Type of call', type: 'select', options: ['New Caller', 'Complaint Escalation', 'Follow-up'] },
           { id: 'crm-reason', label: 'CRM Selected Reason', type: 'text' },
-          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
+          { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
+          { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'post-call-survey', label: 'Post call survey done (Optional)', type: 'select', options: ['NPS', 'Food Satisfaction', 'CES'] },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1440,7 +1544,8 @@ function doGet() {
           { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
           { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
           { id: 'crm-reason', label: 'CRM Selected Reason', type: 'text' },
-          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
+          { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
+          { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'conv-date', label: 'Conversation date', type: 'date' },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1492,7 +1597,8 @@ function doGet() {
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
           { id: 'campaign-name', label: 'Campaign Name', type: 'text' },
-          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
+          { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
+          { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'call-date', label: 'Date of the call', type: 'date' },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],
@@ -1555,7 +1661,8 @@ function doGet() {
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
-          { id: 'audited-reason', label: 'Audited Call Reason', type: 'text', readonly: true, placeholder: 'Select via tabs below...' },
+          { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
+          { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'call-date', label: 'Date the call was made', type: 'date' },
           { id: 'audit-date', label: 'Audit date', type: 'date' }
         ],

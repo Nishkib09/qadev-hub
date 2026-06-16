@@ -209,9 +209,6 @@ function doPost(e) {
           try {
             var blob = attachments[j];
             var file = agentFolder.createFile(blob);
-            if (d.agentEmail && file) {
-              try { file.addViewer(d.agentEmail); } catch(e) {}
-            }
             fileUrls.push(file.getUrl());
             diag += ' | File' + (j+1) + '=DriveOK';
           } catch (uploadErr) {
