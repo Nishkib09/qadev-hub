@@ -72,19 +72,30 @@ function doPost(e) {
         if (sheet) {
           var values = sheet.getDataRange().getValues();
           var foundRowIndex = -1;
-          var targetTime = new Date(d.timestamp).getTime();
+          var targetTime = d.timestamp ? new Date(d.timestamp.replace(/-/g, "/")).getTime() : 0;
 
           for (var r = values.length - 1; r >= 1; r--) {
             var cellVal = values[r][0];
-            var cellTime = 0;
-            if (cellVal instanceof Date) {
-              cellTime = cellVal.getTime();
-            } else if (cellVal) {
-              cellTime = new Date(cellVal).getTime();
+            var isMatched = false;
+
+            // 1. Exact string match
+            if (cellVal == d.timestamp) {
+              isMatched = true;
+            } else {
+              // 2. Date parsing match (with timezone/locale safety)
+              var cellTime = 0;
+              if (cellVal instanceof Date) {
+                cellTime = cellVal.getTime();
+              } else if (cellVal) {
+                cellTime = new Date(cellVal.toString().replace(/-/g, "/")).getTime();
+              }
+              if (cellTime && targetTime && Math.abs(cellTime - targetTime) < 5000) {
+                isMatched = true;
+              }
             }
 
-            // Compare times (5-second tolerance) and check if agent name is present in the row
-            if (Math.abs(cellTime - targetTime) < 5000) {
+            // Double check that the row belongs to the target agent
+            if (isMatched) {
               var rowStr = JSON.stringify(values[r]);
               if (!d.agentName || rowStr.indexOf(d.agentName) !== -1) {
                 foundRowIndex = r + 1; // 1-based index
