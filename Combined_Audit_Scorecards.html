@@ -1536,7 +1536,7 @@ function doGet() {
           { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
           { id: 'call-date', label: 'Date the call was received', type: 'date' },
           { id: 'call-type', label: 'Type of call', type: 'select', options: ['New Caller', 'Complaint Escalation', 'Follow-up'] },
-          { id: 'crm-reason', label: 'CRM Selected Reason', type: 'text' },
+          { id: 'crm-reason', label: 'Agent Selected Reason on CRM', type: 'text' },
           { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'post-call-survey', label: 'Post call survey done (Optional)', type: 'select', options: ['NPS', 'Food Satisfaction', 'CES'] },
@@ -1640,7 +1640,7 @@ function doGet() {
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
           { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
-          { id: 'crm-reason', label: 'CRM Selected Reason', type: 'text' },
+          { id: 'crm-reason', label: 'Agent Selected Reason on CRM', type: 'text' },
           { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'conv-date', label: 'Conversation date', type: 'date' },
@@ -2293,9 +2293,20 @@ function doGet() {
         attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
       }
 
+      let crmReasonText = '';
+      const hasCrmReason = config.fields.some(f => f.id === 'crm-reason');
+      if (hasCrmReason) {
+        let crmReasonEl = document.getElementById('crm-reason');
+        let crmReason = crmReasonEl && crmReasonEl.value ? crmReasonEl.value : '';
+        if (crmReason) {
+          crmReasonText = `<p style="margin:0 0 12px 0;">Agent Selected Reason on CRM: <b>${crmReason}</b></p>`;
+        }
+      }
+
       const emailBody = `<div style="font-family: 'Rubik', sans-serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
+${crmReasonText}
 <p style="margin:0 0 12px 0;">Total Score: <b>${sPct}</b></p>
 <p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
 ${improvementsText}
@@ -2583,10 +2594,21 @@ ${attachmentText}
         attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
       }
 
+      let crmReasonText = '';
+      const hasCrmReason = config.fields.some(f => f.id === 'crm-reason');
+      if (hasCrmReason) {
+        let crmReasonEl = document.getElementById('crm-reason');
+        let crmReason = crmReasonEl && crmReasonEl.value ? crmReasonEl.value : '';
+        if (crmReason) {
+          crmReasonText = `<p style="margin:0 0 12px 0;">Agent Selected Reason on CRM: <b>${crmReason}</b></p>`;
+        }
+      }
+
       let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
       let emailBodyHtml = emBodyContent || `<div style="font-family: 'Rubik', sans-serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDateStr} for phone number ${phoneNumStr}.</p>
+${crmReasonText}
 <p style="margin:0 0 12px 0;">Total Score: <b>${pct}%</b></p>
 <p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
 ${improvementsText}
