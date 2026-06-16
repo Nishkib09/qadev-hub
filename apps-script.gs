@@ -71,30 +71,99 @@ function doPost(e) {
         var sheet = doc.getSheetByName(sheetName);
         if (sheet) {
           var values = sheet.getDataRange().getValues();
+          var displayValues = sheet.getDataRange().getDisplayValues();
+          var headers = values[0];
+
+          // 1. Ensure new columns/headers are present in the sheet
+          if (d.headers && d.headers.length > 0) {
+            var headersModified = false;
+            for (var h = 0; h < d.headers.length; h++) {
+              var hName = d.headers[h];
+              if (headers.indexOf(hName) === -1) {
+                sheet.getRange(1, h + 1).setValue(hName);
+                headersModified = true;
+              }
+            }
+            if (headersModified) {
+              // Re-read values and headers after dynamically adding them
+              values = sheet.getDataRange().getValues();
+              displayValues = sheet.getDataRange().getDisplayValues();
+              headers = values[0];
+            }
+          }
+
           var foundRowIndex = -1;
-          var targetTime = d.timestamp ? new Date(d.timestamp.replace(/-/g, "/")).getTime() : 0;
+          var sheetTimezone = doc.getSpreadsheetTimeZone();
 
           for (var r = values.length - 1; r >= 1; r--) {
             var cellVal = values[r][0];
+            var displayVal = displayValues[r][0];
             var isMatched = false;
 
-            // 1. Exact string match
-            if (cellVal == d.timestamp) {
+            // Check exact matches first
+            if (cellVal == d.timestamp || displayVal == d.timestamp) {
               isMatched = true;
             } else {
-              // 2. Date parsing match (with timezone/locale safety)
-              var cellTime = 0;
-              if (cellVal instanceof Date) {
-                cellTime = cellVal.getTime();
-              } else if (cellVal) {
-                cellTime = new Date(cellVal.toString().replace(/-/g, "/")).getTime();
+              // Try timezone formatting match
+              if (cellVal) {
+                try {
+                  var cellDate = (cellVal instanceof Date) ? cellVal : new Date(cellVal);
+                  if (!isNaN(cellDate.getTime())) {
+                    var cellStr = Utilities.formatDate(cellDate, sheetTimezone, "yyyy-MM-dd HH:mm:ss");
+                    if (cellStr == d.timestamp) {
+                      isMatched = true;
+                    } else {
+                      var cellStrScript = Utilities.formatDate(cellDate, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+                      if (cellStrScript == d.timestamp) {
+                        isMatched = true;
+                      } else {
+                        var cellStrUTC = Utilities.formatDate(cellDate, "UTC", "yyyy-MM-dd HH:mm:ss");
+                        if (cellStrUTC == d.timestamp) {
+                          isMatched = true;
+                        }
+                      }
+                    }
+                  }
+                } catch (dateErr) {
+                  // Ignore parsing errors
+                }
               }
-              if (cellTime && targetTime && Math.abs(cellTime - targetTime) < 5000) {
-                isMatched = true;
+
+              // Try component-based match (ignores timezone shifts)
+              if (!isMatched && cellVal && d.timestamp) {
+                try {
+                  var cellDate = (cellVal instanceof Date) ? cellVal : new Date(cellVal);
+                  var parts = d.timestamp.split(/[- :]/);
+                  if (parts.length >= 6) {
+                    var y = parseInt(parts[0], 10);
+                    var m = parseInt(parts[1], 10) - 1;
+                    var day = parseInt(parts[2], 10);
+                    var hr = parseInt(parts[3], 10);
+                    var min = parseInt(parts[4], 10);
+                    var sec = parseInt(parts[5], 10);
+
+                    var targetDateLocal = new Date(y, m, day, hr, min, sec);
+                    var cellDateLocal = new Date(
+                      cellDate.getFullYear(),
+                      cellDate.getMonth(),
+                      cellDate.getDate(),
+                      cellDate.getHours(),
+                      cellDate.getMinutes(),
+                      cellDate.getSeconds()
+                    );
+
+                    var diffMs = Math.abs(targetDateLocal.getTime() - cellDateLocal.getTime());
+                    if (diffMs <= 5000) { // 5-second tolerance
+                      isMatched = true;
+                    }
+                  }
+                } catch (fallbackErr) {
+                  // Ignore
+                }
               }
             }
 
-            // Double check that the row belongs to the target agent
+            // Verify that the agent name matches as a safety check
             if (isMatched) {
               var rowStr = JSON.stringify(values[r]);
               if (!d.agentName || rowStr.indexOf(d.agentName) !== -1) {
@@ -105,7 +174,6 @@ function doPost(e) {
           }
 
           if (foundRowIndex !== -1) {
-            var headers = values[0];
             var statusCol = headers.indexOf("Email Sent Status") + 1;
             var timeCol = headers.indexOf("Email Sent Timestamp") + 1;
 
@@ -117,7 +185,7 @@ function doPost(e) {
             }
             diag += ' | SheetUpdate=OK (row ' + foundRowIndex + ')';
           } else {
-            diag += ' | SheetUpdate=ROW_NOT_FOUND (ts=' + d.timestamp + ', targetTime=' + targetTime + ')';
+            diag += ' | SheetUpdate=ROW_NOT_FOUND (ts=' + d.timestamp + ')';
           }
         } else {
           diag += ' | SheetUpdate=SHEET_NOT_FOUND (' + sheetName + ')';
