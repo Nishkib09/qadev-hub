@@ -752,10 +752,11 @@ function doPost(e) {
             var parts = f.fileData.split(",");
             var b64 = parts.length > 1 ? parts[1] : parts[0];
             var bytes = Utilities.base64Decode(b64);
-            var file = agentFolder.createFile(markedName, bytes, f.fileMimeType || "audio/mpeg");
+            var blob = Utilities.newBlob(bytes, f.fileMimeType || "audio/mpeg", markedName);
+            var file = agentFolder.createFile(blob);
             if (d.agentEmail && file) { try { file.addViewer(d.agentEmail); } catch(e) {} }
             fileUrls.push(file.getUrl());
-            attachments.push(file); // Store the file for email attachment
+            attachments.push(blob); // Store the uncorrupted blob for email attachment
             diag += ' | File' + (j+1) + '=OK';
           } catch (fileErr) {
             diag += ' | File' + (j+1) + '=FAIL:' + fileErr.toString();
