@@ -783,8 +783,7 @@ function doPost(e) {
         body = body.replace(/\[Call Recording Link\]/gi, 'No folder link available (no recordings uploaded).');
       }
 
-      body += '<hr style="margin-top:20px;border:none;border-top:1px solid #ddd;">' +
-              '<p style="font-size:11px;color:#888;">[Diag] ' + diag + '</p>';
+
 
       var cc = d.emailSettings.cc || '';
       if (cc.indexOf('teresia.nyokabi@food4education.org') === -1) {
@@ -1689,6 +1688,15 @@ function doGet() {
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
+      const audioInput = document.getElementById('audio-upload');
+      const hasFiles = audioInput && audioInput.files.length > 0;
+      let attachmentText = '';
+      if (hasFiles) {
+        attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>';
+      } else {
+        attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
+      }
+
       const emailBody = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
@@ -1697,8 +1705,7 @@ function doGet() {
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>
-<p style="margin:0 0 16px 0;">All your audited calls folder: [Call Recording Link]</p>
+${attachmentText}
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
 
@@ -1735,10 +1742,25 @@ ${improvementsText}
     }
 
     function updateEmailBody() {
-      const link = document.getElementById('em-link').value;
+      const linkEl = document.getElementById('em-link');
+      const link = linkEl ? linkEl.value.trim() : '';
       const box = document.getElementById('em-body');
       if (!box) return;
-      let linkStr = link ? `<a href="${link}">${link}</a>` : `[Call Recording Link]`;
+
+      const audioInput = document.getElementById('audio-upload');
+      const hasFiles = audioInput && audioInput.files.length > 0;
+      let attachmentText = '';
+      if (hasFiles) {
+        attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>';
+        if (link) {
+          attachmentText += `<p style="margin:0 0 16px 0;">Call Recording Link: <a href="${link}">${link}</a></p>`;
+        }
+      } else if (link) {
+        attachmentText = `<p style="margin:0 0 16px 0;">Call Recording Link: <a href="${link}">${link}</a></p>`;
+      } else {
+        attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
+      }
+
       const agNameEl = document.getElementById('ag-name');
       const agName = agNameEl ? agNameEl.value : '[Agent Name]';
       const config = AUDITS[currentAuditType];
@@ -1775,8 +1797,7 @@ ${improvementsText}
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>
-<p style="margin:0 0 16px 0;">All your audited calls folder: ${linkStr}</p>
+${attachmentText}
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
     }
@@ -1952,6 +1973,14 @@ ${improvementsText}
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
 
+      const hasFiles = audioInput && audioInput.files.length > 0;
+      let attachmentText = '';
+      if (hasFiles) {
+        attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>';
+      } else {
+        attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
+      }
+
       let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
       let emailBodyHtml = emBodyContent || `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
@@ -1961,8 +1990,7 @@ ${improvementsText}
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
-<p style="margin:0 0 2px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>
-<p style="margin:0 0 16px 0;">All your audited calls folder: [Call Recording Link]</p>
+${attachmentText}
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
 
@@ -2016,7 +2044,7 @@ ${improvementsText}
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        logDebug('POST sent (no-cors: cannot read response). Check email for [Diag] footer.');
+        logDebug('POST sent (no-cors: cannot read response). Check agent email.');
         if (emailPaused) {
           showToast(`Audit saved to sheet. Queued for later email (${queuedAudits.length} pending).`, 'info');
         } else {

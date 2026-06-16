@@ -103,8 +103,7 @@ function doPost(e) {
         body = body.replace(/\[Call Recording Link\]/gi, 'No folder link available (no recordings uploaded).');
       }
 
-      body += '<hr style="margin-top:20px;border:none;border-top:1px solid #ddd;">' +
-              '<p style="font-size:11px;color:#888;">[Diag] ' + diag + '</p>';
+
 
       var cc = d.emailSettings.cc || '';
       if (cc.indexOf('teresia.nyokabi@food4education.org') === -1) {
