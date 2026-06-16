@@ -1950,6 +1950,13 @@ ${attachmentText}
         pct >= 96 ? 'Excellent' : pct >= 86 ? 'Good' :
         pct >= 70 ? 'Satisfactory' : 'Needs improvement';
 
+      const agNameEl = document.getElementById('ag-name');
+      const agName = agNameEl ? agNameEl.value : '';
+      const agEmailEl = document.getElementById('ag-email');
+      const agEmail = agEmailEl ? agEmailEl.value : '';
+      const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
+      const evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
+
       let headers = ['Timestamp', 'Audit Type'];
       let row = [submissionTimestamp, config.title];
 
@@ -1981,13 +1988,6 @@ ${attachmentText}
       const emailStatus = isEmailPaused ? 'Pending' : (agEmail ? 'Sent' : 'No Email Provided');
       const emailTime = isEmailPaused ? '' : (agEmail ? submissionTimestamp : '');
       row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]', emailStatus, emailTime);
-
-      const agNameEl = document.getElementById('ag-name');
-      const agName = agNameEl ? agNameEl.value : '';
-      const agEmailEl = document.getElementById('ag-email');
-      const agEmail = agEmailEl ? agEmailEl.value : '';
-      const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
-      const evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
 
       const audioInput = document.getElementById('audio-upload');
       let filesPayload = [];
