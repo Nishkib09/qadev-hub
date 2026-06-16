@@ -272,6 +272,10 @@ function doGet() {
 function ensureHeaders(sheet, expectedHeaders) {
   if (!expectedHeaders || expectedHeaders.length === 0) return;
   var lastCol = sheet.getLastColumn();
+  var maxCols = sheet.getMaxColumns();
+  if (maxCols < expectedHeaders.length) {
+    sheet.insertColumnsAfter(maxCols, expectedHeaders.length - maxCols);
+  }
   var currentHeaders = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
   var isMismatch = currentHeaders.length !== expectedHeaders.length;
   if (!isMismatch) {
