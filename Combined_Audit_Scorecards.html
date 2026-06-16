@@ -770,7 +770,7 @@
         <div class="card-body" style="background:var(--teal-lt); border-radius:var(--rs); padding: 12px 16px;">
           <label style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--teal-md); cursor:pointer;">
             <input type="checkbox" id="training-flag" style="width:16px; height:16px; accent-color:var(--teal-md);">
-            Flag this conversation to be used for training (Perfect Call / High Value)
+            Perfect Call
           </label>
         </div>
       </div>
@@ -2507,16 +2507,14 @@ ${attachmentText}
         row.push(scores[q.id] || '\u2013');
       }));
 
-      if (config.specials.length > 0) {
-        headers.push('Critical Compliance Violations');
-        row.push(issues.length > 0 ? issues.join(', ') : 'None');
-        headers.push('CSAT/VOC Proxy');
-        const vocEl = document.getElementById('voc-select');
-        row.push(vocEl ? vocEl.value : '');
-        headers.push('First Call Resolution (FCR)');
-        const fcrEl = document.getElementById('fcr-select');
-        row.push(fcrEl ? fcrEl.value : '');
-      }
+      headers.push('Critical Compliance Violations');
+      row.push(issues.length > 0 ? issues.join(', ') : 'None');
+      headers.push('CSAT/VOC Proxy');
+      const vocEl = document.getElementById('voc-select');
+      row.push(vocEl ? vocEl.value : '');
+      headers.push('First Call Resolution (FCR)');
+      const fcrEl = document.getElementById('fcr-select');
+      row.push(fcrEl ? fcrEl.value : '');
 
       headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Flagged for Training', 'Call Recording Link', 'Email Sent Status', 'Email Sent Timestamp');
       let trFlag = document.getElementById('training-flag');
