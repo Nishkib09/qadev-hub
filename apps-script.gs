@@ -70,16 +70,31 @@ function doPost(e) {
         var sheetName = d.auditType;
         var sheet = doc.getSheetByName(sheetName);
         if (sheet) {
-          var data = sheet.getDataRange().getValues();
+          var values = sheet.getDataRange().getValues();
           var foundRowIndex = -1;
-          for (var r = data.length - 1; r >= 1; r--) {
-            if (data[r][0] == d.timestamp) {
-              foundRowIndex = r + 1; // 1-based index
-              break;
+          var targetTime = new Date(d.timestamp).getTime();
+
+          for (var r = values.length - 1; r >= 1; r--) {
+            var cellVal = values[r][0];
+            var cellTime = 0;
+            if (cellVal instanceof Date) {
+              cellTime = cellVal.getTime();
+            } else if (cellVal) {
+              cellTime = new Date(cellVal).getTime();
+            }
+
+            // Compare times (5-second tolerance) and check if agent name is present in the row
+            if (Math.abs(cellTime - targetTime) < 5000) {
+              var rowStr = JSON.stringify(values[r]);
+              if (!d.agentName || rowStr.indexOf(d.agentName) !== -1) {
+                foundRowIndex = r + 1; // 1-based index
+                break;
+              }
             }
           }
+
           if (foundRowIndex !== -1) {
-            var headers = data[0];
+            var headers = values[0];
             var statusCol = headers.indexOf("Email Sent Status") + 1;
             var timeCol = headers.indexOf("Email Sent Timestamp") + 1;
 
@@ -91,7 +106,7 @@ function doPost(e) {
             }
             diag += ' | SheetUpdate=OK (row ' + foundRowIndex + ')';
           } else {
-            diag += ' | SheetUpdate=ROW_NOT_FOUND (ts=' + d.timestamp + ')';
+            diag += ' | SheetUpdate=ROW_NOT_FOUND (ts=' + d.timestamp + ', targetTime=' + targetTime + ')';
           }
         } else {
           diag += ' | SheetUpdate=SHEET_NOT_FOUND (' + sheetName + ')';
