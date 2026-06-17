@@ -1141,6 +1141,16 @@
                       <div id="analyzer-bar-after" style="background:var(--leafy); width:0%; height:100%; transition: width 0.4s;"></div>
                     </div>
                   </div>
+                  <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--gray-mid);">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px; color:rgba(31,27,27,0.7);">
+                      <span>Before Session (Overall Audit Score)</span>
+                      <strong id="analyzer-overall-before-txt">N/A</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px; color:rgba(31,27,27,0.7);">
+                      <span>After Session (Overall Audit Score)</span>
+                      <strong id="analyzer-overall-after-txt">N/A</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1180,7 +1190,7 @@
             <div class="stat-card amber" style="padding: 14px 18px;">
               <span class="stat-label" style="font-size:9px;">Needs Coaching</span>
               <span class="stat-value" id="deesc-flagged-count" style="font-size:22px;">0 pax</span>
-              <span class="stat-desc">Confidence score &lt; 3.0</span>
+              <span class="stat-desc">Score &le; 3 on any metric</span>
             </div>
             <div class="stat-card blue" style="padding: 14px 18px;">
               <span class="stat-label" style="font-size:9px;">Total Responses</span>
@@ -1980,6 +1990,10 @@
       const localCache = localStorage.getItem('qt_tracker_cache');
       if (localCache) {
         db = JSON.parse(localCache);
+        if (!db.scorecards || !db.scorecards.inbound || db.scorecards.inbound.length === 0) {
+          console.log("Cached scorecards missing. Re-loading mock data to update tracker.");
+          loadMockData();
+        }
       } else {
         // Load default dummy mock data for a clean start with wow factor
         loadMockData();
@@ -3502,14 +3516,102 @@
 
       db.scorecards = {
         inbound: [
-          { timestamp: "2026-06-01", agentName: "Adah Achieng", activeListening: 80, empathy: 70, callControl: 90, customerCentricityScore: 80 },
-          { timestamp: "2026-06-03", agentName: "Adah Achieng", activeListening: 90, empathy: 90, callControl: 85, customerCentricityScore: 88 }
+          {
+            timestamp: "2026-04-28",
+            agentName: "Lilian Kemunto",
+            agentEmail: "lilian.kemunto@food4education.org",
+            qaEmail: "vinceciana.wairimu@food4education.org",
+            callerNumber: "254746327455",
+            dateTheCallWasReceived: "2026-04-28",
+            typeOfCall: "New Caller",
+            "2ptsWasTheAgentPreparedAndReadyBeforeEngagingTheCaller": "yes",
+            "4ptsDidTheAgentFollowTheSetStandardOpeningProcedure": "yes",
+            "2ptsDidTheAgentPersonalizeTheInteractionAppropriately": "yes",
+            "3ptsDidTheAgentMaintainAStructuredAndLogicalCallFlow": "yes",
+            "5ptsDidTheAgentDemonstrateActiveListening": "yes",
+            "4ptsWasTheAgentsTonePaceAndVolumeAppropriate": "yes",
+            "4ptsDidTheAgentUseTheRightChoiceOfWords": "yes",
+            "4ptsDidTheAgentMaintainProfessionalismThroughoutTheCall": "yes",
+            "4ptsDidTheAgentDemonstrateWillingnessToAssist": "yes",
+            "4ptsDidTheAgentShowOwnershipAndAccountability": "yes",
+            "4ptsWasTheCorrectAccountVerificationProcessCompleted": "yes",
+            "4ptsWereTheSetTroubleshootingStepsFollowed": "yes",
+            "4ptsWereCorrectEscalationProceduresFollowedIfApplicable": "yes",
+            "4ptsWasTheCorrectCallDispositionSelected": "yes",
+            "4ptsDidTheAgentFollowTheSetStandardClosingProcedure": "yes",
+            "6ptsDidTheAgentCorrectlyIdentifyTheCustomersIssue": "yes",
+            "5ptsDidTheAgentProbeEffectivelyToGatherNecessaryInformation": "yes",
+            "7ptsWasTheResolutionOfferedAccurateAndComplete": "yes",
+            "4ptsDidTheAgentProvideRelevantAdditionalInformationOrAlternativesIfApplicable": "yes",
+            "4ptsDidTheAgentConfirmTheCallersUnderstandingOfTheResolution": "yes",
+            "3ptsDidTheAgentManageObjectionsProfessionallyAndProtectTheCompanyImageIfApplicable": "yes",
+            "3ptsDidTheAgentAvoidUnnecessarySilenceOrDeadAir": "yes",
+            "3ptsDidTheAgentUseTheCallersPreferredLanguage": "yes",
+            "3ptsWasTheCallHandledWithinSla180Aht": "yes",
+            "6ptsDidTheAgentConfirmSatisfactionAndOfferFurtherAssistanceBeforeClosing": "yes",
+            percentageScore: "100%",
+            rating: "Excellent"
+          },
+          {
+            timestamp: "2026-05-05",
+            agentName: "Janipher Achieng",
+            agentEmail: "janipher@food4education.org",
+            qaEmail: "vinceciana.wairimu@food4education.org",
+            callerNumber: "254726141588",
+            dateTheCallWasReceived: "2026-05-05",
+            typeOfCall: "New Caller",
+            "2ptsWasTheAgentPreparedAndReadyBeforeEngagingTheCaller": "yes",
+            "4ptsDidTheAgentFollowTheSetStandardOpeningProcedure": "yes",
+            "2ptsDidTheAgentPersonalizeTheInteractionAppropriately": "yes",
+            "3ptsDidTheAgentMaintainAStructuredAndLogicalCallFlow": "yes",
+            "5ptsDidTheAgentDemonstrateActiveListening": "yes",
+            "4ptsWasTheAgentsTonePaceAndVolumeAppropriate": "yes",
+            "4ptsDidTheAgentUseTheRightChoiceOfWords": "yes",
+            "4ptsDidTheAgentMaintainProfessionalismThroughoutTheCall": "yes",
+            "4ptsDidTheAgentDemonstrateWillingnessToAssist": "yes",
+            "4ptsDidTheAgentShowOwnershipAndAccountability": "yes",
+            "4ptsWasTheCorrectAccountVerificationProcessCompleted": "yes",
+            "4ptsWereTheSetTroubleshootingStepsFollowed": "yes",
+            "4ptsWereCorrectEscalationProceduresFollowedIfApplicable": "yes",
+            "4ptsWasTheCorrectCallDispositionSelected": "yes",
+            "4ptsDidTheAgentFollowTheSetStandardClosingProcedure": "yes",
+            "6ptsDidTheAgentCorrectlyIdentifyTheCustomersIssue": "yes",
+            "5ptsDidTheAgentProbeEffectivelyToGatherNecessaryInformation": "yes",
+            "7ptsWasTheResolutionOfferedAccurateAndComplete": "yes",
+            "4ptsDidTheAgentProvideRelevantAdditionalInformationOrAlternativesIfApplicable": "yes",
+            "4ptsDidTheAgentConfirmTheCallersUnderstandingOfTheResolution": "yes",
+            "3ptsDidTheAgentManageObjectionsProfessionallyAndProtectTheCompanyImageIfApplicable": "yes",
+            "3ptsDidTheAgentAvoidUnnecessarySilenceOrDeadAir": "yes",
+            "3ptsDidTheAgentUseTheCallersPreferredLanguage": "yes",
+            "3ptsWasTheCallHandledWithinSla180Aht": "yes",
+            "6ptsDidTheAgentConfirmSatisfactionAndOfferFurtherAssistanceBeforeClosing": "yes",
+            percentageScore: "100%",
+            rating: "Excellent"
+          }
         ],
         sms: [
-          { timestamp: "2026-06-01", agentName: "Adah Achieng", grammarAndTone: 85, accuracyOfInformation: 90, customerCentricityScore: 87.5 }
+          {
+            timestamp: "2026-05-08",
+            agentName: "Brian Gichuhi",
+            agentEmail: "brian.gichuhi@food4education.org",
+            qaEmail: "vinceciana.wairimu@food4education.org",
+            callerNumber: "254712903710",
+            channelParentContacted: "Whatsapp",
+            conversationDate: "2026-05-08",
+            auditDate: "2026-05-08",
+            "6ptsAdheredToTheStandardSmschatOpeningProcedure": "yes",
+            percentageScore: "95%",
+            rating: "Excellent"
+          }
         ],
         outbound: [
-          { timestamp: "2026-06-01", agentName: "Brian Gichuhi", pitchAndValueProposition: 75, handlingObjections: 80, customerCentricityScore: 77.5 }
+          {
+            timestamp: "2026-06-01",
+            agentName: "Brian Gichuhi",
+            agentEmail: "brian.gichuhi@food4education.org",
+            percentageScore: "90%",
+            rating: "Very Good"
+          }
         ]
       };
 
@@ -3594,8 +3696,6 @@
         syncData();
       }, 2000);
     }
-  
-    // ==================== NEW EXPORT & GOOGLE FORMS HELPER FUNCTIONS ====================
 
     // H. Render De-escalation Confidence Project
     function renderDeescalationProject() {
@@ -3608,11 +3708,16 @@
       // Setup mock data if db.deescalation is empty (local offline simulation)
       if (data.length === 0 && connectionMode === "local") {
         db.deescalation = [
-          { timestamp: "2026-06-05 09:30:15", agentName: "Adah Achieng", confidence: 2, challenges: "Struggles when parents shout about delayed top-ups." },
-          { timestamp: "2026-06-05 10:15:22", agentName: "Brian Gichuhi", confidence: 4, challenges: "Occasional difficulty with refund escalations." },
-          { timestamp: "2026-06-06 11:00:10", agentName: "Joan Wachira", confidence: 3, challenges: "Needs help with structured de-escalation framework." },
-          { timestamp: "2026-06-06 14:20:45", agentName: "Lilian Kemunto", confidence: 2, challenges: "Panics and interrupts callers who speak aggressively." },
-          { timestamp: "2026-06-07 09:05:00", agentName: "Peter Mwangi", confidence: 5, challenges: "Handles escalations smoothly, highly experienced." }
+          { timestamp: "2026-06-09 15:24:59", emailAddress: "joan.wachira@food4education.org", agentFullName: "Joan Njeri Wachira", angryOrIrateabusiveCustomers: "5 - Very confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "5 - Very confident", callsThatMayRequireSupervisorEscalation: "5 - Very confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "I sometimes feel unsure about finding the right words to communicate effectively with customers, especially in difficult situations. System limitations or disappointments can also make it challenging to fully meet customer expectations." },
+          { timestamp: "2026-06-09 21:47:19", emailAddress: "brian.gichuhi@food4education.org", agentFullName: "Brian Mwangi", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "5 - Very confident", callsThatMayRequireSupervisorEscalation: "5 - Very confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "I sometimes feel anxious when handling difficult parents who are upset as there is a need to balance empathy, policy compliance, and timely resolution while ensuring the issue is escalated appropriately. Also finding the right words in such extreme cases feels unsure." },
+          { timestamp: "2026-06-10 00:37:33", emailAddress: "gerald.macharia@food4education.org", agentFullName: "Gerald Macharia Mwangi ", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "4 - Confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "Cases where parent is somewhat unclear with their query(especially those who seem not to understand yet are irritable yet they have called to raise concern but mostly depending with situation you end up escalating" },
+          { timestamp: "2026-06-10 08:58:03", emailAddress: "adah.achieng@food4education.org", agentFullName: "Adah Charlene Achieng", angryOrIrateabusiveCustomers: "3 - Moderately confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "4 - Confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "I feel most challenged when customers are highly emotional and continue to escalate their concerns even after I have provided the available information or solutions. It can sometimes be difficult their emotions while still doing my job.At times the right words to manage the situation is at times a challenge " },
+          { timestamp: "2026-06-10 11:07:40", emailAddress: "nancy.waweru@food4education.org", agentFullName: "Nancy Waweru", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "4 - Confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "I feel most unsure when handling angry parents, as it can be challenging to de-escalate the conversation, address their concerns effectively, and manage expectations when an immediate solution is not available." },
+          { timestamp: "2026-06-10 15:47:17", emailAddress: "magdaline.njeru@food4education.org", agentFullName: "Magdalene Njeru", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "3 - Moderately confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "System limitations, handling abusive language from clients, and finding the right words to communicate effectively with angry clients. These situations can be challenging, especially when I want to resolve the issue but have limited options available or need to de-escalate a highly emotional conversation while maintaining professionalism." },
+          { timestamp: "2026-06-10 22:46:38", emailAddress: "janipher@food4education.org", agentFullName: "Janipher Achieng Oyuga", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "4 - Confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "Knowing when to answer especially for customers who doesn't give chance and continues to rant." },
+          { timestamp: "2026-06-11 15:46:29", emailAddress: "eddy.gathogo@food4education.org", agentFullName: "Eddy Gathogo", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "4 - Confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "I am not always sure what to do when there is no immediate solution.\nSystem delays make it hard to assist customers quickly.\nI feel challenged when a customer keeps calling about the same issue." },
+          { timestamp: "2026-06-11 16:11:55", emailAddress: "john.gitungi@food4education.org", agentFullName: "John Gitungi", angryOrIrateabusiveCustomers: "4 - Confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "3 - Moderately confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "Finding the right words to use when handling complaints, especially where the caller has been inconvenienced. The fear is that they may take the words used, twist them to their advantage and post them on social media to attract public attention/ridicule." },
+          { timestamp: "2026-06-11 18:08:18", emailAddress: "lilian.kemunto@food4education.org", agentFullName: "Lillian Kemunto Mogusu", angryOrIrateabusiveCustomers: "5 - Very confident", repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions: "5 - Very confident", callsThatMayRequireSupervisorEscalation: "4 - Confident", q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments: "What makes me anxious is abusive language and system limitations, especially in situations where a child misses a meal even though there was sufficient balance in the account. In such cases, it becomes challenging because the parent is often frustrated and expects an immediate solution that I may not be able to provide directly. This can make it harder to stay fully confident while trying to de-escalate the situation and guide the conversation appropriately." }
         ];
         localStorage.setItem('qt_tracker_cache', JSON.stringify(db));
       }
@@ -3624,58 +3729,142 @@
         return;
       }
       
-      let agentKey = "";
-      let confidenceKey = "";
-      let challengesKey = "";
+      let nameKey = "";
+      let emailKey = "";
+      let angryKey = "";
+      let repeatKey = "";
+      let supervisorKey = "";
+      let anxiousKey = "";
       
       const sample = records[0];
       for (let key in sample) {
         const lowerKey = key.toLowerCase();
         if (lowerKey.includes("name") || lowerKey.includes("agent")) {
-          agentKey = key;
-        } else if (lowerKey.includes("confidence") || lowerKey.includes("rate") || lowerKey.includes("level") || lowerKey.includes("score") || lowerKey.includes("howconfident")) {
-          confidenceKey = key;
-        } else if (lowerKey.includes("challenge") || lowerKey.includes("difficult") || lowerKey.includes("comment") || lowerKey.includes("notes") || lowerKey.includes("whatare") || lowerKey.includes("feedback")) {
-          challengesKey = key;
+          nameKey = key;
+        } else if (lowerKey.includes("email") || lowerKey.includes("mail")) {
+          emailKey = key;
+        } else if (lowerKey.includes("angry") || lowerKey.includes("irate") || lowerKey.includes("abusive")) {
+          angryKey = key;
+        } else if (lowerKey.includes("repeat") || lowerKey.includes("escalating")) {
+          repeatKey = key;
+        } else if (lowerKey.includes("supervisor") || lowerKey.includes("require")) {
+          supervisorKey = key;
+        } else if (lowerKey.includes("anxious") || lowerKey.includes("unsure") || lowerKey.includes("q2") || lowerKey.includes("makesyou")) {
+          anxiousKey = key;
         }
       }
       
-      if (!agentKey) agentKey = Object.keys(sample)[2] || "agentName";
-      if (!confidenceKey) confidenceKey = Object.keys(sample)[3] || "confidence";
-      if (!challengesKey) challengesKey = Object.keys(sample)[4] || "challenges";
+      if (!nameKey) nameKey = Object.keys(sample)[2] || "agentName";
+      if (!emailKey) emailKey = "emailAddress";
+      if (!angryKey) angryKey = "angryOrIrateabusiveCustomers";
+      if (!repeatKey) repeatKey = "repeatComplaintsWhereTheCustomerKeepsEscalatingTheirEmotions";
+      if (!supervisorKey) supervisorKey = "callsThatMayRequireSupervisorEscalation";
+      if (!anxiousKey) anxiousKey = "q2WhatSpecificallyMakesYouAnxiousOrUnsureInThoseMoments";
+
+      // Helper to map variant form names/emails to standard agent database names
+      function getStandardAgentName(rawName, email) {
+        if (!email && !rawName) return "-";
+        const agents = db.agents || [];
+        
+        // 1. Try to find agent by email (case-insensitive, loose prefix check for spelling differences)
+        if (email) {
+          const cleanEmail = email.trim().toLowerCase();
+          const found = agents.find(a => {
+            const aEmail = (a.emailAddress || "").trim().toLowerCase();
+            if (aEmail === cleanEmail) return true;
+            
+            // Check if prefixes match loosely (e.g. magdaline.njeru vs magdalene.njeru)
+            const prefix1 = cleanEmail.split('@')[0];
+            const prefix2 = aEmail.split('@')[0];
+            if (prefix1.substring(0, 5) === prefix2.substring(0, 5) && prefix1.split('.')[1] === prefix2.split('.')[1]) return true;
+            return false;
+          });
+          if (found) return found.agentName;
+        }
+        
+        // 2. Try to find by name (fuzzy / word overlap)
+        if (rawName) {
+          const cleanName = rawName.trim().toLowerCase();
+          const found = agents.find(a => {
+            const aName = (a.agentName || "").trim().toLowerCase();
+            if (cleanName.includes(aName) || aName.includes(cleanName)) return true;
+            
+            // Check if at least two words match (e.g., "Adah Charlene Achieng" vs "Adah Achieng")
+            const words1 = cleanName.split(/\s+/);
+            const words2 = aName.split(/\s+/);
+            let matchCount = 0;
+            words1.forEach(w1 => {
+              if (w1.length > 2 && words2.some(w2 => w2 === w1)) {
+                matchCount++;
+              }
+            });
+            return matchCount >= 2;
+          });
+          if (found) return found.agentName;
+        }
+        
+        return rawName || "-";
+      }
       
       if (headersRow) {
         headersRow.innerHTML = `
           <th>Date</th>
           <th>Agent Name</th>
-          <th>Confidence Rating</th>
+          <th>Confidence Score (Avg)</th>
           <th>Challenges / Notes</th>
         `;
       }
       
       tbody.innerHTML = "";
-      let totalConfidence = 0;
+      let totalConfidenceSum = 0;
       let validScoresCount = 0;
       let flaggedAgents = [];
+
+      function parseScoreVal(val) {
+        if (val === undefined || val === null || val === "") return NaN;
+        const parsed = parseFloat(val);
+        return isNaN(parsed) ? NaN : parsed;
+      }
       
       records.forEach(item => {
         const date = item.timestamp ? item.timestamp.split(' ')[0] : '-';
-        const name = item[agentKey] || '-';
-        const ratingVal = item[confidenceKey];
-        const rating = ratingVal !== undefined && ratingVal !== "" ? parseFloat(ratingVal) : NaN;
-        const note = item[challengesKey] || '-';
+        const rawName = item[nameKey] || '-';
+        const email = item[emailKey] || '';
+        const name = getStandardAgentName(rawName, email);
+        const note = item[anxiousKey] || '-';
         
+        const angryVal = parseScoreVal(item[angryKey]);
+        const repeatVal = parseScoreVal(item[repeatKey]);
+        const supervisorVal = parseScoreVal(item[supervisorKey]);
+
+        let scores = [];
+        if (!isNaN(angryVal)) scores.push(angryVal);
+        if (!isNaN(repeatVal)) scores.push(repeatVal);
+        if (!isNaN(supervisorVal)) scores.push(supervisorVal);
+
+        let avgRating = NaN;
         let ratingStr = "-";
         let confidenceClass = "score-neutral";
         
-        if (!isNaN(rating)) {
-          totalConfidence += rating;
+        if (scores.length > 0) {
+          avgRating = parseFloat((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1));
+          ratingStr = `${avgRating} / 5`;
+          totalConfidenceSum += avgRating;
           validScoresCount++;
-          ratingStr = `${rating} / 5`;
-          if (rating < 3) {
+          
+          let struggles = [];
+          if (angryVal <= 3) struggles.push("Irate customers");
+          if (repeatVal <= 3) struggles.push("Repeat complaints");
+          if (supervisorVal <= 3) struggles.push("Supervisor escalations");
+
+          if (struggles.length > 0) {
             confidenceClass = "score-negative";
-            flaggedAgents.push({ name: name, score: rating, challenges: note });
-          } else if (rating >= 4) {
+            flaggedAgents.push({ 
+              name: name, 
+              score: avgRating, 
+              challenges: `Struggles with: ${struggles.join(', ')}. Note: ${note}` 
+            });
+          } else if (avgRating >= 4.5) {
             confidenceClass = "score-positive";
           }
         }
@@ -3690,7 +3879,7 @@
         `;
       });
       
-      const avgConfidence = validScoresCount > 0 ? (totalConfidence / validScoresCount).toFixed(1) : "0.0";
+      const avgConfidence = validScoresCount > 0 ? (totalConfidenceSum / validScoresCount).toFixed(1) : "0.0";
       document.getElementById('deesc-avg-confidence').textContent = `${avgConfidence} / 5.0`;
       
       document.getElementById('deesc-flagged-count').textContent = `${flaggedAgents.length} pax`;
@@ -3700,12 +3889,12 @@
       if (flaggedAgents.length > 0) {
         flaggedContainer.innerHTML = flaggedAgents.map(a => `
           <div style="margin-bottom: 6px; padding: 6px 10px; background: #fff; border-radius: 4px; border: 1px solid var(--gray-mid);">
-            <strong>${escapeHtml(a.name)}</strong> (Confidence: <span class="score-negative">${a.score}/5</span>) <br>
-            <span style="font-size:11px; color:rgba(31,27,27,0.6);">Challenge: ${escapeHtml(a.challenges)}</span>
+            <strong>${escapeHtml(a.name)}</strong> (Avg Confidence: <span class="score-negative">${a.score}/5</span>) <br>
+            <span style="font-size:11px; color:rgba(31,27,27,0.6);">${escapeHtml(a.challenges)}</span>
           </div>
         `).join("");
       } else {
-        flaggedContainer.innerHTML = `✓ <span style="color:var(--leafy); font-weight:700;">Zero flags!</span> All responding agents report a de-escalation confidence score of 3 or higher.`;
+        flaggedContainer.innerHTML = `✓ <span style="color:var(--leafy); font-weight:700;">Zero flags!</span> All responding agents report a confidence score of 4 or higher on all metrics.`;
       }
     }
 
@@ -4044,47 +4233,99 @@
 
     const SCORECARD_METRIC_MAP = {
       "empathy": [
-        "demonstrate empathy",
-        "empathetic, courteous, and polite",
+        "empathy",
+        "empathetic",
         "tone, pace, and volume",
-        "choice of words"
+        "choice of words",
+        "willingness to assist",
+        "professionalism",
+        "professional and respectful"
       ],
       "active listening": [
-        "demonstrate active listening",
-        "probed effectively"
+        "active listening",
+        "probe",
+        "summarized",
+        "confirm understanding",
+        "willingness to assist"
       ],
       "sop compliance": [
-        "standard opening procedure",
-        "standard closing procedure",
+        "opening procedure",
+        "closing procedure",
         "introduce themselves",
-        "purpose of the call",
-        "closing procedure"
+        "purpose of the call"
       ],
       "compliance": [
-        "standard opening procedure",
-        "standard closing procedure",
-        "verification process",
-        "data privacy breach",
-        "disposition"
+        "opening procedure",
+        "closing procedure",
+        "verification",
+        "data privacy",
+        "disposition",
+        "compliance",
+        "account verification"
       ],
       "fcr": [
         "first call resolution",
-        "resolution offered accurate",
-        "accurate and complete information"
+        "resolution",
+        "accurate and complete",
+        "solution-oriented"
       ],
       "call control": [
-        "structured and logical call flow",
-        "avoid unnecessary silence or dead air",
-        "avoid unnecessary back-and-forth"
+        "call flow",
+        "unnecessary silence",
+        "unnecessary back-and-forth",
+        "efficient"
       ],
       "product knowledge": [
-        "correctly identify the customer",
-        "resolution offered accurate",
-        "accurate and complete information"
+        "identify",
+        "customers issue",
+        "resolution",
+        "accurate and complete",
+        "explain the required action"
       ],
       "system navigation": [
-        "troubleshooting steps followed",
-        "correct call disposition selected"
+        "troubleshooting",
+        "disposition"
+      ],
+      "system refresher": [
+        "troubleshooting",
+        "disposition",
+        "verification"
+      ],
+      "empathy deep-dive": [
+        "empathy",
+        "empathetic",
+        "tone, pace",
+        "choice of words",
+        "willingness to assist",
+        "professional"
+      ],
+      "escalation handling": [
+        "escalation",
+        "appropriate resources",
+        "knowledge base"
+      ],
+      "de-escalation skills": [
+        "objections",
+        "hesitation",
+        "tone, pace",
+        "angry or irate"
+      ],
+      "new onboarding": [
+        "opening procedure",
+        "closing procedure",
+        "verification",
+        "accurate and complete",
+        "disposition"
+      ],
+      "call handling": [
+        "call flow",
+        "unnecessary silence",
+        "confirm understanding"
+      ],
+      "sms handling": [
+        "sms/chat",
+        "grammatical",
+        "punctuation"
       ]
     };
 
@@ -4153,20 +4394,19 @@
       
       // Gather scorecard audits
       let audits = [];
-      if (db.scorecards) {
-        const inbound = db.scorecards.inbound || [];
-        const sms = db.scorecards.sms || [];
-        const outbound = db.scorecards.outbound || [];
-        
-        if (isTraining) {
-          audits = [...inbound, ...sms, ...outbound];
-        } else {
-          audits = [
-            ...inbound.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase()),
-            ...sms.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase()),
-            ...outbound.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase())
-          ];
-        }
+      const safeScorecards = db.scorecards || { inbound: [], sms: [], outbound: [] };
+      const inbound = safeScorecards.inbound || [];
+      const sms = safeScorecards.sms || [];
+      const outbound = safeScorecards.outbound || [];
+      
+      if (isTraining) {
+        audits = [...inbound, ...sms, ...outbound];
+      } else {
+        audits = [
+          ...inbound.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase()),
+          ...sms.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase()),
+          ...outbound.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase())
+        ];
       }
       
       // Match keys
@@ -4174,6 +4414,12 @@
       let matchingLabels = [];
       
       audits.forEach(audit => {
+        let sourceName = audit.auditType || "Scorecard";
+        if (sourceName.toLowerCase().includes("inbound")) sourceName = "Inbound";
+        else if (sourceName.toLowerCase().includes("sms")) sourceName = "SMS";
+        else if (sourceName.toLowerCase().includes("outbound")) sourceName = "Outbound";
+        else sourceName = "General";
+
         for (let key in audit) {
           const normalizedKey = key.toLowerCase();
           keywords.forEach(kw => {
@@ -4188,7 +4434,11 @@
               } else if (key.match(/^\(\d+pts\)/)) {
                 cleanLabel = key.replace(/^\(\d+pts\)/, "").trim();
               }
-              matchingLabels.push(cleanLabel);
+              
+              cleanLabel = cleanLabel.replace(/([A-Z])/g, ' $1').trim();
+              cleanLabel = cleanLabel.charAt(0).toUpperCase() + cleanLabel.slice(1);
+              
+              matchingLabels.push(`[${sourceName}] ${cleanLabel}`);
             }
           });
         }
@@ -4213,23 +4463,54 @@
       
       let beforeScores = [];
       let afterScores = [];
+      let beforeOverall = [];
+      let afterOverall = [];
       const sessionDate = new Date(sessionDateStr);
+      console.log(`[Analyzer] mode: ${mode}, selectedId: ${selectedId}, focusArea: ${focusArea}, sessionDate: ${sessionDateStr}`);
+      console.log(`[Analyzer] Found ${audits.length} audits for this agent/training before matching keys.`);
+      console.log(`[Analyzer] Keywords used for matching:`, keywords);
+      console.log(`[Analyzer] Matching keys found in scorecard headers:`, matchingKeys);
       
       audits.forEach(audit => {
-        if (!audit.timestamp) return;
-        const auditDateStr = audit.timestamp.split(' ')[0];
+        let rawDateStr = String(audit.dateTheCallWasReceived || audit.conversationDate || audit.dateOfTheCall || audit.timestamp);
+        if (!rawDateStr || rawDateStr === "undefined") return;
+        
+        let auditDateStr = rawDateStr.split(' ')[0].replace(/,/g, '');
+        
+        if (auditDateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+          const parts = auditDateStr.split('/');
+          if (parseInt(parts[0]) > 12) {
+            auditDateStr = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+          } else {
+            auditDateStr = `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+          }
+        }
+        
         const auditDate = new Date(auditDateStr);
         
         let auditSum = 0;
         let auditCount = 0;
+        let overallScore = null;
+        
+        for (let k in audit) {
+          if (k.toLowerCase().includes("percentagescore")) {
+            let pVal = parseFloat(audit[k]);
+            if (!isNaN(pVal)) {
+              if (pVal <= 1.0 && pVal > 0) pVal = pVal * 100;
+              overallScore = pVal;
+            }
+            break;
+          }
+        }
         
         matchingKeys.forEach(key => {
           const val = audit[key];
           if (val === undefined || val === null || val === "") return;
           
           if (key.toLowerCase().includes("percentagescore")) {
-            const numVal = parseFloat(val);
+            let numVal = parseFloat(val);
             if (!isNaN(numVal)) {
+              if (numVal <= 1.0 && numVal > 0) numVal = numVal * 100;
               auditSum += numVal;
               auditCount++;
             }
@@ -4250,14 +4531,22 @@
           const avgScore = auditSum / auditCount;
           if (auditDate < sessionDate) {
             beforeScores.push(avgScore);
+            if (overallScore !== null) beforeOverall.push(overallScore);
           } else {
             afterScores.push(avgScore);
+            if (overallScore !== null) afterOverall.push(overallScore);
           }
         }
       });
       
       const beforeAvg = beforeScores.length > 0 ? Math.round(beforeScores.reduce((a,b) => a+b, 0) / beforeScores.length) : null;
       const afterAvg = afterScores.length > 0 ? Math.round(afterScores.reduce((a,b) => a+b, 0) / afterScores.length) : null;
+      
+      const beforeOverallAvg = beforeOverall.length > 0 ? Math.round(beforeOverall.reduce((a,b) => a+b, 0) / beforeOverall.length) : null;
+      const afterOverallAvg = afterOverall.length > 0 ? Math.round(afterOverall.reduce((a,b) => a+b, 0) / afterOverall.length) : null;
+      
+      console.log(`[Analyzer] Computed beforeScores:`, beforeScores, `(Avg: ${beforeAvg})`);
+      console.log(`[Analyzer] Computed afterScores:`, afterScores, `(Avg: ${afterAvg})`);
       
       const beforeTxt = document.getElementById('analyzer-score-before-txt');
       const afterTxt = document.getElementById('analyzer-score-after-txt');
@@ -4268,6 +4557,12 @@
       barBefore.style.width = beforeAvg !== null ? `${beforeAvg}%` : "0%";
       
       afterTxt.textContent = afterAvg !== null ? `${afterAvg}% (${afterScores.length} audits)` : "N/A (0 audits)";
+      barAfter.style.width = afterAvg !== null ? `${afterAvg}%` : "0%";
+      
+      const ovBeforeTxt = document.getElementById('analyzer-overall-before-txt');
+      const ovAfterTxt = document.getElementById('analyzer-overall-after-txt');
+      if (ovBeforeTxt) ovBeforeTxt.textContent = beforeOverallAvg !== null ? `${beforeOverallAvg}%` : "N/A";
+      if (ovAfterTxt) ovAfterTxt.textContent = afterOverallAvg !== null ? `${afterOverallAvg}%` : "N/A";
       barAfter.style.width = afterAvg !== null ? `${afterAvg}%` : "0%";
       
       const highlightEl = document.getElementById('analyzer-highlight-text');
