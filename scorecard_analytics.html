@@ -1141,26 +1141,35 @@ async function changePin() {
 
 // =================== CSV FETCHING ===================
 
-async function fetchCSV(url) {
+async function fetchCSV(url, type) {
   if (!url) return [];
   try {
-    // Google Sheets published CSVs support CORS natively. No proxy needed.
-    return new Promise((resolve) => {
-      Papa.parse(url, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-          resolve(results.data);
-        },
-        error: function(err) {
-          console.warn('fetchCSV failed:', err);
-          resolve([]);
-        }
+    if (url.includes('script.google.com') && type) {
+      const sep = url.includes('?') ? '&' : '?';
+      const fetchUrl = `${url}${sep}action=getAuditsData&type=${encodeURIComponent(type)}`;
+      const res = await fetch(fetchUrl);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      return data;
+    } else {
+      // Google Sheets published CSVs support CORS natively. No proxy needed.
+      return new Promise((resolve) => {
+        Papa.parse(url, {
+          download: true,
+          header: false,
+          skipEmptyLines: true,
+          complete: function(results) {
+            resolve(results.data);
+          },
+          error: function(err) {
+            console.warn('fetchCSV failed:', err);
+            resolve([]);
+          }
+        });
       });
-    });
+    }
   } catch (e) {
-    console.warn('fetchCSV failed:', e);
+    console.warn('fetchCSV failed for ' + (type || 'CSV') + ':', e);
     return [];
   }
 }
@@ -1212,10 +1221,10 @@ async function refreshAllData() {
   if (hasAny) {
     try {
       const results = await Promise.all([
-        fetchCSV(urls.inbound),
-        fetchCSV(urls.outbound),
-        fetchCSV(urls.survey),
-        fetchCSV(urls.sms)
+        fetchCSV(urls.inbound, 'Inbound Scorecard'),
+        fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)'),
+        fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls'),
+        fetchCSV(urls.sms, 'SMS Quality Audit')
       ]);
       if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
       if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
