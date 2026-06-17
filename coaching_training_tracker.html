@@ -2,6 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      const errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed';
+      errDiv.style.top = '0';
+      errDiv.style.left = '0';
+      errDiv.style.width = '100%';
+      errDiv.style.background = '#ffebee';
+      errDiv.style.color = '#c62828';
+      errDiv.style.padding = '12px 20px';
+      errDiv.style.borderBottom = '3px solid #d32f2f';
+      errDiv.style.zIndex = '999999';
+      errDiv.style.fontSize = '12px';
+      errDiv.style.fontFamily = 'monospace';
+      errDiv.style.fontWeight = 'bold';
+      errDiv.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+      errDiv.innerHTML = '⚠️ JavaScript Error: ' + message + ' at ' + (source ? source.split('/').pop() : 'inline') + ':' + lineno + ':' + colno;
+      document.body.appendChild(errDiv);
+      return false;
+    };
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tap2eat | Q&T Coaching & Training Hub</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -3333,6 +3354,17 @@
 
     // --- MOCK DATABASE PREPOPULATION ---
     function loadMockData() {
+      db.settings = {
+        Coaches: ["Jane Doe", "John Smith", "Mercy Wanjiku"],
+        FocusAreas: ["Empathy", "Active Listening", "SOP Compliance", "FCR", "Product Knowledge", "Call Control", "System Navigation"],
+        TrainingTopics: ["New Onboarding", "System Refresher", "Empathy Deep-Dive", "Escalation Handling", "De-escalation Skills"],
+        CoachingCcEmails: "teresia.nyokabi@food4education.org",
+        FormTitlePre: "CX | Pre-Training Needs Assessment",
+        FormDescPre: "Please share your current knowledge level and learning expectations before the training session.",
+        FormTitlePost: "CX | Post-Training Feedback & Confidence Evaluation",
+        FormDescPost: "Please rate your confidence and provide feedback on the training session you completed."
+      };
+
       db.agents = [
         {agentName: "Adah Achieng", emailAddress: "adah.achieng@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Branice Arakot", emailAddress: "branice.mukasa@food4education.org", team: "CX Team", status: "Active"},
