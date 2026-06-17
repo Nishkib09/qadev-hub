@@ -7,6 +7,7 @@
   <meta name="description" content="Agent performance visualization dashboard for QA audit scorecards">
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     :root {
       --navy: #1a2744;
@@ -1143,40 +1144,25 @@ async function changePin() {
 async function fetchCSV(url) {
   if (!url) return [];
   try {
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const res = await fetch(proxy);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    return parseCSV(text);
+    // Google Sheets published CSVs support CORS natively. No proxy needed.
+    return new Promise((resolve) => {
+      Papa.parse(url, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+          resolve(results.data);
+        },
+        error: function(err) {
+          console.warn('fetchCSV failed:', err);
+          resolve([]);
+        }
+      });
+    });
   } catch (e) {
     console.warn('fetchCSV failed:', e);
     return [];
   }
-}
-
-function parseCSV(text) {
-  const rows = [];
-  const lines = text.split(/\r?\n/);
-  for (let i = 0; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    rows.push(splitCSVRow(lines[i]));
-  }
-  return rows;
-}
-
-function splitCSVRow(line) {
-  const cells = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"' && !inQ) { inQ = true; }
-    else if (c === '"' && inQ && line[i+1] === '"') { cur += '"'; i++; }
-    else if (c === '"' && inQ) { inQ = false; }
-    else if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
-    else cur += c;
-  }
-  cells.push(cur.trim());
-  return cells;
 }
 
 function getURLs() {
