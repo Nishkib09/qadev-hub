@@ -657,6 +657,7 @@
   <div class="topbar">
     <h1 id="top-title">Combined Quality Audit</h1>
     <div class="topbar-right">
+      <a href="scorecard_analytics.html" target="_blank" style="background:rgba(255,255,255,.12);color:#fff;text-decoration:none;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">📊 Analytics</a>
       <div class="score-pill"><span id="top-score">0</span> / 100</div>
       <div id="top-rating" style="font-size:12px;opacity:.8;">–</div>
     </div>
@@ -2064,6 +2065,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function renderAgentsTab() {
+      const pinSet = localStorage.getItem('analytics_pin_hash') ? true : false;
       const cont = document.getElementById('agents-panel');
       cont.innerHTML = `
       <div class="card">
@@ -2092,6 +2094,23 @@ function ensureHeaders(sheet, expectedHeaders) {
                  <button class="btn-primary" onclick="addAgent()">Add Agent</button>
              </div>
            </div>
+        </div>
+      </div>
+
+      <!-- Analytics Access PIN -->
+      <div class="card" style="border-color: var(--blue); margin-top: 14px;">
+        <div class="card-hd" style="background: var(--blue-lt);">
+          <span class="card-title" style="color: var(--blue);">📊 Performance Analytics Access</span>
+          <span style="font-size:11px;color:${pinSet ? 'var(--green)' : 'var(--amber)'};font-weight:600;">${pinSet ? '✓ PIN set' : '⚠ No PIN set'}</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Set a PIN to control who can access the <a href="scorecard_analytics.html" target="_blank">Performance Analytics Dashboard</a>. Only users who know this PIN can view agent performance data.</p>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <input type="password" id="analytics-pin-input" placeholder="Enter access PIN" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;width:180px;">
+            <button class="btn-primary" onclick="setAnalyticsPin()" style="background:var(--blue);">Set PIN</button>
+            <a href="scorecard_analytics.html" target="_blank" style="padding:8px 16px;background:#fff;border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--blue);text-decoration:none;font-weight:500;">Open Analytics →</a>
+          </div>
+          <div id="pin-status" style="font-size:11px;margin-top:8px;color:var(--g400);"></div>
         </div>
       </div>
     `;
@@ -2259,6 +2278,21 @@ function ensureHeaders(sheet, expectedHeaders) {
       a.download = 'queued_audits_' + new Date().toISOString().split('T')[0] + '.csv';
       a.click();
       showToast('CSV exported.', 'success');
+    }
+
+    async function setAnalyticsPin() {
+      const input = document.getElementById('analytics-pin-input');
+      const pin = input.value.trim();
+      if (!pin) { showToast('Please enter a PIN.', 'error'); return; }
+      if (pin.length < 4) { showToast('PIN must be at least 4 characters.', 'error'); return; }
+      const data = new TextEncoder().encode(pin);
+      const buf = await crypto.subtle.digest('SHA-256', data);
+      const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      localStorage.setItem('analytics_pin_hash', hash);
+      input.value = '';
+      document.getElementById('pin-status').innerHTML = '<span style="color:var(--green);font-weight:500;">✓ PIN updated. Share this PIN with authorized team members.</span>';
+      showToast('Analytics PIN set successfully!', 'success');
+      renderAgentsTab();
     }
 
     function renderEmailTab() {

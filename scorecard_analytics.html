@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Performance Analytics</title>
+  <meta name="description" content="Agent performance visualization dashboard for QA audit scorecards">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #1a2744;
+      --navy-d: #111b30;
+      --teal: #0d6e56;
+      --teal-lt: #e1f5ee;
+      --teal-md: #1d9e75;
+      --green: #3b6d11;
+      --green-lt: #eaf3de;
+      --amber: #ba7517;
+      --amber-lt: #faeeda;
+      --red: #a32d2d;
+      --red-lt: #fcebeb;
+      --blue: #185fa5;
+      --blue-lt: #e6f1fb;
+      --g50: #f9f9f7;
+      --g100: #f1efe8;
+      --g200: #d3d1c7;
+      --g400: #888780;
+      --g600: #5f5e5a;
+      --g800: #3a3937;
+      --g900: #2c2c2a;
+      --border: #e2dfd8;
+      --r: 10px;
+      --rs: 6px;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Rubik', -apple-system, 'Segoe UI', sans-serif;
+      background: var(--g50);
+      color: var(--g900);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===== LOCK SCREEN ===== */
+    .lock-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, var(--navy) 0%, #0f1f3d 50%, #0a1628 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+
+    .lock-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px 40px 40px;
+      width: 380px;
+      max-width: 90vw;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      animation: lockIn .4s ease-out;
+    }
+
+    @keyframes lockIn { from { opacity:0; transform: translateY(20px) scale(.96); } }
+
+    .lock-icon {
+      width: 64px; height: 64px;
+      margin: 0 auto 20px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+
+    .lock-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--g900);
+      margin-bottom: 6px;
+    }
+
+    .lock-card p {
+      font-size: 13px;
+      color: var(--g600);
+      margin-bottom: 24px;
+    }
+
+    .lock-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--rs);
+      font-size: 16px;
+      font-family: 'Rubik', sans-serif;
+      text-align: center;
+      letter-spacing: 4px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .lock-input:focus { border-color: var(--teal); }
+
+    .lock-input.error { border-color: var(--red); animation: shake .4s; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .lock-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      border-radius: var(--rs);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Rubik', sans-serif;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background .2s;
+    }
+
+    .lock-btn:hover { background: var(--teal-md); }
+
+    .lock-error {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 10px;
+      min-height: 18px;
+    }
+
+    .lock-footer {
+      margin-top: 24px;
+      font-size: 11px;
+      color: var(--g400);
+    }
+
+    /* ===== LAYOUT ===== */
+    .app { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 220px;
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 50;
+      transition: width .2s;
+    }
+
+    .sidebar-brand {
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .sidebar-brand h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .sidebar-brand span {
+      font-size: 11px;
+      opacity: .5;
+      font-weight: 400;
+    }
+
+    .sidebar-nav { flex: 1; padding: 12px 8px; overflow-y: auto; }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: rgba(255,255,255,.35);
+      padding: 16px 12px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--rs);
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,.65);
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+
+    .nav-item.active {
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .nav-item .ni { font-size: 16px; width: 22px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 12px 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      font-size: 11px;
+      color: rgba(255,255,255,.35);
+    }
+
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar-dash {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-dash h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--g900);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .status-dot.live { background: var(--green); animation: pulse 2s infinite; }
+    .status-dot.off { background: var(--g400); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      border-radius: var(--rs);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--g800);
+      font-family: 'Rubik', sans-serif;
+      transition: all .15s;
+    }
+
+    .btn-sm:hover { background: var(--g100); }
+
+    .btn-sm.primary {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .btn-sm.primary:hover { background: var(--teal-md); }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--g600);
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .filter-bar select,
+    .filter-bar input[type="date"] {
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      font-size: 12px;
+      font-family: 'Rubik', sans-serif;
+      background: #fff;
+      color: var(--g900);
+    }
+
+    .filter-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+    }
+
+    /* ===== CONTENT ===== */
+    .content { padding: 24px; flex: 1; }
+
+    .page { display: none; }
+    .page.active { display: block; animation: fadeUp .3s ease-out; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--g400);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--g900);
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--g600);
+      margin-top: 2px;
+    }
+
+    /* ===== AGENT CARDS ===== */
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .agent-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+    }
+
+    .agent-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--teal-md);
+      transform: translateY(-2px);
+    }
+
+    .agent-card .agent-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--g900);
+      margin-bottom: 2px;
+    }
+
+    .agent-card .agent-count {
+      font-size: 11px;
+      color: var(--g400);
+      margin-bottom: 12px;
+    }
+
+    .agent-card .agent-score {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .agent-card .agent-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-strong { background: var(--green-lt); color: var(--green); }
+    .badge-critical { background: var(--amber-lt); color: var(--amber); }
+    .badge-improve { background: var(--red-lt); color: var(--red); }
+
+    .clr-strong { color: var(--green); }
+    .clr-critical { color: var(--amber); }
+    .clr-improve { color: var(--red); }
+
+    /* ===== CHART CARDS ===== */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .chart-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .chart-hd {
+      padding: 14px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--g800);
+    }
+
+    .chart-body {
+      padding: 12px 18px 18px;
+      position: relative;
+    }
+
+    .chart-body canvas { max-height: 320px; }
+
+    .copy-chart-btn {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      font-size: 11px;
+      background: #fff;
+      color: var(--g600);
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      transition: all .15s;
+    }
+
+    .copy-chart-btn:hover { background: var(--g100); color: var(--g900); }
+
+    /* ===== HEATMAP TABLE ===== */
+    .heatmap-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .heatmap-table th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--g600);
+      background: var(--g100);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .heatmap-table th:hover { color: var(--g900); }
+
+    .heatmap-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--g100);
+      white-space: nowrap;
+      text-align: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .heatmap-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: var(--g900);
+    }
+
+    .heatmap-table tr:hover td { background: rgba(0,0,0,.015); }
+
+    .hm-strong { background: var(--green-lt); color: var(--green); }
+    .hm-critical { background: var(--amber-lt); color: var(--amber); }
+    .hm-improve { background: var(--red-lt); color: var(--red); }
+    .hm-na { background: var(--g50); color: var(--g400); }
+
+    /* ===== INSIGHT CARDS ===== */
+    .insight-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+    .insight-card {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 16px 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--g200);
+    }
+
+    .insight-card.sev-improve { border-left-color: var(--red); }
+    .insight-card.sev-critical { border-left-color: var(--amber); }
+    .insight-card.sev-strong { border-left-color: var(--green); }
+    .insight-card.sev-trend { border-left-color: var(--blue); }
+
+    .insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+
+    .insight-body { flex: 1; min-width: 0; }
+
+    .insight-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--g900);
+      margin-bottom: 4px;
+    }
+
+    .insight-detail {
+      font-size: 12px;
+      color: var(--g600);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .insight-action {
+      font-size: 12px;
+      background: var(--g50);
+      padding: 8px 12px;
+      border-radius: var(--rs);
+      color: var(--g800);
+      border-left: 3px solid var(--teal);
+    }
+
+    .insight-action strong { color: var(--teal); font-weight: 600; }
+
+    /* ===== SETTINGS ===== */
+    .settings-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .settings-hd {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--g100);
+      border-radius: var(--r) var(--r) 0 0;
+    }
+
+    .settings-hd h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--g800);
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .settings-body { padding: 18px; }
+
+    .url-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .url-row label {
+      min-width: 120px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--g600);
+    }
+
+    .url-row input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      font-size: 12px;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    .url-row input:focus { outline: 2px solid var(--teal); outline-offset: -1px; }
+
+    .url-status {
+      font-size: 11px;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* ===== LOADING ===== */
+    .loading-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,.85);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .loading-overlay.show { display: flex; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: var(--rs);
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 9999;
+      display: none;
+      max-width: 360px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .toast.show { display: block; animation: slideIn .3s ease-out; }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } }
+
+    .toast.success { background: var(--green-lt); color: var(--green); border: 1px solid #97c459; }
+    .toast.error { background: var(--red-lt); color: var(--red); border: 1px solid #f09595; }
+    .toast.info { background: var(--blue-lt); color: var(--blue); border: 1px solid #b5d4f4; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--g400);
+    }
+
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+    .empty-state h3 { font-size: 16px; color: var(--g600); margin-bottom: 6px; }
+
+    .empty-state p { font-size: 13px; max-width: 400px; margin: 0 auto; }
+
+    /* ===== SECTION HEADER ===== */
+    .sec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .sec-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--g900);
+    }
+
+    /* ===== AGENT DETAIL HEADER ===== */
+    .agent-detail-hd {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+      padding: 20px 24px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+
+    .agent-detail-hd .ad-score {
+      font-size: 42px;
+      font-weight: 800;
+    }
+
+    .agent-detail-hd .ad-info h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .agent-detail-hd .ad-info p {
+      font-size: 12px;
+      color: var(--g600);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar { width: 56px; }
+      .sidebar .nav-text, .sidebar-brand span, .sidebar-footer { display: none; }
+      .sidebar-brand h1 { font-size: 12px; text-align: center; }
+      .main { margin-left: 56px; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .agent-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    }
+
+    @media (max-width: 600px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .content { padding: 16px; }
+      .filter-bar { padding: 8px 16px; }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      .sidebar, .topbar-dash, .filter-bar, .copy-chart-btn, .btn-sm { display: none !important; }
+      .main { margin-left: 0; }
+      .page { display: block !important; page-break-inside: avoid; }
+      .chart-card, .heatmap-wrap, .insight-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--g200); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--g400); }
+  </style>
+</head>
+
+<body>
+
+<!-- ===== LOCK SCREEN ===== -->
+<div id="lock-screen" class="lock-overlay">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <h2>Performance Analytics</h2>
+    <p>Enter the access PIN set by your QA administrator to view the dashboard.</p>
+    <input type="password" id="pin-input" class="lock-input" placeholder="• • • •" maxlength="20"
+           onkeydown="if(event.key==='Enter')verifyPin()">
+    <button class="lock-btn" onclick="verifyPin()">Unlock Dashboard</button>
+    <div class="lock-error" id="pin-error"></div>
+    <div class="lock-footer">Contact your QA admin for access credentials</div>
+  </div>
+</div>
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <p style="font-size:13px;color:var(--g600);font-weight:500">Loading analytics…</p>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app" id="app" style="display:none">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <h1>📊 QA Analytics</h1>
+      <span>Performance Dashboard</span>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-label">Analytics</div>
+      <div class="nav-item active" id="nav-overview" onclick="navigate('overview')">
+        <span class="ni">🏠</span><span class="nav-text">Overview</span>
+      </div>
+      <div class="nav-item" id="nav-agent" onclick="navigate('agent')">
+        <span class="ni">👤</span><span class="nav-text">Agent Deep Dive</span>
+      </div>
+      <div class="nav-item" id="nav-heatmap" onclick="navigate('heatmap')">
+        <span class="ni">🗺️</span><span class="nav-text">Team Heatmap</span>
+      </div>
+      <div class="nav-item" id="nav-insights" onclick="navigate('insights')">
+        <span class="ni">💡</span><span class="nav-text">Insights & Actions</span>
+      </div>
+      <div class="nav-label">System</div>
+      <div class="nav-item" id="nav-settings" onclick="navigate('settings')">
+        <span class="ni">⚙️</span><span class="nav-text">Data Settings</span>
+      </div>
+      <a class="nav-item" href="Combined_Audit_Scorecards.html" target="_blank" style="margin-top:6px;">
+        <span class="ni">📝</span><span class="nav-text">Open Scorecard</span>
+      </a>
+    </div>
+    <div class="sidebar-footer" id="sidebar-footer">Last refresh: –</div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="topbar-dash">
+      <h2 id="page-title">Overall Performance</h2>
+      <div class="topbar-actions">
+        <span id="conn-pill" style="font-size:11px;color:var(--g400);">
+          <span class="status-dot off"></span> No data
+        </span>
+        <button class="btn-sm" onclick="refreshAllData()">↻ Refresh</button>
+        <button class="btn-sm" onclick="window.print()">🖨 Print</button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <label>Type</label>
+      <select id="f-type" onchange="onFilterChange()">
+        <option value="inbound">Inbound</option>
+        <option value="outbound">Outbound</option>
+        <option value="survey">CSAT Survey</option>
+        <option value="sms">SMS</option>
+      </select>
+      <div class="filter-sep"></div>
+      <label>Range</label>
+      <select id="f-range" onchange="applyQuickRange()">
+        <option value="all">All Time</option>
+        <option value="this_week">This Week</option>
+        <option value="last_week">Last Week</option>
+        <option value="this_month" selected>This Month</option>
+        <option value="last_month">Last Month</option>
+        <option value="this_quarter">This Quarter</option>
+        <option value="ytd">Year to Date</option>
+      </select>
+      <input type="date" id="f-from">
+      <span style="font-size:11px;color:var(--g400);">to</span>
+      <input type="date" id="f-to">
+      <div class="filter-sep"></div>
+      <label>Agent</label>
+      <select id="f-agent">
+        <option value="">All Agents</option>
+      </select>
+      <button class="btn-sm primary" onclick="applyFilters()">Apply</button>
+    </div>
+
+    <div class="content">
+
+      <!-- ===== OVERVIEW PAGE ===== -->
+      <div class="page active" id="page-overview">
+        <div class="kpi-row" id="ov-kpis"></div>
+        <div class="sec-header">
+          <h3>Agent Performance Rankings</h3>
+          <div style="display:flex;gap:8px;">
+            <select id="ov-sort" onchange="buildOverview()" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--rs);font-size:11px;font-family:'Rubik',sans-serif;">
+              <option value="score-desc">Score ↓</option>
+              <option value="score-asc">Score ↑</option>
+              <option value="name-asc">Name A-Z</option>
+              <option value="audits-desc">Most Audits</option>
+            </select>
+            <button class="copy-chart-btn" onclick="copyAgentRankings()">📋 Copy</button>
+          </div>
+        </div>
+        <div class="agent-grid" id="ov-agents"></div>
+      </div>
+
+      <!-- ===== AGENT DETAIL PAGE ===== -->
+      <div class="page" id="page-agent">
+        <div style="margin-bottom:16px;">
+          <select id="ad-agent-select" onchange="buildAgentDetail()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:'Rubik',sans-serif;min-width:220px;">
+            <option value="">— Select Agent —</option>
+          </select>
+        </div>
+        <div id="ad-content">
+          <div class="empty-state">
+            <div class="empty-icon">👤</div>
+            <h3>Select an Agent</h3>
+            <p>Choose an agent from the dropdown above to see their detailed section performance, trends, and analysis.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== HEATMAP PAGE ===== -->
+      <div class="page" id="page-heatmap">
+        <div class="sec-header">
+          <h3>Team Performance Heatmap</h3>
+          <button class="copy-chart-btn" onclick="copyHeatmapTable()">📋 Copy Table</button>
+        </div>
+        <div class="heatmap-wrap" id="hm-wrap">
+          <div class="empty-state">
+            <div class="empty-icon">🗺️</div>
+            <h3>No data available</h3>
+            <p>Connect your data sources in Settings and apply filters to view the heatmap.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== INSIGHTS PAGE ===== -->
+      <div class="page" id="page-insights">
+        <div class="sec-header">
+          <h3>Insights & Corrective Actions</h3>
+          <button class="copy-chart-btn" onclick="copyInsights()">📋 Copy All</button>
+        </div>
+        <div class="insight-list" id="ins-list">
+          <div class="empty-state">
+            <div class="empty-icon">💡</div>
+            <h3>No insights yet</h3>
+            <p>Insights are generated automatically from audit data. Connect your data sources in Settings.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS PAGE ===== -->
+      <div class="page" id="page-settings">
+        <div class="settings-card">
+          <div class="settings-hd"><h3>Data Source — Google Sheets CSV URLs</h3></div>
+          <div class="settings-body">
+            <p style="font-size:12px;color:var(--g600);margin-bottom:16px;">
+              Publish each sheet tab as CSV: Google Sheets → <strong>File → Share → Publish to web</strong> → select the tab → <strong>CSV</strong> → Copy the link and paste below.
+            </p>
+            <div class="url-row">
+              <label>Inbound</label>
+              <input type="text" id="url-inbound" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=…&output=csv">
+              <span class="url-status" id="us-inbound"></span>
+            </div>
+            <div class="url-row">
+              <label>Outbound</label>
+              <input type="text" id="url-outbound" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=…&output=csv">
+              <span class="url-status" id="us-outbound"></span>
+            </div>
+            <div class="url-row">
+              <label>CSAT Survey</label>
+              <input type="text" id="url-survey" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=…&output=csv">
+              <span class="url-status" id="us-survey"></span>
+            </div>
+            <div class="url-row">
+              <label>SMS</label>
+              <input type="text" id="url-sms" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=…&output=csv">
+              <span class="url-status" id="us-sms"></span>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+              <button class="btn-sm primary" onclick="saveURLs()">Save & Load Data</button>
+              <button class="btn-sm" onclick="testAllURLs()">Test Connections</button>
+              <button class="btn-sm" onclick="loadDemoData()">Load Demo Data</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-hd"><h3>Access PIN Management</h3></div>
+          <div class="settings-body">
+            <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Change the access PIN for this dashboard. The PIN is stored in your browser and shared with the scorecard page (same origin).</p>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input type="password" id="new-pin" placeholder="New PIN" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;width:160px;font-family:'Rubik',sans-serif;">
+              <button class="btn-sm primary" onclick="changePin()">Update PIN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =================== CONSTANTS ===================
+
+const THRESHOLDS = { strong: 96, critical: 85 };
+
+const COLORS = {
+  navy: '#1a2744', green: '#3b6d11', greenMd: '#0d6e56',
+  blue: '#185fa5', amber: '#ba7517', red: '#a32d2d',
+  teal: '#0d6e56', purple: '#6d28d9',
+  series: ['#185fa5','#0d6e56','#ba7517','#a32d2d','#6d28d9','#bf6900','#1a2744','#3b6d11']
+};
+
+const CONFIGS = {
+  inbound: {
+    label: 'Inbound Scorecard',
+    sections: [
+      { name: 'Call Opening & Structure', qCount: 4, pts: [2,4,2,3] },
+      { name: 'Communication & Soft Skills', qCount: 6, pts: [5,4,4,4,4,4] },
+      { name: 'Process & Compliance', qCount: 5, pts: [4,4,4,4,4] },
+      { name: 'Resolution Quality & Accuracy', qCount: 5, pts: [6,5,7,4,4] },
+      { name: 'Customer Experience & Efficiency', qCount: 5, pts: [3,3,3,3,6] }
+    ]
+  },
+  outbound: {
+    label: 'Outbound Call Scorecard',
+    sections: [
+      { name: 'Call Preparation & Opening', qCount: 3, pts: [5,5,5] },
+      { name: 'Communication Quality', qCount: 3, pts: [6,6,6] },
+      { name: 'Engagement & Probing', qCount: 2, pts: [6,6] },
+      { name: 'Influence & Ownership', qCount: 3, pts: [6,6,6] },
+      { name: 'Customer Experience', qCount: 2, pts: [5,5] },
+      { name: 'Resolution & Clarity', qCount: 3, pts: [5,5,5] },
+      { name: 'Closing & Compliance', qCount: 2, pts: [6,6] }
+    ]
+  },
+  survey: {
+    label: 'CSAT Survey Calls',
+    sections: [
+      { name: 'Call Preparation & Opening', qCount: 4, pts: [5,5,5,5] },
+      { name: 'Communication Quality', qCount: 3, pts: [5,5,5] },
+      { name: 'Survey Delivery', qCount: 3, pts: [5,5,5] },
+      { name: 'Data Accuracy & Integrity', qCount: 3, pts: [5,5,5] },
+      { name: 'Customer Experience', qCount: 2, pts: [5,5] },
+      { name: 'Value Addition & Support', qCount: 2, pts: [5,5] },
+      { name: 'Closing & Compliance', qCount: 3, pts: [5,5,5] }
+    ]
+  },
+  sms: {
+    label: 'SMS Quality Audit',
+    sections: [
+      { name: 'Opening & Greeting', qCount: 3, pts: [6,7,7] },
+      { name: 'Account Verification', qCount: 2, pts: [10,10] },
+      { name: 'Issue Understanding & Resolution', qCount: 4, pts: [7,8,10,5] },
+      { name: 'Service Quality', qCount: 3, pts: [8,7,5] },
+      { name: 'Communication & Closure', qCount: 2, pts: [5,5] }
+    ]
+  }
+};
+
+// =================== STATE ===================
+
+const STORE = { inbound: [], outbound: [], survey: [], sms: [] };
+let PROCESSED = {}; // { agentName: { avgOverall, auditCount, sectionAvgs:{}, audits:[] } }
+let CHART_INSTANCES = {};
+let currentPage = 'overview';
+let currentType = 'inbound';
+
+// =================== AUTH ===================
+
+async function hashStr(str) {
+  const data = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function verifyPin() {
+  const input = document.getElementById('pin-input');
+  const errEl = document.getElementById('pin-error');
+  const pin = input.value.trim();
+  if (!pin) { errEl.textContent = 'Please enter a PIN.'; return; }
+
+  const hash = await hashStr(pin);
+  const stored = localStorage.getItem('analytics_pin_hash');
+
+  if (!stored) {
+    // No PIN configured — first-time setup: accept this as the PIN
+    localStorage.setItem('analytics_pin_hash', hash);
+    localStorage.setItem('analytics_session', Date.now().toString());
+    unlockDashboard();
+    showToast('PIN set successfully. Share this PIN with authorized users.', 'success');
+    return;
+  }
+
+  if (hash === stored) {
+    localStorage.setItem('analytics_session', Date.now().toString());
+    unlockDashboard();
+  } else {
+    input.classList.add('error');
+    errEl.textContent = 'Incorrect PIN. Please try again.';
+    setTimeout(() => input.classList.remove('error'), 500);
+  }
+}
+
+function checkSession() {
+  // Check URL hash for token
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const urlHash = params.get('auth');
+  if (urlHash) {
+    localStorage.setItem('analytics_pin_hash', urlHash);
+    localStorage.setItem('analytics_session', Date.now().toString());
+    window.location.hash = '';
+    return true;
+  }
+
+  const session = localStorage.getItem('analytics_session');
+  if (!session) return false;
+  // 24 hour expiry
+  const elapsed = Date.now() - parseInt(session);
+  if (elapsed > 24 * 60 * 60 * 1000) {
+    localStorage.removeItem('analytics_session');
+    return false;
+  }
+  return true;
+}
+
+function unlockDashboard() {
+  document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  initDashboard();
+}
+
+async function changePin() {
+  const pin = document.getElementById('new-pin').value.trim();
+  if (!pin) { showToast('Enter a new PIN.', 'error'); return; }
+  const hash = await hashStr(pin);
+  localStorage.setItem('analytics_pin_hash', hash);
+  localStorage.setItem('analytics_session', Date.now().toString());
+  document.getElementById('new-pin').value = '';
+  showToast('PIN updated successfully.', 'success');
+}
+
+// =================== CSV FETCHING ===================
+
+async function fetchCSV(url) {
+  if (!url) return [];
+  try {
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxy);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    return parseCSV(text);
+  } catch (e) {
+    console.warn('fetchCSV failed:', e);
+    return [];
+  }
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    rows.push(splitCSVRow(lines[i]));
+  }
+  return rows;
+}
+
+function splitCSVRow(line) {
+  const cells = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"' && !inQ) { inQ = true; }
+    else if (c === '"' && inQ && line[i+1] === '"') { cur += '"'; i++; }
+    else if (c === '"' && inQ) { inQ = false; }
+    else if (c === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
+    else cur += c;
+  }
+  cells.push(cur.trim());
+  return cells;
+}
+
+function getURLs() {
+  return {
+    inbound: localStorage.getItem('url-inbound') || '',
+    outbound: localStorage.getItem('url-outbound') || '',
+    survey: localStorage.getItem('url-survey') || '',
+    sms: localStorage.getItem('url-sms') || '',
+  };
+}
+
+function saveURLs() {
+  ['inbound','outbound','survey','sms'].forEach(k => {
+    const v = document.getElementById('url-' + k)?.value?.trim() || '';
+    localStorage.setItem('url-' + k, v);
+  });
+  showToast('Settings saved. Loading data…', 'success');
+  refreshAllData();
+}
+
+async function testAllURLs() {
+  const urls = getURLs();
+  for (const [key, url] of Object.entries(urls)) {
+    const el = document.getElementById('us-' + key);
+    if (!url) { if (el) el.innerHTML = '<span style="color:var(--g400)">—</span>'; continue; }
+    if (el) el.innerHTML = '<span style="color:var(--amber)">…</span>';
+    try {
+      const rows = await fetchCSV(url);
+      if (rows.length > 1) {
+        el.innerHTML = `<span style="color:var(--green)">✓ ${rows.length - 1} rows</span>`;
+      } else {
+        el.innerHTML = '<span style="color:var(--amber)">⚠ Empty</span>';
+      }
+    } catch {
+      el.innerHTML = '<span style="color:var(--red)">✕ Failed</span>';
+    }
+  }
+}
+
+async function refreshAllData() {
+  const loading = document.getElementById('loading');
+  loading.classList.add('show');
+
+  const urls = getURLs();
+  const hasAny = Object.values(urls).some(u => u);
+
+  if (hasAny) {
+    try {
+      const results = await Promise.all([
+        fetchCSV(urls.inbound),
+        fetchCSV(urls.outbound),
+        fetchCSV(urls.survey),
+        fetchCSV(urls.sms)
+      ]);
+      if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
+      if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
+      if (urls.survey && results[2].length > 1) STORE.survey = results[2];
+      if (urls.sms && results[3].length > 1) STORE.sms = results[3];
+    } catch (e) { console.error('Refresh error:', e); }
+  }
+
+  const pill = document.getElementById('conn-pill');
+  const hasData = Object.values(STORE).some(s => s.length > 1);
+  if (hasData) {
+    pill.innerHTML = '<span class="status-dot live"></span> Live Data';
+  } else {
+    pill.innerHTML = '<span class="status-dot off"></span> No data';
+  }
+
+  document.getElementById('sidebar-footer').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
+  loading.classList.remove('show');
+  processAndRender();
+}
+
+// =================== DATA PROCESSING ===================
+
+function findQuestionCols(headers) {
+  const cols = [];
+  headers.forEach((h, i) => {
+    const m = String(h).match(/^\((\d+)pts?\)/i);
+    if (m) cols.push({ index: i, pts: parseInt(m[1]), header: h });
+  });
+  return cols;
+}
+
+function findColIdx(headers, pattern) {
+  return headers.findIndex(h => pattern.test(String(h)));
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const s = String(str).trim();
+  // Handle various date formats
+  let d = new Date(s);
+  if (!isNaN(d)) return d;
+  // Try DD/MM/YYYY
+  const parts = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (parts) {
+    d = new Date(parts[3], parts[2] - 1, parts[1]);
+    if (!isNaN(d)) return d;
+  }
+  return null;
+}
+
+function processTypeData(type) {
+  const rows = STORE[type];
+  if (!rows || rows.length < 2) return {};
+
+  const headers = rows[0];
+  const data = rows.slice(1);
+  const config = CONFIGS[type];
+
+  const agentIdx = findColIdx(headers, /agent\s*name/i);
+  const dateIdx = findColIdx(headers, /audit\s*date/i);
+  const pctIdx = findColIdx(headers, /percentage\s*score/i);
+  const ratingIdx = findColIdx(headers, /rating/i);
+  const qCols = findQuestionCols(headers);
+
+  if (agentIdx === -1) return {};
+
+  const agents = {};
+
+  data.forEach(row => {
+    const agentName = String(row[agentIdx] || '').trim();
+    if (!agentName) return;
+
+    if (!agents[agentName]) {
+      agents[agentName] = { name: agentName, audits: [], sectionAvgs: {} };
+    }
+
+    // Parse overall percentage from the sheet
+    let overallPct = 0;
+    if (pctIdx !== -1) {
+      overallPct = parseFloat(String(row[pctIdx] || '0').replace('%', ''));
+    }
+
+    const rating = ratingIdx !== -1 ? String(row[ratingIdx] || '') : '';
+    const auditDate = dateIdx !== -1 ? String(row[dateIdx] || '') : '';
+
+    // Calculate per-section scores
+    let qIdx = 0;
+    const sections = config.sections.map(sec => {
+      let earned = 0, possible = 0;
+      for (let i = 0; i < sec.qCount; i++) {
+        if (qIdx >= qCols.length) { qIdx++; continue; }
+        const val = String(row[qCols[qIdx].index] || '').toLowerCase().trim();
+        const pts = qCols[qIdx].pts;
+        if (val === 'na' || val === 'n/a') {
+          // Excluded
+        } else {
+          possible += pts;
+          if (val === 'yes') earned += pts;
+        }
+        qIdx++;
+      }
+      return { name: sec.name, earned, possible, pct: possible > 0 ? (earned / possible * 100) : null };
+    });
+
+    agents[agentName].audits.push({ date: auditDate, overallPct, rating, sections });
+  });
+
+  // Calculate averages per agent
+  Object.values(agents).forEach(agent => {
+    const validAudits = agent.audits.filter(a => a.overallPct > 0);
+    agent.avgOverall = validAudits.length > 0
+      ? validAudits.reduce((s, a) => s + a.overallPct, 0) / validAudits.length
+      : 0;
+    agent.auditCount = agent.audits.length;
+
+    const config2 = CONFIGS[type];
+    config2.sections.forEach(sec => {
+      const vals = agent.audits
+        .map(a => a.sections.find(s => s.name === sec.name))
+        .filter(s => s && s.pct !== null)
+        .map(s => s.pct);
+      agent.sectionAvgs[sec.name] = vals.length > 0
+        ? vals.reduce((a, b) => a + b, 0) / vals.length
+        : null;
+    });
+  });
+
+  return agents;
+}
+
+function applyDateFilter(agents) {
+  const fromVal = document.getElementById('f-from').value;
+  const toVal = document.getElementById('f-to').value;
+  const from = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+  const to = toVal ? new Date(toVal + 'T23:59:59') : null;
+
+  if (!from && !to) return agents;
+
+  const filtered = {};
+  Object.entries(agents).forEach(([name, agent]) => {
+    const fAudits = agent.audits.filter(a => {
+      const d = parseDate(a.date);
+      if (!d) return true;
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    });
+
+    if (fAudits.length === 0) return;
+
+    const fAgent = { ...agent, audits: fAudits, auditCount: fAudits.length };
+    const validAudits = fAudits.filter(a => a.overallPct > 0);
+    fAgent.avgOverall = validAudits.length > 0
+      ? validAudits.reduce((s, a) => s + a.overallPct, 0) / validAudits.length
+      : 0;
+
+    fAgent.sectionAvgs = {};
+    CONFIGS[currentType].sections.forEach(sec => {
+      const vals = fAudits
+        .map(a => a.sections.find(s => s.name === sec.name))
+        .filter(s => s && s.pct !== null)
+        .map(s => s.pct);
+      fAgent.sectionAvgs[sec.name] = vals.length > 0
+        ? vals.reduce((a, b) => a + b, 0) / vals.length
+        : null;
+    });
+
+    filtered[name] = fAgent;
+  });
+
+  return filtered;
+}
+
+function processAndRender() {
+  const rawAgents = processTypeData(currentType);
+  PROCESSED = applyDateFilter(rawAgents);
+
+  // Populate agent dropdown
+  const agentNames = Object.keys(PROCESSED).sort();
+  const agentFilter = document.getElementById('f-agent');
+  const curAgent = agentFilter.value;
+  agentFilter.innerHTML = '<option value="">All Agents</option>' +
+    agentNames.map(a => `<option value="${a}">${a}</option>`).join('');
+  if (agentNames.includes(curAgent)) agentFilter.value = curAgent;
+
+  const adSelect = document.getElementById('ad-agent-select');
+  const curAd = adSelect.value;
+  adSelect.innerHTML = '<option value="">— Select Agent —</option>' +
+    agentNames.map(a => `<option value="${a}">${a}</option>`).join('');
+  if (agentNames.includes(curAd)) adSelect.value = curAd;
+
+  // Apply agent filter for overview
+  let displayAgents = PROCESSED;
+  const fAgent = document.getElementById('f-agent').value;
+  if (fAgent) {
+    displayAgents = {};
+    if (PROCESSED[fAgent]) displayAgents[fAgent] = PROCESSED[fAgent];
+  }
+
+  buildOverview(displayAgents);
+  buildHeatmap(displayAgents);
+  buildInsights(displayAgents);
+  if (adSelect.value) buildAgentDetail();
+}
+
+// =================== THRESHOLD HELPERS ===================
+
+function getThreshold(pct) {
+  if (pct >= THRESHOLDS.strong) return { label: 'Strong Performance', cls: 'strong', icon: '🟢' };
+  if (pct >= THRESHOLDS.critical) return { label: 'Critical', cls: 'critical', icon: '🟡' };
+  return { label: 'Improvement Needed', cls: 'improve', icon: '🔴' };
+}
+
+function hmClass(pct) {
+  if (pct === null) return 'hm-na';
+  if (pct >= THRESHOLDS.strong) return 'hm-strong';
+  if (pct >= THRESHOLDS.critical) return 'hm-critical';
+  return 'hm-improve';
+}
+
+// =================== CHARTS ===================
+
+function mkChart(id, type, labels, datasets, opts = {}) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  if (CHART_INSTANCES[id]) { CHART_INSTANCES[id].destroy(); }
+  CHART_INSTANCES[id] = new Chart(canvas, {
+    type,
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: opts.legend !== false, ...(opts.legendOpts || {}) },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed?.y ?? ctx.parsed?.r ?? ctx.parsed;
+              return typeof v === 'number' ? ctx.dataset.label + ': ' + v.toFixed(1) + '%' : v;
+            }
+          }
+        }
+      },
+      scales: (type === 'pie' || type === 'doughnut' || type === 'radar') ? (
+        type === 'radar' ? {
+          r: {
+            beginAtZero: true, min: 0, max: 100,
+            ticks: { stepSize: 20, callback: v => v + '%', font: { size: 10 } },
+            pointLabels: { font: { size: 10 } }
+          }
+        } : {}
+      ) : {
+        y: { beginAtZero: true, min: opts.yMin ?? 0, max: opts.yMax ?? 100, ticks: { callback: v => v + '%' }, ...(opts.yOpts || {}) },
+        x: { ticks: { font: { size: 11 } }, ...(opts.xOpts || {}) }
+      },
+      ...(opts.extra || {})
+    }
+  });
+}
+
+// =================== RENDERING — OVERVIEW ===================
+
+function buildOverview(displayAgents) {
+  if (!displayAgents) {
+    const fAgent = document.getElementById('f-agent').value;
+    displayAgents = PROCESSED;
+    if (fAgent && PROCESSED[fAgent]) {
+      displayAgents = {};
+      displayAgents[fAgent] = PROCESSED[fAgent];
+    }
+  }
+
+  const agents = Object.values(displayAgents);
+  const allAgents = Object.values(PROCESSED);
+
+  // KPIs
+  const totalAudits = allAgents.reduce((s, a) => s + a.auditCount, 0);
+  const teamAvg = allAgents.length > 0
+    ? allAgents.reduce((s, a) => s + a.avgOverall, 0) / allAgents.length : 0;
+  const bestAgent = allAgents.length > 0
+    ? allAgents.reduce((best, a) => a.avgOverall > best.avgOverall ? a : best, allAgents[0]) : null;
+  const agentCount = allAgents.length;
+
+  document.getElementById('ov-kpis').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Total Audits</div>
+      <div class="kpi-value">${totalAudits}</div>
+      <div class="kpi-sub">${CONFIGS[currentType].label}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Team Average</div>
+      <div class="kpi-value clr-${getThreshold(teamAvg).cls}">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}</div>
+      <div class="kpi-sub">${teamAvg > 0 ? getThreshold(teamAvg).icon + ' ' + getThreshold(teamAvg).label : 'No data'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Best Performer</div>
+      <div class="kpi-value" style="font-size:18px;">${bestAgent ? bestAgent.name : '–'}</div>
+      <div class="kpi-sub">${bestAgent ? bestAgent.avgOverall.toFixed(1) + '%' : ''}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Agents Tracked</div>
+      <div class="kpi-value">${agentCount}</div>
+      <div class="kpi-sub">Active agents</div>
+    </div>
+  `;
+
+  // Sort agents
+  const sortVal = document.getElementById('ov-sort')?.value || 'score-desc';
+  let sorted = [...agents];
+  switch (sortVal) {
+    case 'score-desc': sorted.sort((a, b) => b.avgOverall - a.avgOverall); break;
+    case 'score-asc': sorted.sort((a, b) => a.avgOverall - b.avgOverall); break;
+    case 'name-asc': sorted.sort((a, b) => a.name.localeCompare(b.name)); break;
+    case 'audits-desc': sorted.sort((a, b) => b.auditCount - a.auditCount); break;
+  }
+
+  // Agent cards
+  if (sorted.length === 0) {
+    document.getElementById('ov-agents').innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-icon">📊</div>
+        <h3>No Data Available</h3>
+        <p>Connect your Google Sheets CSV in Settings, or load demo data to preview the dashboard.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('ov-agents').innerHTML = sorted.map((agent, rank) => {
+    const th = getThreshold(agent.avgOverall);
+    return `
+      <div class="agent-card" onclick="navigateToAgent('${agent.name.replace(/'/g, "\\'")}')">
+        <div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--g400);font-weight:600;">#${rank + 1}</div>
+        <div class="agent-name">${agent.name}</div>
+        <div class="agent-count">${agent.auditCount} audit${agent.auditCount !== 1 ? 's' : ''}</div>
+        <div class="agent-score clr-${th.cls}">${agent.avgOverall.toFixed(1)}%</div>
+        <span class="agent-badge badge-${th.cls}">${th.icon} ${th.label}</span>
+      </div>`;
+  }).join('');
+}
+
+function navigateToAgent(name) {
+  document.getElementById('ad-agent-select').value = name;
+  navigate('agent');
+  buildAgentDetail();
+}
+
+// =================== RENDERING — AGENT DETAIL ===================
+
+function buildAgentDetail() {
+  const name = document.getElementById('ad-agent-select').value;
+  const cont = document.getElementById('ad-content');
+  if (!name || !PROCESSED[name]) {
+    cont.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👤</div>
+        <h3>Select an Agent</h3>
+        <p>Choose an agent from the dropdown above to see their detailed section performance.</p>
+      </div>`;
+    return;
+  }
+
+  const agent = PROCESSED[name];
+  const th = getThreshold(agent.avgOverall);
+  const config = CONFIGS[currentType];
+
+  // Header
+  let html = `
+    <div class="agent-detail-hd">
+      <div class="ad-score clr-${th.cls}">${agent.avgOverall.toFixed(1)}%</div>
+      <div class="ad-info">
+        <h3>${agent.name}</h3>
+        <p>${agent.auditCount} audit${agent.auditCount !== 1 ? 's' : ''} · ${th.icon} ${th.label} · ${CONFIGS[currentType].label}</p>
+      </div>
+    </div>
+  `;
+
+  // Charts grid
+  html += `<div class="chart-grid">`;
+
+  // Radar chart
+  html += `
+    <div class="chart-card">
+      <div class="chart-hd">
+        <span class="chart-title">Section Performance</span>
+        <button class="copy-chart-btn" onclick="copyChart('radar-chart')">📋 Copy</button>
+      </div>
+      <div class="chart-body"><canvas id="radar-chart" height="300"></canvas></div>
+    </div>`;
+
+  // Section bars
+  html += `
+    <div class="chart-card">
+      <div class="chart-hd">
+        <span class="chart-title">Section Averages</span>
+        <button class="copy-chart-btn" onclick="copyChart('bar-chart')">📋 Copy</button>
+      </div>
+      <div class="chart-body"><canvas id="bar-chart" height="300"></canvas></div>
+    </div>`;
+
+  html += `</div>`; // close chart-grid
+
+  // Trend chart (full width)
+  html += `
+    <div class="chart-card" style="margin-bottom:24px;">
+      <div class="chart-hd">
+        <span class="chart-title">Score Trend Over Time</span>
+        <button class="copy-chart-btn" onclick="copyChart('trend-chart')">📋 Copy</button>
+      </div>
+      <div class="chart-body"><canvas id="trend-chart" height="220"></canvas></div>
+    </div>`;
+
+  // Section breakdown table
+  html += `
+    <div class="sec-header">
+      <h3>Section Breakdown</h3>
+      <button class="copy-chart-btn" onclick="copySectionTable()">📋 Copy Table</button>
+    </div>
+    <div class="heatmap-wrap">
+      <table class="heatmap-table" id="section-detail-table">
+        <thead><tr>
+          <th>Section</th><th>Average</th><th>Status</th><th>Audits</th>
+        </tr></thead>
+        <tbody>
+          ${config.sections.map(sec => {
+            const avg = agent.sectionAvgs[sec.name];
+            const t = avg !== null ? getThreshold(avg) : { label: 'N/A', cls: 'na', icon: '—' };
+            const count = agent.audits.filter(a => a.sections.find(s => s.name === sec.name && s.pct !== null)).length;
+            return `<tr>
+              <td>${sec.name}</td>
+              <td class="${hmClass(avg)}">${avg !== null ? avg.toFixed(1) + '%' : 'N/A'}</td>
+              <td><span class="agent-badge badge-${t.cls}" style="font-size:10px;">${t.icon} ${t.label}</span></td>
+              <td style="color:var(--g400)">${count}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  cont.innerHTML = html;
+
+  // Render charts after DOM update
+  setTimeout(() => {
+    // Radar chart: agent vs team average
+    const teamAvgs = config.sections.map(sec => {
+      const allVals = Object.values(PROCESSED)
+        .map(a => a.sectionAvgs[sec.name])
+        .filter(v => v !== null);
+      return allVals.length > 0 ? allVals.reduce((a, b) => a + b, 0) / allVals.length : 0;
+    });
+
+    mkChart('radar-chart', 'radar',
+      config.sections.map(s => s.name.length > 18 ? s.name.slice(0, 18) + '…' : s.name),
+      [
+        {
+          label: agent.name,
+          data: config.sections.map(s => agent.sectionAvgs[s.name] ?? 0),
+          backgroundColor: 'rgba(13,110,86,.15)',
+          borderColor: COLORS.teal,
+          borderWidth: 2,
+          pointBackgroundColor: COLORS.teal
+        },
+        {
+          label: 'Team Average',
+          data: teamAvgs,
+          backgroundColor: 'rgba(24,95,165,.08)',
+          borderColor: COLORS.blue,
+          borderWidth: 1.5,
+          borderDash: [4, 4],
+          pointBackgroundColor: COLORS.blue
+        }
+      ],
+      { legend: true }
+    );
+
+    // Bar chart: section averages with threshold lines
+    const barColors = config.sections.map(s => {
+      const v = agent.sectionAvgs[s.name];
+      if (v === null) return '#ccc';
+      if (v >= THRESHOLDS.strong) return COLORS.green;
+      if (v >= THRESHOLDS.critical) return COLORS.amber;
+      return COLORS.red;
+    });
+
+    mkChart('bar-chart', 'bar',
+      config.sections.map(s => s.name.length > 20 ? s.name.slice(0, 20) + '…' : s.name),
+      [{
+        label: 'Section Average',
+        data: config.sections.map(s => agent.sectionAvgs[s.name] ?? 0),
+        backgroundColor: barColors,
+        borderRadius: 4,
+        barThickness: 28
+      }],
+      {
+        legend: false,
+        xOpts: { ticks: { font: { size: 10 }, maxRotation: 45 } }
+      }
+    );
+
+    // Trend chart
+    const sortedAudits = [...agent.audits]
+      .map(a => ({ ...a, dateObj: parseDate(a.date) }))
+      .filter(a => a.dateObj)
+      .sort((a, b) => a.dateObj - b.dateObj);
+
+    if (sortedAudits.length > 0) {
+      mkChart('trend-chart', 'line',
+        sortedAudits.map(a => a.dateObj.toLocaleDateString()),
+        [{
+          label: 'Overall Score',
+          data: sortedAudits.map(a => a.overallPct),
+          borderColor: COLORS.teal,
+          backgroundColor: 'rgba(13,110,86,.08)',
+          fill: true,
+          tension: .3,
+          pointRadius: 4,
+          pointBackgroundColor: sortedAudits.map(a => {
+            if (a.overallPct >= THRESHOLDS.strong) return COLORS.green;
+            if (a.overallPct >= THRESHOLDS.critical) return COLORS.amber;
+            return COLORS.red;
+          })
+        }],
+        { legend: false }
+      );
+    }
+  }, 50);
+}
+
+// =================== RENDERING — HEATMAP ===================
+
+function buildHeatmap(displayAgents) {
+  if (!displayAgents) displayAgents = PROCESSED;
+  const agents = Object.values(displayAgents).sort((a, b) => b.avgOverall - a.avgOverall);
+  const config = CONFIGS[currentType];
+  const wrap = document.getElementById('hm-wrap');
+
+  if (agents.length === 0) {
+    wrap.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🗺️</div>
+        <h3>No data available</h3>
+        <p>Connect your data sources in Settings and apply filters.</p>
+      </div>`;
+    return;
+  }
+
+  // Calculate team averages per section
+  const teamSecAvgs = {};
+  config.sections.forEach(sec => {
+    const vals = agents.map(a => a.sectionAvgs[sec.name]).filter(v => v !== null);
+    teamSecAvgs[sec.name] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  });
+
+  let html = `<table class="heatmap-table" id="heatmap-table">
+    <thead><tr>
+      <th onclick="sortHeatmap('name')">Agent ⇅</th>
+      <th onclick="sortHeatmap('overall')">Overall ⇅</th>
+      ${config.sections.map(s => `<th onclick="sortHeatmap('${s.name}')" title="${s.name}">${s.name.length > 16 ? s.name.slice(0, 16) + '…' : s.name} ⇅</th>`).join('')}
+      <th>Audits</th>
+    </tr></thead>
+    <tbody>`;
+
+  agents.forEach(agent => {
+    const oth = getThreshold(agent.avgOverall);
+    html += `<tr>
+      <td style="cursor:pointer;color:var(--teal);font-weight:600;" onclick="navigateToAgent('${agent.name.replace(/'/g, "\\'")}')">${agent.name}</td>
+      <td class="${hmClass(agent.avgOverall)}">${agent.avgOverall.toFixed(1)}%</td>
+      ${config.sections.map(s => {
+        const v = agent.sectionAvgs[s.name];
+        return `<td class="${hmClass(v)}">${v !== null ? v.toFixed(0) + '%' : '—'}</td>`;
+      }).join('')}
+      <td style="color:var(--g400)">${agent.auditCount}</td>
+    </tr>`;
+  });
+
+  // Team average row
+  const teamOverall = agents.length > 0 ? agents.reduce((s, a) => s + a.avgOverall, 0) / agents.length : 0;
+  html += `<tr style="font-weight:700;background:var(--g100);">
+    <td>Team Average</td>
+    <td class="${hmClass(teamOverall)}">${teamOverall.toFixed(1)}%</td>
+    ${config.sections.map(s => {
+      const v = teamSecAvgs[s.name];
+      return `<td class="${hmClass(v)}">${v !== null ? v.toFixed(0) + '%' : '—'}</td>`;
+    }).join('')}
+    <td style="color:var(--g400)">${agents.reduce((s, a) => s + a.auditCount, 0)}</td>
+  </tr>`;
+
+  html += `</tbody></table>`;
+  wrap.innerHTML = html;
+}
+
+let heatmapSortKey = 'overall';
+let heatmapSortDir = 'desc';
+
+function sortHeatmap(key) {
+  if (heatmapSortKey === key) { heatmapSortDir = heatmapSortDir === 'desc' ? 'asc' : 'desc'; }
+  else { heatmapSortKey = key; heatmapSortDir = 'desc'; }
+
+  const agents = Object.values(PROCESSED);
+  agents.sort((a, b) => {
+    let va, vb;
+    if (key === 'name') { va = a.name; vb = b.name; return heatmapSortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+    if (key === 'overall') { va = a.avgOverall; vb = b.avgOverall; }
+    else { va = a.sectionAvgs[key] ?? -1; vb = b.sectionAvgs[key] ?? -1; }
+    return heatmapSortDir === 'desc' ? vb - va : va - vb;
+  });
+
+  const sorted = {};
+  agents.forEach(a => sorted[a.name] = a);
+  buildHeatmap(sorted);
+}
+
+// =================== RENDERING — INSIGHTS ===================
+
+function buildInsights(displayAgents) {
+  if (!displayAgents) displayAgents = PROCESSED;
+  const agents = Object.values(displayAgents);
+  const config = CONFIGS[currentType];
+  const cont = document.getElementById('ins-list');
+
+  if (agents.length === 0) {
+    cont.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">💡</div>
+        <h3>No insights yet</h3>
+        <p>Insights are generated from audit data. Connect your data sources in Settings.</p>
+      </div>`;
+    return;
+  }
+
+  // Team averages
+  const teamSecAvgs = {};
+  config.sections.forEach(sec => {
+    const vals = agents.map(a => a.sectionAvgs[sec.name]).filter(v => v !== null);
+    teamSecAvgs[sec.name] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  });
+
+  const insights = [];
+
+  agents.forEach(agent => {
+    // Section-level insights
+    config.sections.forEach(sec => {
+      const avg = agent.sectionAvgs[sec.name];
+      if (avg === null) return;
+
+      if (avg < THRESHOLDS.critical) {
+        insights.push({
+          severity: 'improve',
+          icon: '🔴',
+          agent: agent.name,
+          title: `Improvement needed in "${sec.name}" (${avg.toFixed(1)}%)`,
+          detail: `${agent.name} is averaging ${avg.toFixed(1)}% in ${sec.name}, which is below the 85% threshold across ${agent.auditCount} audit(s).`,
+          action: `Schedule a targeted coaching session on ${sec.name.toLowerCase()}. Review the last 3 audit recordings focusing on this area. Create a personalized action plan with clear milestones.`
+        });
+      } else if (avg >= THRESHOLDS.critical && avg < THRESHOLDS.strong) {
+        insights.push({
+          severity: 'critical',
+          icon: '🟡',
+          agent: agent.name,
+          title: `Critical zone in "${sec.name}" (${avg.toFixed(1)}%)`,
+          detail: `${agent.name} scores ${avg.toFixed(1)}% in ${sec.name} — in the monitoring zone (85-96%). Close to needing improvement.`,
+          action: `Monitor closely. Include ${sec.name.toLowerCase()} in next 1-on-1 discussion. Share best-practice examples from top performers in this area.`
+        });
+      } else if (avg >= THRESHOLDS.strong) {
+        insights.push({
+          severity: 'strong',
+          icon: '🟢',
+          agent: agent.name,
+          title: `Strong performance in "${sec.name}" (${avg.toFixed(1)}%)`,
+          detail: `${agent.name} consistently excels in ${sec.name} with ${avg.toFixed(1)}% average.`,
+          action: `Acknowledge and reinforce this strength. Consider having ${agent.name} mentor others in ${sec.name.toLowerCase()}.`
+        });
+      }
+
+      // Below team average
+      const teamAvg = teamSecAvgs[sec.name];
+      if (teamAvg !== null && avg < teamAvg - 5 && avg < THRESHOLDS.strong) {
+        insights.push({
+          severity: 'trend',
+          icon: '📉',
+          agent: agent.name,
+          title: `Below team average in "${sec.name}"`,
+          detail: `${agent.name} (${avg.toFixed(1)}%) is ${(teamAvg - avg).toFixed(1)} percentage points below the team average (${teamAvg.toFixed(1)}%) in ${sec.name}.`,
+          action: `Pair with a top performer for peer learning in this area. Create a personalized improvement plan focusing on ${sec.name.toLowerCase()}.`
+        });
+      }
+    });
+
+    // Trend detection (declining 3+ consecutive audits)
+    const sortedAudits = [...agent.audits]
+      .map(a => ({ ...a, dateObj: parseDate(a.date) }))
+      .filter(a => a.dateObj)
+      .sort((a, b) => a.dateObj - b.dateObj);
+
+    if (sortedAudits.length >= 3) {
+      const last3 = sortedAudits.slice(-3);
+      if (last3[0].overallPct > last3[1].overallPct && last3[1].overallPct > last3[2].overallPct) {
+        insights.push({
+          severity: 'improve',
+          icon: '⬇️',
+          agent: agent.name,
+          title: `Downward trend detected for ${agent.name}`,
+          detail: `Score has declined over the last 3 audits: ${last3.map(a => a.overallPct.toFixed(0) + '%').join(' → ')}.`,
+          action: `Immediate intervention needed. Review recent audits to identify root cause. Consider side-by-side coaching or shadowing sessions.`
+        });
+      }
+    }
+
+    // Critical failures
+    const critFails = agent.audits.filter(a => a.rating.toLowerCase().includes('critical') || a.rating.toLowerCase().includes('fail'));
+    if (critFails.length > 0) {
+      insights.push({
+        severity: 'improve',
+        icon: '🚨',
+        agent: agent.name,
+        title: `Critical compliance issue flagged ${critFails.length} time(s)`,
+        detail: `${agent.name} has ${critFails.length} critical failure(s) in their audit history for ${CONFIGS[currentType].label}.`,
+        action: `Mandatory re-training on compliance procedures required. Escalate to supervisor if this is a repeated pattern. Review all flagged audits.`
+      });
+    }
+
+    // Overall excellence
+    if (agent.avgOverall >= THRESHOLDS.strong && agent.auditCount >= 3) {
+      insights.push({
+        severity: 'strong',
+        icon: '⭐',
+        agent: agent.name,
+        title: `Consistently excellent — ${agent.name} (${agent.avgOverall.toFixed(1)}%)`,
+        detail: `Maintains a ${agent.avgOverall.toFixed(1)}% average across ${agent.auditCount} audits. A model of quality performance.`,
+        action: `Recognize this outstanding performance. Nominate for quality champion. Use their calls as training material for the team.`
+      });
+    }
+  });
+
+  // Sort: improve > critical > trend > strong
+  const sevOrder = { improve: 0, critical: 1, trend: 2, strong: 3 };
+  insights.sort((a, b) => (sevOrder[a.severity] ?? 9) - (sevOrder[b.severity] ?? 9));
+
+  if (insights.length === 0) {
+    cont.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">✅</div>
+        <h3>All Clear!</h3>
+        <p>No actionable insights at this time. All agents are performing well.</p>
+      </div>`;
+    return;
+  }
+
+  cont.innerHTML = insights.map(ins => `
+    <div class="insight-card sev-${ins.severity}">
+      <div class="insight-icon">${ins.icon}</div>
+      <div class="insight-body">
+        <div class="insight-title">${ins.title}</div>
+        <div class="insight-detail">${ins.detail}</div>
+        <div class="insight-action"><strong>Corrective Action:</strong> ${ins.action}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =================== FILTERS ===================
+
+function applyQuickRange() {
+  const val = document.getElementById('f-range').value;
+  const today = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  const monday = d => { const c = new Date(d); c.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return c; };
+
+  let from, to = today;
+  switch (val) {
+    case 'this_week': from = monday(today); break;
+    case 'last_week': { const m = monday(today); to = new Date(m); to.setDate(m.getDate() - 1); from = new Date(m); from.setDate(m.getDate() - 7); break; }
+    case 'this_month': from = new Date(today.getFullYear(), today.getMonth(), 1); break;
+    case 'last_month': from = new Date(today.getFullYear(), today.getMonth() - 1, 1); to = new Date(today.getFullYear(), today.getMonth(), 0); break;
+    case 'this_quarter': { const q = Math.floor(today.getMonth() / 3); from = new Date(today.getFullYear(), q * 3, 1); break; }
+    case 'ytd': from = new Date(today.getFullYear(), 0, 1); break;
+    case 'all': from = new Date('2020-01-01'); break;
+    default: return;
+  }
+
+  document.getElementById('f-from').value = fmt(from);
+  document.getElementById('f-to').value = fmt(to);
+}
+
+function onFilterChange() {
+  currentType = document.getElementById('f-type').value;
+  processAndRender();
+}
+
+function applyFilters() {
+  currentType = document.getElementById('f-type').value;
+  processAndRender();
+  showToast('Filters applied.', 'info');
+}
+
+// =================== COPY & EXPORT ===================
+
+function copyChart(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) { showToast('Chart not found.', 'error'); return; }
+  canvas.toBlob(blob => {
+    if (!blob) { showToast('Could not copy chart.', 'error'); return; }
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
+      showToast('Chart copied as image!', 'success');
+    }).catch(() => {
+      // Fallback: open in new tab
+      const url = canvas.toDataURL();
+      window.open(url, '_blank');
+      showToast('Chart opened in new tab (clipboard blocked).', 'info');
+    });
+  });
+}
+
+function copyHeatmapTable() {
+  const table = document.getElementById('heatmap-table');
+  if (!table) return;
+  const text = tableToText(table);
+  navigator.clipboard.writeText(text).then(() => showToast('Heatmap table copied!', 'success'));
+}
+
+function copySectionTable() {
+  const table = document.getElementById('section-detail-table');
+  if (!table) return;
+  navigator.clipboard.writeText(tableToText(table)).then(() => showToast('Section table copied!', 'success'));
+}
+
+function copyAgentRankings() {
+  const agents = Object.values(PROCESSED).sort((a, b) => b.avgOverall - a.avgOverall);
+  const lines = ['Agent\tAvg Score\tAudits\tRating'];
+  agents.forEach((a, i) => {
+    const th = getThreshold(a.avgOverall);
+    lines.push(`${i + 1}. ${a.name}\t${a.avgOverall.toFixed(1)}%\t${a.auditCount}\t${th.label}`);
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => showToast('Rankings copied!', 'success'));
+}
+
+function copyInsights() {
+  const cards = document.querySelectorAll('#ins-list .insight-card');
+  if (!cards.length) { showToast('No insights to copy.', 'error'); return; }
+  const lines = [];
+  cards.forEach(card => {
+    const title = card.querySelector('.insight-title')?.textContent || '';
+    const detail = card.querySelector('.insight-detail')?.textContent || '';
+    const action = card.querySelector('.insight-action')?.textContent || '';
+    lines.push(`${title}\n${detail}\n${action}\n`);
+  });
+  navigator.clipboard.writeText(lines.join('\n---\n\n')).then(() => showToast('Insights copied!', 'success'));
+}
+
+function tableToText(table) {
+  const lines = [];
+  table.querySelectorAll('tr').forEach(tr => {
+    const cells = [];
+    tr.querySelectorAll('th, td').forEach(td => cells.push(td.textContent.trim()));
+    lines.push(cells.join('\t'));
+  });
+  return lines.join('\n');
+}
+
+// =================== DEMO DATA ===================
+
+function loadDemoData() {
+  const agentNames = ['Adah Achieng', 'Brian Gichuhi', 'Eddy Wanjiku', 'Gerald Macharia', 'Joan Wachira',
+    'John Gitungi', 'Lilian Kemunto', 'Louisa Chikete', 'Nancy Waweru'];
+
+  function genRows(type) {
+    const config = CONFIGS[type];
+    const totalQ = config.sections.reduce((s, sec) => s + sec.qCount, 0);
+
+    // Build headers
+    const headers = ['Timestamp', 'Audit Type', 'Agent Name', 'Agent Email', 'QA Email'];
+    if (type === 'inbound') headers.push('Caller Number', 'Date call received', 'Type of call', 'Post call survey', 'Audit date');
+    else if (type === 'outbound') headers.push('Customer Phone', 'Campaign Name', 'Call Date', 'Audit date');
+    else if (type === 'survey') headers.push('Phone contacted', 'Call date', 'Audit date');
+    else headers.push('SMS Number', 'Channel', 'Conversation date', 'Audit date');
+
+    config.sections.forEach(sec => {
+      sec.pts.forEach(p => headers.push(`(${p}pts) Q`));
+    });
+
+    if (type === 'inbound') headers.push('Critical Compliance Violations', 'CSAT/VOC Proxy', 'First Call Resolution (FCR)');
+    headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'Notes', 'Flagged for Training', 'Call Recording Link');
+
+    const rows = [headers];
+    const today = new Date();
+
+    agentNames.forEach(agent => {
+      const numAudits = 4 + Math.floor(Math.random() * 8);
+      const baseSkill = 70 + Math.random() * 25;
+
+      for (let n = 0; n < numAudits; n++) {
+        const auditDate = new Date(today);
+        auditDate.setDate(today.getDate() - Math.floor(Math.random() * 90));
+        const dateStr = auditDate.toISOString().split('T')[0];
+
+        const row = [new Date().toLocaleString(), config.label, agent, agent.toLowerCase().replace(' ', '.') + '@food4education.org', 'qa@food4education.org'];
+        if (type === 'inbound') row.push('+254 700 000 000', dateStr, 'New Caller', 'NPS', dateStr);
+        else if (type === 'outbound') row.push('+254 700 000 000', 'Campaign', dateStr, dateStr);
+        else if (type === 'survey') row.push('+254 700 000 000', dateStr, dateStr);
+        else row.push('+254 700 000 000', 'Whatsapp', dateStr, dateStr);
+
+        let earned = 0, possible = 0;
+        config.sections.forEach(sec => {
+          const secSkill = Math.min(100, Math.max(30, baseSkill + (Math.random() - 0.5) * 30));
+          sec.pts.forEach(p => {
+            possible += p;
+            if (Math.random() * 100 < secSkill) { row.push('yes'); earned += p; }
+            else { row.push('no'); }
+          });
+        });
+
+        if (type === 'inbound') row.push('None', '4', 'Yes');
+
+        const pct = Math.round(earned / possible * 100);
+        const rating = pct >= 96 ? 'Excellent' : pct >= 86 ? 'Good' : pct >= 70 ? 'Satisfactory' : 'Needs improvement';
+        row.push(earned, possible, pct + '%', rating, '', 'No', '');
+        rows.push(row);
+      }
+    });
+
+    return rows;
+  }
+
+  STORE.inbound = genRows('inbound');
+  STORE.outbound = genRows('outbound');
+  STORE.survey = genRows('survey');
+  STORE.sms = genRows('sms');
+
+  document.getElementById('conn-pill').innerHTML = '<span class="status-dot live" style="background:var(--amber);"></span> Demo Data';
+  showToast('Demo data loaded. Select a scorecard type and explore!', 'success');
+  processAndRender();
+}
+
+// =================== NAVIGATION ===================
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page)?.classList.add('active');
+  document.getElementById('nav-' + page)?.classList.add('active');
+  currentPage = page;
+
+  const titles = {
+    overview: 'Overall Performance',
+    agent: 'Agent Deep Dive',
+    heatmap: 'Team Heatmap',
+    insights: 'Insights & Corrective Actions',
+    settings: 'Data Settings'
+  };
+  document.getElementById('page-title').textContent = titles[page] || 'Analytics';
+}
+
+// =================== UTILITIES ===================
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// =================== INIT ===================
+
+function initDashboard() {
+  // Load URLs into settings inputs
+  const urls = getURLs();
+  Object.entries(urls).forEach(([k, v]) => {
+    const el = document.getElementById('url-' + k);
+    if (el) el.value = v;
+  });
+
+  // Set default date range
+  applyQuickRange();
+
+  // Load data if URLs exist
+  if (Object.values(urls).some(u => u)) {
+    refreshAllData();
+  } else {
+    processAndRender();
+  }
+}
+
+// Entry point
+(function() {
+  if (checkSession()) {
+    unlockDashboard();
+  }
+  // Otherwise lock screen is shown by default
+})();
+</script>
+
+</body>
+</html>
