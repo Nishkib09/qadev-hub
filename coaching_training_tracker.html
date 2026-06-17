@@ -2657,7 +2657,8 @@
       const today = new Date();
       const riskList = [];
 
-      db.settings.Agents.forEach(agent => {
+      const agentsList = db.settings.Agents || (db.agents ? db.agents.map(a => a.agentName) : []);
+      agentsList.forEach(agent => {
         // Find last completed coaching date for this agent
         const agentSessions = db.coaching
           .filter(s => s.agentName === agent && s.status === 'Completed')
@@ -3116,7 +3117,8 @@
       const legendMap = {};
       const colors = ['#24631E', '#FFB200', '#FF8C00', '#1565c0', '#6a1b9a', '#c0392b', '#00695c'];
       
-      db.settings.Agents.forEach((agent, i) => {
+      const agentsList = db.settings.Agents || (db.agents ? db.agents.map(a => a.agentName) : []);
+      agentsList.forEach((agent, i) => {
         const color = colors[i % colors.length];
         legendMap[agent] = color;
 
