@@ -271,6 +271,11 @@ function doGet(e) {
         .createTextOutput(JSON.stringify(getTrackerData()))
         .setMimeType(ContentService.MimeType.JSON);
     }
+    if (e.parameter.action === "getAuditsData") {
+      return ContentService
+        .createTextOutput(JSON.stringify(getAuditsData(e.parameter.type)))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
   }
   
   try {
@@ -291,6 +296,14 @@ function doGet(e) {
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
         .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
+}
+
+function getAuditsData(sheetName) {
+  if (!sheetName) return [];
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return [];
+  return sheet.getDataRange().getDisplayValues();
 }
 
 // Database Sheet names
