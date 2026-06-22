@@ -405,11 +405,7 @@ function getTrackerData() {
       plans: getSheetData(ss.getSheetByName(SHEET_PLAN)),
       agents: getSheetData(ss.getSheetByName("AgentDirectory")),
       settings: getSettingsData(ss.getSheetByName(SHEET_SETTINGS)),
-      scorecards: {
-        inbound: getSheetData(ss.getSheetByName("Inbound Scorecard")),
-        sms: getSheetData(ss.getSheetByName("SMS Quality Audit")),
-        outbound: getSheetData(ss.getSheetByName("Outbound Call Scorecard (Campaign-Focused)"))
-      },
+      scorecards: getExternalScorecardData(),
       needsFeedback: {
         needs: getSheetData(ss.getSheetByName("PreTrainingNeeds")),
         feedback: getSheetData(ss.getSheetByName("PostTrainingFeedback"))
@@ -426,6 +422,51 @@ function getTrackerData() {
       error: err.toString() 
     };
   }
+}
+
+function getExternalScorecardData() {
+  var data = { inbound: [], sms: [], outbound: [] };
+  try {
+    var extSS = SpreadsheetApp.openById("1VIAYlOvb5TtonUSAEiECqrq7i-n_dFA70IkmRW9dQIo");
+    var sheets = extSS.getSheets();
+    
+    for (var i = 0; i < sheets.length; i++) {
+      var sheetName = sheets[i].getName();
+      var sheetId = sheets[i].getSheetId();
+      
+      // Match by exact sheet ID or name
+      if (sheetName === "Inbound Scorecard" || sheetId == 956377943) {
+        data.inbound = getSheetData(sheets[i]);
+      } else if (sheetName === "SMS Quality Audit" || sheetId == 283607713) {
+        data.sms = getSheetData(sheets[i]);
+      } else if (sheetName === "Outbound Call Scorecard (Campaign-Focused)" || sheetId == 1574188088) {
+        data.outbound = getSheetData(sheets[i]);
+      }
+    }
+  } catch(e) {
+    Logger.log("getExternalScorecardData error: " + e.toString());
+  }
+  
+  // Fallbacks: If external SS fails to load, try active SS
+  try {
+    var localSS = SpreadsheetApp.getActiveSpreadsheet();
+    if (data.inbound.length === 0) {
+      var s = localSS.getSheetByName("Inbound Scorecard");
+      if (s) data.inbound = getSheetData(s);
+    }
+    if (data.sms.length === 0) {
+      var s = localSS.getSheetByName("SMS Quality Audit");
+      if (s) data.sms = getSheetData(s);
+    }
+    if (data.outbound.length === 0) {
+      var s = localSS.getSheetByName("Outbound Call Scorecard (Campaign-Focused)");
+      if (s) data.outbound = getSheetData(s);
+    }
+  } catch(localErr) {
+    Logger.log("getExternalScorecardData local fallback error: " + localErr.toString());
+  }
+  
+  return data;
 }
 
 function getDeescalationData() {
