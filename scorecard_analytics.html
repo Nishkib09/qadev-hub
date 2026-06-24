@@ -1213,26 +1213,67 @@ async function testAllURLs() {
 
 async function refreshAllData() {
   const loading = document.getElementById('loading');
-  loading.classList.add('show');
-
   const urls = getURLs();
   const hasAny = Object.values(urls).some(u => u);
 
-  if (hasAny) {
-    try {
-      const results = await Promise.all([
-        fetchCSV(urls.inbound, 'Inbound Scorecard'),
-        fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)'),
-        fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls'),
-        fetchCSV(urls.sms, 'SMS Quality Audit')
-      ]);
-      if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
-      if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
-      if (urls.survey && results[2].length > 1) STORE.survey = results[2];
-      if (urls.sms && results[3].length > 1) STORE.sms = results[3];
-    } catch (e) { console.error('Refresh error:', e); }
+  // 1. Try to load from cache immediately for instant rendering
+  let hasCache = false;
+  try {
+    const cached = localStorage.getItem('audit_data_cache');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed.inbound) STORE.inbound = parsed.inbound;
+      if (parsed.outbound) STORE.outbound = parsed.outbound;
+      if (parsed.survey) STORE.survey = parsed.survey;
+      if (parsed.sms) STORE.sms = parsed.sms;
+      hasCache = true;
+      updateStatusIndicator();
+      processAndRender();
+    }
+  } catch (e) {
+    console.warn('Cache read error', e);
   }
 
+  if (!hasAny) {
+    if (!hasCache) {
+      loading.classList.remove('show');
+      updateStatusIndicator();
+    }
+    return;
+  }
+
+  // 2. Fetch fresh data in the background
+  if (!hasCache) {
+    loading.classList.add('show');
+  } else {
+    document.getElementById('sidebar-footer').textContent = 'Syncing latest data...';
+  }
+
+  try {
+    const results = await Promise.all([
+      fetchCSV(urls.inbound, 'Inbound Scorecard'),
+      fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)'),
+      fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls'),
+      fetchCSV(urls.sms, 'SMS Quality Audit')
+    ]);
+    if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
+    if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
+    if (urls.survey && results[2].length > 1) STORE.survey = results[2];
+    if (urls.sms && results[3].length > 1) STORE.sms = results[3];
+    
+    // Save to cache
+    try {
+      localStorage.setItem('audit_data_cache', JSON.stringify(STORE));
+    } catch(e) { console.warn('Cache save error', e); }
+    
+  } catch (e) { console.error('Refresh error:', e); }
+
+  updateStatusIndicator();
+  loading.classList.remove('show');
+  processAndRender();
+}
+
+function updateStatusIndicator() {
   const pill = document.getElementById('conn-pill');
   const hasData = Object.values(STORE).some(s => s.length > 1);
   if (hasData) {
@@ -1240,10 +1281,7 @@ async function refreshAllData() {
   } else {
     pill.innerHTML = '<span class="status-dot off"></span> No data';
   }
-
   document.getElementById('sidebar-footer').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
-  loading.classList.remove('show');
-  processAndRender();
 }
 
 // =================== DATA PROCESSING ===================
