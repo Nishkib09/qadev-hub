@@ -670,6 +670,7 @@
       <div class="tab" onclick="switchTab('outbound')" id="tab-outbound">Outbound Scorecard</div>
       <div class="tab" onclick="switchTab('survey')" id="tab-survey">CSAT Scorecard</div>
       <div class="tab" onclick="switchTab('sms')" id="tab-sms">SMS Audit</div>
+      <div class="tab" onclick="switchTab('email-audit')" id="tab-email-audit">Email Audit</div>
       <div class="tab" onclick="switchTab('agents')" id="tab-agents">Manage Agents</div>
       <div class="tab" onclick="switchTab('email')" id="tab-email">Email & Export</div>
       <div class="tab" onclick="switchTab('email-pause')" id="tab-email-pause">Email Control</div>
@@ -792,7 +793,11 @@
         </div>
       </div>
 
+      <!-- Toggle Email Preview Container -->
+      <div id="inline-email-container" style="margin-bottom: 20px;"></div>
+
       <div class="btn-row">
+        <button class="btn-secondary" id="toggle-email-btn" onclick="toggleEmailPreview()" style="margin-right:auto; border-color:var(--teal); color:var(--teal);">⬇️ View/Edit Email Preview Here</button>
         <button class="btn-primary" id="submit-btn" onclick="submitAudit()">Submit to Google Sheets</button>
         <button class="btn-secondary" onclick="printPage()">Print / save PDF</button>
         <button class="btn-danger" onclick="resetForm()">Reset form</button>
@@ -1590,6 +1595,51 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     const AUDITS = {
+      'email-audit': {
+        id: 'email-audit',
+        title: 'Email Audit Scorecard',
+        numQuestions: 12,
+        fields: [
+          { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
+          { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
+          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'caller-num', label: 'Customer Email / Ticket Number', type: 'text', default: '' },
+          { id: 'call-date', label: 'Date email was received', type: 'date' },
+          { id: 'call-type', label: 'Type of email', type: 'select', options: ['General Inquiry', 'Complaint', 'Follow-up', 'Other'] },
+          { id: 'audit-date', label: 'Audit date', type: 'date' }
+        ],
+        sections: [
+          {
+            id: 's1', title: 'Professionalism & Tone', criteria: [
+              { id: 'q1', label: 'Did the agent use an appropriate greeting and closing?', pts: 5, crit: false, na: false },
+              { id: 'q2', label: 'Was the tone professional, empathetic, and on-brand?', pts: 10, crit: false, na: false },
+              { id: 'q3', label: 'Was the grammar, spelling, and punctuation correct?', pts: 5, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's2', title: 'Accuracy & Completeness', criteria: [
+              { id: 'q4', label: 'Did the agent accurately address all customer inquiries?', pts: 15, crit: false, na: false },
+              { id: 'q5', label: 'Was the information provided correct and up-to-date?', pts: 10, crit: false, na: false },
+              { id: 'q6', label: 'Did the agent provide relevant additional information (e.g., resources, links)?', pts: 10, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's3', title: 'Process & Compliance', criteria: [
+              { id: 'q7', label: 'Was the correct email template or structure used (if applicable)?', pts: 5, crit: true, na: true },
+              { id: 'q8', label: 'Were internal procedures and policies followed accurately?', pts: 10, crit: false, na: false },
+              { id: 'q9', label: 'Was the correct disposition or categorization logged?', pts: 5, crit: false, na: false },
+              { id: 'q10', label: 'Was the email handled within SLA?', pts: 10, crit: false, na: false }
+            ]
+          },
+          {
+            id: 's4', title: 'Formatting & Clarity', criteria: [
+              { id: 'q11', label: 'Was the email easy to read and logically structured?', pts: 10, crit: false, na: false },
+              { id: 'q12', label: 'Were formatting tools (bold, bullet points) used appropriately for clarity?', pts: 5, crit: false, na: false }
+            ]
+          }
+        ],
+        specials: []
+      },
       inbound: {
         id: 'inbound',
         title: 'Inbound Scorecard',
@@ -1894,7 +1944,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       document.getElementById('email-panel').style.display = 'none';
       document.getElementById('email-pause-panel').style.display = 'none';
 
-      if (type === 'sms' || type === 'inbound' || type === 'outbound' || type === 'survey') {
+      if (type === 'sms' || type === 'inbound' || type === 'outbound' || type === 'survey' || type === 'email-audit') {
         if (currentAuditType !== type) {
           currentAuditType = type;
           scores = {};
@@ -1918,10 +1968,10 @@ function ensureHeaders(sheet, expectedHeaders) {
         const uploadDesc = document.getElementById('upload-desc');
         const uploadInput = document.getElementById('audio-upload');
         if (uploadLabel && uploadInput && uploadDesc) {
-          if (type === 'sms') {
-            uploadLabel.textContent = '📎 Upload Screenshots (Optional)';
-            uploadInput.accept = 'image/*';
-            uploadDesc.textContent = 'Screenshots will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.';
+          if (type === 'sms' || type === 'email-audit') {
+            uploadLabel.textContent = '📎 Upload Screenshots/Files (Optional)';
+            uploadInput.accept = 'image/*, .pdf, .doc, .docx';
+            uploadDesc.textContent = 'Files will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.';
           } else {
             uploadLabel.textContent = '📎 Upload Call Recording(s) (Optional)';
             uploadInput.accept = 'audio/*, video/*';
@@ -1936,11 +1986,17 @@ function ensureHeaders(sheet, expectedHeaders) {
         document.getElementById('agents-panel').style.display = 'block';
         renderAgentsTab();
       } else if (type === 'email') {
-        document.getElementById('email-panel').style.display = 'block';
+        const panel = document.getElementById('email-panel');
+        document.getElementById('wrap').appendChild(panel); 
+        const btn = document.getElementById('toggle-email-btn');
+        if (btn) btn.textContent = '⬇️ View/Edit Email Preview Here';
+        
+        panel.style.display = 'block';
         if (!currentAuditType) {
-          document.getElementById('email-panel').innerHTML = '<div style="padding:20px;text-align:center;color:var(--g600);">Please start an audit first.</div>';
+          panel.innerHTML = '<div style="padding:20px;text-align:center;color:var(--g600);">Please start an audit first.</div>';
         } else {
-          renderEmailTab();
+          initEmailPanel();
+          updateEmailBody();
         }
       } else if (type === 'email-pause') {
         document.getElementById('email-pause-panel').style.display = 'block';
@@ -2098,6 +2154,8 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (pb) pb.style.background = pbColor;
       const flg = document.getElementById('crit-flag');
       if (flg) flg.style.display = critFail ? 'block' : 'none';
+      
+      updateEmailBody();
     }
 
     function updateQueueIndicator() {
@@ -2344,24 +2402,127 @@ function ensureHeaders(sheet, expectedHeaders) {
       renderAgentsTab();
     }
 
-    function renderEmailTab() {
-      const config = AUDITS[currentAuditType];
+    function toggleEmailPreview() {
+      initEmailPanel(); 
+      updateEmailBody();
+      
+      const panel = document.getElementById('email-panel');
+      const container = document.getElementById('inline-email-container');
+      const btn = document.getElementById('toggle-email-btn');
+      
+      if (panel.parentElement === container) {
+        document.getElementById('wrap').appendChild(panel);
+        panel.style.display = 'none';
+        btn.textContent = '⬇️ View/Edit Email Preview Here';
+      } else {
+        container.appendChild(panel);
+        panel.style.display = 'block';
+        btn.textContent = '⬆️ Move Email Preview back to Tab';
+      }
+    }
+
+    function initEmailPanel() {
+      const panel = document.getElementById('email-panel');
+      if (panel.innerHTML.includes('em-body')) return; // Already initialized
+
+      panel.innerHTML = `
+      <div class="card" id="email-card">
+        <div class="card-hd"><span class="card-title">Send Audit Summary & Recording</span></div>
+        <div class="card-body">
+           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom:12px;">
+               <div class="field">
+                 <label>Evaluator Email (CC)</label>
+                 <input type="text" id="em-sender" readonly style="background:var(--g50); color:var(--g600);">
+               </div>
+               <div class="field">
+                 <label>Agent Email (To)</label>
+                 <input type="text" id="em-to" readonly style="background:var(--g50); color:var(--g600);">
+               </div>
+           </div>
+           <div class="field" style="margin-bottom:16px;">
+             <label id="em-link-label">Call Recording Link (e.g., Google Drive URL)</label>
+             <input type="text" id="em-link" placeholder="Paste recording link here..." oninput="updateEmailBody()">
+           </div>
+            <div class="field" style="margin-bottom:20px;">
+              <label>Preview Email Content <span style="font-weight:400;color:var(--teal);font-size:11px;">(Click the email below to edit areas of improvement and general feedback before sending)</span></label>
+              <div id="em-body" contenteditable="true" style="width:100%; min-height:250px; border-radius:var(--rs); border:1px solid var(--border); padding:12px; font-size:14px; font-family:Georgia, serif; line-height:1.5; background:#fff; overflow-y:auto;" onfocus="this.style.borderColor='var(--teal-md)';" onblur="this.style.borderColor='var(--border)';"></div>
+            </div>
+           <div style="display:flex; gap:10px; flex-wrap:wrap;">
+             <button class="btn-primary" onclick="openEmailClient()">Open in Email Client (Outlook / Gmail)</button>
+             <button class="btn-secondary" onclick="copyEmailBody()">Copy Template to Clipboard</button>
+           </div>
+        </div>
+      </div>
+      `;
+    }
+
+    function updateEmailBody() {
+      if (!currentAuditType) return;
+      initEmailPanel();
+      
+      const box = document.getElementById('em-body');
+      if (!box) return;
+
       const agNameEl = document.getElementById('ag-name');
       const agName = agNameEl ? agNameEl.value : '[Agent Name]';
       const agEmailEl = document.getElementById('ag-email');
-      const agEmail = agEmailEl ? agEmailEl.value : '';
-      const notesEl = document.getElementById('notes');
-      const notes = notesEl ? notesEl.value : '';
+      const toBox = document.getElementById('em-to');
+      if (toBox && agEmailEl) toBox.value = agEmailEl.value;
+
       const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
       let evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
       evEmail = evEmail ? `${evEmail}, Terry Nyokabi <teresia.nyokabi@food4education.org>` : 'Terry Nyokabi <teresia.nyokabi@food4education.org>';
+      const senderBox = document.getElementById('em-sender');
+      if (senderBox) senderBox.value = evEmail;
 
-      const sPct = document.getElementById('s-pct').textContent;
+      const linkEl = document.getElementById('em-link');
+      const link = linkEl ? linkEl.value.trim() : '';
 
+      const audioInput = document.getElementById('audio-upload');
+      const hasFiles = audioInput && audioInput.files.length > 0;
+      
+      let attachmentText = '';
+      const emLinkLabel = document.getElementById('em-link-label');
+      
+      if (currentAuditType === 'sms' || currentAuditType === 'email-audit') {
+          if (emLinkLabel) emLinkLabel.textContent = 'Screenshots/Files Link (Optional)';
+          if (hasFiles) {
+            attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the screenshots/files attached directly to this email.</p>';
+            if (link) {
+              attachmentText += `<p style="margin:0 0 16px 0;">Screenshots/Files Link: <a href="${link}">${link}</a></p>`;
+            }
+          } else if (link) {
+            attachmentText = `<p style="margin:0 0 16px 0;">Screenshots/Files Link: <a href="${link}">${link}</a></p>`;
+          } else {
+            attachmentText = '<p style="margin:0 0 16px 0;"><i>No screenshots or attachments are included in this audit.</i></p>';
+          }
+      } else {
+          if (emLinkLabel) emLinkLabel.textContent = 'Call Recording Link (e.g., Google Drive URL)';
+          if (hasFiles) {
+            attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the call recording attached directly to this email.</p>';
+            if (link) {
+              attachmentText += `<p style="margin:0 0 16px 0;">Call Recording Link: <a href="${link}">${link}</a></p>`;
+            }
+          } else if (link) {
+            attachmentText = `<p style="margin:0 0 16px 0;">Call Recording Link: <a href="${link}">${link}</a></p>`;
+          } else {
+            attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
+          }
+      }
+
+      const config = AUDITS[currentAuditType];
+      if (!config) return;
+      
+      const sPctEl = document.getElementById('s-pct');
+      const sPct = sPctEl ? sPctEl.textContent : '';
+      
+      const notesEl = document.getElementById('notes');
+      const notes = notesEl ? notesEl.value : '';
+      
       let auditDateEl = document.getElementById('audit-date');
       let auditDate = auditDateEl && auditDateEl.value ? auditDateEl.value : '[Date]';
       let phoneEl = document.getElementById('caller-num') || document.getElementById('cx-phone') || document.getElementById('sms-num');
-      let phoneNumber = phoneEl && phoneEl.value ? phoneEl.value : '[Phone Number]';
+      let phoneNumber = phoneEl && phoneEl.value ? phoneEl.value : '[Phone Number / Identifier]';
 
       let improvements = [];
       config.sections.forEach(sec => sec.criteria.forEach(q => {
@@ -2372,7 +2533,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       });
 
       let improvementsText = improvements.length > 0 ? `<ul style="margin:4px 0 12px 0; padding-left:20px;">${improvements.join('')}</ul>` : '<p style="margin:0 0 12px 0;"><i>No specific areas of improvement flagged (Perfect!).</i></p>';
-
+      
       let generalNotes = notes.replace(/\n/g, '<br>') || 'None';
 
       let scoreText = '';
@@ -2381,15 +2542,6 @@ function ensureHeaders(sheet, expectedHeaders) {
       else if (currentAuditType === 'survey') scoreText = 'csat survey call score';
       else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
       else scoreText = `${config.title} score`;
-
-      const audioInput = document.getElementById('audio-upload');
-      const hasFiles = audioInput && audioInput.files.length > 0;
-      let attachmentText = '';
-      if (hasFiles) {
-        attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>';
-      } else {
-        attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
-      }
 
       let crmReasonText = '';
       const hasCrmReason = config.fields.some(f => f.id === 'crm-reason');
@@ -2401,102 +2553,10 @@ function ensureHeaders(sheet, expectedHeaders) {
         }
       }
 
-      const emailBody = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
-<p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
-<p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
-${crmReasonText}
-<p style="margin:0 0 12px 0;">Total Score: <b>${sPct}</b></p>
-<p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
-${improvementsText}
-<p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
-<p style="margin:0 0 16px 0;">${generalNotes}</p>
-${attachmentText}
-<p style="margin:0;">Best regards,<br>QA Team</p>
-</div>`;
-
-      const cont = document.getElementById('email-panel');
-      cont.innerHTML = `
-      <div class="card">
-        <div class="card-hd"><span class="card-title">Send Audit Summary & Recording</span></div>
-        <div class="card-body">
-           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom:12px;">
-               <div class="field">
-                 <label>Evaluator Email (CC)</label>
-                 <input type="text" id="em-sender" value="${evEmail}" readonly style="background:var(--g50); color:var(--g600);">
-               </div>
-               <div class="field">
-                 <label>Agent Email (To)</label>
-                 <input type="text" id="em-to" value="${agEmail}" readonly style="background:var(--g50); color:var(--g600);">
-               </div>
-           </div>
-           <div class="field" style="margin-bottom:16px;">
-             <label>Call Recording Link (e.g., Google Drive URL)</label>
-             <input type="text" id="em-link" placeholder="Paste recording link here..." oninput="updateEmailBody()">
-           </div>
-            <div class="field" style="margin-bottom:20px;">
-              <label>Preview Email Content <span style="font-weight:400;color:var(--teal);font-size:11px;">(Click the email below to edit areas of improvement and general feedback before sending)</span></label>
-              <div id="em-body" contenteditable="true" style="width:100%; min-height:250px; border-radius:var(--rs); border:1px solid var(--border); padding:12px; font-size:14px; font-family:Georgia, serif; line-height:1.5; background:#fff; overflow-y:auto;" onfocus="this.style.borderColor='var(--teal-md)';" onblur="this.style.borderColor='var(--border)';">${emailBody}</div>
-            </div>
-           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-             <button class="btn-primary" onclick="openEmailClient()">Open in Email Client (Outlook / Gmail)</button>
-             <button class="btn-secondary" onclick="copyEmailBody()">Copy Template to Clipboard</button>
-           </div>
-        </div>
-      </div>
-    `;
-    }
-
-    function updateEmailBody() {
-      const linkEl = document.getElementById('em-link');
-      const link = linkEl ? linkEl.value.trim() : '';
-      const box = document.getElementById('em-body');
-      if (!box) return;
-
-      const audioInput = document.getElementById('audio-upload');
-      const hasFiles = audioInput && audioInput.files.length > 0;
-      let attachmentText = '';
-      if (hasFiles) {
-        attachmentText = '<p style="margin:0 0 16px 0;">Kindly find the call recording / attachment(s) attached directly to this email.</p>';
-        if (link) {
-          attachmentText += `<p style="margin:0 0 16px 0;">Call Recording Link: <a href="${link}">${link}</a></p>`;
-        }
-      } else if (link) {
-        attachmentText = `<p style="margin:0 0 16px 0;">Call Recording Link: <a href="${link}">${link}</a></p>`;
-      } else {
-        attachmentText = '<p style="margin:0 0 16px 0;"><i>No call recording or attachments are included in this audit.</i></p>';
-      }
-
-      const agNameEl = document.getElementById('ag-name');
-      const agName = agNameEl ? agNameEl.value : '[Agent Name]';
-      const config = AUDITS[currentAuditType];
-      const sPct = document.getElementById('s-pct').textContent;
-      const notesEl = document.getElementById('notes');
-      const notes = notesEl ? notesEl.value : '';
-      let auditDateEl = document.getElementById('audit-date');
-      let auditDate = auditDateEl && auditDateEl.value ? auditDateEl.value : '[Date]';
-      let phoneEl = document.getElementById('caller-num') || document.getElementById('cx-phone') || document.getElementById('sms-num');
-      let phoneNumber = phoneEl && phoneEl.value ? phoneEl.value : '[Phone Number]';
-
-      let improvements = [];
-      config.sections.forEach(sec => sec.criteria.forEach(q => {
-        if (scores[q.id] === 'no') improvements.push(formatImprovement(q));
-      }));
-      document.querySelectorAll('.crit-cb').forEach(cb => {
-        if (cb.checked) improvements.push(`<li><i>CRITICAL FAILURE: ${cb.value}</i></li>`);
-      });
-      let improvementsText = improvements.length > 0 ? `<ul style="margin:4px 0 12px 0; padding-left:20px;">${improvements.join('')}</ul>` : '<p style="margin:0 0 12px 0;"><i>No specific areas of improvement flagged (Perfect!).</i></p>';
-      let generalNotes = notes.replace(/\n/g, '<br>') || 'None';
-
-      let scoreText = '';
-      if (currentAuditType === 'inbound') scoreText = 'inbound call score';
-      else if (currentAuditType === 'outbound') scoreText = 'outbound call score';
-      else if (currentAuditType === 'survey') scoreText = 'csat survey call score';
-      else if (currentAuditType === 'sms') scoreText = 'sms handling quality score';
-      else scoreText = `${config.title} score`;
-
       box.innerHTML = `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
-<p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for phone number ${phoneNumber}.</p>
+<p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDate} for ${phoneNumber}.</p>
+${crmReasonText}
 <p style="margin:0 0 12px 0;">Total Score: <b>${sPct}</b></p>
 <p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
 ${improvementsText}
