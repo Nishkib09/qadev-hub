@@ -854,6 +854,7 @@
         <option value="outbound">Outbound</option>
         <option value="survey">CSAT Survey</option>
         <option value="sms">SMS</option>
+        <option value="email">Email Audit</option>
       </select>
       <div class="filter-sep"></div>
       <label>Range</label>
@@ -971,6 +972,11 @@
               <input type="text" id="url-sms" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=…&output=csv">
               <span class="url-status" id="us-sms"></span>
             </div>
+            <div class="url-row">
+              <label>Email</label>
+              <input type="text" id="url-email" placeholder="https://docs.google.com/spreadsheets/d/…/pub?gid=…&output=csv">
+              <span class="url-status" id="us-email"></span>
+            </div>
             <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
               <button class="btn-sm primary" onclick="saveURLs()">Save & Load Data</button>
               <button class="btn-sm" onclick="testAllURLs()">Test Connections</button>
@@ -1054,12 +1060,21 @@ const CONFIGS = {
       { name: 'Service Quality', qCount: 3, pts: [8,7,5] },
       { name: 'Communication & Closure', qCount: 2, pts: [5,5] }
     ]
+  },
+  email: {
+    label: 'Email Audit Scorecard',
+    sections: [
+      { name: 'Professionalism & Tone', qCount: 3, pts: [5,10,5] },
+      { name: 'Accuracy & Completeness', qCount: 3, pts: [15,10,10] },
+      { name: 'Process & Compliance', qCount: 4, pts: [5,10,5,10] },
+      { name: 'Formatting & Clarity', qCount: 2, pts: [10,5] }
+    ]
   }
 };
 
 // =================== STATE ===================
 
-const STORE = { inbound: [], outbound: [], survey: [], sms: [] };
+const STORE = { inbound: [], outbound: [], survey: [], sms: [], email: [] };
 let PROCESSED = {}; // { agentName: { avgOverall, auditCount, sectionAvgs:{}, audits:[] } }
 let CHART_INSTANCES = {};
 let currentPage = 'overview';
@@ -1180,11 +1195,12 @@ function getURLs() {
     outbound: localStorage.getItem('url-outbound') || '',
     survey: localStorage.getItem('url-survey') || '',
     sms: localStorage.getItem('url-sms') || '',
+    email: localStorage.getItem('url-email') || '',
   };
 }
 
 function saveURLs() {
-  ['inbound','outbound','survey','sms'].forEach(k => {
+  ['inbound','outbound','survey','sms','email'].forEach(k => {
     const v = document.getElementById('url-' + k)?.value?.trim() || '';
     localStorage.setItem('url-' + k, v);
   });
@@ -1226,6 +1242,7 @@ async function refreshAllData() {
       if (parsed.outbound) STORE.outbound = parsed.outbound;
       if (parsed.survey) STORE.survey = parsed.survey;
       if (parsed.sms) STORE.sms = parsed.sms;
+      if (parsed.email) STORE.email = parsed.email;
       hasCache = true;
       updateStatusIndicator();
       processAndRender();
@@ -1254,12 +1271,14 @@ async function refreshAllData() {
       fetchCSV(urls.inbound, 'Inbound Scorecard'),
       fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)'),
       fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls'),
-      fetchCSV(urls.sms, 'SMS Quality Audit')
+      fetchCSV(urls.sms, 'SMS Quality Audit'),
+      fetchCSV(urls.email, 'Email Audit Scorecard')
     ]);
     if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
     if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
     if (urls.survey && results[2].length > 1) STORE.survey = results[2];
     if (urls.sms && results[3].length > 1) STORE.sms = results[3];
+    if (urls.email && results[4].length > 1) STORE.email = results[4];
     
     // Save to cache
     try {
