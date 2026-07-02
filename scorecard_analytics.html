@@ -822,6 +822,9 @@
       <div class="nav-item" id="nav-insights" onclick="navigate('insights')">
         <span class="ni">💡</span><span class="nav-text">Insights & Actions</span>
       </div>
+      <div class="nav-item" id="nav-pending" onclick="navigate('pending')">
+        <span class="ni">⏳</span><span class="nav-text">Pending Audits</span>
+      </div>
       <div class="nav-label">System</div>
       <div class="nav-item" id="nav-settings" onclick="navigate('settings')">
         <span class="ni">⚙️</span><span class="nav-text">Data Settings</span>
@@ -942,6 +945,17 @@
             <p>Insights are generated automatically from audit data. Connect your data sources in Settings.</p>
           </div>
         </div>
+      </div>
+
+      <!-- ===== PENDING AUDITS PAGE ===== -->
+      <div class="page" id="page-pending">
+        <div class="sec-header">
+          <div>
+            <h3>Pending Audits</h3>
+            <p style="color:var(--text-sec); font-size:12px; margin-top:2px;">Agents who have not yet been audited for the selected scorecard type & date range.</p>
+          </div>
+        </div>
+        <div id="pending-content" style="margin-top:20px;"></div>
       </div>
 
       <!-- ===== SETTINGS PAGE ===== -->
@@ -1488,6 +1502,7 @@ function processAndRender() {
   buildOverview(displayAgents);
   buildHeatmap(displayAgents);
   buildInsights(displayAgents);
+  buildPendingAudits(displayAgents);
   if (adSelect.value) buildAgentDetail();
 }
 
@@ -2045,7 +2060,76 @@ function buildInsights(displayAgents) {
   `).join('');
 }
 
-// =================== FILTERS ===================
+// =================== RENDERING — PENDING AUDITS ===================
+function buildPendingAudits(displayAgents) {
+  const container = document.getElementById('pending-content');
+  if (!displayAgents) displayAgents = PROCESSED;
+  
+  let masterAgents = [];
+  try {
+    masterAgents = JSON.parse(localStorage.getItem('managed_agents')) || [];
+  } catch (e) {
+    console.warn("Could not parse managed_agents from localStorage");
+  }
+
+  if (!masterAgents || masterAgents.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h3>No Agents Found</h3>
+        <p>You haven't set up your agent list yet. Open the <b>Manage Agents</b> tab in your main Scorecard to add your team.</p>
+      </div>`;
+    return;
+  }
+
+  // Find who has been audited in the current filter
+  const auditedNames = Object.keys(displayAgents).map(n => n.toLowerCase());
+  const pendingAgents = masterAgents.filter(a => !auditedNames.includes(a.name.toLowerCase()));
+  
+  const total = masterAgents.length;
+  const audited = total - pendingAgents.length;
+  const pct = total > 0 ? Math.round((audited / total) * 100) : 0;
+
+  pendingAgents.sort((a, b) => a.name.localeCompare(b.name));
+
+  let html = `
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="card-hd"><span class="card-title">Audit Coverage Progress</span></div>
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:500;">
+          <span>${audited} / ${total} Agents Audited</span>
+          <span>${pct}% Complete</span>
+        </div>
+        <div style="width:100%; height:12px; background:var(--g100); border-radius:6px; overflow:hidden;">
+          <div style="width:${pct}%; height:100%; background:var(--green); transition: width 0.5s ease;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (pendingAgents.length === 0) {
+    html += `
+      <div class="empty-state" style="border:1px solid var(--border); background:var(--card-bg);">
+        <div class="empty-icon" style="background:var(--green-lt); color:var(--green);">🎯</div>
+        <h3 style="color:var(--green);">100% Coverage</h3>
+        <p>Every agent in your master list has been audited in this timeframe. Great job!</p>
+      </div>`;
+  } else {
+    html += `
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:16px;">
+        ${pendingAgents.map(a => `
+          <div class="card" style="border-left: 4px solid var(--red); padding:16px;">
+            <div style="font-weight:600; font-size:15px; margin-bottom:4px;">${a.name}</div>
+            <div style="color:var(--text-sec); font-size:12px;">⏳ Action Required</div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// =================== FILTERING ===================
 
 function applyQuickRange() {
   const val = document.getElementById('f-range').value;
