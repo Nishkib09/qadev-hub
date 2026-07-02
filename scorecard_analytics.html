@@ -1366,7 +1366,10 @@ function processTypeData(type) {
     }
 
     const rating = ratingIdx !== -1 ? String(row[ratingIdx] || '') : '';
-    const auditDate = dateIdx !== -1 ? String(row[dateIdx] || '') : '';
+    let auditDate = dateIdx !== -1 ? String(row[dateIdx] || '') : '';
+    if (!parseDate(auditDate)) {
+      auditDate = String(row[0] || ''); // Fallback to Timestamp if shifted or blank
+    }
 
     // Calculate per-section scores
     let qIdx = 0;
@@ -1425,7 +1428,7 @@ function applyDateFilter(agents) {
   Object.entries(agents).forEach(([name, agent]) => {
     const fAudits = agent.audits.filter(a => {
       const d = parseDate(a.date);
-      if (!d) return true;
+      if (!d) return false;
       if (from && d < from) return false;
       if (to && d > to) return false;
       return true;
