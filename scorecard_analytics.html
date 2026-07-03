@@ -2086,8 +2086,8 @@ function buildPendingAudits(displayAgents) {
   }
 
   // Find who has been audited in the current filter
-  const auditedNames = Object.keys(displayAgents).map(n => n.toLowerCase());
-  const pendingAgents = masterAgents.filter(a => !auditedNames.includes(a.name.toLowerCase()));
+  const auditedNames = Object.keys(displayAgents).map(n => n.trim().toLowerCase());
+  const pendingAgents = masterAgents.filter(a => !auditedNames.includes(a.name.trim().toLowerCase()));
   
   const total = masterAgents.length;
   const audited = total - pendingAgents.length;
