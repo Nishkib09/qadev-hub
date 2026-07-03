@@ -1356,7 +1356,10 @@ function processTypeData(type) {
   const config = CONFIGS[type];
 
   const agentIdx = findColIdx(headers, /agent\s*name/i);
-  const dateIdx = findColIdx(headers, /audit\s*date/i);
+  let dateIdx = findColIdx(headers, /date\s*(the)?\s*(call|conversation|sms|interaction|received|made)/i);
+  if (dateIdx === -1) {
+    dateIdx = findColIdx(headers, /audit\s*date/i);
+  }
   const pctIdx = findColIdx(headers, /percentage\s*score/i);
   const ratingIdx = findColIdx(headers, /rating/i);
   const qCols = findQuestionCols(headers);
