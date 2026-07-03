@@ -1282,11 +1282,11 @@ async function refreshAllData() {
 
   try {
     const results = await Promise.all([
-      fetchCSV(urls.inbound, 'Inbound Scorecard'),
-      fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)'),
-      fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls'),
-      fetchCSV(urls.sms, 'SMS Quality Audit'),
-      fetchCSV(urls.email, 'Email Audit Scorecard')
+      fetchCSV(urls.inbound, 'Inbound Scorecard').catch(e => { console.error('Inbound fail', e); return []; }),
+      fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)').catch(e => { console.error('Outbound fail', e); return []; }),
+      fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls').catch(e => { console.error('Survey fail', e); return []; }),
+      fetchCSV(urls.sms, 'SMS Quality Audit').catch(e => { console.error('SMS fail', e); return []; }),
+      fetchCSV(urls.email, 'Email Audit Scorecard').catch(e => { console.error('Email fail', e); return []; })
     ]);
     if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
     if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
