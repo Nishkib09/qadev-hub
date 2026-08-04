@@ -769,10 +769,14 @@
       <div id="specials"></div>
 
       <div class="card" style="border-color:var(--teal-md);">
-        <div class="card-body" style="background:var(--teal-lt); border-radius:var(--rs); padding: 12px 16px;">
+        <div class="card-body" style="background:var(--teal-lt); border-radius:var(--rs); padding: 12px 16px; display: flex; gap: 24px; flex-wrap: wrap;">
           <label style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--teal-md); cursor:pointer;">
             <input type="checkbox" id="training-flag" style="width:16px; height:16px; accent-color:var(--teal-md);">
             Perfect Call
+          </label>
+          <label style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--red); cursor:pointer;">
+            <input type="checkbox" id="coaching-flag" style="width:16px; height:16px; accent-color:var(--red);">
+            Needs Immediate Coaching
           </label>
         </div>
       </div>
@@ -1636,6 +1640,22 @@ function ensureHeaders(sheet, expectedHeaders) {
               { id: 'q11', label: 'Was the email easy to read and logically structured?', pts: 10, crit: false, na: false },
               { id: 'q12', label: 'Were formatting tools (bold, bullet points) used appropriately for clarity?', pts: 5, crit: false, na: false }
             ]
+          },
+          {
+            id: 'e_fcr', title: 'Resolution',
+            type: 'custom',
+            html: `
+          <div style="padding: 10px 0;">
+            <div class="field" style="max-width:300px;">
+              <label style="line-height:1.4;">First Contact Resolution (FCR) - Was the issue fully resolved?</label>
+              <select id="fcr-select" style="margin-top: 4px;">
+                  <option value="">-- Select --</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        `
           }
         ],
         specials: []
@@ -1649,6 +1669,7 @@ function ensureHeaders(sheet, expectedHeaders) {
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
+          { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'call-date', label: 'Date the call was received', type: 'date' },
           { id: 'call-type', label: 'Type of call', type: 'select', options: ['New Caller', 'Complaint Escalation', 'Follow-up'] },
           { id: 'crm-reason', label: 'Agent Selected Reason on CRM', type: 'text' },
@@ -1795,6 +1816,22 @@ function ensureHeaders(sheet, expectedHeaders) {
               { id: 'q13', label: 'Avoided grammatical errors, unclear statements, and punctuation issues', pts: 5, crit: false, na: false },
               { id: 'q14', label: 'Adhered to the standard SMS/chat closure procedure', pts: 5, crit: false, na: false }
             ]
+          },
+          {
+            id: 'sms_fcr', title: 'Resolution',
+            type: 'custom',
+            html: `
+          <div style="padding: 10px 0;">
+            <div class="field" style="max-width:300px;">
+              <label style="line-height:1.4;">First Contact Resolution (FCR) - Was the issue fully resolved?</label>
+              <select id="fcr-select" style="margin-top: 4px;">
+                  <option value="">-- Select --</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        `
           }
         ],
         specials: []
@@ -1808,6 +1845,7 @@ function ensureHeaders(sheet, expectedHeaders) {
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
+          { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'campaign-name', label: 'Campaign Name', type: 'text' },
           { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
@@ -1873,6 +1911,7 @@ function ensureHeaders(sheet, expectedHeaders) {
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
           { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
           { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
+          { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'audited-subreason', label: 'Audited Call Sub-Reason', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
           { id: 'call-date', label: 'Date the call was made', type: 'date' },
@@ -2674,12 +2713,13 @@ ${attachmentText}
       const fcrEl = document.getElementById('fcr-select');
       row.push(fcrEl ? fcrEl.value : '');
 
-      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Flagged for Training', 'Call Recording Link', 'Email Sent Status', 'Email Sent Timestamp');
+      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Perfect Call', 'Needs Immediate Coaching', 'Call Recording Link', 'Email Sent Status', 'Email Sent Timestamp');
       let trFlag = document.getElementById('training-flag');
+      let cFlag = document.getElementById('coaching-flag');
       const isEmailPaused = emailPaused && agEmail;
       const emailStatus = isEmailPaused ? 'Pending' : (agEmail ? 'Sent' : 'No Email Provided');
       const emailTime = isEmailPaused ? '' : (agEmail ? submissionTimestamp : '');
-      row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]', emailStatus, emailTime);
+      row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', (cFlag && cFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]', emailStatus, emailTime);
 
       const audioInput = document.getElementById('audio-upload');
       let filesPayload = [];
@@ -2868,6 +2908,8 @@ ${attachmentText}
       document.getElementById('notes').value = '';
       const tFlag = document.getElementById('training-flag');
       if (tFlag) tFlag.checked = false;
+      const cFlag = document.getElementById('coaching-flag');
+      if (cFlag) cFlag.checked = false;
       clearCallReasonSelection();
       config.fields.forEach(f => {
         let el = document.getElementById(f.id);
