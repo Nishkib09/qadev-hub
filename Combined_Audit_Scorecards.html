@@ -1143,7 +1143,8 @@ function ensureHeaders(sheet, expectedHeaders) {
       { name: "Nancy Waweru", email: "nancy.waweru@food4education.org" }
     ];
 
-    let agents = JSON.parse(localStorage.getItem('managed_agents')) || defaultAgents;
+    let agents = (JSON.parse(localStorage.getItem('managed_agents')) || defaultAgents)
+      .map(agent => ({ ...agent, isEvaluator: agent.isEvaluator === true }));
 
     let emailPaused = JSON.parse(localStorage.getItem('email_send_paused')) || false;
     let queuedAudits = JSON.parse(localStorage.getItem('queued_audits')) || [];
@@ -1219,21 +1220,42 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (emEl) emEl.value = agent ? agent.email : '';
     }
 
+    function autoFillEvaluatorEmail() {
+      const sel = document.getElementById('qa-name');
+      const emailEl = document.getElementById('qa-email');
+      if (!sel || !emailEl) return;
+      const evaluator = agents.find(agent => agent.isEvaluator && agent.name === sel.value);
+      emailEl.value = evaluator ? evaluator.email : '';
+      saveEvaluatorProfile();
+      updateEmailBody();
+    }
+
     function addAgent() {
       const nameEl = document.getElementById('new-ag-name');
       const emailEl = document.getElementById('new-ag-email');
+      const evaluatorEl = document.getElementById('new-ag-evaluator');
       if (!nameEl.value || !emailEl.value) {
         showToast('Please enter both name and email.', 'error');
         return;
       }
-      agents.push({ name: nameEl.value.trim(), email: emailEl.value.trim() });
+      agents.push({ name: nameEl.value.trim(), email: emailEl.value.trim(), isEvaluator: evaluatorEl ? evaluatorEl.checked : false });
       agents.sort((a, b) => a.name.localeCompare(b.name));
       localStorage.setItem('managed_agents', JSON.stringify(agents));
       nameEl.value = '';
       emailEl.value = '';
+      if (evaluatorEl) evaluatorEl.checked = false;
       showToast('Agent added successfully.', 'success');
       renderAgentsTab();
       rebuildAgentSelects();
+    }
+
+    function toggleEvaluator(idx, isEvaluator) {
+      if (!agents[idx]) return;
+      agents[idx].isEvaluator = isEvaluator;
+      localStorage.setItem('managed_agents', JSON.stringify(agents));
+      rebuildAgentSelects();
+      renderAgentsTab();
+      showToast(`${agents[idx].name} ${isEvaluator ? 'can now be selected as an evaluator.' : 'is no longer an evaluator.'}`, 'success');
     }
 
     function deleteAgent(idx) {
@@ -1247,10 +1269,25 @@ function ensureHeaders(sheet, expectedHeaders) {
 
     function rebuildAgentSelects() {
       const sel = document.getElementById('ag-name');
-      if (!sel) return;
-      const currentVal = sel.value;
-      sel.innerHTML = `<option value="">-- Select Agent --</option>` + agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-      sel.value = currentVal;
+      if (sel) {
+        const currentVal = sel.value;
+        sel.innerHTML = `<option value="">-- Select Agent --</option>` + agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+        sel.value = currentVal;
+      }
+
+      const evaluatorSel = document.getElementById('qa-name');
+      if (evaluatorSel) {
+        const profile = getEvaluatorProfile();
+        const currentEvaluator = evaluatorSel.value || profile.name;
+        const evaluators = agents.filter(agent => agent.isEvaluator);
+        evaluatorSel.innerHTML = `<option value="">-- Select Evaluator --</option>` + evaluators.map(agent => `<option value="${agent.name}">${agent.name}</option>`).join('');
+        evaluatorSel.value = evaluators.some(agent => agent.name === currentEvaluator) ? currentEvaluator : '';
+        if (!evaluatorSel.value) {
+          const emailEl = document.getElementById('qa-email');
+          if (emailEl) emailEl.value = '';
+          saveEvaluatorProfile();
+        }
+      }
     }
 
     function formatImprovement(q) {
@@ -1598,6 +1635,47 @@ function ensureHeaders(sheet, expectedHeaders) {
       renderCallReasonSelector();
     }
 
+    const EVALUATOR_PROFILE_KEY = 'audit_evaluator_profile';
+
+    function getEvaluatorProfile() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(EVALUATOR_PROFILE_KEY) || '{}');
+        return {
+          name: typeof saved.name === 'string' ? saved.name : '',
+          email: typeof saved.email === 'string' ? saved.email : ''
+        };
+      } catch (e) {
+        return { name: '', email: '' };
+      }
+    }
+
+    function saveEvaluatorProfile() {
+      const nameEl = document.getElementById('qa-name');
+      const emailEl = document.getElementById('qa-email');
+      const profile = {
+        name: nameEl ? nameEl.value.trim() : '',
+        email: emailEl ? emailEl.value.trim() : ''
+      };
+      localStorage.setItem(EVALUATOR_PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function validateEvaluatorProfile() {
+      const nameEl = document.getElementById('qa-name');
+      const emailEl = document.getElementById('qa-email');
+      if (!nameEl || !nameEl.value.trim()) {
+        showToast('Enter the evaluator name before submitting.', 'error');
+        if (nameEl) nameEl.focus();
+        return false;
+      }
+      if (!emailEl || !emailEl.value.trim() || !emailEl.checkValidity()) {
+        showToast('Enter a valid evaluator email before submitting.', 'error');
+        if (emailEl) emailEl.focus();
+        return false;
+      }
+      saveEvaluatorProfile();
+      return true;
+    }
+
     const AUDITS = {
       'email-audit': {
         id: 'email-audit',
@@ -1606,7 +1684,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
           { id: 'caller-num', label: 'Customer Email / Ticket Number', type: 'text', default: '' },
           { id: 'call-date', label: 'Date email was received', type: 'date' },
           { id: 'call-type', label: 'Type of email', type: 'select', options: ['General Inquiry', 'Complaint', 'Follow-up', 'Other'] },
@@ -1668,7 +1747,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
           { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'call-date', label: 'Date the call was received', type: 'date' },
@@ -1774,7 +1854,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent email', type: 'email', readonly: true },
-          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
           { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
           { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
           { id: 'crm-reason', label: 'Agent Selected Reason on CRM', type: 'text' },
@@ -1845,7 +1926,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
           { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'campaign-name', label: 'Campaign Name', type: 'text' },
@@ -1911,7 +1993,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-email', label: 'QA Email', type: 'email', default: 'vinceciana.wairimu@food4education.org' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
           { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
@@ -2047,13 +2130,23 @@ function ensureHeaders(sheet, expectedHeaders) {
 
     function renderFields(fields) {
       const cont = document.getElementById('ag-grid-cont');
+      const evaluatorProfile = getEvaluatorProfile();
       cont.innerHTML = fields.map(f => {
         let input = '';
         let defVal = f.default ? f.default : '';
+        if (f.id === 'qa-name') defVal = evaluatorProfile.name;
+        if (f.id === 'qa-email') defVal = evaluatorProfile.email;
+        const safeDefVal = String(defVal).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         if (f.type === 'agent-select') {
           input = `<select id="${f.id}" onchange="autoFillEmail()">
                 <option value="">-- Select Agent --</option>
                 ${agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
+            </select>`;
+        } else if (f.type === 'evaluator-select') {
+          const evaluators = agents.filter(agent => agent.isEvaluator);
+          input = `<select id="${f.id}" onchange="autoFillEvaluatorEmail()" ${f.required ? 'required' : ''}>
+                <option value="">${evaluators.length ? '-- Select Evaluator --' : '-- Add evaluator in Manage Agents --'}</option>
+                ${evaluators.map(evaluator => `<option value="${evaluator.name}" ${evaluator.name === defVal ? 'selected' : ''}>${evaluator.name}</option>`).join('')}
             </select>`;
         } else if (f.type === 'select') {
           input = `<select id="${f.id}">
@@ -2062,7 +2155,9 @@ function ensureHeaders(sheet, expectedHeaders) {
             </select>`;
         } else {
           let rdonly = f.readonly ? `readonly style="background:var(--g100); color:var(--g600);"` : '';
-          input = `<input type="${f.type}" id="${f.id}" placeholder="${f.placeholder || ''}" value="${defVal}" ${rdonly}>`;
+          let required = f.required ? 'required' : '';
+          let persistEvaluator = f.persistEvaluator ? 'oninput="saveEvaluatorProfile()"' : '';
+          input = `<input type="${f.type}" id="${f.id}" placeholder="${f.placeholder || ''}" value="${safeDefVal}" ${rdonly} ${required} ${persistEvaluator}>`;
         }
         return `<div class="field"><label>${f.label}</label>${input}</div>`;
       }).join('');
@@ -2219,19 +2314,21 @@ function ensureHeaders(sheet, expectedHeaders) {
       <div class="card">
         <div class="card-hd"><span class="card-title">Manage Agents</span></div>
         <div class="card-body">
+           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Tick <strong>Evaluator</strong> to make a person available in the evaluator dropdown on every scorecard. Their email will auto-fill but remains editable for each audit.</p>
            <table style="width:100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-bottom: 20px;">
              <thead>
-                 <tr style="border-bottom: 1px solid var(--border);"><th style="padding:10px 8px;">Agent Name</th><th style="padding:10px 8px;">Email Address</th><th style="padding:10px 8px; width: 80px;">Action</th></tr>
+                 <tr style="border-bottom: 1px solid var(--border);"><th style="padding:10px 8px;">Agent Name</th><th style="padding:10px 8px;">Email Address</th><th style="padding:10px 8px; width: 110px;">Evaluator</th><th style="padding:10px 8px; width: 80px;">Action</th></tr>
              </thead>
              <tbody>
                  ${agents.map((a, idx) => `
                    <tr style="border-bottom: 1px solid var(--g100);">
                      <td style="padding:10px 8px; font-weight:500;">${a.name}</td>
                      <td style="padding:10px 8px; color:var(--g600);">${a.email}</td>
+                     <td style="padding:10px 8px;"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;"><input type="checkbox" ${a.isEvaluator ? 'checked' : ''} onchange="toggleEvaluator(${idx}, this.checked)" style="width:16px;height:16px;accent-color:var(--teal);"> ${a.isEvaluator ? 'Yes' : 'No'}</label></td>
                      <td style="padding:10px 8px;"><button style="background:var(--red-lt); color:var(--red); border:1px solid #f0a0a0; padding:6px 10px; border-radius:4px; font-size:11px; font-weight:500; cursor:pointer;" onclick="deleteAgent(${idx})">Remove</button></td>
                    </tr>
                  `).join('')}
-                 ${agents.length === 0 ? `<tr><td colspan="3" style="padding:20px; text-align:center; color:var(--g400);">No agents added.</td></tr>` : ''}
+                 ${agents.length === 0 ? `<tr><td colspan="4" style="padding:20px; text-align:center; color:var(--g400);">No agents added.</td></tr>` : ''}
              </tbody>
            </table>
            <div style="background: var(--g50); padding: 16px; border-radius: var(--rs); border: 1px solid var(--border);">
@@ -2239,6 +2336,7 @@ function ensureHeaders(sheet, expectedHeaders) {
              <div style="display:flex; gap: 10px; flex-wrap:wrap;">
                  <input type="text" id="new-ag-name" placeholder="Agent Name" style="flex:1; min-width:150px; padding:8px 12px; border:1px solid var(--border); border-radius:4px; font-size:13px;">
                  <input type="email" id="new-ag-email" placeholder="Email Address" style="flex:1; min-width:150px; padding:8px 12px; border:1px solid var(--border); border-radius:4px; font-size:13px;">
+                 <label style="display:flex;align-items:center;gap:7px;padding:8px 4px;font-size:12px;font-weight:500;cursor:pointer;"><input type="checkbox" id="new-ag-evaluator" style="width:16px;height:16px;accent-color:var(--teal);"> Evaluator</label>
                  <button class="btn-primary" onclick="addAgent()">Add Agent</button>
              </div>
            </div>
@@ -2511,7 +2609,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (toBox && agEmailEl) toBox.value = agEmailEl.value;
 
       const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
-      let evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
+      let evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : '';
       evEmail = evEmail ? `${evEmail}, Terry Nyokabi <teresia.nyokabi@food4education.org>` : 'Terry Nyokabi <teresia.nyokabi@food4education.org>';
       const senderBox = document.getElementById('em-sender');
       if (senderBox) senderBox.value = evEmail;
@@ -2611,7 +2709,7 @@ ${attachmentText}
     function openEmailClient() {
       const to = document.getElementById('em-to').value;
       let cc = document.getElementById('em-sender').value;
-      if (!cc) cc = 'vinceciana.wairimu@food4education.org';
+      if (!cc) cc = '';
       const agn = document.getElementById('ag-name').value || 'Agent';
       const subject = encodeURIComponent(`${AUDITS[currentAuditType].title} Results - ${agn}`);
       let textBody = document.getElementById('em-body').innerText;
@@ -2651,6 +2749,7 @@ ${attachmentText}
     }
 
     async function submitAudit() {
+      if (!validateEvaluatorProfile()) return;
       const pad = (n) => String(n).padStart(2, '0');
       const now = new Date();
       const submissionTimestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
@@ -2690,7 +2789,7 @@ ${attachmentText}
       const agEmailEl = document.getElementById('ag-email');
       const agEmail = agEmailEl ? agEmailEl.value : '';
       const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
-      const evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : 'vinceciana.wairimu@food4education.org';
+      const evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : '';
 
       let headers = ['Timestamp', 'Audit Type'];
       let row = [submissionTimestamp, config.title];
@@ -2916,7 +3015,9 @@ ${attachmentText}
       config.fields.forEach(f => {
         let el = document.getElementById(f.id);
         if (el) {
-          if (f.type === 'agent-select' || f.type === 'select') el.value = '';
+          if (f.id === 'qa-name') el.value = getEvaluatorProfile().name;
+          else if (f.id === 'qa-email') el.value = getEvaluatorProfile().email;
+          else if (f.type === 'agent-select' || f.type === 'select') el.value = '';
           else el.value = f.default ? f.default : '';
         }
       });
