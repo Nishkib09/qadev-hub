@@ -1640,7 +1640,9 @@ function ensureHeaders(sheet, expectedHeaders) {
               { id: 'q11', label: 'Was the email easy to read and logically structured?', pts: 10, crit: false, na: false },
               { id: 'q12', label: 'Were formatting tools (bold, bullet points) used appropriately for clarity?', pts: 5, crit: false, na: false }
             ]
-          },
+          }
+        ],
+        specials: [
           {
             id: 'e_fcr', title: 'Resolution',
             type: 'custom',
@@ -1657,8 +1659,7 @@ function ensureHeaders(sheet, expectedHeaders) {
           </div>
         `
           }
-        ],
-        specials: []
+        ]
       },
       inbound: {
         id: 'inbound',
@@ -1816,7 +1817,9 @@ function ensureHeaders(sheet, expectedHeaders) {
               { id: 'q13', label: 'Avoided grammatical errors, unclear statements, and punctuation issues', pts: 5, crit: false, na: false },
               { id: 'q14', label: 'Adhered to the standard SMS/chat closure procedure', pts: 5, crit: false, na: false }
             ]
-          },
+          }
+        ],
+        specials: [
           {
             id: 'sms_fcr', title: 'Resolution',
             type: 'custom',
@@ -1833,8 +1836,7 @@ function ensureHeaders(sheet, expectedHeaders) {
           </div>
         `
           }
-        ],
-        specials: []
+        ]
       },
       outbound: {
         id: 'outbound',
