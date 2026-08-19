@@ -743,6 +743,162 @@
       color: var(--g600);
     }
 
+    /* ===== DECISION-FIRST OVERVIEW ===== */
+    .overview-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      color: #fff;
+      background: linear-gradient(120deg, var(--navy), #23456f);
+      border-radius: var(--r);
+      box-shadow: var(--shadow-md);
+    }
+
+    .overview-hero h3 { font-size: 20px; margin: 2px 0 4px; }
+    .overview-hero p { max-width: 680px; font-size: 12px; color: rgba(255,255,255,.72); }
+    .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; opacity: .7; }
+
+    .overview-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .progress-panel {
+      min-height: 220px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-kicker { font-size: 10px; font-weight: 700; color: var(--g400); letter-spacing: .06em; text-transform: uppercase; }
+    .panel-title { font-size: 14px; font-weight: 600; color: var(--g900); margin: 2px 0 14px; }
+    .panel-note { font-size: 11px; color: var(--g600); line-height: 1.45; }
+
+    .progress-ring {
+      --value: 0%;
+      --ring-color: var(--teal);
+      width: 118px;
+      height: 118px;
+      margin: 2px auto 12px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(var(--ring-color) var(--value), var(--g100) 0);
+      position: relative;
+    }
+
+    .progress-ring::after {
+      content: '';
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .progress-ring-value { position: relative; z-index: 1; text-align: center; font-size: 23px; font-weight: 700; color: var(--g900); line-height: 1; }
+    .progress-ring-value small { display: block; margin-top: 5px; font-size: 9px; font-weight: 600; color: var(--g400); text-transform: uppercase; letter-spacing: .04em; }
+
+    .distribution-list { display: flex; flex-direction: column; gap: 13px; }
+    .dist-row { display: grid; grid-template-columns: 90px 1fr 30px; align-items: center; gap: 8px; font-size: 11px; }
+    .dist-label { color: var(--g600); }
+    .dist-count { font-weight: 700; color: var(--g800); text-align: right; }
+    .mini-track { height: 7px; overflow: hidden; background: var(--g100); border-radius: 999px; }
+    .mini-fill { height: 100%; border-radius: inherit; transition: width .4s ease; }
+
+    .action-snapshot { display: grid; gap: 9px; }
+    .action-snapshot-item {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      background: var(--g50);
+      color: inherit;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .action-snapshot-item:hover { border-color: var(--teal-md); background: var(--teal-lt); }
+    .action-snapshot-icon { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #fff; }
+    .action-snapshot-copy strong { display: block; font-size: 12px; color: var(--g900); }
+    .action-snapshot-copy span { display: block; font-size: 10px; color: var(--g600); }
+    .action-snapshot-count { font-size: 17px; font-weight: 700; }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 34px;
+      margin: 4px 0 24px;
+    }
+    .pagination-note { font-size: 11px; color: var(--g600); min-width: 92px; text-align: center; }
+
+    /* ===== AGENT FOCUS ===== */
+    .agent-focus-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+    .agent-focus-bar label { display: block; margin-bottom: 3px; color: var(--g400); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    .agent-focus-bar p { font-size: 11px; color: var(--g600); }
+    .agent-progress-grid { display: grid; grid-template-columns: 1.1fr repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .agent-progress-card { min-height: 132px; padding: 15px 16px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow); }
+    .agent-progress-card.ring-card { display: flex; align-items: center; gap: 14px; }
+    .agent-progress-card .progress-ring { width: 92px; height: 92px; flex: 0 0 92px; margin: 0; }
+    .agent-progress-card .progress-ring::after { width: 68px; height: 68px; }
+    .agent-progress-card .progress-ring-value { font-size: 18px; }
+    .focus-value { font-size: 24px; font-weight: 700; line-height: 1.15; margin: 8px 0 4px; }
+    .focus-name { font-size: 13px; font-weight: 600; color: var(--g900); line-height: 1.3; margin: 8px 0 4px; }
+
+    /* ===== ACTION CENTRE ===== */
+    .insight-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .insight-count-card { padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--r); background: #fff; box-shadow: var(--shadow); }
+    .insight-count-card strong { display: block; font-size: 22px; line-height: 1.2; }
+    .insight-count-card span { font-size: 11px; color: var(--g600); }
+    .insight-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); }
+    .insight-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .insight-tab { padding: 6px 11px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font: 500 11px 'Rubik', sans-serif; color: var(--g600); cursor: pointer; }
+    .insight-tab.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .insight-agent-select { min-width: 220px; padding: 6px 9px; border: 1px solid var(--border); border-radius: var(--rs); font: 12px 'Rubik', sans-serif; background: #fff; }
+    .insight-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .insight-card { height: 100%; }
+
+    /* ===== COACHING HUB ===== */
+    .workspace-shell { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 18px; }
+    .workspace-card { padding: 28px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow); }
+    .workspace-card.primary { color: #fff; background: linear-gradient(135deg, var(--navy), #28547f); border: none; }
+    .workspace-card h3 { font-size: 20px; margin: 6px 0 8px; }
+    .workspace-card p { font-size: 12px; opacity: .75; max-width: 620px; }
+    .workspace-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .workspace-feature { display: flex; gap: 10px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--border); }
+    .workspace-feature:last-child { border-bottom: 0; }
+    .workspace-feature strong { display: block; font-size: 12px; }
+    .workspace-feature span { display: block; font-size: 10px; color: var(--g600); }
+    .coaching-frame-shell { overflow: hidden; background: #fff; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow); }
+    .coaching-frame-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--g100); }
+    .coaching-frame-toolbar strong { display: block; font-size: 12px; color: var(--g900); }
+    .coaching-frame-toolbar span { display: block; font-size: 10px; color: var(--g600); }
+    .coaching-frame { display: block; width: 100%; height: calc(100vh - 205px); min-height: 620px; border: 0; background: #fff; }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .sidebar { width: 56px; }
@@ -751,6 +907,10 @@
       .main { margin-left: 56px; }
       .chart-grid { grid-template-columns: 1fr; }
       .agent-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+      .overview-panel-grid { grid-template-columns: 1fr 1fr; }
+      .progress-panel:last-child { grid-column: 1 / -1; }
+      .agent-progress-grid { grid-template-columns: 1fr 1fr; }
+      .workspace-shell { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 600px) {
@@ -759,6 +919,10 @@
       .content { padding: 16px; }
       .filter-bar { padding: 8px 16px; }
       .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .overview-hero, .agent-focus-bar { align-items: flex-start; flex-direction: column; }
+      .overview-panel-grid, .agent-progress-grid, .insight-summary, .insight-list { grid-template-columns: 1fr; }
+      .progress-panel:last-child { grid-column: auto; }
+      .insight-agent-select { min-width: 100%; width: 100%; }
     }
 
     /* ===== PRINT ===== */
@@ -811,27 +975,27 @@
     <div class="sidebar-nav">
       <div class="nav-label">Analytics</div>
       <div class="nav-item active" id="nav-overview" onclick="navigate('overview')">
-        <span class="ni">🏠</span><span class="nav-text">Overview</span>
+        <span class="ni">🏢</span><span class="nav-text">Department Overview</span>
       </div>
       <div class="nav-item" id="nav-agent" onclick="navigate('agent')">
-        <span class="ni">👤</span><span class="nav-text">Agent Deep Dive</span>
+        <span class="ni">👤</span><span class="nav-text">Agent Performance</span>
+      </div>
+      <div class="nav-item" id="nav-pending" onclick="navigate('pending')">
+        <span class="ni">📈</span><span class="nav-text">Progress Tracker</span>
+      </div>
+      <div class="nav-item" id="nav-insights" onclick="navigate('insights')">
+        <span class="ni">✅</span><span class="nav-text">Insights & Actions</span>
       </div>
       <div class="nav-item" id="nav-heatmap" onclick="navigate('heatmap')">
         <span class="ni">🗺️</span><span class="nav-text">Team Heatmap</span>
       </div>
-      <div class="nav-item" id="nav-insights" onclick="navigate('insights')">
-        <span class="ni">💡</span><span class="nav-text">Insights & Actions</span>
-      </div>
-      <div class="nav-item" id="nav-pending" onclick="navigate('pending')">
-        <span class="ni">⏳</span><span class="nav-text">Pending Audits</span>
-      </div>
       <div class="nav-label">System</div>
+      <div class="nav-item" id="nav-workspace" onclick="navigate('workspace')">
+        <span class="ni">🎯</span><span class="nav-text">Coaching Hub</span>
+      </div>
       <div class="nav-item" id="nav-settings" onclick="navigate('settings')">
         <span class="ni">⚙️</span><span class="nav-text">Data Settings</span>
       </div>
-      <a class="nav-item" href="Combined_Audit_Scorecards.html" target="_blank" style="margin-top:6px;">
-        <span class="ni">📝</span><span class="nav-text">Open Scorecard</span>
-      </a>
     </div>
     <div class="sidebar-footer" id="sidebar-footer">Last refresh: –</div>
   </nav>
@@ -839,11 +1003,12 @@
   <!-- Main Content -->
   <div class="main">
     <div class="topbar-dash">
-      <h2 id="page-title">Overall Performance</h2>
+      <h2 id="page-title">Department Overview</h2>
       <div class="topbar-actions">
         <span id="conn-pill" style="font-size:11px;color:var(--g400);">
           <span class="status-dot off"></span> No data
         </span>
+        <button class="btn-sm primary" onclick="navigate('workspace')">🎯 Coaching Hub</button>
         <button class="btn-sm" onclick="refreshAllData()">↻ Refresh</button>
         <button class="btn-sm" onclick="window.print()">🖨 Print</button>
       </div>
@@ -885,9 +1050,32 @@
 
       <!-- ===== OVERVIEW PAGE ===== -->
       <div class="page active" id="page-overview">
+        <div class="overview-hero">
+          <div>
+            <div class="eyebrow">Department overview</div>
+            <h3 id="ov-context-title">Quality performance at a glance</h3>
+            <p>Start with department health, then move directly to the agents and actions that need attention.</p>
+          </div>
+          <button class="btn-sm" onclick="navigate('agent')">View individual performance →</button>
+        </div>
         <div class="kpi-row" id="ov-kpis"></div>
+        <div class="overview-panel-grid">
+          <div class="progress-panel" id="ov-progress"></div>
+          <div class="progress-panel" id="ov-distribution"></div>
+          <div class="progress-panel" id="ov-action-snapshot"></div>
+        </div>
+        <div class="chart-card" style="margin-bottom:24px;">
+          <div class="chart-hd">
+            <span class="chart-title">Department Performance Trend · weighted from raw audit points</span>
+            <button class="copy-chart-btn" onclick="copyChart('ov-trend-chart')">📋 Copy</button>
+          </div>
+          <div class="chart-body"><canvas id="ov-trend-chart" height="220"></canvas></div>
+        </div>
         <div class="sec-header">
-          <h3>Agent Performance Rankings</h3>
+          <div>
+            <h3>Agent Performance</h3>
+            <p style="font-size:11px;color:var(--g600);margin-top:2px;">Select an agent card to open their individual performance view.</p>
+          </div>
           <div style="display:flex;gap:8px;">
             <select id="ov-sort" onchange="buildOverview()" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--rs);font-size:11px;font-family:'Rubik',sans-serif;">
               <option value="score-desc">Score ↓</option>
@@ -899,14 +1087,19 @@
           </div>
         </div>
         <div class="agent-grid" id="ov-agents"></div>
+        <div class="pagination" id="ov-pagination"></div>
       </div>
 
       <!-- ===== AGENT DETAIL PAGE ===== -->
       <div class="page" id="page-agent">
-        <div style="margin-bottom:16px;">
-          <select id="ad-agent-select" onchange="buildAgentDetail()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:'Rubik',sans-serif;min-width:220px;">
-            <option value="">— Select Agent —</option>
-          </select>
+        <div class="agent-focus-bar">
+          <div>
+            <label for="ad-agent-select">Individual performance</label>
+            <select id="ad-agent-select" onchange="buildAgentDetail()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;font-family:'Rubik',sans-serif;min-width:260px;">
+              <option value="">— Select Agent —</option>
+            </select>
+          </div>
+          <p>Compare score, movement, priority coaching area and strongest skill.</p>
         </div>
         <div id="ad-content">
           <div class="empty-state">
@@ -935,8 +1128,18 @@
       <!-- ===== INSIGHTS PAGE ===== -->
       <div class="page" id="page-insights">
         <div class="sec-header">
-          <h3>Insights & Corrective Actions</h3>
+          <div>
+            <h3>Action Centre</h3>
+            <p style="font-size:11px;color:var(--g600);margin-top:2px;">Prioritised findings and recommended next steps, grouped for faster follow-through.</p>
+          </div>
           <button class="copy-chart-btn" onclick="copyInsights()">📋 Copy All</button>
+        </div>
+        <div class="insight-summary" id="ins-summary"></div>
+        <div class="insight-toolbar">
+          <div class="insight-tabs" id="ins-tabs"></div>
+          <select class="insight-agent-select" id="ins-agent-filter" onchange="setInsightAgent(this.value)">
+            <option value="">All agents</option>
+          </select>
         </div>
         <div class="insight-list" id="ins-list">
           <div class="empty-state">
@@ -945,17 +1148,32 @@
             <p>Insights are generated automatically from audit data. Connect your data sources in Settings.</p>
           </div>
         </div>
+        <div class="pagination" id="ins-pagination"></div>
       </div>
 
       <!-- ===== PENDING AUDITS PAGE ===== -->
       <div class="page" id="page-pending">
         <div class="sec-header">
           <div>
-            <h3>Pending Audits</h3>
-            <p style="color:var(--text-sec); font-size:12px; margin-top:2px;">Agents who have not yet been audited for the selected scorecard type & date range.</p>
+            <h3>Audit Progress</h3>
+            <p style="color:var(--g600); font-size:12px; margin-top:2px;">Coverage for the selected scorecard and date range, followed by agents who still need an audit.</p>
           </div>
         </div>
         <div id="pending-content" style="margin-top:20px;"></div>
+      </div>
+
+      <!-- ===== COACHING HUB PAGE ===== -->
+      <div class="page" id="page-workspace">
+        <div class="coaching-frame-shell">
+          <div class="coaching-frame-toolbar">
+            <div>
+              <strong>Q&amp;T Coaching &amp; Training Hub</strong>
+              <span>Evaluation-linked coaching, training, action plans and impact tracking.</span>
+            </div>
+            <button class="btn-sm" onclick="openCoachingHub()">Open full screen ↗</button>
+          </div>
+          <iframe class="coaching-frame" id="coaching-hub-frame" title="Q&T Coaching and Training Hub" data-src="https://script.google.com/a/macros/food4education.org/s/AKfycbxZ83A13qN_RBNzegUz5_DoZsc-RT1hCvUhOvTuDuoCBeqgsB1m0eMYgp2U1jKrC3V1lg/exec"></iframe>
+        </div>
       </div>
 
       <!-- ===== SETTINGS PAGE ===== -->
@@ -1022,6 +1240,24 @@
 // =================== CONSTANTS ===================
 
 const THRESHOLDS = { strong: 96, critical: 85 };
+const MAX_CLIENT_AUDITS_PER_TYPE = 5000;
+const MAX_CACHE_AUDITS_PER_TYPE = 250;
+const AUDIT_REFRESH_EVENT_KEY = 'qa_audit_refresh_event';
+const AUDIT_REFRESH_CHANNEL = 'qa-audit-updates';
+const AUDIT_VERSION_POLL_MS = 5000;
+const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw18-Q3jen4eLPoDdW51AVdy12kpDEJD_Y0Rcoiu8Jy82RbFRsfwLNezL9dLTg8IYeUIg/exec';
+const COACHING_HUB_URL = 'https://script.google.com/a/macros/food4education.org/s/AKfycbxZ83A13qN_RBNzegUz5_DoZsc-RT1hCvUhOvTuDuoCBeqgsB1m0eMYgp2U1jKrC3V1lg/exec';
+const QUALITY_TARGET = 96;
+const OVERVIEW_PAGE_SIZE = 9;
+const INSIGHT_PAGE_SIZE = 6;
+
+const SHEET_NAMES = {
+  inbound: 'Inbound Scorecard',
+  outbound: 'Outbound Call Scorecard (Campaign-Focused)',
+  survey: 'Consumer Satisfaction Survey Calls',
+  sms: 'SMS Quality Audit',
+  email: 'Email Audit Scorecard'
+};
 
 const COLORS = {
   navy: '#1a2744', green: '#3b6d11', greenMd: '#0d6e56',
@@ -1093,6 +1329,19 @@ let PROCESSED = {}; // { agentName: { avgOverall, auditCount, sectionAvgs:{}, au
 let CHART_INSTANCES = {};
 let currentPage = 'overview';
 let currentType = 'inbound';
+let refreshInFlight = false;
+let liveRefreshInitialized = false;
+let liveRefreshTimer = null;
+let auditRefreshChannel = null;
+let lastServerAuditVersion = null;
+let cacheHydrated = false;
+let overviewPage = 1;
+let currentInsights = [];
+let filteredInsights = [];
+let insightMode = 'priority';
+let insightAgent = '';
+let insightPage = 1;
+let AUDIT_DATE_QUALITY = { total: 0, valid: 0, invalid: 0 };
 
 // =================== AUTH ===================
 
@@ -1175,18 +1424,21 @@ async function fetchCSV(url, type) {
   try {
     if (url.includes('script.google.com') && type) {
       const sep = url.includes('?') ? '&' : '?';
-      const fetchUrl = `${url}${sep}action=getAuditsData&type=${encodeURIComponent(type)}`;
+      const fetchUrl = `${url}${sep}action=getAuditsData&type=${encodeURIComponent(type)}&limit=${MAX_CLIENT_AUDITS_PER_TYPE}&_=${Date.now()}`;
       const res = await fetch(fetchUrl);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      return data;
+      if (!Array.isArray(data)) throw new Error('Invalid dashboard response');
+      return data.slice(0, MAX_CLIENT_AUDITS_PER_TYPE + 1);
     } else {
       // Google Sheets published CSVs support CORS natively. No proxy needed.
+      const csvUrl = `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
       return new Promise((resolve) => {
-        Papa.parse(url, {
+        Papa.parse(csvUrl, {
           download: true,
           header: false,
           skipEmptyLines: true,
+          preview: MAX_CLIENT_AUDITS_PER_TYPE + 1,
           complete: function(results) {
             resolve(results.data);
           },
@@ -1205,11 +1457,11 @@ async function fetchCSV(url, type) {
 
 function getURLs() {
   return {
-    inbound: localStorage.getItem('url-inbound') || '',
-    outbound: localStorage.getItem('url-outbound') || '',
-    survey: localStorage.getItem('url-survey') || '',
-    sms: localStorage.getItem('url-sms') || '',
-    email: localStorage.getItem('url-email') || '',
+    inbound: localStorage.getItem('url-inbound') || DEFAULT_APPS_SCRIPT_URL,
+    outbound: localStorage.getItem('url-outbound') || DEFAULT_APPS_SCRIPT_URL,
+    survey: localStorage.getItem('url-survey') || DEFAULT_APPS_SCRIPT_URL,
+    sms: localStorage.getItem('url-sms') || DEFAULT_APPS_SCRIPT_URL,
+    email: localStorage.getItem('url-email') || DEFAULT_APPS_SCRIPT_URL,
   };
 }
 
@@ -1229,9 +1481,10 @@ async function testAllURLs() {
     if (!url) { if (el) el.innerHTML = '<span style="color:var(--g400)">—</span>'; continue; }
     if (el) el.innerHTML = '<span style="color:var(--amber)">…</span>';
     try {
-      const rows = await fetchCSV(url);
+      const rows = await fetchCSV(url, SHEET_NAMES[key]);
       if (rows.length > 1) {
-        el.innerHTML = `<span style="color:var(--green)">✓ ${rows.length - 1} rows</span>`;
+        const bounded = rows.length - 1 >= MAX_CLIENT_AUDITS_PER_TYPE ? ' (window limit)' : '';
+        el.innerHTML = `<span style="color:var(--green)">✓ ${rows.length - 1} rows${bounded}</span>`;
       } else {
         el.innerHTML = '<span style="color:var(--amber)">⚠ Empty</span>';
       }
@@ -1241,28 +1494,38 @@ async function testAllURLs() {
   }
 }
 
-async function refreshAllData() {
+async function refreshAllData(requestedTypes) {
+  if (refreshInFlight) return;
+  refreshInFlight = true;
   const loading = document.getElementById('loading');
   const urls = getURLs();
   const hasAny = Object.values(urls).some(u => u);
+  const types = (Array.isArray(requestedTypes) && requestedTypes.length ? requestedTypes : [currentType])
+    .filter(type => Object.prototype.hasOwnProperty.call(urls, type));
 
-  // 1. Try to load from cache immediately for instant rendering
+  // Load a deliberately small cache once. Full audit history does not belong in localStorage.
   let hasCache = false;
-  try {
-    const cached = localStorage.getItem('audit_data_cache');
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (parsed.inbound) STORE.inbound = parsed.inbound;
-      if (parsed.outbound) STORE.outbound = parsed.outbound;
-      if (parsed.survey) STORE.survey = parsed.survey;
-      if (parsed.sms) STORE.sms = parsed.sms;
-      if (parsed.email) STORE.email = parsed.email;
-      hasCache = true;
-      updateStatusIndicator();
-      processAndRender();
+  if (!cacheHydrated) {
+    cacheHydrated = true;
+    try {
+      localStorage.removeItem('audit_data_cache');
+      const cached = localStorage.getItem('audit_data_cache_v2');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        Object.keys(STORE).forEach(type => {
+          if (Array.isArray(parsed[type])) STORE[type] = parsed[type];
+        });
+        hasCache = Object.values(STORE).some(rows => rows.length > 1);
+        if (hasCache) {
+          updateStatusIndicator();
+          processAndRender();
+        }
+      }
+    } catch (e) {
+      console.warn('Cache read error', e);
     }
-  } catch (e) {
-    console.warn('Cache read error', e);
+  } else {
+    hasCache = Object.values(STORE).some(rows => rows.length > 1);
   }
 
   if (!hasAny) {
@@ -1270,6 +1533,7 @@ async function refreshAllData() {
       loading.classList.remove('show');
       updateStatusIndicator();
     }
+    refreshInFlight = false;
     return;
   }
 
@@ -1281,40 +1545,112 @@ async function refreshAllData() {
   }
 
   try {
-    const results = await Promise.all([
-      fetchCSV(urls.inbound, 'Inbound Scorecard').catch(e => { console.error('Inbound fail', e); return []; }),
-      fetchCSV(urls.outbound, 'Outbound Call Scorecard (Campaign-Focused)').catch(e => { console.error('Outbound fail', e); return []; }),
-      fetchCSV(urls.survey, 'Consumer Satisfaction Survey Calls').catch(e => { console.error('Survey fail', e); return []; }),
-      fetchCSV(urls.sms, 'SMS Quality Audit').catch(e => { console.error('SMS fail', e); return []; }),
-      fetchCSV(urls.email, 'Email Audit Scorecard').catch(e => { console.error('Email fail', e); return []; })
-    ]);
-    if (urls.inbound && results[0].length > 1) STORE.inbound = results[0];
-    if (urls.outbound && results[1].length > 1) STORE.outbound = results[1];
-    if (urls.survey && results[2].length > 1) STORE.survey = results[2];
-    if (urls.sms && results[3].length > 1) STORE.sms = results[3];
-    if (urls.email && results[4].length > 1) STORE.email = results[4];
-    
-    // Save to cache
+    const results = await Promise.all(types.map(async type => {
+      if (!urls[type]) return { type, rows: [] };
+      const rows = await fetchCSV(urls[type], SHEET_NAMES[type]);
+      return { type, rows };
+    }));
+
+    results.forEach(({ type, rows }) => {
+      if (rows.length > 1) STORE[type] = rows;
+    });
+
+    // Cache only a compact recent slice for fast startup.
     try {
-      localStorage.setItem('audit_data_cache', JSON.stringify(STORE));
+      const compactCache = {};
+      Object.entries(STORE).forEach(([type, rows]) => {
+        if (!Array.isArray(rows) || !rows.length) return;
+        compactCache[type] = rows.length <= MAX_CACHE_AUDITS_PER_TYPE + 1
+          ? rows
+          : [rows[0]].concat(rows.slice(-MAX_CACHE_AUDITS_PER_TYPE));
+      });
+      localStorage.setItem('audit_data_cache_v2', JSON.stringify(compactCache));
     } catch(e) { console.warn('Cache save error', e); }
-    
   } catch (e) { console.error('Refresh error:', e); }
 
-  updateStatusIndicator();
-  loading.classList.remove('show');
-  processAndRender();
+  try {
+    updateStatusIndicator();
+    loading.classList.remove('show');
+    processAndRender();
+  } finally {
+    refreshInFlight = false;
+  }
 }
 
 function updateStatusIndicator() {
   const pill = document.getElementById('conn-pill');
   const hasData = Object.values(STORE).some(s => s.length > 1);
+  const isBounded = Object.values(STORE).some(s => s.length >= MAX_CLIENT_AUDITS_PER_TYPE + 1);
   if (hasData) {
-    pill.innerHTML = '<span class="status-dot live"></span> Live Data';
+    pill.innerHTML = `<span class="status-dot live"></span> ${isBounded ? '5,000-row window' : 'Live Data'}`;
   } else {
     pill.innerHTML = '<span class="status-dot off"></span> No data';
   }
   document.getElementById('sidebar-footer').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
+}
+
+function normalizeAuditType(type) {
+  if (Object.prototype.hasOwnProperty.call(SHEET_NAMES, type)) return type;
+  return Object.keys(SHEET_NAMES).find(key => SHEET_NAMES[key] === type) || '';
+}
+
+function scheduleLiveRefresh(event) {
+  const eventType = normalizeAuditType(event?.auditType || '');
+  if (eventType && eventType !== currentType) return;
+  clearTimeout(liveRefreshTimer);
+  liveRefreshTimer = setTimeout(() => {
+    if (refreshInFlight) {
+      scheduleLiveRefresh(event);
+      return;
+    }
+    refreshAllData([currentType]);
+  }, 300);
+}
+
+function getAppsScriptURL() {
+  return Object.values(getURLs()).find(url => url && url.includes('script.google.com')) || '';
+}
+
+async function pollAuditVersion() {
+  if (document.hidden || refreshInFlight) return;
+  const url = getAppsScriptURL();
+  if (!url) return;
+  try {
+    const sep = url.includes('?') ? '&' : '?';
+    const response = await fetch(`${url}${sep}action=getAuditVersion&_=${Date.now()}`);
+    if (!response.ok) return;
+    const result = await response.json();
+    const version = String(result.version || '0');
+    if (lastServerAuditVersion === null) {
+      lastServerAuditVersion = version;
+    } else if (version !== lastServerAuditVersion) {
+      lastServerAuditVersion = version;
+      scheduleLiveRefresh({});
+    }
+  } catch (error) {
+    console.warn('Live refresh check failed:', error);
+  }
+}
+
+function setupLiveRefresh() {
+  if (liveRefreshInitialized) return;
+  liveRefreshInitialized = true;
+
+  window.addEventListener('storage', event => {
+    if (event.key !== AUDIT_REFRESH_EVENT_KEY || !event.newValue) return;
+    try { scheduleLiveRefresh(JSON.parse(event.newValue)); } catch (_) { scheduleLiveRefresh({}); }
+  });
+
+  if ('BroadcastChannel' in window) {
+    auditRefreshChannel = new BroadcastChannel(AUDIT_REFRESH_CHANNEL);
+    auditRefreshChannel.addEventListener('message', event => scheduleLiveRefresh(event.data || {}));
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pollAuditVersion();
+  });
+  setInterval(pollAuditVersion, AUDIT_VERSION_POLL_MS);
+  pollAuditVersion();
 }
 
 // =================== DATA PROCESSING ===================
@@ -1347,8 +1683,34 @@ function parseDate(str) {
   return null;
 }
 
+function calculateAuditAverage(audits) {
+  const weighted = audits.filter(a => Number.isFinite(a.earnedTotal) && Number.isFinite(a.possibleTotal) && a.possibleTotal > 0);
+  if (weighted.length) {
+    const earned = weighted.reduce((sum, audit) => sum + audit.earnedTotal, 0);
+    const possible = weighted.reduce((sum, audit) => sum + audit.possibleTotal, 0);
+    return possible > 0 ? earned / possible * 100 : 0;
+  }
+  const percentages = audits.map(a => a.overallPct).filter(score => Number.isFinite(score) && score > 0);
+  return percentages.length ? percentages.reduce((sum, score) => sum + score, 0) / percentages.length : 0;
+}
+
+function calculateSectionAverage(audits, sectionName) {
+  const sections = audits
+    .map(audit => audit.sections.find(section => section.name === sectionName))
+    .filter(section => section && section.possible > 0);
+  if (!sections.length) return null;
+  const earned = sections.reduce((sum, section) => sum + section.earned, 0);
+  const possible = sections.reduce((sum, section) => sum + section.possible, 0);
+  return possible > 0 ? earned / possible * 100 : null;
+}
+
+function calculateTeamAverage(agents) {
+  return calculateAuditAverage(agents.flatMap(agent => agent.audits || []));
+}
+
 function processTypeData(type) {
   const rows = STORE[type];
+  AUDIT_DATE_QUALITY = { total: 0, valid: 0, invalid: 0 };
   if (!rows || rows.length < 2) return {};
 
   const headers = rows[0];
@@ -1356,12 +1718,15 @@ function processTypeData(type) {
   const config = CONFIGS[type];
 
   const agentIdx = findColIdx(headers, /agent\s*name/i);
-  let dateIdx = findColIdx(headers, /date\s*(the)?\s*(call|conversation|sms|interaction|received|made)/i);
-  if (dateIdx === -1) {
-    dateIdx = findColIdx(headers, /audit\s*date/i);
-  }
+  const agentEmailIdx = findColIdx(headers, /agent\s*email/i);
+  const auditIdIdx = findColIdx(headers, /audit\s*id/i);
+  // Audit Date is the single date of record for filters, trends and coaching comparisons.
+  const dateIdx = findColIdx(headers, /audit\s*date/i);
   const pctIdx = findColIdx(headers, /percentage\s*score/i);
+  const earnedIdx = findColIdx(headers, /total\s*points\s*earned/i);
+  const possibleIdx = findColIdx(headers, /max\s*points\s*possible/i);
   const ratingIdx = findColIdx(headers, /rating/i);
+  const immediateCoachingIdx = findColIdx(headers, /needs\s*immediate\s*coaching/i);
   const qCols = findQuestionCols(headers);
 
   if (agentIdx === -1) return {};
@@ -1371,9 +1736,15 @@ function processTypeData(type) {
   data.forEach(row => {
     const agentName = String(row[agentIdx] || '').trim();
     if (!agentName) return;
+    const agentEmail = agentEmailIdx !== -1 ? String(row[agentEmailIdx] || '').trim().toLowerCase() : '';
+    const agentKey = agentEmail ? `email:${agentEmail}` : `name:${agentName.toLowerCase()}`;
 
-    if (!agents[agentName]) {
-      agents[agentName] = { name: agentName, audits: [], sectionAvgs: {} };
+    if (!agents[agentKey]) {
+      agents[agentKey] = { key: agentKey, name: agentName, email: agentEmail, audits: [], sectionAvgs: {} };
+    } else {
+      // Email is the identity; the latest display name can safely change.
+      agents[agentKey].name = agentName;
+      if (agentEmail) agents[agentKey].email = agentEmail;
     }
 
     // Parse overall percentage from the sheet
@@ -1381,12 +1752,19 @@ function processTypeData(type) {
     if (pctIdx !== -1) {
       overallPct = parseFloat(String(row[pctIdx] || '0').replace('%', ''));
     }
+    const earnedTotal = earnedIdx !== -1 ? parseFloat(row[earnedIdx]) : NaN;
+    const possibleTotal = possibleIdx !== -1 ? parseFloat(row[possibleIdx]) : NaN;
+    if (Number.isFinite(earnedTotal) && Number.isFinite(possibleTotal) && possibleTotal > 0) {
+      overallPct = earnedTotal / possibleTotal * 100;
+    }
 
     const rating = ratingIdx !== -1 ? String(row[ratingIdx] || '') : '';
-    let auditDate = dateIdx !== -1 ? String(row[dateIdx] || '') : '';
-    if (!parseDate(auditDate)) {
-      auditDate = String(row[0] || ''); // Fallback to Timestamp if shifted or blank
-    }
+    const immediateCoachingValue = immediateCoachingIdx !== -1 ? String(row[immediateCoachingIdx] || '').trim().toLowerCase() : '';
+    const needsImmediateCoaching = ['yes', 'true', '1'].includes(immediateCoachingValue);
+    const auditDate = dateIdx !== -1 ? String(row[dateIdx] || '').trim() : '';
+    AUDIT_DATE_QUALITY.total++;
+    if (parseDate(auditDate)) AUDIT_DATE_QUALITY.valid++;
+    else AUDIT_DATE_QUALITY.invalid++;
 
     // Calculate per-section scores
     let qIdx = 0;
@@ -1407,26 +1785,28 @@ function processTypeData(type) {
       return { name: sec.name, earned, possible, pct: possible > 0 ? (earned / possible * 100) : null };
     });
 
-    agents[agentName].audits.push({ date: auditDate, overallPct, rating, sections });
+    const auditId = auditIdIdx !== -1 ? String(row[auditIdIdx] || '').trim() : '';
+    agents[agentKey].audits.push({
+      auditId,
+      agentEmail,
+      date: auditDate,
+      overallPct,
+      earnedTotal,
+      possibleTotal,
+      rating,
+      needsImmediateCoaching,
+      sections
+    });
   });
 
   // Calculate averages per agent
   Object.values(agents).forEach(agent => {
-    const validAudits = agent.audits.filter(a => a.overallPct > 0);
-    agent.avgOverall = validAudits.length > 0
-      ? validAudits.reduce((s, a) => s + a.overallPct, 0) / validAudits.length
-      : 0;
+    agent.avgOverall = calculateAuditAverage(agent.audits);
     agent.auditCount = agent.audits.length;
 
     const config2 = CONFIGS[type];
     config2.sections.forEach(sec => {
-      const vals = agent.audits
-        .map(a => a.sections.find(s => s.name === sec.name))
-        .filter(s => s && s.pct !== null)
-        .map(s => s.pct);
-      agent.sectionAvgs[sec.name] = vals.length > 0
-        ? vals.reduce((a, b) => a + b, 0) / vals.length
-        : null;
+      agent.sectionAvgs[sec.name] = calculateSectionAverage(agent.audits, sec.name);
     });
   });
 
@@ -1442,7 +1822,7 @@ function applyDateFilter(agents) {
   if (!from && !to) return agents;
 
   const filtered = {};
-  Object.entries(agents).forEach(([name, agent]) => {
+  Object.entries(agents).forEach(([agentKey, agent]) => {
     const fAudits = agent.audits.filter(a => {
       const d = parseDate(a.date);
       if (!d) return false;
@@ -1454,23 +1834,14 @@ function applyDateFilter(agents) {
     if (fAudits.length === 0) return;
 
     const fAgent = { ...agent, audits: fAudits, auditCount: fAudits.length };
-    const validAudits = fAudits.filter(a => a.overallPct > 0);
-    fAgent.avgOverall = validAudits.length > 0
-      ? validAudits.reduce((s, a) => s + a.overallPct, 0) / validAudits.length
-      : 0;
+    fAgent.avgOverall = calculateAuditAverage(fAudits);
 
     fAgent.sectionAvgs = {};
     CONFIGS[currentType].sections.forEach(sec => {
-      const vals = fAudits
-        .map(a => a.sections.find(s => s.name === sec.name))
-        .filter(s => s && s.pct !== null)
-        .map(s => s.pct);
-      fAgent.sectionAvgs[sec.name] = vals.length > 0
-        ? vals.reduce((a, b) => a + b, 0) / vals.length
-        : null;
+      fAgent.sectionAvgs[sec.name] = calculateSectionAverage(fAudits, sec.name);
     });
 
-    filtered[name] = fAgent;
+    filtered[agentKey] = fAgent;
   });
 
   return filtered;
@@ -1481,18 +1852,28 @@ function processAndRender() {
   PROCESSED = applyDateFilter(rawAgents);
 
   // Populate agent dropdown
-  const agentNames = Object.keys(PROCESSED).sort();
+  const agentEntries = Object.entries(PROCESSED)
+    .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+  const agentKeys = agentEntries.map(([key]) => key);
   const agentFilter = document.getElementById('f-agent');
   const curAgent = agentFilter.value;
   agentFilter.innerHTML = '<option value="">All Agents</option>' +
-    agentNames.map(a => `<option value="${a}">${a}</option>`).join('');
-  if (agentNames.includes(curAgent)) agentFilter.value = curAgent;
+    agentEntries.map(([key, agent]) => `<option value="${key}">${agent.name}</option>`).join('');
+  if (agentKeys.includes(curAgent)) agentFilter.value = curAgent;
 
   const adSelect = document.getElementById('ad-agent-select');
   const curAd = adSelect.value;
   adSelect.innerHTML = '<option value="">— Select Agent —</option>' +
-    agentNames.map(a => `<option value="${a}">${a}</option>`).join('');
-  if (agentNames.includes(curAd)) adSelect.value = curAd;
+    agentEntries.map(([key, agent]) => `<option value="${key}">${agent.name}</option>`).join('');
+  if (agentKeys.includes(curAd)) adSelect.value = curAd;
+
+  const insightAgentSelect = document.getElementById('ins-agent-filter');
+  if (insightAgentSelect) {
+    insightAgentSelect.innerHTML = '<option value="">All agents</option>' +
+      agentEntries.map(([key, agent]) => `<option value="${key}">${agent.name}</option>`).join('');
+    if (agentKeys.includes(insightAgent)) insightAgentSelect.value = insightAgent;
+    else insightAgent = '';
+  }
 
   // Apply agent filter for overview
   let displayAgents = PROCESSED;
@@ -1504,8 +1885,8 @@ function processAndRender() {
 
   buildOverview(displayAgents);
   buildHeatmap(displayAgents);
-  buildInsights(displayAgents);
-  buildPendingAudits(displayAgents);
+  buildInsights(PROCESSED);
+  buildPendingAudits(PROCESSED);
   if (adSelect.value) buildAgentDetail();
 }
 
@@ -1579,13 +1960,21 @@ function buildOverview(displayAgents) {
   const agents = Object.values(displayAgents);
   const allAgents = Object.values(PROCESSED);
 
-  // KPIs
+  document.getElementById('ov-context-title').textContent = CONFIGS[currentType].label + ' department performance';
+
+  // Department KPIs
   const totalAudits = allAgents.reduce((s, a) => s + a.auditCount, 0);
-  const teamAvg = allAgents.length > 0
-    ? allAgents.reduce((s, a) => s + a.avgOverall, 0) / allAgents.length : 0;
+  const teamAvg = calculateTeamAverage(allAgents);
   const bestAgent = allAgents.length > 0
     ? allAgents.reduce((best, a) => a.avgOverall > best.avgOverall ? a : best, allAgents[0]) : null;
   const agentCount = allAgents.length;
+  const strongCount = allAgents.filter(a => a.avgOverall >= THRESHOLDS.strong).length;
+  const monitorCount = allAgents.filter(a => a.avgOverall >= THRESHOLDS.critical && a.avgOverall < THRESHOLDS.strong).length;
+  const improveCount = allAgents.filter(a => a.avgOverall < THRESHOLDS.critical).length;
+  const datedAudits = allAgents.flatMap(agent => agent.audits || [])
+    .map(audit => parseDate(audit.date))
+    .filter(Boolean);
+  const latestAuditDate = datedAudits.length ? new Date(Math.max(...datedAudits)) : null;
 
   document.getElementById('ov-kpis').innerHTML = `
     <div class="kpi-card">
@@ -1599,16 +1988,59 @@ function buildOverview(displayAgents) {
       <div class="kpi-sub">${teamAvg > 0 ? getThreshold(teamAvg).icon + ' ' + getThreshold(teamAvg).label : 'No data'}</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Best Performer</div>
-      <div class="kpi-value" style="font-size:18px;">${bestAgent ? bestAgent.name : '–'}</div>
-      <div class="kpi-sub">${bestAgent ? bestAgent.avgOverall.toFixed(1) + '%' : ''}</div>
+      <div class="kpi-label">At Quality Target</div>
+      <div class="kpi-value clr-strong">${strongCount}</div>
+      <div class="kpi-sub">${agentCount ? Math.round(strongCount / agentCount * 100) : 0}% of tracked agents</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Agents Tracked</div>
       <div class="kpi-value">${agentCount}</div>
       <div class="kpi-sub">Active agents</div>
     </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Latest Audit</div>
+      <div class="kpi-value" style="font-size:18px;">${latestAuditDate ? latestAuditDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '–'}</div>
+      <div class="kpi-sub">${AUDIT_DATE_QUALITY.invalid
+        ? `${AUDIT_DATE_QUALITY.invalid} row${AUDIT_DATE_QUALITY.invalid === 1 ? '' : 's'} missing a valid Audit Date`
+        : 'Audit-date freshness'}</div>
+    </div>
   `;
+
+  const qualityProgress = teamAvg > 0 ? Math.min(100, teamAvg / QUALITY_TARGET * 100) : 0;
+  const gap = teamAvg > 0 ? teamAvg - QUALITY_TARGET : 0;
+  document.getElementById('ov-progress').innerHTML = `
+    <div class="panel-kicker">Progress</div>
+    <div class="panel-title">Department quality target</div>
+    <div class="progress-ring" style="--value:${qualityProgress.toFixed(1)}%;--ring-color:${gap >= 0 ? COLORS.green : COLORS.teal};">
+      <div class="progress-ring-value">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}<small>Current score</small></div>
+    </div>
+    <div class="panel-note" style="text-align:center;">${teamAvg > 0
+      ? (gap >= 0 ? `${Math.abs(gap).toFixed(1)} points above the ${QUALITY_TARGET}% target.` : `${Math.abs(gap).toFixed(1)} points to the ${QUALITY_TARGET}% target.`)
+      : 'No scores in the selected period.'}</div>
+  `;
+
+  const maxBandCount = Math.max(strongCount, monitorCount, improveCount, 1);
+  document.getElementById('ov-distribution').innerHTML = `
+    <div class="panel-kicker">People</div>
+    <div class="panel-title">Performance distribution</div>
+    <div class="distribution-list">
+      <div class="dist-row"><span class="dist-label">At target</span><div class="mini-track"><div class="mini-fill" style="width:${strongCount / maxBandCount * 100}%;background:${COLORS.green};"></div></div><span class="dist-count clr-strong">${strongCount}</span></div>
+      <div class="dist-row"><span class="dist-label">Monitor</span><div class="mini-track"><div class="mini-fill" style="width:${monitorCount / maxBandCount * 100}%;background:${COLORS.amber};"></div></div><span class="dist-count clr-critical">${monitorCount}</span></div>
+      <div class="dist-row"><span class="dist-label">Needs action</span><div class="mini-track"><div class="mini-fill" style="width:${improveCount / maxBandCount * 100}%;background:${COLORS.red};"></div></div><span class="dist-count clr-improve">${improveCount}</span></div>
+    </div>
+    <div class="panel-note" style="margin-top:16px;">${bestAgent ? `Top performer: ${bestAgent.name} at ${bestAgent.avgOverall.toFixed(1)}%.` : 'No agent performance available.'}</div>
+  `;
+
+  document.getElementById('ov-action-snapshot').innerHTML = `
+    <div class="panel-kicker">Next step</div>
+    <div class="panel-title">Action snapshot</div>
+    <div class="action-snapshot">
+      <button class="action-snapshot-item" onclick="openInsights('priority')"><span class="action-snapshot-icon">🔴</span><span class="action-snapshot-copy"><strong>Priority coaching</strong><span>Agents below 85%</span></span><span class="action-snapshot-count clr-improve">${improveCount}</span></button>
+      <button class="action-snapshot-item" onclick="openInsights('monitor')"><span class="action-snapshot-icon">🟡</span><span class="action-snapshot-copy"><strong>Monitor closely</strong><span>Agents between 85% and 96%</span></span><span class="action-snapshot-count clr-critical">${monitorCount}</span></button>
+      <button class="action-snapshot-item" onclick="openInsights('strengths')"><span class="action-snapshot-icon">🟢</span><span class="action-snapshot-copy"><strong>Recognise strengths</strong><span>Agents at or above 96%</span></span><span class="action-snapshot-count clr-strong">${strongCount}</span></button>
+    </div>
+  `;
+  buildDepartmentTrend(allAgents);
 
   // Sort agents
   const sortVal = document.getElementById('ov-sort')?.value || 'score-desc';
@@ -1620,7 +2052,7 @@ function buildOverview(displayAgents) {
     case 'audits-desc': sorted.sort((a, b) => b.auditCount - a.auditCount); break;
   }
 
-  // Agent cards
+  // Agent cards are paginated to avoid a long scrolling wall.
   if (sorted.length === 0) {
     document.getElementById('ov-agents').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;">
@@ -1628,20 +2060,101 @@ function buildOverview(displayAgents) {
         <h3>No Data Available</h3>
         <p>Connect your Google Sheets CSV in Settings, or load demo data to preview the dashboard.</p>
       </div>`;
+    document.getElementById('ov-pagination').innerHTML = '';
     return;
   }
 
-  document.getElementById('ov-agents').innerHTML = sorted.map((agent, rank) => {
+  const pageCount = Math.max(1, Math.ceil(sorted.length / OVERVIEW_PAGE_SIZE));
+  overviewPage = Math.min(Math.max(overviewPage, 1), pageCount);
+  const pageStart = (overviewPage - 1) * OVERVIEW_PAGE_SIZE;
+  const visibleAgents = sorted.slice(pageStart, pageStart + OVERVIEW_PAGE_SIZE);
+
+  document.getElementById('ov-agents').innerHTML = visibleAgents.map((agent, rank) => {
     const th = getThreshold(agent.avgOverall);
     return `
-      <div class="agent-card" onclick="navigateToAgent('${agent.name.replace(/'/g, "\\'")}')">
-        <div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--g400);font-weight:600;">#${rank + 1}</div>
+      <div class="agent-card" onclick="navigateToAgent('${String(agent.key || '').replace(/'/g, "\\'")}')">
+        <div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--g400);font-weight:600;">#${pageStart + rank + 1}</div>
         <div class="agent-name">${agent.name}</div>
         <div class="agent-count">${agent.auditCount} audit${agent.auditCount !== 1 ? 's' : ''}</div>
         <div class="agent-score clr-${th.cls}">${agent.avgOverall.toFixed(1)}%</div>
         <span class="agent-badge badge-${th.cls}">${th.icon} ${th.label}</span>
       </div>`;
   }).join('');
+
+  renderPagination('ov-pagination', overviewPage, pageCount, 'setOverviewPage', sorted.length, 'agents');
+}
+
+function buildDepartmentTrend(agents) {
+  const buckets = new Map();
+  agents.flatMap(agent => agent.audits || []).forEach(audit => {
+    const date = parseDate(audit.date);
+    if (!date) return;
+    const week = new Date(date);
+    week.setHours(0, 0, 0, 0);
+    week.setDate(week.getDate() - ((week.getDay() + 6) % 7));
+    const key = week.getTime();
+    if (!buckets.has(key)) buckets.set(key, { date: week, audits: [] });
+    buckets.get(key).audits.push(audit);
+  });
+
+  const series = [...buckets.values()].sort((a, b) => a.date - b.date);
+  if (!series.length) {
+    if (CHART_INSTANCES['ov-trend-chart']) {
+      CHART_INSTANCES['ov-trend-chart'].destroy();
+      delete CHART_INSTANCES['ov-trend-chart'];
+    }
+    return;
+  }
+
+  const scores = series.map(bucket => calculateAuditAverage(bucket.audits));
+  mkChart('ov-trend-chart', 'line',
+    series.map(bucket => 'Week of ' + bucket.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+    [
+      {
+        label: 'Department score',
+        data: scores,
+        borderColor: COLORS.teal,
+        backgroundColor: 'rgba(13,110,86,.09)',
+        fill: true,
+        tension: .3,
+        pointRadius: 4
+      },
+      {
+        label: 'Quality target',
+        data: series.map(() => QUALITY_TARGET),
+        borderColor: COLORS.amber,
+        borderDash: [6, 5],
+        pointRadius: 0,
+        borderWidth: 1.5
+      }
+    ],
+    { legend: true }
+  );
+}
+
+function renderPagination(containerId, page, pageCount, handler, itemCount, itemLabel) {
+  const container = document.getElementById(containerId);
+  if (!container || pageCount <= 1) {
+    if (container) container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `
+    <button class="btn-sm" onclick="${handler}(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Previous</button>
+    <span class="pagination-note">Page ${page} of ${pageCount}<br>${itemCount} ${itemLabel}</span>
+    <button class="btn-sm" onclick="${handler}(${page + 1})" ${page >= pageCount ? 'disabled' : ''}>Next →</button>`;
+}
+
+function setOverviewPage(page) {
+  overviewPage = page;
+  buildOverview();
+  document.getElementById('ov-agents')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openInsights(mode) {
+  insightMode = mode || 'priority';
+  insightPage = 1;
+  navigate('insights');
+  renderInsights();
 }
 
 function navigateToAgent(name) {
@@ -1668,6 +2181,20 @@ function buildAgentDetail() {
   const agent = PROCESSED[name];
   const th = getThreshold(agent.avgOverall);
   const config = CONFIGS[currentType];
+  const teamAvg = calculateTeamAverage(Object.values(PROCESSED));
+  const sortedAudits = [...agent.audits]
+    .map(a => ({ ...a, dateObj: parseDate(a.date) }))
+    .filter(a => a.dateObj)
+    .sort((a, b) => a.dateObj - b.dateObj);
+  const latestAudit = sortedAudits.at(-1);
+  const previousAudit = sortedAudits.at(-2);
+  const latestDelta = latestAudit && previousAudit ? latestAudit.overallPct - previousAudit.overallPct : null;
+  const sectionScores = config.sections
+    .map(section => ({ name: section.name, score: agent.sectionAvgs[section.name] }))
+    .filter(section => section.score !== null)
+    .sort((a, b) => a.score - b.score);
+  const prioritySection = sectionScores[0] || null;
+  const strengthSection = sectionScores.at(-1) || null;
 
   // Header
   let html = `
@@ -1679,6 +2206,35 @@ function buildAgentDetail() {
       </div>
     </div>
   `;
+
+  html += `
+    <div class="agent-progress-grid">
+      <div class="agent-progress-card ring-card">
+        <div class="progress-ring" style="--value:${Math.min(100, agent.avgOverall).toFixed(1)}%;--ring-color:${th.cls === 'strong' ? COLORS.green : th.cls === 'critical' ? COLORS.amber : COLORS.red};">
+          <div class="progress-ring-value">${agent.avgOverall.toFixed(1)}%<small>Average</small></div>
+        </div>
+        <div>
+          <div class="panel-kicker">Target progress</div>
+          <div class="focus-name">${agent.avgOverall >= QUALITY_TARGET ? 'Quality target achieved' : `${(QUALITY_TARGET - agent.avgOverall).toFixed(1)} points to target`}</div>
+          <div class="panel-note">Team average: ${teamAvg.toFixed(1)}%</div>
+        </div>
+      </div>
+      <div class="agent-progress-card">
+        <div class="panel-kicker">Latest movement</div>
+        <div class="focus-value ${latestDelta === null ? '' : latestDelta >= 0 ? 'clr-strong' : 'clr-improve'}">${latestDelta === null ? 'Baseline' : `${latestDelta >= 0 ? '+' : ''}${latestDelta.toFixed(1)} pts`}</div>
+        <div class="panel-note">${latestAudit ? `Latest audit: ${latestAudit.overallPct.toFixed(1)}%` : 'No dated audit available.'}</div>
+      </div>
+      <div class="agent-progress-card">
+        <div class="panel-kicker">Priority focus</div>
+        <div class="focus-name clr-${prioritySection ? getThreshold(prioritySection.score).cls : 'critical'}">${prioritySection ? prioritySection.name : 'No section data'}</div>
+        <div class="panel-note">${prioritySection ? `${prioritySection.score.toFixed(1)}% — use this for the next coaching action.` : 'Complete an audit to create a focus area.'}</div>
+      </div>
+      <div class="agent-progress-card">
+        <div class="panel-kicker">Strongest skill</div>
+        <div class="focus-name clr-strong">${strengthSection ? strengthSection.name : 'No section data'}</div>
+        <div class="panel-note">${strengthSection ? `${strengthSection.score.toFixed(1)}% — recognise and reinforce this behaviour.` : 'Complete an audit to identify a strength.'}</div>
+      </div>
+    </div>`;
 
   // Charts grid
   html += `<div class="chart-grid">`;
@@ -1747,12 +2303,8 @@ function buildAgentDetail() {
   // Render charts after DOM update
   setTimeout(() => {
     // Radar chart: agent vs team average
-    const teamAvgs = config.sections.map(sec => {
-      const allVals = Object.values(PROCESSED)
-        .map(a => a.sectionAvgs[sec.name])
-        .filter(v => v !== null);
-      return allVals.length > 0 ? allVals.reduce((a, b) => a + b, 0) / allVals.length : 0;
-    });
+    const teamAudits = Object.values(PROCESSED).flatMap(item => item.audits || []);
+    const teamAvgs = config.sections.map(sec => calculateSectionAverage(teamAudits, sec.name) ?? 0);
 
     mkChart('radar-chart', 'radar',
       config.sections.map(s => s.name.length > 18 ? s.name.slice(0, 18) + '…' : s.name),
@@ -1803,29 +2355,38 @@ function buildAgentDetail() {
     );
 
     // Trend chart
-    const sortedAudits = [...agent.audits]
-      .map(a => ({ ...a, dateObj: parseDate(a.date) }))
-      .filter(a => a.dateObj)
-      .sort((a, b) => a.dateObj - b.dateObj);
-
     if (sortedAudits.length > 0) {
+      const rollingScores = sortedAudits.map((_, index) =>
+        calculateAuditAverage(sortedAudits.slice(Math.max(0, index - 2), index + 1))
+      );
       mkChart('trend-chart', 'line',
         sortedAudits.map(a => a.dateObj.toLocaleDateString()),
-        [{
-          label: 'Overall Score',
-          data: sortedAudits.map(a => a.overallPct),
-          borderColor: COLORS.teal,
-          backgroundColor: 'rgba(13,110,86,.08)',
-          fill: true,
-          tension: .3,
-          pointRadius: 4,
-          pointBackgroundColor: sortedAudits.map(a => {
-            if (a.overallPct >= THRESHOLDS.strong) return COLORS.green;
-            if (a.overallPct >= THRESHOLDS.critical) return COLORS.amber;
-            return COLORS.red;
-          })
-        }],
-        { legend: false }
+        [
+          {
+            label: 'Audit score',
+            data: sortedAudits.map(a => a.overallPct),
+            borderColor: 'rgba(13,110,86,.35)',
+            backgroundColor: 'rgba(13,110,86,.05)',
+            fill: true,
+            tension: .2,
+            pointRadius: 4,
+            pointBackgroundColor: sortedAudits.map(a => {
+              if (a.overallPct >= THRESHOLDS.strong) return COLORS.green;
+              if (a.overallPct >= THRESHOLDS.critical) return COLORS.amber;
+              return COLORS.red;
+            })
+          },
+          {
+            label: '3-audit rolling trend',
+            data: rollingScores,
+            borderColor: COLORS.blue,
+            borderWidth: 2.5,
+            pointRadius: 0,
+            tension: .35,
+            fill: false
+          }
+        ],
+        { legend: true }
       );
     }
   }, 50);
@@ -1851,9 +2412,9 @@ function buildHeatmap(displayAgents) {
 
   // Calculate team averages per section
   const teamSecAvgs = {};
+  const teamAudits = agents.flatMap(agent => agent.audits || []);
   config.sections.forEach(sec => {
-    const vals = agents.map(a => a.sectionAvgs[sec.name]).filter(v => v !== null);
-    teamSecAvgs[sec.name] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    teamSecAvgs[sec.name] = calculateSectionAverage(teamAudits, sec.name);
   });
 
   let html = `<table class="heatmap-table" id="heatmap-table">
@@ -1868,7 +2429,7 @@ function buildHeatmap(displayAgents) {
   agents.forEach(agent => {
     const oth = getThreshold(agent.avgOverall);
     html += `<tr>
-      <td style="cursor:pointer;color:var(--teal);font-weight:600;" onclick="navigateToAgent('${agent.name.replace(/'/g, "\\'")}')">${agent.name}</td>
+      <td style="cursor:pointer;color:var(--teal);font-weight:600;" onclick="navigateToAgent('${String(agent.key || '').replace(/'/g, "\\'")}')">${agent.name}</td>
       <td class="${hmClass(agent.avgOverall)}">${agent.avgOverall.toFixed(1)}%</td>
       ${config.sections.map(s => {
         const v = agent.sectionAvgs[s.name];
@@ -1879,7 +2440,7 @@ function buildHeatmap(displayAgents) {
   });
 
   // Team average row
-  const teamOverall = agents.length > 0 ? agents.reduce((s, a) => s + a.avgOverall, 0) / agents.length : 0;
+  const teamOverall = calculateTeamAverage(agents);
   html += `<tr style="font-weight:700;background:var(--g100);">
     <td>Team Average</td>
     <td class="${hmClass(teamOverall)}">${teamOverall.toFixed(1)}%</td>
@@ -1921,56 +2482,126 @@ function buildInsights(displayAgents) {
   if (!displayAgents) displayAgents = PROCESSED;
   const agents = Object.values(displayAgents);
   const config = CONFIGS[currentType];
-  const cont = document.getElementById('ins-list');
 
   if (agents.length === 0) {
-    cont.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">💡</div>
-        <h3>No insights yet</h3>
-        <p>Insights are generated from audit data. Connect your data sources in Settings.</p>
-      </div>`;
+    currentInsights = [];
+    renderInsights();
     return;
   }
 
   // Team averages
   const teamSecAvgs = {};
+  const teamAudits = agents.flatMap(agent => agent.audits || []);
   config.sections.forEach(sec => {
-    const vals = agents.map(a => a.sectionAvgs[sec.name]).filter(v => v !== null);
-    teamSecAvgs[sec.name] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    teamSecAvgs[sec.name] = calculateSectionAverage(teamAudits, sec.name);
   });
 
   const insights = [];
 
+  // Recommend team training when the same failed section affects a meaningful
+  // share of the team. Individual failures remain coaching recommendations.
+  config.sections.forEach(sec => {
+    const affectedAgents = agents.filter(agent => {
+      const score = agent.sectionAvgs[sec.name];
+      return score !== null && score < THRESHOLDS.critical;
+    });
+    const minimumAffected = Math.max(2, Math.ceil(agents.length * 0.3));
+    if (affectedAgents.length >= minimumAffected) {
+      const teamScore = teamSecAvgs[sec.name];
+      insights.push({
+        severity: 'improve',
+        icon: '👥',
+        agent: 'Team',
+        agentKey: 'team',
+        focusArea: sec.name,
+        score: Number.isFinite(teamScore) ? teamScore : 0,
+        recommendedType: 'training',
+        title: `Team training recommended: "${sec.name}"`,
+        detail: `${affectedAgents.length} of ${agents.length} agents are below 85% in ${sec.name}.`,
+        action: `Create a team training session on ${sec.name.toLowerCase()}, then compare later audits with the pre-training baseline.`
+      });
+    }
+  });
+
   agents.forEach(agent => {
+    const latestImmediateAudit = [...agent.audits]
+      .filter(audit => audit.needsImmediateCoaching && parseDate(audit.date))
+      .sort((a, b) => parseDate(b.date) - parseDate(a.date))[0] || null;
+    if (latestImmediateAudit) {
+      const failedSection = [...latestImmediateAudit.sections]
+        .filter(section => section.pct !== null)
+        .sort((a, b) => a.pct - b.pct)[0] || null;
+      const focusArea = failedSection?.name || 'Immediate Coaching Review';
+      const baselineScore = failedSection?.pct ?? latestImmediateAudit.overallPct;
+      insights.push({
+        severity: 'improve',
+        icon: '🚨',
+        agent: agent.name,
+        agentKey: agent.key,
+        agentEmail: agent.email || '',
+        focusArea,
+        score: baselineScore,
+        sourceScore: baselineScore,
+        sourceAuditId: latestImmediateAudit.auditId || '',
+        sourceAuditDate: latestImmediateAudit.date || '',
+        title: `Immediate coaching requested for ${agent.name}`,
+        detail: `The audit dated ${latestImmediateAudit.date} was explicitly marked as needing immediate coaching.`,
+        action: `Open a coaching case linked to this exact audit and use its ${focusArea.toLowerCase()} score as the pre-coaching baseline.`
+      });
+    }
+
     // Section-level insights
     config.sections.forEach(sec => {
       const avg = agent.sectionAvgs[sec.name];
       if (avg === null) return;
+      const sourceAudit = [...agent.audits]
+        .map(audit => ({
+          ...audit,
+          dateObj: parseDate(audit.date),
+          sectionScore: audit.sections.find(section => section.name === sec.name)?.pct
+        }))
+        .filter(audit => audit.dateObj && audit.sectionScore !== null && audit.sectionScore < THRESHOLDS.strong)
+        .sort((a, b) => b.dateObj - a.dateObj)[0] || null;
+      const sourceContext = {
+        agentKey: agent.key,
+        agentEmail: agent.email || '',
+        sourceAuditId: sourceAudit?.auditId || '',
+        sourceAuditDate: sourceAudit?.date || '',
+        sourceScore: Number.isFinite(sourceAudit?.sectionScore) ? sourceAudit.sectionScore : avg
+      };
 
       if (avg < THRESHOLDS.critical) {
         insights.push({
+          ...sourceContext,
           severity: 'improve',
           icon: '🔴',
           agent: agent.name,
+          focusArea: sec.name,
+          score: avg,
           title: `Improvement needed in "${sec.name}" (${avg.toFixed(1)}%)`,
           detail: `${agent.name} is averaging ${avg.toFixed(1)}% in ${sec.name}, which is below the 85% threshold across ${agent.auditCount} audit(s).`,
           action: `Schedule a targeted coaching session on ${sec.name.toLowerCase()}. Review the last 3 audit recordings focusing on this area. Create a personalized action plan with clear milestones.`
         });
       } else if (avg >= THRESHOLDS.critical && avg < THRESHOLDS.strong) {
         insights.push({
+          ...sourceContext,
           severity: 'critical',
           icon: '🟡',
           agent: agent.name,
+          focusArea: sec.name,
+          score: avg,
           title: `Critical zone in "${sec.name}" (${avg.toFixed(1)}%)`,
           detail: `${agent.name} scores ${avg.toFixed(1)}% in ${sec.name} — in the monitoring zone (85-96%). Close to needing improvement.`,
           action: `Monitor closely. Include ${sec.name.toLowerCase()} in next 1-on-1 discussion. Share best-practice examples from top performers in this area.`
         });
       } else if (avg >= THRESHOLDS.strong) {
         insights.push({
+          agentKey: agent.key,
           severity: 'strong',
           icon: '🟢',
           agent: agent.name,
+          focusArea: sec.name,
+          score: avg,
           title: `Strong performance in "${sec.name}" (${avg.toFixed(1)}%)`,
           detail: `${agent.name} consistently excels in ${sec.name} with ${avg.toFixed(1)}% average.`,
           action: `Acknowledge and reinforce this strength. Consider having ${agent.name} mentor others in ${sec.name.toLowerCase()}.`
@@ -1981,9 +2612,12 @@ function buildInsights(displayAgents) {
       const teamAvg = teamSecAvgs[sec.name];
       if (teamAvg !== null && avg < teamAvg - 5 && avg < THRESHOLDS.strong) {
         insights.push({
+          ...sourceContext,
           severity: 'trend',
           icon: '📉',
           agent: agent.name,
+          focusArea: sec.name,
+          score: avg,
           title: `Below team average in "${sec.name}"`,
           detail: `${agent.name} (${avg.toFixed(1)}%) is ${(teamAvg - avg).toFixed(1)} percentage points below the team average (${teamAvg.toFixed(1)}%) in ${sec.name}.`,
           action: `Pair with a top performer for peer learning in this area. Create a personalized improvement plan focusing on ${sec.name.toLowerCase()}.`
@@ -2001,9 +2635,16 @@ function buildInsights(displayAgents) {
       const last3 = sortedAudits.slice(-3);
       if (last3[0].overallPct > last3[1].overallPct && last3[1].overallPct > last3[2].overallPct) {
         insights.push({
+          agentKey: agent.key,
+          agentEmail: agent.email || '',
+          sourceAuditId: last3[2].auditId || '',
+          sourceAuditDate: last3[2].date || '',
+          sourceScore: last3[2].overallPct,
           severity: 'improve',
           icon: '⬇️',
           agent: agent.name,
+          focusArea: 'Performance Trend',
+          score: last3[2].overallPct,
           title: `Downward trend detected for ${agent.name}`,
           detail: `Score has declined over the last 3 audits: ${last3.map(a => a.overallPct.toFixed(0) + '%').join(' → ')}.`,
           action: `Immediate intervention needed. Review recent audits to identify root cause. Consider side-by-side coaching or shadowing sessions.`
@@ -2014,10 +2655,21 @@ function buildInsights(displayAgents) {
     // Critical failures
     const critFails = agent.audits.filter(a => a.rating.toLowerCase().includes('critical') || a.rating.toLowerCase().includes('fail'));
     if (critFails.length > 0) {
+      const sourceAudit = [...critFails]
+        .map(audit => ({ ...audit, dateObj: parseDate(audit.date) }))
+        .filter(audit => audit.dateObj)
+        .sort((a, b) => b.dateObj - a.dateObj)[0] || null;
       insights.push({
+        agentKey: agent.key,
+        agentEmail: agent.email || '',
+        sourceAuditId: sourceAudit?.auditId || '',
+        sourceAuditDate: sourceAudit?.date || '',
+        sourceScore: sourceAudit?.overallPct ?? agent.avgOverall,
         severity: 'improve',
         icon: '🚨',
         agent: agent.name,
+        focusArea: 'Process & Compliance',
+        score: agent.avgOverall,
         title: `Critical compliance issue flagged ${critFails.length} time(s)`,
         detail: `${agent.name} has ${critFails.length} critical failure(s) in their audit history for ${CONFIGS[currentType].label}.`,
         action: `Mandatory re-training on compliance procedures required. Escalate to supervisor if this is a repeated pattern. Review all flagged audits.`
@@ -2027,9 +2679,12 @@ function buildInsights(displayAgents) {
     // Overall excellence
     if (agent.avgOverall >= THRESHOLDS.strong && agent.auditCount >= 3) {
       insights.push({
+        agentKey: agent.key,
         severity: 'strong',
         icon: '⭐',
         agent: agent.name,
+        focusArea: 'Quality Excellence',
+        score: agent.avgOverall,
         title: `Consistently excellent — ${agent.name} (${agent.avgOverall.toFixed(1)}%)`,
         detail: `Maintains a ${agent.avgOverall.toFixed(1)}% average across ${agent.auditCount} audits. A model of quality performance.`,
         action: `Recognize this outstanding performance. Nominate for quality champion. Use their calls as training material for the team.`
@@ -2040,27 +2695,99 @@ function buildInsights(displayAgents) {
   // Sort: improve > critical > trend > strong
   const sevOrder = { improve: 0, critical: 1, trend: 2, strong: 3 };
   insights.sort((a, b) => (sevOrder[a.severity] ?? 9) - (sevOrder[b.severity] ?? 9));
+  currentInsights = insights;
+  renderInsights();
+}
 
-  if (insights.length === 0) {
+function insightMatchesMode(insight, mode) {
+  if (mode === 'priority') return insight.severity === 'improve';
+  if (mode === 'monitor') return insight.severity === 'critical' || insight.severity === 'trend';
+  if (mode === 'strengths') return insight.severity === 'strong';
+  return true;
+}
+
+function renderInsights() {
+  const cont = document.getElementById('ins-list');
+  const summary = document.getElementById('ins-summary');
+  const tabs = document.getElementById('ins-tabs');
+  const agentScoped = insightAgent
+    ? currentInsights.filter(insight => insight.agentKey === insightAgent)
+    : currentInsights;
+  const counts = {
+    priority: agentScoped.filter(insight => insight.severity === 'improve').length,
+    monitor: agentScoped.filter(insight => insight.severity === 'critical' || insight.severity === 'trend').length,
+    strengths: agentScoped.filter(insight => insight.severity === 'strong').length,
+    all: agentScoped.length
+  };
+
+  summary.innerHTML = `
+    <div class="insight-count-card"><strong class="clr-improve">${counts.priority}</strong><span>Priority actions</span></div>
+    <div class="insight-count-card"><strong class="clr-critical">${counts.monitor}</strong><span>Items to monitor</span></div>
+    <div class="insight-count-card"><strong class="clr-strong">${counts.strengths}</strong><span>Strengths to recognise</span></div>`;
+
+  tabs.innerHTML = [
+    ['priority', 'Priority', counts.priority],
+    ['monitor', 'Monitor', counts.monitor],
+    ['strengths', 'Strengths', counts.strengths],
+    ['all', 'All', counts.all]
+  ].map(([mode, label, count]) => `
+    <button class="insight-tab ${insightMode === mode ? 'active' : ''}" onclick="setInsightMode('${mode}')">${label} · ${count}</button>`).join('');
+
+  filteredInsights = agentScoped.filter(insight => insightMatchesMode(insight, insightMode));
+  const pageCount = Math.max(1, Math.ceil(filteredInsights.length / INSIGHT_PAGE_SIZE));
+  insightPage = Math.min(Math.max(insightPage, 1), pageCount);
+  const visible = filteredInsights.slice((insightPage - 1) * INSIGHT_PAGE_SIZE, insightPage * INSIGHT_PAGE_SIZE);
+
+  if (visible.length === 0) {
     cont.innerHTML = `
-      <div class="empty-state">
+      <div class="empty-state" style="grid-column:1/-1;">
         <div class="empty-icon">✅</div>
-        <h3>All Clear!</h3>
-        <p>No actionable insights at this time. All agents are performing well.</p>
+        <h3>Nothing in this category</h3>
+        <p>Try another action category or select all agents.</p>
       </div>`;
+    document.getElementById('ins-pagination').innerHTML = '';
     return;
   }
 
-  cont.innerHTML = insights.map(ins => `
+  cont.innerHTML = visible.map(ins => `
     <div class="insight-card sev-${ins.severity}">
       <div class="insight-icon">${ins.icon}</div>
       <div class="insight-body">
-        <div class="insight-title">${ins.title}</div>
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+          <div class="insight-title">${ins.title}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+            ${ins.agent !== 'Team' ? `<button class="copy-chart-btn" onclick="navigateToAgent('${String(ins.agentKey || '').replace(/'/g, "\\'")}')">View agent</button>` : ''}
+            ${ins.severity !== 'strong'
+              ? (ins.recommendedType === 'training'
+                ? `<button class="copy-chart-btn" onclick="startTraining('${String(ins.focusArea || '').replace(/'/g, "\\'")}', ${Number(ins.score) || 0})">Start team training</button>`
+                : `<button class="copy-chart-btn" onclick="startCoaching('${ins.agent.replace(/'/g, "\\'")}', '${String(ins.focusArea || '').replace(/'/g, "\\'")}', ${Number(ins.sourceScore ?? ins.score) || 0}, '${String(ins.sourceAuditId || '').replace(/'/g, "\\'")}', '${String(ins.sourceAuditDate || '').replace(/'/g, "\\'")}', '${String(ins.agentEmail || '').replace(/'/g, "\\'")}')">Start coaching</button>`)
+              : ''}
+          </div>
+        </div>
         <div class="insight-detail">${ins.detail}</div>
-        <div class="insight-action"><strong>Corrective Action:</strong> ${ins.action}</div>
+        <div class="insight-action"><strong>Next Action:</strong> ${ins.action}</div>
       </div>
     </div>
   `).join('');
+  renderPagination('ins-pagination', insightPage, pageCount, 'setInsightPage', filteredInsights.length, 'items');
+}
+
+function setInsightMode(mode) {
+  insightMode = mode;
+  insightPage = 1;
+  renderInsights();
+}
+
+function setInsightAgent(name) {
+  insightAgent = name;
+  insightPage = 1;
+  renderInsights();
+}
+
+function setInsightPage(page) {
+  insightPage = page;
+  renderInsights();
+  document.getElementById('ins-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // =================== RENDERING — PENDING AUDITS ===================
@@ -2076,17 +2803,39 @@ function buildPendingAudits(displayAgents) {
   }
 
   if (!masterAgents || masterAgents.length === 0) {
+    const auditedAgents = Object.values(displayAgents);
+    const totalAudits = auditedAgents.reduce((sum, agent) => sum + agent.auditCount, 0);
+    const repeatCoverage = auditedAgents.filter(agent => agent.auditCount >= 2).length;
     container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
-        <h3>No Agents Found</h3>
-        <p>You haven't set up your agent list yet. Open the <b>Manage Agents</b> tab in your main Scorecard to add your team.</p>
+      <div class="overview-panel-grid">
+        <div class="progress-panel">
+          <div class="panel-kicker">Observed coverage</div>
+          <div class="panel-title">Agents audited</div>
+          <div class="progress-ring" style="--value:${auditedAgents.length ? 100 : 0}%;--ring-color:${COLORS.teal};">
+            <div class="progress-ring-value">${auditedAgents.length}<small>Agents</small></div>
+          </div>
+          <div class="panel-note" style="text-align:center;">Agents present in the selected audit data.</div>
+        </div>
+        <div class="progress-panel">
+          <div class="panel-kicker">Audit volume</div>
+          <div class="panel-title">Completion activity</div>
+          <div class="focus-value">${totalAudits}</div>
+          <div class="panel-note">Total audits completed in this period.</div>
+          <div class="focus-value" style="font-size:18px;margin-top:18px;">${repeatCoverage} agents</div>
+          <div class="panel-note">Have two or more completed audits.</div>
+        </div>
+        <div class="progress-panel">
+          <div class="panel-kicker">Exact team coverage</div>
+          <div class="panel-title">Connect the managed roster</div>
+          <div class="panel-note">The local dashboard can see completed audits, while the Coaching Hub maintains its own agent directory and action records.</div>
+          <button class="btn-sm primary" style="margin-top:18px;" onclick="navigate('workspace')">Open Coaching Hub</button>
+        </div>
       </div>`;
     return;
   }
 
   // Find who has been audited in the current filter
-  const auditedNames = Object.keys(displayAgents).map(n => n.trim().toLowerCase());
+  const auditedNames = Object.values(displayAgents).map(agent => agent.name.trim().toLowerCase());
   const pendingAgents = masterAgents.filter(a => !auditedNames.includes(a.name.trim().toLowerCase()));
   
   const total = masterAgents.length;
@@ -2096,34 +2845,44 @@ function buildPendingAudits(displayAgents) {
   pendingAgents.sort((a, b) => a.name.localeCompare(b.name));
 
   let html = `
-    <div class="card" style="margin-bottom: 24px;">
-      <div class="card-hd"><span class="card-title">Audit Coverage Progress</span></div>
-      <div class="card-body">
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:500;">
-          <span>${audited} / ${total} Agents Audited</span>
-          <span>${pct}% Complete</span>
+    <div class="overview-panel-grid">
+      <div class="progress-panel">
+        <div class="panel-kicker">Coverage</div>
+        <div class="panel-title">Audit completion</div>
+        <div class="progress-ring" style="--value:${pct}%;--ring-color:${pct === 100 ? COLORS.green : COLORS.teal};">
+          <div class="progress-ring-value">${pct}%<small>Complete</small></div>
         </div>
-        <div style="width:100%; height:12px; background:var(--g100); border-radius:6px; overflow:hidden;">
-          <div style="width:${pct}%; height:100%; background:var(--green); transition: width 0.5s ease;"></div>
-        </div>
+        <div class="panel-note" style="text-align:center;">${audited} of ${total} managed agents audited.</div>
       </div>
-    </div>
-  `;
+      <div class="progress-panel">
+        <div class="panel-kicker">Completed</div>
+        <div class="panel-title">Agents reached</div>
+        <div class="focus-value clr-strong">${audited}</div>
+        <div class="panel-note">Have at least one completed audit in this period.</div>
+      </div>
+      <div class="progress-panel">
+        <div class="panel-kicker">Remaining</div>
+        <div class="panel-title">Agents requiring action</div>
+        <div class="focus-value ${pendingAgents.length ? 'clr-improve' : 'clr-strong'}">${pendingAgents.length}</div>
+        <div class="panel-note">${pendingAgents.length ? 'Complete these audits to reach full coverage.' : 'The department has reached full audit coverage.'}</div>
+      </div>
+    </div>`;
 
   if (pendingAgents.length === 0) {
     html += `
-      <div class="empty-state" style="border:1px solid var(--border); background:var(--card-bg);">
+      <div class="empty-state" style="border:1px solid var(--border); background:#fff;border-radius:var(--r);">
         <div class="empty-icon" style="background:var(--green-lt); color:var(--green);">🎯</div>
         <h3 style="color:var(--green);">100% Coverage</h3>
         <p>Every agent in your master list has been audited in this timeframe. Great job!</p>
       </div>`;
   } else {
     html += `
-      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:16px;">
+      <div class="sec-header"><h3>Agents still requiring an audit</h3></div>
+      <div class="agent-grid">
         ${pendingAgents.map(a => `
-          <div class="card" style="border-left: 4px solid var(--red); padding:16px;">
+          <div class="agent-card" style="border-left:4px solid var(--red);cursor:default;">
             <div style="font-weight:600; font-size:15px; margin-bottom:4px;">${a.name}</div>
-            <div style="color:var(--text-sec); font-size:12px;">⏳ Action Required</div>
+            <div style="color:var(--g600); font-size:12px;">⏳ Audit required</div>
           </div>
         `).join('')}
       </div>`;
@@ -2158,12 +2917,23 @@ function applyQuickRange() {
 
 function onFilterChange() {
   currentType = document.getElementById('f-type').value;
+  overviewPage = 1;
+  insightPage = 1;
   processAndRender();
+  refreshAllData([currentType]);
 }
 
 function applyFilters() {
   currentType = document.getElementById('f-type').value;
+  overviewPage = 1;
+  insightPage = 1;
   processAndRender();
+  const selectedAgent = document.getElementById('f-agent').value;
+  if (selectedAgent && PROCESSED[selectedAgent]) {
+    document.getElementById('ad-agent-select').value = selectedAgent;
+    navigate('agent');
+    buildAgentDetail();
+  }
   showToast('Filters applied.', 'info');
 }
 
@@ -2209,15 +2979,10 @@ function copyAgentRankings() {
 }
 
 function copyInsights() {
-  const cards = document.querySelectorAll('#ins-list .insight-card');
-  if (!cards.length) { showToast('No insights to copy.', 'error'); return; }
-  const lines = [];
-  cards.forEach(card => {
-    const title = card.querySelector('.insight-title')?.textContent || '';
-    const detail = card.querySelector('.insight-detail')?.textContent || '';
-    const action = card.querySelector('.insight-action')?.textContent || '';
-    lines.push(`${title}\n${detail}\n${action}\n`);
-  });
+  if (!filteredInsights.length) { showToast('No insights to copy.', 'error'); return; }
+  const lines = filteredInsights.map(insight =>
+    `${insight.title}\n${insight.detail}\nNext Action: ${insight.action}\n`
+  );
   navigator.clipboard.writeText(lines.join('\n---\n\n')).then(() => showToast('Insights copied!', 'success'));
 }
 
@@ -2313,15 +3078,55 @@ function navigate(page) {
   document.getElementById('page-' + page)?.classList.add('active');
   document.getElementById('nav-' + page)?.classList.add('active');
   currentPage = page;
+  if (page === 'workspace') loadCoachingHubFrame();
 
   const titles = {
-    overview: 'Overall Performance',
-    agent: 'Agent Deep Dive',
+    overview: 'Department Overview',
+    agent: 'Agent Performance',
     heatmap: 'Team Heatmap',
-    insights: 'Insights & Corrective Actions',
+    insights: 'Insights & Actions',
+    pending: 'Progress Tracker',
+    workspace: 'Coaching Hub',
     settings: 'Data Settings'
   };
   document.getElementById('page-title').textContent = titles[page] || 'Analytics';
+}
+
+function loadCoachingHubFrame() {
+  const frame = document.getElementById('coaching-hub-frame');
+  if (frame && !frame.hasAttribute('src')) frame.src = frame.dataset.src || COACHING_HUB_URL;
+}
+
+function startCoaching(agentName, focusArea, score, sourceAuditId = '', sourceAuditDate = '', agentEmail = '') {
+  const params = new URLSearchParams({
+    view: 'coaching',
+    agent: agentName || '',
+    agentEmail: agentEmail || '',
+    focus: focusArea || '',
+    preScore: Number.isFinite(Number(score)) ? Number(score).toFixed(1) : '',
+    sourceAuditId: sourceAuditId || '',
+    sourceAuditType: currentType,
+    sourceAuditDate: sourceAuditDate || ''
+  });
+  const frame = document.getElementById('coaching-hub-frame');
+  if (frame) frame.src = `${COACHING_HUB_URL}#${params.toString()}`;
+  navigate('workspace');
+}
+
+function startTraining(focusArea, score) {
+  const params = new URLSearchParams({
+    view: 'training',
+    focus: focusArea || '',
+    preScore: Number.isFinite(Number(score)) ? Number(score).toFixed(1) : '',
+    scope: 'Team'
+  });
+  const frame = document.getElementById('coaching-hub-frame');
+  if (frame) frame.src = `${COACHING_HUB_URL}#${params.toString()}`;
+  navigate('workspace');
+}
+
+function openCoachingHub() {
+  window.open(COACHING_HUB_URL, '_blank', 'noopener');
 }
 
 // =================== UTILITIES ===================
@@ -2336,6 +3141,7 @@ function showToast(msg, type = 'info') {
 // =================== INIT ===================
 
 function initDashboard() {
+  setupLiveRefresh();
   // Load URLs into settings inputs
   const urls = getURLs();
   Object.entries(urls).forEach(([k, v]) => {
@@ -2348,7 +3154,7 @@ function initDashboard() {
 
   // Load data if URLs exist
   if (Object.values(urls).some(u => u)) {
-    refreshAllData();
+    refreshAllData([currentType]);
   } else {
     processAndRender();
   }

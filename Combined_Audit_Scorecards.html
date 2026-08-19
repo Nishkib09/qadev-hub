@@ -824,7 +824,11 @@
           <p style="margin-top:8px;"><strong>Step 2:</strong> <u>Select all existing code and delete it</u>, then paste the new script below:</p>
           <div style="position:relative;">
             <button class="copy-btn" style="position:absolute;top:8px;right:8px;" onclick="copyScript()">Copy</button>
-            <div class="code-block" id="script-block">function doPost(e) {
+            <div class="code-block" id="script-block">var MAX_DASHBOARD_AUDIT_ROWS = 5000;
+var MAX_EMAIL_STATUS_LOOKBACK_ROWS = 10000;
+var AUDIT_VERSION_PROPERTY = "QA_AUDIT_VERSION";
+
+function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
     var doc = SpreadsheetApp.getActiveSpreadsheet();
@@ -832,6 +836,8 @@
     var fileUrlStr = "No files attached";
     var attachments = [];
     var agentFolderUrl = "";
+    var auditId = d.auditId ? String(d.auditId) : "";
+    var duplicateAudit = false;
 
     var diag = 'Payload: files=' + (d.files ? d.files.length : 0) +
                ', agentName="' + (d.agentName || 'EMPTY') + '"' +
@@ -892,31 +898,40 @@
         var sheetName = d.auditType;
         var sheet = doc.getSheetByName(sheetName);
         if (sheet) {
-          var values = sheet.getDataRange().getValues();
-          var displayValues = sheet.getDataRange().getDisplayValues();
-          var headers = values[0];
-
           // 1. Ensure new columns/headers are present in the sheet
           if (d.headers && d.headers.length > 0) {
             ensureHeaders(sheet, d.headers);
-            // Re-read values and headers after ensuring they are correct
-            values = sheet.getDataRange().getValues();
-            displayValues = sheet.getDataRange().getDisplayValues();
-            headers = values[0];
           }
+
+          var lastRow = sheet.getLastRow();
+          var lastColumn = sheet.getLastColumn();
+          var headers = lastColumn > 0 ? sheet.getRange(1, 1, 1, lastColumn).getValues()[0] : [];
+          var dataStartRow = Math.max(2, lastRow - MAX_EMAIL_STATUS_LOOKBACK_ROWS + 1);
+          var dataRowCount = Math.max(0, lastRow - dataStartRow + 1);
+          var values = dataRowCount > 0
+            ? sheet.getRange(dataStartRow, 1, dataRowCount, lastColumn).getValues()
+            : [];
+          var displayValues = dataRowCount > 0
+            ? sheet.getRange(dataStartRow, 1, dataRowCount, lastColumn).getDisplayValues()
+            : [];
 
           var foundRowIndex = -1;
           var sheetTimezone = doc.getSpreadsheetTimeZone();
 
-          for (var r = values.length - 1; r >= 1; r--) {
+          for (var r = values.length - 1; r >= 0; r--) {
             var cellVal = values[r][0];
             var displayVal = displayValues[r][0];
             var isMatched = false;
 
-            // Check exact matches first
-            if (cellVal == d.timestamp || displayVal == d.timestamp) {
+            var auditIdColIndex = headers.indexOf("Audit ID");
+            if (auditId && auditIdColIndex !== -1 && String(values[r][auditIdColIndex]) === auditId) {
               isMatched = true;
-            } else {
+            }
+
+            // Check exact matches first
+            if (!isMatched && (cellVal == d.timestamp || displayVal == d.timestamp)) {
+              isMatched = true;
+            } else if (!isMatched) {
               // Try timezone formatting match
               if (cellVal) {
                 try {
@@ -980,7 +995,7 @@
             if (isMatched) {
               var rowStr = JSON.stringify(values[r]);
               if (!d.agentName || rowStr.indexOf(d.agentName) !== -1) {
-                foundRowIndex = r + 1; // 1-based index
+                foundRowIndex = dataStartRow + r;
                 break;
               }
             }
@@ -1014,12 +1029,25 @@
       if (!sheet) {
         sheet = doc.insertSheet(sheetName);
       }
+      auditId = auditId || Utilities.getUuid();
+      d.headers = d.headers || [];
+      d.row = d.row || [];
+      var auditIdIndex = d.headers.indexOf("Audit ID");
+      if (auditIdIndex === -1) {
+        d.headers.push("Audit ID");
+        d.row.push(auditId);
+      } else {
+        while (d.row.length <= auditIdIndex) d.row.push("");
+        d.row[auditIdIndex] = auditId;
+      }
       if (d.headers && d.headers.length > 0) {
         ensureHeaders(sheet, d.headers);
       }
+      duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
+      if (duplicateAudit) diag += ' | DuplicateAudit=SKIPPED (' + auditId + ')';
 
       // Upload files to Google Drive (if any and folder is resolved)
-      if (attachments.length > 0 && agentFolder) {
+      if (!duplicateAudit && attachments.length > 0 && agentFolder) {
         for (var j = 0; j < attachments.length; j++) {
           try {
             var blob = attachments[j];
@@ -1036,14 +1064,26 @@
       diag += ' | Drive URLs: ' + fileUrls.length;
 
       // --- Write Drive links to sheet ---
-      for (var i = 0; i < d.row.length; i++) {
-        if (d.row[i] === "[UPLOADING...]") d.row[i] = fileUrlStr;
+      if (!duplicateAudit) {
+        for (var i = 0; i < d.row.length; i++) {
+          if (d.row[i] === "[UPLOADING...]") d.row[i] = fileUrlStr;
+        }
+        var appendLock = LockService.getScriptLock();
+        appendLock.waitLock(30000);
+        try {
+          duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
+          if (!duplicateAudit) {
+            sheet.appendRow(d.row);
+            markAuditDataChanged_();
+          }
+        } finally {
+          appendLock.releaseLock();
+        }
       }
-      sheet.appendRow(d.row);
     }
 
     // --- Send Email ---
-    if (d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
+    if (!duplicateAudit && d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
       var body = d.emailSettings.body;
 
       if (agentFolderUrl) {
@@ -1075,7 +1115,7 @@
     }
 
     return ContentService
-      .createTextOutput(JSON.stringify({ status: "success", debug: diag }))
+      .createTextOutput(JSON.stringify({ status: "success", auditId: auditId, debug: diag }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
@@ -1085,10 +1125,100 @@
   }
 }
 
-function doGet() {
+function doGet(e) {
+  if (e && e.parameter && e.parameter.action === "getAuditsData") {
+    return ContentService
+      .createTextOutput(JSON.stringify(getAuditsData(e.parameter.type, e.parameter.limit)))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  if (e && e.parameter && e.parameter.action === "getAuditVersion") {
+    return ContentService
+      .createTextOutput(JSON.stringify({ version: getAuditDataVersion_() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
   return ContentService
     .createTextOutput(JSON.stringify({ status: "ok" }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getAuditsData(sheetName, requestedLimit) {
+  if (!sheetName) return [];
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return [];
+  var lastRow = sheet.getLastRow();
+  var lastColumn = sheet.getLastColumn();
+  if (lastRow < 1 || lastColumn < 1) return [];
+
+  var parsedLimit = parseInt(requestedLimit, 10);
+  var limit = isNaN(parsedLimit) ? MAX_DASHBOARD_AUDIT_ROWS : parsedLimit;
+  limit = Math.max(1, Math.min(limit, MAX_DASHBOARD_AUDIT_ROWS));
+
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+  if (lastRow === 1) return [headers];
+
+  var rowCount = Math.min(limit, lastRow - 1);
+  var startRow = lastRow - rowCount + 1;
+  var rows = sheet.getRange(startRow, 1, rowCount, lastColumn).getDisplayValues();
+  return [headers].concat(rows);
+}
+
+function markAuditDataChanged_() {
+  PropertiesService.getScriptProperties().setProperty(
+    AUDIT_VERSION_PROPERTY,
+    String(Date.now()) + "-" + Utilities.getUuid()
+  );
+}
+
+function getAuditDataVersion_() {
+  return PropertiesService.getScriptProperties().getProperty(AUDIT_VERSION_PROPERTY) || "0";
+}
+
+function findRecentAuditIdRow_(sheet, auditId) {
+  if (!sheet || !auditId || sheet.getLastRow() < 2) return -1;
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var auditIdCol = headers.indexOf("Audit ID") + 1;
+  if (auditIdCol === 0) return -1;
+  var lastRow = sheet.getLastRow();
+  var startRow = Math.max(2, lastRow - 9999);
+  var values = sheet.getRange(startRow, auditIdCol, lastRow - startRow + 1, 1).getDisplayValues();
+  for (var i = values.length - 1; i >= 0; i--) {
+    if (String(values[i][0]) === auditId) return startRow + i;
+  }
+  return -1;
+}
+
+function backfillAuditIds() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetNames = ["Inbound Scorecard", "Outbound Call Scorecard (Campaign-Focused)", "Consumer Satisfaction Survey Calls", "SMS Quality Audit", "Email Audit Scorecard"];
+  var updated = 0;
+  sheetNames.forEach(function(sheetName) {
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet || sheet.getLastRow() < 2) return;
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var auditIdCol = headers.indexOf("Audit ID") + 1;
+    if (auditIdCol === 0) {
+      auditIdCol = lastCol + 1;
+      sheet.getRange(1, auditIdCol).setValue("Audit ID");
+    }
+    for (var startRow = 2; startRow <= sheet.getLastRow(); startRow += 5000) {
+      var rowCount = Math.min(5000, sheet.getLastRow() - startRow + 1);
+      var range = sheet.getRange(startRow, auditIdCol, rowCount, 1);
+      var ids = range.getValues();
+      var changed = false;
+      for (var i = 0; i < ids.length; i++) {
+        if (!ids[i][0]) {
+          ids[i][0] = Utilities.getUuid();
+          updated++;
+          changed = true;
+        }
+      }
+      if (changed) range.setValues(ids);
+    }
+  });
+  if (updated > 0) markAuditDataChanged_();
+  return { updated: updated };
 }
 
 function ensureHeaders(sheet, expectedHeaders) {
@@ -1636,6 +1766,26 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     const EVALUATOR_PROFILE_KEY = 'audit_evaluator_profile';
+    const DASHBOARD_REFRESH_EVENT_KEY = 'qa_audit_refresh_event';
+    const DASHBOARD_REFRESH_CHANNEL = 'qa-audit-updates';
+
+    function notifyDashboardAuditSubmitted(auditType) {
+      const event = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        auditType: auditType,
+        timestamp: Date.now()
+      };
+      try {
+        localStorage.setItem(DASHBOARD_REFRESH_EVENT_KEY, JSON.stringify(event));
+        if ('BroadcastChannel' in window) {
+          const channel = new BroadcastChannel(DASHBOARD_REFRESH_CHANNEL);
+          channel.postMessage(event);
+          channel.close();
+        }
+      } catch (error) {
+        console.warn('Dashboard refresh notification failed:', error);
+      }
+    }
 
     function getEvaluatorProfile() {
       try {
@@ -2822,6 +2972,13 @@ ${attachmentText}
       const emailTime = isEmailPaused ? '' : (agEmail ? submissionTimestamp : '');
       row.push(earned, possible, pct + '%', rating, document.getElementById('notes').value, (trFlag && trFlag.checked) ? 'Yes' : 'No', (cFlag && cFlag.checked) ? 'Yes' : 'No', '[UPLOADING...]', emailStatus, emailTime);
 
+      // Permanent row identity used to link this audit to coaching and later audits.
+      const auditId = (window.crypto && typeof window.crypto.randomUUID === 'function')
+        ? window.crypto.randomUUID()
+        : `AUD-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      headers.push('Audit ID');
+      row.push(auditId);
+
       const audioInput = document.getElementById('audio-upload');
       let filesPayload = [];
 
@@ -2924,6 +3081,7 @@ ${attachmentText}
 
       const payload = {
         auditType: config.title,
+        auditId: auditId,
         headers: headers,
         row: row,
         agentName: agName,
@@ -2971,6 +3129,7 @@ ${attachmentText}
           body: JSON.stringify(payload)
         });
         logDebug('POST sent (no-cors: cannot read response). Check agent email.');
+        notifyDashboardAuditSubmitted(config.title);
         if (emailPaused) {
           showToast(`Audit saved to sheet. Queued for later email (${queuedAudits.length} pending).`, 'info');
         } else {

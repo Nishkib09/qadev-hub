@@ -1088,7 +1088,7 @@
         </div>
         <div class="card-body">
           <p style="font-size:12px; color:rgba(31, 27, 27, 0.6); margin-bottom: 16px;">
-            Select a completed Coaching Session or a Training Program to automatically compare scorecard question performance <strong>before</strong> vs. <strong>after</strong> the session.
+            Select a completed Coaching Session or a Training Program to compare weighted raw scorecard performance <strong>before</strong> vs. <strong>after</strong> the session. The analysis uses the latest bounded evaluation window and shows the supporting audit count.
           </p>
           <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
             <div class="filter-item">
@@ -1543,6 +1543,15 @@
                 </div>
                 <div class="settings-list-box" id="list-FocusAreas"></div>
               </div>
+
+              <div>
+                <h4 style="font-size: 12px; text-transform: uppercase; color: var(--leafy); margin-bottom: 6px;">Training Topics</h4>
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                  <input type="text" id="add-training-topic-input" class="text-input" style="flex: 1;" placeholder="New Training Topic">
+                  <button class="btn btn-primary" onclick="addSettingItem('TrainingTopics')">Add</button>
+                </div>
+                <div class="settings-list-box" id="list-TrainingTopics"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1563,6 +1572,10 @@
       <div class="modal-body">
         <form id="form-coaching" onsubmit="saveCoachingSubmit(event)">
           <input type="hidden" id="coach-field-id">
+          <input type="hidden" id="coach-field-agent-email">
+          <input type="hidden" id="coach-field-source-audit-id">
+          <input type="hidden" id="coach-field-source-audit-type">
+          <input type="hidden" id="coach-field-source-audit-date">
           <div class="form-grid">
             <div class="form-group">
               <label for="coach-field-date">Session Date *</label>
@@ -1570,7 +1583,7 @@
             </div>
             <div class="form-group">
               <label for="coach-field-agent">Agent Name *</label>
-              <select id="coach-field-agent" class="form-input" required>
+              <select id="coach-field-agent" class="form-input" required onchange="syncCoachingAgentIdentity()">
                 <!-- populated -->
               </select>
             </div>
@@ -1870,6 +1883,7 @@
     let connectionMode = "sheets"; // "sheets" or "local"
     let currentYear, currentMonth;
     let charts = {}; // references to Chart.js objects
+    let launchContextApplied = false;
 
     // --- SETUP ON WINDOW LOAD ---
     window.onload = function() {
@@ -1963,7 +1977,7 @@
               if (response.settings && Object.keys(response.settings).length > 0) {
                 db.settings = response.settings;
               }
-              db.scorecards = response.scorecards || { inbound: [], sms: [], outbound: [] };
+              db.scorecards = response.scorecards || { inbound: [], outbound: [], survey: [], sms: [], email: [] };
               db.needsFeedback = response.needsFeedback || { needs: [], feedback: [] };
               db.deescalation = response.deescalation || [];
               // Save local backup copy
@@ -2081,6 +2095,71 @@
       updateKpiCards();
       initDashboardCharts();
       refreshInsights();
+      applyLaunchContext();
+    }
+
+    function applyLaunchContext() {
+      if (launchContextApplied) return;
+      const launchParams = window.location.hash ? window.location.hash.slice(1) : window.location.search.slice(1);
+      const params = new URLSearchParams(launchParams);
+      const requestedView = params.get('view');
+      if (requestedView !== 'coaching' && requestedView !== 'training') return;
+      launchContextApplied = true;
+
+      const focusArea = params.get('focus') || '';
+      const preScore = parseFloat(params.get('preScore'));
+      if (requestedView === 'training') {
+        switchTab('training');
+        openModal('training');
+        const topicField = document.getElementById('train-field-topic');
+        if (topicField && focusArea) {
+          if (![...topicField.options].some(option => option.value === focusArea)) {
+            topicField.add(new Option(focusArea, focusArea));
+          }
+          topicField.value = focusArea;
+        }
+        document.getElementById('train-field-title').value = focusArea ? `${focusArea} Team Training` : 'Team Training';
+        if (Number.isFinite(preScore)) {
+          document.getElementById('train-field-pre').value = Math.max(0, Math.min(100, preScore)).toFixed(1);
+        }
+        const notes = document.getElementById('train-field-notes');
+        if (notes && focusArea) {
+          notes.value = `Evaluation data identified ${focusArea} as a shared team training need.`;
+        }
+        return;
+      }
+
+      switchTab('coaching');
+      openModal('coaching');
+
+      const agentName = params.get('agent') || '';
+      const agentEmail = params.get('agentEmail') || '';
+      const sourceAuditId = params.get('sourceAuditId') || '';
+      const sourceAuditType = params.get('sourceAuditType') || '';
+      const sourceAuditDate = params.get('sourceAuditDate') || '';
+      const agentField = document.getElementById('coach-field-agent');
+      const focusField = document.getElementById('coach-field-focus');
+
+      if (agentField && [...agentField.options].some(option => option.value === agentName)) {
+        agentField.value = agentName;
+      }
+      if (focusField && focusArea) {
+        if (![...focusField.options].some(option => option.value === focusArea)) {
+          focusField.add(new Option(focusArea, focusArea));
+        }
+        focusField.value = focusArea;
+      }
+      if (Number.isFinite(preScore)) {
+        document.getElementById('coach-field-pre').value = Math.max(0, Math.min(100, preScore)).toFixed(1);
+      }
+      document.getElementById('coach-field-agent-email').value = agentEmail;
+      document.getElementById('coach-field-source-audit-id').value = sourceAuditId;
+      document.getElementById('coach-field-source-audit-type').value = sourceAuditType;
+      document.getElementById('coach-field-source-audit-date').value = sourceAuditDate;
+      const observations = document.getElementById('coach-field-observations');
+      if (observations && focusArea) {
+        observations.value = `Evaluation data identified ${focusArea} as the priority coaching opportunity.${sourceAuditId ? ` Linked audit: ${sourceAuditId}.` : ''}`;
+      }
     }
 
     // Save helper wrapper that routes writes
@@ -2198,6 +2277,10 @@
           const item = db.coaching.find(i => i.id === itemId);
           if (item) {
             document.getElementById('coach-field-id').value = item.id;
+            document.getElementById('coach-field-agent-email').value = item.agentEmail || '';
+            document.getElementById('coach-field-source-audit-id').value = item.sourceAuditId || '';
+            document.getElementById('coach-field-source-audit-type').value = item.sourceAuditType || '';
+            document.getElementById('coach-field-source-audit-date').value = item.sourceAuditDate || '';
             document.getElementById('coach-field-date').value = item.date;
             document.getElementById('coach-field-agent').value = item.agentName;
             document.getElementById('coach-field-coach').value = item.coachName;
@@ -2265,6 +2348,10 @@
         id: document.getElementById('coach-field-id').value,
         date: document.getElementById('coach-field-date').value,
         agentName: document.getElementById('coach-field-agent').value,
+        agentEmail: document.getElementById('coach-field-agent-email').value || (db.agents.find(a => a.agentName === document.getElementById('coach-field-agent').value)?.emailAddress || ''),
+        sourceAuditId: document.getElementById('coach-field-source-audit-id').value,
+        sourceAuditType: document.getElementById('coach-field-source-audit-type').value,
+        sourceAuditDate: document.getElementById('coach-field-source-audit-date').value,
         coachName: document.getElementById('coach-field-coach').value,
         type: document.getElementById('coach-field-type').value,
         focusArea: document.getElementById('coach-field-focus').value,
@@ -2302,6 +2389,21 @@
         }
         closeModal('coaching');
       });
+    }
+
+    function syncCoachingAgentIdentity() {
+      const selectedName = document.getElementById('coach-field-agent').value;
+      const agent = db.agents.find(a => a.agentName === selectedName);
+      const emailField = document.getElementById('coach-field-agent-email');
+      const nextEmail = agent?.emailAddress || '';
+      const previousEmail = emailField.value;
+      if (document.getElementById('coach-field-source-audit-id').value && previousEmail && previousEmail !== nextEmail) {
+        document.getElementById('coach-field-source-audit-id').value = '';
+        document.getElementById('coach-field-source-audit-type').value = '';
+        document.getElementById('coach-field-source-audit-date').value = '';
+        document.getElementById('coach-field-pre').value = '';
+      }
+      emailField.value = nextEmail;
     }
 
     function saveTrainingSubmit(e) {
@@ -3213,7 +3315,7 @@
 
     // --- LIST CUSTOMIZATION SETTINGS ENGINE ---
     function renderSettingsLists() {
-      const keys = ['Coaches', 'FocusAreas'];
+      const keys = ['Coaches', 'FocusAreas', 'TrainingTopics'];
       keys.forEach(key => {
         const box = document.getElementById(`list-${key}`);
         if (!box) return;
@@ -3262,6 +3364,7 @@
       let inputId = "";
       if (key === 'Coaches') inputId = 'add-coach-input';
       else if (key === 'FocusAreas') inputId = 'add-focus-input';
+      else if (key === 'TrainingTopics') inputId = 'add-training-topic-input';
 
       const input = document.getElementById(inputId);
       const val = input.value.trim();
@@ -3517,11 +3620,13 @@
       db.scorecards = {
         inbound: [
           {
+            auditId: "sample-inbound-001",
             timestamp: "2026-04-28",
             agentName: "Lilian Kemunto",
             agentEmail: "lilian.kemunto@food4education.org",
             qaEmail: "vinceciana.wairimu@food4education.org",
             callerNumber: "254746327455",
+            auditDate: "2026-04-28",
             dateTheCallWasReceived: "2026-04-28",
             typeOfCall: "New Caller",
             "2ptsWasTheAgentPreparedAndReadyBeforeEngagingTheCaller": "yes",
@@ -3553,11 +3658,13 @@
             rating: "Excellent"
           },
           {
+            auditId: "sample-inbound-002",
             timestamp: "2026-05-05",
             agentName: "Janipher Achieng",
             agentEmail: "janipher@food4education.org",
             qaEmail: "vinceciana.wairimu@food4education.org",
             callerNumber: "254726141588",
+            auditDate: "2026-05-05",
             dateTheCallWasReceived: "2026-05-05",
             typeOfCall: "New Caller",
             "2ptsWasTheAgentPreparedAndReadyBeforeEngagingTheCaller": "yes",
@@ -3591,6 +3698,7 @@
         ],
         sms: [
           {
+            auditId: "sample-sms-001",
             timestamp: "2026-05-08",
             agentName: "Brian Gichuhi",
             agentEmail: "brian.gichuhi@food4education.org",
@@ -3606,9 +3714,11 @@
         ],
         outbound: [
           {
+            auditId: "sample-outbound-001",
             timestamp: "2026-06-01",
             agentName: "Brian Gichuhi",
             agentEmail: "brian.gichuhi@food4education.org",
+            auditDate: "2026-06-01",
             percentageScore: "90%",
             rating: "Very Good"
           }
@@ -4371,6 +4481,8 @@
       let focusArea = "";
       let sessionDateStr = "";
       let agentName = "";
+      let agentEmail = "";
+      let sourceAuditId = "";
       let isTraining = false;
       let textTitle = "";
       
@@ -4380,6 +4492,8 @@
         focusArea = session.focusArea;
         sessionDateStr = session.date;
         agentName = session.agentName;
+        agentEmail = String(session.agentEmail || db.agents.find(a => a.agentName === session.agentName)?.emailAddress || '').toLowerCase();
+        sourceAuditId = String(session.sourceAuditId || '');
         textTitle = session.agentName;
       } else {
         const training = db.training.find(t => t.id === selectedId);
@@ -4394,18 +4508,27 @@
       
       // Gather scorecard audits
       let audits = [];
-      const safeScorecards = db.scorecards || { inbound: [], sms: [], outbound: [] };
+      const safeScorecards = db.scorecards || { inbound: [], outbound: [], survey: [], sms: [], email: [] };
       const inbound = safeScorecards.inbound || [];
-      const sms = safeScorecards.sms || [];
       const outbound = safeScorecards.outbound || [];
+      const survey = safeScorecards.survey || [];
+      const sms = safeScorecards.sms || [];
+      const email = safeScorecards.email || [];
       
       if (isTraining) {
-        audits = [...inbound, ...sms, ...outbound];
+        audits = [...inbound, ...outbound, ...survey, ...sms, ...email];
       } else {
+        const isSameAgent = audit => {
+          const auditEmail = String(audit.agentEmail || '').toLowerCase();
+          if (agentEmail && auditEmail) return auditEmail === agentEmail;
+          return audit.agentName && audit.agentName.toLowerCase() === agentName.toLowerCase();
+        };
         audits = [
-          ...inbound.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase()),
-          ...sms.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase()),
-          ...outbound.filter(a => a.agentName && a.agentName.toLowerCase() === agentName.toLowerCase())
+          ...inbound.filter(isSameAgent),
+          ...outbound.filter(isSameAgent),
+          ...survey.filter(isSameAgent),
+          ...sms.filter(isSameAgent),
+          ...email.filter(isSameAgent)
         ];
       }
       
@@ -4418,6 +4541,8 @@
         if (sourceName.toLowerCase().includes("inbound")) sourceName = "Inbound";
         else if (sourceName.toLowerCase().includes("sms")) sourceName = "SMS";
         else if (sourceName.toLowerCase().includes("outbound")) sourceName = "Outbound";
+        else if (sourceName.toLowerCase().includes("survey")) sourceName = "Survey";
+        else if (sourceName.toLowerCase().includes("email")) sourceName = "Email";
         else sourceName = "General";
 
         for (let key in audit) {
@@ -4472,7 +4597,8 @@
       console.log(`[Analyzer] Matching keys found in scorecard headers:`, matchingKeys);
       
       audits.forEach(audit => {
-        let rawDateStr = String(audit.dateTheCallWasReceived || audit.conversationDate || audit.dateOfTheCall || audit.timestamp);
+        // Audit Date is the only permitted date for pre/post coaching comparisons.
+        let rawDateStr = String(audit.auditDate || '');
         if (!rawDateStr || rawDateStr === "undefined") return;
         
         let auditDateStr = rawDateStr.split(' ')[0].replace(/,/g, '');
@@ -4487,6 +4613,7 @@
         }
         
         const auditDate = new Date(auditDateStr);
+        if (isNaN(auditDate.getTime())) return;
         
         let auditSum = 0;
         let auditCount = 0;
@@ -4518,21 +4645,25 @@
           }
           
           const lowerVal = String(val).toLowerCase().trim();
+          const pointsMatch = key.match(/^(\d+)pts/i);
+          const weight = pointsMatch ? parseInt(pointsMatch[1], 10) : 1;
           if (lowerVal === "yes") {
-            auditSum += 100;
-            auditCount++;
+            auditSum += 100 * weight;
+            auditCount += weight;
           } else if (lowerVal === "no") {
-            auditSum += 0;
-            auditCount++;
+            auditCount += weight;
           }
         });
         
         if (auditCount > 0) {
           const avgScore = auditSum / auditCount;
-          if (auditDate < sessionDate) {
+          // The coaching-day audit is part of the baseline. A post score must come
+          // from an audit with a strictly later Audit Date.
+          const isLinkedBaseline = sourceAuditId && String(audit.auditId || '') === sourceAuditId;
+          if ((sourceAuditId && isLinkedBaseline) || (!sourceAuditId && auditDate <= sessionDate)) {
             beforeScores.push(avgScore);
             if (overallScore !== null) beforeOverall.push(overallScore);
-          } else {
+          } else if (auditDate > sessionDate) {
             afterScores.push(avgScore);
             if (overallScore !== null) afterOverall.push(overallScore);
           }

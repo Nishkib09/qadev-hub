@@ -2,6 +2,12 @@
 // Copy this entire file into your Apps Script editor.
 // Then: Deploy → Manage Deployments → edit pencil → New version → Deploy → Authorize
 
+var MAX_DASHBOARD_AUDIT_ROWS = 5000;
+var MAX_EMAIL_STATUS_LOOKBACK_ROWS = 10000;
+var MAX_TRACKER_AUDIT_ROWS_PER_TYPE = 500;
+var MAX_TRACKER_LOG_ROWS = 2000;
+var AUDIT_VERSION_PROPERTY = "QA_AUDIT_VERSION";
+
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
@@ -10,6 +16,8 @@ function doPost(e) {
     var fileUrlStr = "No files attached";
     var attachments = [];
     var agentFolderUrl = "";
+    var auditId = d.auditId ? String(d.auditId) : "";
+    var duplicateAudit = false;
 
     var diag = 'Payload: files=' + (d.files ? d.files.length : 0) +
                ', agentName="' + (d.agentName || 'EMPTY') + '"' +
@@ -70,31 +78,42 @@ function doPost(e) {
         var sheetName = d.auditType;
         var sheet = doc.getSheetByName(sheetName);
         if (sheet) {
-          var values = sheet.getDataRange().getValues();
-          var displayValues = sheet.getDataRange().getDisplayValues();
-          var headers = values[0];
-
           // 1. Ensure new columns/headers are present in the sheet
           if (d.headers && d.headers.length > 0) {
             ensureHeaders(sheet, d.headers);
-            // Re-read values and headers after ensuring they are correct
-            values = sheet.getDataRange().getValues();
-            displayValues = sheet.getDataRange().getDisplayValues();
-            headers = values[0];
           }
+
+          var lastRow = sheet.getLastRow();
+          var lastColumn = sheet.getLastColumn();
+          var headers = lastColumn > 0 ? sheet.getRange(1, 1, 1, lastColumn).getValues()[0] : [];
+          var dataStartRow = Math.max(2, lastRow - MAX_EMAIL_STATUS_LOOKBACK_ROWS + 1);
+          var dataRowCount = Math.max(0, lastRow - dataStartRow + 1);
+          var values = dataRowCount > 0
+            ? sheet.getRange(dataStartRow, 1, dataRowCount, lastColumn).getValues()
+            : [];
+          var displayValues = dataRowCount > 0
+            ? sheet.getRange(dataStartRow, 1, dataRowCount, lastColumn).getDisplayValues()
+            : [];
 
           var foundRowIndex = -1;
           var sheetTimezone = doc.getSpreadsheetTimeZone();
 
-          for (var r = values.length - 1; r >= 1; r--) {
+          for (var r = values.length - 1; r >= 0; r--) {
             var cellVal = values[r][0];
             var displayVal = displayValues[r][0];
             var isMatched = false;
 
-            // Check exact matches first
-            if (cellVal == d.timestamp || displayVal == d.timestamp) {
+            // Prefer the permanent Audit ID. Timestamp matching remains only for
+            // legacy rows created before Audit IDs were introduced.
+            var auditIdColIndex = headers.indexOf("Audit ID");
+            if (auditId && auditIdColIndex !== -1 && String(values[r][auditIdColIndex]) === auditId) {
               isMatched = true;
-            } else {
+            }
+
+            // Check exact matches first
+            if (!isMatched && (cellVal == d.timestamp || displayVal == d.timestamp)) {
+              isMatched = true;
+            } else if (!isMatched) {
               // Try timezone formatting match
               if (cellVal) {
                 try {
@@ -158,7 +177,7 @@ function doPost(e) {
             if (isMatched) {
               var rowStr = JSON.stringify(values[r]);
               if (!d.agentName || rowStr.indexOf(d.agentName) !== -1) {
-                foundRowIndex = r + 1; // 1-based index
+                foundRowIndex = dataStartRow + r;
                 break;
               }
             }
@@ -192,12 +211,27 @@ function doPost(e) {
       if (!sheet) {
         sheet = doc.insertSheet(sheetName);
       }
+      auditId = auditId || Utilities.getUuid();
+      d.headers = d.headers || [];
+      d.row = d.row || [];
+      var auditIdIndex = d.headers.indexOf("Audit ID");
+      if (auditIdIndex === -1) {
+        d.headers.push("Audit ID");
+        d.row.push(auditId);
+      } else {
+        while (d.row.length <= auditIdIndex) d.row.push("");
+        d.row[auditIdIndex] = auditId;
+      }
       if (d.headers && d.headers.length > 0) {
         ensureHeaders(sheet, d.headers);
       }
+      duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
+      if (duplicateAudit) {
+        diag += ' | DuplicateAudit=SKIPPED (' + auditId + ')';
+      }
 
       // Upload files to Google Drive (if any and folder is resolved)
-      if (attachments.length > 0 && agentFolder) {
+      if (!duplicateAudit && attachments.length > 0 && agentFolder) {
         for (var j = 0; j < attachments.length; j++) {
           try {
             var blob = attachments[j];
@@ -214,14 +248,28 @@ function doPost(e) {
       diag += ' | Drive URLs: ' + fileUrls.length;
 
       // --- Write Drive links to sheet ---
-      for (var i = 0; i < d.row.length; i++) {
-        if (d.row[i] === "[UPLOADING...]") d.row[i] = fileUrlStr;
+      if (!duplicateAudit) {
+        for (var i = 0; i < d.row.length; i++) {
+          if (d.row[i] === "[UPLOADING...]") d.row[i] = fileUrlStr;
+        }
+        var appendLock = LockService.getScriptLock();
+        appendLock.waitLock(30000);
+        try {
+          duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
+          if (!duplicateAudit) {
+            sheet.appendRow(d.row);
+            markAuditDataChanged_();
+          } else {
+            diag += ' | ConcurrentDuplicate=SKIPPED (' + auditId + ')';
+          }
+        } finally {
+          appendLock.releaseLock();
+        }
       }
-      sheet.appendRow(d.row);
     }
 
     // --- Send Email ---
-    if (d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
+    if (!duplicateAudit && d.emailSettings && d.emailSettings.to && d.emailSettings.send !== false) {
       var body = d.emailSettings.body;
 
       if (agentFolderUrl) {
@@ -253,7 +301,7 @@ function doPost(e) {
     }
 
     return ContentService
-      .createTextOutput(JSON.stringify({ status: "success", debug: diag }))
+      .createTextOutput(JSON.stringify({ status: "success", auditId: auditId, debug: diag }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
@@ -273,7 +321,12 @@ function doGet(e) {
     }
     if (e.parameter.action === "getAuditsData") {
       return ContentService
-        .createTextOutput(JSON.stringify(getAuditsData(e.parameter.type)))
+        .createTextOutput(JSON.stringify(getAuditsData(e.parameter.type, e.parameter.limit)))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    if (e.parameter.action === "getAuditVersion") {
+      return ContentService
+        .createTextOutput(JSON.stringify({ version: getAuditDataVersion_() }))
         .setMimeType(ContentService.MimeType.JSON);
     }
   }
@@ -298,12 +351,98 @@ function doGet(e) {
   }
 }
 
-function getAuditsData(sheetName) {
+function getAuditsData(sheetName, requestedLimit) {
   if (!sheetName) return [];
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return [];
-  return sheet.getDataRange().getDisplayValues();
+  var lastRow = sheet.getLastRow();
+  var lastColumn = sheet.getLastColumn();
+  if (lastRow < 1 || lastColumn < 1) return [];
+
+  var parsedLimit = parseInt(requestedLimit, 10);
+  var limit = isNaN(parsedLimit) ? MAX_DASHBOARD_AUDIT_ROWS : parsedLimit;
+  limit = Math.max(1, Math.min(limit, MAX_DASHBOARD_AUDIT_ROWS));
+
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+  if (lastRow === 1) return [headers];
+
+  var rowCount = Math.min(limit, lastRow - 1);
+  var startRow = lastRow - rowCount + 1;
+  var rows = sheet.getRange(startRow, 1, rowCount, lastColumn).getDisplayValues();
+  return [headers].concat(rows);
+}
+
+function markAuditDataChanged_() {
+  PropertiesService.getScriptProperties().setProperty(
+    AUDIT_VERSION_PROPERTY,
+    String(Date.now()) + "-" + Utilities.getUuid()
+  );
+}
+
+function getAuditDataVersion_() {
+  return PropertiesService.getScriptProperties().getProperty(AUDIT_VERSION_PROPERTY) || "0";
+}
+
+function findRecentAuditIdRow_(sheet, auditId) {
+  if (!sheet || !auditId || sheet.getLastRow() < 2) return -1;
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var auditIdCol = headers.indexOf("Audit ID") + 1;
+  if (auditIdCol === 0) return -1;
+  var lastRow = sheet.getLastRow();
+  var startRow = Math.max(2, lastRow - 9999);
+  var values = sheet.getRange(startRow, auditIdCol, lastRow - startRow + 1, 1).getDisplayValues();
+  for (var i = values.length - 1; i >= 0; i--) {
+    if (String(values[i][0]) === auditId) return startRow + i;
+  }
+  return -1;
+}
+
+// One-time migration for legacy rows. Run this manually after deploying the
+// script; it fills only blank IDs and never changes an existing Audit ID.
+function backfillAuditIds() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetNames = [
+    "Inbound Scorecard",
+    "Outbound Call Scorecard (Campaign-Focused)",
+    "Consumer Satisfaction Survey Calls",
+    "SMS Quality Audit",
+    "Email Audit Scorecard"
+  ];
+  var chunkSize = 5000;
+  var updated = 0;
+
+  sheetNames.forEach(function(sheetName) {
+    var sheet = ss.getSheetByName(sheetName);
+    if (!sheet || sheet.getLastRow() < 2) return;
+
+    var lastCol = sheet.getLastColumn();
+    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var auditIdCol = headers.indexOf("Audit ID") + 1;
+    if (auditIdCol === 0) {
+      auditIdCol = lastCol + 1;
+      sheet.getRange(1, auditIdCol).setValue("Audit ID");
+    }
+
+    var lastRow = sheet.getLastRow();
+    for (var startRow = 2; startRow <= lastRow; startRow += chunkSize) {
+      var rowCount = Math.min(chunkSize, lastRow - startRow + 1);
+      var range = sheet.getRange(startRow, auditIdCol, rowCount, 1);
+      var ids = range.getValues();
+      var changed = false;
+      for (var i = 0; i < ids.length; i++) {
+        if (!ids[i][0]) {
+          ids[i][0] = Utilities.getUuid();
+          updated++;
+          changed = true;
+        }
+      }
+      if (changed) range.setValues(ids);
+    }
+  });
+
+  if (updated > 0) markAuditDataChanged_();
+  return { updated: updated };
 }
 
 // Database Sheet names
@@ -311,6 +450,29 @@ var SHEET_COACHING = "CoachingLog";
 var SHEET_TRAINING = "TrainingLog";
 var SHEET_PLAN = "ExecutionPlan";
 var SHEET_SETTINGS = "TrackerSettings";
+var COACHING_LOG_HEADERS = [
+  "ID", "Date", "Agent Name", "Coach Name", "Type",
+  "Focus Area", "Pre-Coaching Score (%)", "Post-Coaching Score (%)",
+  "Observations", "Action Items", "Follow-up Date", "Status",
+  "Created At", "Updated At", "Agent Email", "Source Audit ID",
+  "Source Audit Type", "Source Audit Date"
+];
+
+function ensureAppendOnlyHeaders_(sheet, requiredHeaders) {
+  if (!sheet || !requiredHeaders || requiredHeaders.length === 0) return;
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, requiredHeaders.length).setValues([requiredHeaders]);
+    return;
+  }
+  var lastCol = Math.max(sheet.getLastColumn(), 1);
+  var currentHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var missing = requiredHeaders.filter(function(header) {
+    return currentHeaders.indexOf(header) === -1;
+  });
+  if (missing.length > 0) {
+    sheet.getRange(1, lastCol + 1, 1, missing.length).setValues([missing]);
+  }
+}
 
 // Auto-initialize sheets
 function initTrackerSheets() {
@@ -320,12 +482,9 @@ function initTrackerSheets() {
   var coachingSheet = ss.getSheetByName(SHEET_COACHING);
   if (!coachingSheet) {
     coachingSheet = ss.insertSheet(SHEET_COACHING);
-    coachingSheet.appendRow([
-      "ID", "Date", "Agent Name", "Coach Name", "Type", 
-      "Focus Area", "Pre-Coaching Score (%)", "Post-Coaching Score (%)", 
-      "Observations", "Action Items", "Follow-up Date", "Status", 
-      "Created At", "Updated At"
-    ]);
+    coachingSheet.appendRow(COACHING_LOG_HEADERS);
+  } else {
+    ensureAppendOnlyHeaders_(coachingSheet, COACHING_LOG_HEADERS);
   }
   
   // 2. Training Log Sheet
@@ -400,15 +559,15 @@ function getTrackerData() {
     initTrackerSheets();
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     return {
-      coaching: getSheetData(ss.getSheetByName(SHEET_COACHING)),
-      training: getSheetData(ss.getSheetByName(SHEET_TRAINING)),
-      plans: getSheetData(ss.getSheetByName(SHEET_PLAN)),
+      coaching: getSheetData(ss.getSheetByName(SHEET_COACHING), MAX_TRACKER_LOG_ROWS),
+      training: getSheetData(ss.getSheetByName(SHEET_TRAINING), MAX_TRACKER_LOG_ROWS),
+      plans: getSheetData(ss.getSheetByName(SHEET_PLAN), MAX_TRACKER_LOG_ROWS),
       agents: getSheetData(ss.getSheetByName("AgentDirectory")),
       settings: getSettingsData(ss.getSheetByName(SHEET_SETTINGS)),
       scorecards: getExternalScorecardData(),
       needsFeedback: {
-        needs: getSheetData(ss.getSheetByName("PreTrainingNeeds")),
-        feedback: getSheetData(ss.getSheetByName("PostTrainingFeedback"))
+        needs: getSheetData(ss.getSheetByName("PreTrainingNeeds"), MAX_TRACKER_LOG_ROWS),
+        feedback: getSheetData(ss.getSheetByName("PostTrainingFeedback"), MAX_TRACKER_LOG_ROWS)
       },
       deescalation: getDeescalationData()
     };
@@ -416,7 +575,7 @@ function getTrackerData() {
     Logger.log("getTrackerData error: " + err.toString());
     return { 
       coaching: [], training: [], plans: [], agents: [], settings: {}, 
-      scorecards: { inbound: [], sms: [], outbound: [] },
+      scorecards: { inbound: [], outbound: [], survey: [], sms: [], email: [] },
       needsFeedback: { needs: [], feedback: [] },
       deescalation: [],
       error: err.toString() 
@@ -425,7 +584,7 @@ function getTrackerData() {
 }
 
 function getExternalScorecardData() {
-  var data = { inbound: [], sms: [], outbound: [] };
+  var data = { inbound: [], outbound: [], survey: [], sms: [], email: [] };
   try {
     var extSS = SpreadsheetApp.openById("1VIAYlOvb5TtonUSAEiECqrq7i-n_dFA70IkmRW9dQIo");
     var sheets = extSS.getSheets();
@@ -436,11 +595,15 @@ function getExternalScorecardData() {
       
       // Match by exact sheet ID or name
       if (sheetName === "Inbound Scorecard" || sheetId == 956377943) {
-        data.inbound = getSheetData(sheets[i]);
+        data.inbound = getSheetData(sheets[i], MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
       } else if (sheetName === "SMS Quality Audit" || sheetId == 283607713) {
-        data.sms = getSheetData(sheets[i]);
+        data.sms = getSheetData(sheets[i], MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
       } else if (sheetName === "Outbound Call Scorecard (Campaign-Focused)" || sheetId == 1574188088) {
-        data.outbound = getSheetData(sheets[i]);
+        data.outbound = getSheetData(sheets[i], MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
+      } else if (sheetName === "Consumer Satisfaction Survey Calls") {
+        data.survey = getSheetData(sheets[i], MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
+      } else if (sheetName === "Email Audit Scorecard") {
+        data.email = getSheetData(sheets[i], MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
       }
     }
   } catch(e) {
@@ -452,15 +615,23 @@ function getExternalScorecardData() {
     var localSS = SpreadsheetApp.getActiveSpreadsheet();
     if (data.inbound.length === 0) {
       var s = localSS.getSheetByName("Inbound Scorecard");
-      if (s) data.inbound = getSheetData(s);
+      if (s) data.inbound = getSheetData(s, MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
     }
     if (data.sms.length === 0) {
       var s = localSS.getSheetByName("SMS Quality Audit");
-      if (s) data.sms = getSheetData(s);
+      if (s) data.sms = getSheetData(s, MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
     }
     if (data.outbound.length === 0) {
       var s = localSS.getSheetByName("Outbound Call Scorecard (Campaign-Focused)");
-      if (s) data.outbound = getSheetData(s);
+      if (s) data.outbound = getSheetData(s, MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
+    }
+    if (data.survey.length === 0) {
+      var surveySheet = localSS.getSheetByName("Consumer Satisfaction Survey Calls");
+      if (surveySheet) data.survey = getSheetData(surveySheet, MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
+    }
+    if (data.email.length === 0) {
+      var emailSheet = localSS.getSheetByName("Email Audit Scorecard");
+      if (emailSheet) data.email = getSheetData(emailSheet, MAX_TRACKER_AUDIT_ROWS_PER_TYPE);
     }
   } catch(localErr) {
     Logger.log("getExternalScorecardData local fallback error: " + localErr.toString());
@@ -480,7 +651,7 @@ function getDeescalationData() {
         break;
       }
     }
-    return getSheetData(sheet);
+    return getSheetData(sheet, MAX_TRACKER_LOG_ROWS);
   } catch(e) {
     Logger.log("getDeescalationData error: " + e.toString());
     return [];
@@ -836,13 +1007,18 @@ function saveSettingValue(key, val) {
   sheet.appendRow([key, val]);
 }
 
-function getSheetData(sheet) {
+function getSheetData(sheet, requestedLimit) {
   if (!sheet) return [];
-  var data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return [];
-  var headers = data[0];
+  var lastRow = sheet.getLastRow();
+  var lastColumn = sheet.getLastColumn();
+  if (lastRow <= 1 || lastColumn < 1) return [];
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  var parsedLimit = parseInt(requestedLimit, 10);
+  var rowCount = isNaN(parsedLimit) ? lastRow - 1 : Math.min(Math.max(parsedLimit, 1), lastRow - 1);
+  var startRow = lastRow - rowCount + 1;
+  var data = sheet.getRange(startRow, 1, rowCount, lastColumn).getValues();
   var rows = [];
-  for (var i = 1; i < data.length; i++) {
+  for (var i = 0; i < data.length; i++) {
     var obj = {};
     for (var j = 0; j < headers.length; j++) {
       var key = toCamelCase(headers[j]);
@@ -884,12 +1060,7 @@ function toCamelCase(str) {
 
 // Write/Update functions
 function saveCoachingSession(session) {
-  return saveRow(SHEET_COACHING, session, [
-    "ID", "Date", "Agent Name", "Coach Name", "Type", 
-    "Focus Area", "Pre-Coaching Score (%)", "Post-Coaching Score (%)", 
-    "Observations", "Action Items", "Follow-up Date", "Status", 
-    "Created At", "Updated At"
-  ]);
+  return saveRow(SHEET_COACHING, session, COACHING_LOG_HEADERS);
 }
 
 function saveTrainingSession(training) {
