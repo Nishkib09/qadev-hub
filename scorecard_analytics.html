@@ -1018,6 +1018,7 @@
     <div class="filter-bar">
       <label>Type</label>
       <select id="f-type" onchange="onFilterChange()">
+        <option value="all">All Channels</option>
         <option value="inbound">Inbound</option>
         <option value="outbound">Outbound</option>
         <option value="survey">CSAT Survey</option>
@@ -1258,6 +1259,7 @@ const SHEET_NAMES = {
   sms: 'SMS Quality Audit',
   email: 'Email Audit Scorecard'
 };
+const ALL_CHANNEL_TYPES = Object.keys(SHEET_NAMES);
 
 const COLORS = {
   navy: '#1a2744', green: '#3b6d11', greenMd: '#0d6e56',
@@ -1322,13 +1324,23 @@ const CONFIGS = {
   }
 };
 
+CONFIGS.all = {
+  label: 'All Channels',
+  sections: ALL_CHANNEL_TYPES.map(type => ({
+    name: CONFIGS[type].label,
+    qCount: 0,
+    pts: [],
+    auditType: type
+  }))
+};
+
 // =================== STATE ===================
 
 const STORE = { inbound: [], outbound: [], survey: [], sms: [], email: [] };
 let PROCESSED = {}; // { agentName: { avgOverall, auditCount, sectionAvgs:{}, audits:[] } }
 let CHART_INSTANCES = {};
 let currentPage = 'overview';
-let currentType = 'inbound';
+let currentType = 'all';
 let refreshInFlight = false;
 let liveRefreshInitialized = false;
 let liveRefreshTimer = null;
@@ -1500,7 +1512,8 @@ async function refreshAllData(requestedTypes) {
   const loading = document.getElementById('loading');
   const urls = getURLs();
   const hasAny = Object.values(urls).some(u => u);
-  const types = (Array.isArray(requestedTypes) && requestedTypes.length ? requestedTypes : [currentType])
+  const requested = Array.isArray(requestedTypes) && requestedTypes.length ? requestedTypes : [currentType];
+  const types = (requested.includes('all') ? ALL_CHANNEL_TYPES : requested)
     .filter(type => Object.prototype.hasOwnProperty.call(urls, type));
 
   // Load a deliberately small cache once. Full audit history does not belong in localStorage.
@@ -1596,14 +1609,14 @@ function normalizeAuditType(type) {
 
 function scheduleLiveRefresh(event) {
   const eventType = normalizeAuditType(event?.auditType || '');
-  if (eventType && eventType !== currentType) return;
+  if (eventType && currentType !== 'all' && eventType !== currentType) return;
   clearTimeout(liveRefreshTimer);
   liveRefreshTimer = setTimeout(() => {
     if (refreshInFlight) {
       scheduleLiveRefresh(event);
       return;
     }
-    refreshAllData([currentType]);
+    refreshAllData(eventType ? [eventType] : [currentType]);
   }, 300);
 }
 
@@ -1813,6 +1826,60 @@ function processTypeData(type) {
   return agents;
 }
 
+function processAllChannelData() {
+  const combined = {};
+  const dateQuality = { total: 0, valid: 0, invalid: 0 };
+
+  ALL_CHANNEL_TYPES.forEach(type => {
+    const channelAgents = processTypeData(type);
+    dateQuality.total += AUDIT_DATE_QUALITY.total;
+    dateQuality.valid += AUDIT_DATE_QUALITY.valid;
+    dateQuality.invalid += AUDIT_DATE_QUALITY.invalid;
+
+    Object.entries(channelAgents).forEach(([agentKey, agent]) => {
+      if (!combined[agentKey]) {
+        combined[agentKey] = {
+          key: agentKey,
+          name: agent.name,
+          email: agent.email,
+          audits: [],
+          sectionAvgs: {}
+        };
+      } else {
+        combined[agentKey].name = agent.name;
+        if (agent.email) combined[agentKey].email = agent.email;
+      }
+
+      const channelName = CONFIGS[type].label;
+      agent.audits.forEach(audit => {
+        const hasPointTotals = Number.isFinite(audit.earnedTotal) &&
+          Number.isFinite(audit.possibleTotal) && audit.possibleTotal > 0;
+        combined[agentKey].audits.push({
+          ...audit,
+          auditType: type,
+          sections: [{
+            name: channelName,
+            earned: hasPointTotals ? audit.earnedTotal : audit.overallPct,
+            possible: hasPointTotals ? audit.possibleTotal : 100,
+            pct: audit.overallPct
+          }]
+        });
+      });
+    });
+  });
+
+  Object.values(combined).forEach(agent => {
+    agent.avgOverall = calculateAuditAverage(agent.audits);
+    agent.auditCount = agent.audits.length;
+    CONFIGS.all.sections.forEach(section => {
+      agent.sectionAvgs[section.name] = calculateSectionAverage(agent.audits, section.name);
+    });
+  });
+
+  AUDIT_DATE_QUALITY = dateQuality;
+  return combined;
+}
+
 function applyDateFilter(agents) {
   const fromVal = document.getElementById('f-from').value;
   const toVal = document.getElementById('f-to').value;
@@ -1848,7 +1915,7 @@ function applyDateFilter(agents) {
 }
 
 function processAndRender() {
-  const rawAgents = processTypeData(currentType);
+  const rawAgents = currentType === 'all' ? processAllChannelData() : processTypeData(currentType);
   PROCESSED = applyDateFilter(rawAgents);
 
   // Populate agent dropdown
