@@ -348,6 +348,10 @@
       box-shadow: var(--shadow);
     }
 
+    .kpi-card.kpi-primary {
+      border-top: 3px solid var(--teal);
+    }
+
     .kpi-label {
       font-size: 11px;
       font-weight: 600;
@@ -1095,6 +1099,12 @@
             <p>Start with department health, then move directly to the agents and actions that need attention.</p>
           </div>
           <button class="btn-sm" onclick="navigate('agent')">View individual performance →</button>
+        </div>
+        <div class="sec-header" style="margin-bottom:12px;">
+          <div>
+            <h3>Department KPI Snapshot</h3>
+            <p style="font-size:11px;color:var(--g600);margin-top:2px;">QA Score, CSAT Proxy and FCR across the selected channels and Audit Date range.</p>
+          </div>
         </div>
         <div class="kpi-row" id="ov-kpis"></div>
         <div id="ov-channel-performance" hidden>
@@ -2121,25 +2131,25 @@ function buildOverview(displayAgents) {
   const latestAuditDate = datedAudits.length ? new Date(Math.max(...datedAudits)) : null;
 
   document.getElementById('ov-kpis').innerHTML = `
-    <div class="kpi-card">
-      <div class="kpi-label">Total Audits</div>
-      <div class="kpi-value">${totalAudits}</div>
-      <div class="kpi-sub">${CONFIGS[currentType].label}</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Team Average</div>
+    <div class="kpi-card kpi-primary">
+      <div class="kpi-label">QA Score</div>
       <div class="kpi-value clr-${getThreshold(teamAvg).cls}">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}</div>
       <div class="kpi-sub">${teamAvg > 0 ? getThreshold(teamAvg).icon + ' ' + getThreshold(teamAvg).label : 'No data'}</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card kpi-primary">
       <div class="kpi-label">CSAT Proxy</div>
       <div class="kpi-value">${csatProxy.average === null ? '–' : csatProxy.average.toFixed(2) + '/5'}</div>
       <div class="kpi-sub">${csatProxy.count ? csatProxy.percentage.toFixed(1) + '% · ' + csatProxy.count + ' scored audit' + (csatProxy.count === 1 ? '' : 's') : 'No CSAT proxy scores recorded'}</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card kpi-primary">
       <div class="kpi-label">FCR</div>
       <div class="kpi-value">${fcr.rate === null ? '–' : fcr.rate.toFixed(1) + '%'}</div>
       <div class="kpi-sub">${fcr.count ? fcr.resolved + ' of ' + fcr.count + ' resolved at first contact' : 'No FCR responses recorded'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Audits</div>
+      <div class="kpi-value">${totalAudits}</div>
+      <div class="kpi-sub">${CONFIGS[currentType].label}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">At Quality Target</div>
