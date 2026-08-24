@@ -768,6 +768,40 @@
       margin-bottom: 24px;
     }
 
+    .channel-performance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .channel-performance-card {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      background: #fff;
+      box-shadow: var(--shadow);
+      color: inherit;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+
+    .channel-performance-card:hover {
+      border-color: var(--teal-md);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .channel-performance-name { font-size: 12px; font-weight: 600; color: var(--g800); }
+    .channel-performance-score { margin: 8px 0 4px; font-size: 28px; font-weight: 700; line-height: 1.1; }
+    .channel-performance-meta { font-size: 10px; color: var(--g600); }
+    .channel-performance-track { height: 6px; margin-top: 12px; overflow: hidden; background: var(--g100); border-radius: 999px; }
+    .channel-performance-fill { height: 100%; border-radius: inherit; }
+    .channel-performance-hint { display: block; margin-top: 10px; font-size: 10px; font-weight: 500; color: var(--teal); }
+
     .progress-panel {
       min-height: 220px;
       padding: 18px;
@@ -1060,6 +1094,15 @@
           <button class="btn-sm" onclick="navigate('agent')">View individual performance →</button>
         </div>
         <div class="kpi-row" id="ov-kpis"></div>
+        <div id="ov-channel-performance" hidden>
+          <div class="sec-header">
+            <div>
+              <h3>Performance by Channel</h3>
+              <p style="font-size:11px;color:var(--g600);margin-top:2px;">Compare every channel, then select one for its detailed performance.</p>
+            </div>
+          </div>
+          <div class="channel-performance-grid" id="ov-channel-cards"></div>
+        </div>
         <div class="overview-panel-grid">
           <div class="progress-panel" id="ov-progress"></div>
           <div class="progress-panel" id="ov-distribution"></div>
@@ -2028,6 +2071,7 @@ function buildOverview(displayAgents) {
   const allAgents = Object.values(PROCESSED);
 
   document.getElementById('ov-context-title').textContent = CONFIGS[currentType].label + ' department performance';
+  buildChannelPerformance(allAgents);
 
   // Department KPIs
   const totalAudits = allAgents.reduce((s, a) => s + a.auditCount, 0);
@@ -2149,6 +2193,56 @@ function buildOverview(displayAgents) {
   }).join('');
 
   renderPagination('ov-pagination', overviewPage, pageCount, 'setOverviewPage', sorted.length, 'agents');
+}
+
+function buildChannelPerformance(agents) {
+  const section = document.getElementById('ov-channel-performance');
+  const container = document.getElementById('ov-channel-cards');
+  if (!section || !container) return;
+
+  const showAllChannels = currentType === 'all';
+  section.hidden = !showAllChannels;
+  if (!showAllChannels) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const labels = {
+    inbound: 'Inbound',
+    outbound: 'Outbound',
+    survey: 'CSAT Survey',
+    sms: 'SMS',
+    email: 'Email'
+  };
+
+  container.innerHTML = ALL_CHANNEL_TYPES.map(type => {
+    const channelAgents = agents.filter(agent =>
+      agent.audits.some(audit => audit.auditType === type)
+    );
+    const channelAudits = channelAgents.flatMap(agent =>
+      agent.audits.filter(audit => audit.auditType === type)
+    );
+    const score = calculateAuditAverage(channelAudits);
+    const threshold = channelAudits.length ? getThreshold(score) : null;
+    const color = !threshold ? 'var(--g400)' :
+      threshold.cls === 'strong' ? 'var(--green)' :
+      threshold.cls === 'critical' ? 'var(--amber)' : 'var(--red)';
+
+    return `
+      <button class="channel-performance-card" type="button" onclick="selectOverviewChannel('${type}')">
+        <div class="channel-performance-name">${labels[type]}</div>
+        <div class="channel-performance-score" style="color:${color};">${channelAudits.length ? score.toFixed(1) + '%' : '–'}</div>
+        <div class="channel-performance-meta">${channelAudits.length} audit${channelAudits.length === 1 ? '' : 's'} · ${channelAgents.length} agent${channelAgents.length === 1 ? '' : 's'}</div>
+        <div class="channel-performance-track"><div class="channel-performance-fill" style="width:${Math.min(100, score).toFixed(1)}%;background:${color};"></div></div>
+        <span class="channel-performance-hint">View channel →</span>
+      </button>`;
+  }).join('');
+}
+
+function selectOverviewChannel(type) {
+  if (!ALL_CHANNEL_TYPES.includes(type)) return;
+  document.getElementById('f-type').value = type;
+  onFilterChange();
 }
 
 function buildDepartmentTrend(agents) {
