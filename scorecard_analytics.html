@@ -798,6 +798,9 @@
     .channel-performance-name { font-size: 12px; font-weight: 600; color: var(--g800); }
     .channel-performance-score { margin: 8px 0 4px; font-size: 28px; font-weight: 700; line-height: 1.1; }
     .channel-performance-meta { font-size: 10px; color: var(--g600); }
+    .channel-performance-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .channel-performance-kpi span { display: block; font-size: 9px; color: var(--g400); text-transform: uppercase; letter-spacing: .03em; }
+    .channel-performance-kpi strong { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; color: var(--g900); }
     .channel-performance-track { height: 6px; margin-top: 12px; overflow: hidden; background: var(--g100); border-radius: 999px; }
     .channel-performance-fill { height: 100%; border-radius: inherit; }
     .channel-performance-hint { display: block; margin-top: 10px; font-size: 10px; font-weight: 500; color: var(--teal); }
@@ -1764,6 +1767,24 @@ function calculateTeamAverage(agents) {
   return calculateAuditAverage(agents.flatMap(agent => agent.audits || []));
 }
 
+function calculateCsatProxy(audits) {
+  const scores = audits
+    .map(audit => audit.csatProxy)
+    .filter(score => Number.isFinite(score) && score >= 1 && score <= 5);
+  if (!scores.length) return { average: null, percentage: null, count: 0 };
+  const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+  return { average, percentage: average / 5 * 100, count: scores.length };
+}
+
+function calculateFcrRate(audits) {
+  const responses = audits
+    .map(audit => audit.fcrResolved)
+    .filter(value => typeof value === 'boolean');
+  if (!responses.length) return { rate: null, resolved: 0, count: 0 };
+  const resolved = responses.filter(Boolean).length;
+  return { rate: resolved / responses.length * 100, resolved, count: responses.length };
+}
+
 function processTypeData(type) {
   const rows = STORE[type];
   AUDIT_DATE_QUALITY = { total: 0, valid: 0, invalid: 0 };
@@ -1781,6 +1802,8 @@ function processTypeData(type) {
   const pctIdx = findColIdx(headers, /percentage\s*score/i);
   const earnedIdx = findColIdx(headers, /total\s*points\s*earned/i);
   const possibleIdx = findColIdx(headers, /max\s*points\s*possible/i);
+  const csatIdx = findColIdx(headers, /csat\s*(?:\/\s*voc)?\s*proxy/i);
+  const fcrIdx = findColIdx(headers, /first\s*(?:call|contact)\s*resolution|\bfcr\b/i);
   const ratingIdx = findColIdx(headers, /rating/i);
   const immediateCoachingIdx = findColIdx(headers, /needs\s*immediate\s*coaching/i);
   const qCols = findQuestionCols(headers);
@@ -1818,6 +1841,11 @@ function processTypeData(type) {
     const immediateCoachingValue = immediateCoachingIdx !== -1 ? String(row[immediateCoachingIdx] || '').trim().toLowerCase() : '';
     const needsImmediateCoaching = ['yes', 'true', '1'].includes(immediateCoachingValue);
     const auditDate = dateIdx !== -1 ? String(row[dateIdx] || '').trim() : '';
+    const csatValue = csatIdx !== -1 ? parseFloat(String(row[csatIdx] || '').trim()) : NaN;
+    const csatProxy = Number.isFinite(csatValue) && csatValue >= 1 && csatValue <= 5 ? csatValue : null;
+    const fcrValue = fcrIdx !== -1 ? String(row[fcrIdx] || '').trim().toLowerCase() : '';
+    const fcrResolved = ['yes', 'true', '1', 'resolved'].includes(fcrValue) ? true :
+      ['no', 'false', '0', 'unresolved'].includes(fcrValue) ? false : null;
     AUDIT_DATE_QUALITY.total++;
     if (parseDate(auditDate)) AUDIT_DATE_QUALITY.valid++;
     else AUDIT_DATE_QUALITY.invalid++;
@@ -1849,6 +1877,8 @@ function processTypeData(type) {
       overallPct,
       earnedTotal,
       possibleTotal,
+      csatProxy,
+      fcrResolved,
       rating,
       needsImmediateCoaching,
       sections
@@ -2076,6 +2106,9 @@ function buildOverview(displayAgents) {
   // Department KPIs
   const totalAudits = allAgents.reduce((s, a) => s + a.auditCount, 0);
   const teamAvg = calculateTeamAverage(allAgents);
+  const allAudits = allAgents.flatMap(agent => agent.audits || []);
+  const csatProxy = calculateCsatProxy(allAudits);
+  const fcr = calculateFcrRate(allAudits);
   const bestAgent = allAgents.length > 0
     ? allAgents.reduce((best, a) => a.avgOverall > best.avgOverall ? a : best, allAgents[0]) : null;
   const agentCount = allAgents.length;
@@ -2097,6 +2130,16 @@ function buildOverview(displayAgents) {
       <div class="kpi-label">Team Average</div>
       <div class="kpi-value clr-${getThreshold(teamAvg).cls}">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}</div>
       <div class="kpi-sub">${teamAvg > 0 ? getThreshold(teamAvg).icon + ' ' + getThreshold(teamAvg).label : 'No data'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CSAT Proxy</div>
+      <div class="kpi-value">${csatProxy.average === null ? '–' : csatProxy.average.toFixed(2) + '/5'}</div>
+      <div class="kpi-sub">${csatProxy.count ? csatProxy.percentage.toFixed(1) + '% · ' + csatProxy.count + ' scored audit' + (csatProxy.count === 1 ? '' : 's') : 'No CSAT proxy scores recorded'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">FCR</div>
+      <div class="kpi-value">${fcr.rate === null ? '–' : fcr.rate.toFixed(1) + '%'}</div>
+      <div class="kpi-sub">${fcr.count ? fcr.resolved + ' of ' + fcr.count + ' resolved at first contact' : 'No FCR responses recorded'}</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">At Quality Target</div>
@@ -2223,6 +2266,8 @@ function buildChannelPerformance(agents) {
       agent.audits.filter(audit => audit.auditType === type)
     );
     const score = calculateAuditAverage(channelAudits);
+    const csatProxy = calculateCsatProxy(channelAudits);
+    const fcr = calculateFcrRate(channelAudits);
     const threshold = channelAudits.length ? getThreshold(score) : null;
     const color = !threshold ? 'var(--g400)' :
       threshold.cls === 'strong' ? 'var(--green)' :
@@ -2233,6 +2278,10 @@ function buildChannelPerformance(agents) {
         <div class="channel-performance-name">${labels[type]}</div>
         <div class="channel-performance-score" style="color:${color};">${channelAudits.length ? score.toFixed(1) + '%' : '–'}</div>
         <div class="channel-performance-meta">${channelAudits.length} audit${channelAudits.length === 1 ? '' : 's'} · ${channelAgents.length} agent${channelAgents.length === 1 ? '' : 's'}</div>
+        <div class="channel-performance-kpis">
+          <div class="channel-performance-kpi"><span>CSAT Proxy</span><strong>${csatProxy.average === null ? '–' : csatProxy.average.toFixed(2) + '/5'}</strong></div>
+          <div class="channel-performance-kpi"><span>FCR</span><strong>${fcr.rate === null ? '–' : fcr.rate.toFixed(1) + '%'}</strong></div>
+        </div>
         <div class="channel-performance-track"><div class="channel-performance-fill" style="width:${Math.min(100, score).toFixed(1)}%;background:${color};"></div></div>
         <span class="channel-performance-hint">View channel →</span>
       </button>`;
