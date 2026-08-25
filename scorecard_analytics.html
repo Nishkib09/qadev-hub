@@ -1365,12 +1365,12 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
   <div class="lock-card">
     <div class="lock-icon">Secure access</div>
     <h2>Performance Analytics</h2>
-    <p>Enter the access PIN set by your QA administrator to view the dashboard.</p>
+    <p>Enter the owner access code. Dashboard access is restricted to the system owner.</p>
     <input type="password" id="pin-input" class="lock-input" placeholder="• • • •" maxlength="20"
            onkeydown="if(event.key==='Enter')verifyPin()">
     <button class="lock-btn" onclick="verifyPin()">Unlock Dashboard</button>
     <div class="lock-error" id="pin-error"></div>
-    <div class="lock-footer">Contact your QA admin for access credentials</div>
+    <div class="lock-footer">This code is not shared with evaluators</div>
   </div>
 </div>
 
@@ -1427,6 +1427,7 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
         </span>
         <button class="btn-sm primary" onclick="navigate('workspace')"> Coaching Hub</button>
         <button class="btn-sm" onclick="refreshAllData()">↻ Refresh</button>
+        <button class="btn-sm" onclick="lockDashboard()">Lock dashboard</button>
         <button class="btn-sm" onclick="window.print()"> Print</button>
       </div>
     </div>
@@ -1790,76 +1791,91 @@ let AUDIT_DATE_QUALITY = { total: 0, valid: 0, invalid: 0 };
 
 // =================== AUTH ===================
 
+const OWNER_ACCESS_HASH = 'deab91472b3a906e5b22f5990b3e36856d8b1ef1a27a56a404d715a2d351d27d';
+const OWNER_ACCESS_VERSION = '2026-08-25-owner-lock-v1';
+const DASHBOARD_SESSION_KEY = 'qa_dashboard_owner_session';
+const OWNER_SESSION_TTL_MS = 30 * 60 * 1000;
+
+function initializeOwnerAccess() {
+  if (localStorage.getItem('qa_owner_access_version') !== OWNER_ACCESS_VERSION) {
+    localStorage.removeItem('analytics_pin_hash');
+    localStorage.removeItem('analytics_session');
+    sessionStorage.removeItem(DASHBOARD_SESSION_KEY);
+    localStorage.setItem('qa_owner_access_version', OWNER_ACCESS_VERSION);
+  }
+}
+
 async function hashStr(str) {
   const data = new TextEncoder().encode(str);
   const buf = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function verifyPin() {
-  const input = document.getElementById('pin-input');
-  const errEl = document.getElementById('pin-error');
-  const pin = input.value.trim();
-  if (!pin) { errEl.textContent = 'Please enter a PIN.'; return; }
-
-  const hash = await hashStr(pin);
-  const stored = localStorage.getItem('analytics_pin_hash');
-
-  if (!stored) {
-    // No PIN configured — first-time setup: accept this as the PIN
-    localStorage.setItem('analytics_pin_hash', hash);
-    localStorage.setItem('analytics_session', Date.now().toString());
-    unlockDashboard();
-    showToast('PIN set successfully. Share this PIN with authorized users.', 'success');
-    return;
-  }
-
-  if (hash === stored) {
-    localStorage.setItem('analytics_session', Date.now().toString());
-    unlockDashboard();
-  } else {
-    input.classList.add('error');
-    errEl.textContent = 'Incorrect PIN. Please try again.';
-    setTimeout(() => input.classList.remove('error'), 500);
-  }
+function getOwnerAccessHash() {
+  return localStorage.getItem('analytics_pin_hash') || OWNER_ACCESS_HASH;
 }
 
-function checkSession() {
-  // Check URL hash for token
-  const params = new URLSearchParams(window.location.hash.slice(1));
-  const urlHash = params.get('auth');
-  if (urlHash) {
-    localStorage.setItem('analytics_pin_hash', urlHash);
-    localStorage.setItem('analytics_session', Date.now().toString());
-    window.location.hash = '';
-    return true;
-  }
-
-  const session = localStorage.getItem('analytics_session');
-  if (!session) return false;
-  // 24 hour expiry
-  const elapsed = Date.now() - parseInt(session);
-  if (elapsed > 24 * 60 * 60 * 1000) {
-    localStorage.removeItem('analytics_session');
+function hasDashboardSession() {
+  const started = Number(sessionStorage.getItem(DASHBOARD_SESSION_KEY));
+  if (!started || Date.now() - started > OWNER_SESSION_TTL_MS) {
+    sessionStorage.removeItem(DASHBOARD_SESSION_KEY);
     return false;
   }
   return true;
 }
 
+async function verifyPin() {
+  const input = document.getElementById('pin-input');
+  const errEl = document.getElementById('pin-error');
+  const pin = input.value.trim();
+  if (!pin) { errEl.textContent = 'Enter the owner access code.'; return; }
+
+  const hash = await hashStr(pin);
+  if (hash === getOwnerAccessHash()) {
+    sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
+    input.value = '';
+    errEl.textContent = '';
+    unlockDashboard();
+  } else {
+    input.classList.add('error');
+    errEl.textContent = 'Incorrect owner access code.';
+    input.select();
+    setTimeout(() => input.classList.remove('error'), 500);
+  }
+}
+
+function checkSession() {
+  return hasDashboardSession();
+}
+
 function unlockDashboard() {
+  if (!hasDashboardSession()) return;
   document.getElementById('lock-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   initDashboard();
 }
 
+function lockDashboard(showMessage = true) {
+  sessionStorage.removeItem(DASHBOARD_SESSION_KEY);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('lock-screen').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  if (showMessage) showToast('Dashboard locked.', 'info');
+  setTimeout(() => document.getElementById('pin-input').focus(), 0);
+}
+
 async function changePin() {
+  if (!hasDashboardSession()) { lockDashboard(false); return; }
   const pin = document.getElementById('new-pin').value.trim();
-  if (!pin) { showToast('Enter a new PIN.', 'error'); return; }
+  if (!pin) { showToast('Enter a new owner access code.', 'error'); return; }
+  if (pin.length < 8) { showToast('Use at least 8 characters.', 'error'); return; }
   const hash = await hashStr(pin);
   localStorage.setItem('analytics_pin_hash', hash);
-  localStorage.setItem('analytics_session', Date.now().toString());
+  sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
   document.getElementById('new-pin').value = '';
-  showToast('PIN updated successfully.', 'success');
+  showToast('Owner access code updated on this browser.', 'success');
 }
 
 // =================== CSV FETCHING ===================
@@ -1911,6 +1927,7 @@ function getURLs() {
 }
 
 function saveURLs() {
+  if (!hasDashboardSession()) { lockDashboard(false); return; }
   ['inbound','outbound','survey','sms','email'].forEach(k => {
     const v = document.getElementById('url-' + k)?.value?.trim() || '';
     localStorage.setItem('url-' + k, v);
@@ -1920,6 +1937,7 @@ function saveURLs() {
 }
 
 async function testAllURLs() {
+  if (!hasDashboardSession()) { lockDashboard(false); return; }
   const urls = getURLs();
   for (const [key, url] of Object.entries(urls)) {
     const el = document.getElementById('us-' + key);
@@ -3993,10 +4011,13 @@ function initDashboard() {
 
 // Entry point
 (function() {
-  if (checkSession()) {
-    unlockDashboard();
-  }
-  // Otherwise lock screen is shown by default
+  initializeOwnerAccess();
+  if (checkSession()) unlockDashboard();
+  window.setInterval(() => {
+    if (document.getElementById('app').style.display !== 'none' && !hasDashboardSession()) {
+      lockDashboard(false);
+    }
+  }, 60000);
 })();
 </script>
 
