@@ -922,6 +922,239 @@ label.toggle-switch:has(input[type="checkbox"]){
   overflow-wrap:anywhere;
 }
 
+
+/* Dense, readable audit workspace: maximize useful width and remove empty vertical space. */
+body{
+  line-height:1.45;
+}
+.topbar{
+  padding:8px 20px;
+}
+.wrap{
+  max-width:1180px;
+  padding:14px 16px 102px;
+}
+.tabs{
+  margin-bottom:12px;
+}
+.tab{
+  padding:8px 7px;
+  font-size:11px;
+}
+.card{
+  margin-bottom:10px;
+}
+.card-hd{
+  min-height:40px;
+  padding:8px 12px;
+}
+.card-title{
+  font-size:13px;
+}
+.card-body{
+  padding:12px;
+}
+.card-body p,
+.instructions-body p,
+.email-control-copy p{
+  line-height:1.45;
+}
+.setup-panel{
+  padding:12px;
+  margin-bottom:10px;
+}
+.setup-panel h3{
+  margin-bottom:5px;
+}
+.setup-panel>p{
+  margin-bottom:6px !important;
+  line-height:1.4;
+}
+.ag-grid{
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:8px 10px;
+}
+.field label{
+  margin-bottom:3px;
+  font-size:10.5px;
+  line-height:1.3;
+}
+.field input,
+.field select,
+.field textarea,
+.setup-url input{
+  padding:7px 10px;
+}
+.cr-row{
+  min-height:52px;
+  gap:8px;
+  padding:4px 10px;
+}
+.cr-label{
+  font-size:12px;
+  line-height:1.36;
+}
+.cr-pts{
+  min-width:42px;
+  font-size:10px;
+}
+.cr-btns{
+  gap:3px;
+}
+.yb,
+.nb,
+.na-btn{
+  padding-right:9px;
+  padding-left:9px;
+}
+.score-bar{
+  margin-bottom:8px;
+}
+.sc-card{
+  padding:8px 10px;
+}
+.sc-lbl{
+  margin-bottom:2px;
+  font-size:10px;
+}
+.sc-val{
+  font-size:21px;
+}
+.pb-track{
+  height:5px;
+  margin-bottom:10px;
+}
+.crit-flag{
+  margin-bottom:10px;
+  padding:7px 10px;
+}
+#call-reason-card .card-body{
+  padding:10px !important;
+}
+.reason-tabs{
+  gap:5px;
+  margin-bottom:7px;
+  padding-bottom:7px;
+}
+.reason-tab{
+  padding:7px 9px;
+  font-size:10.5px;
+}
+.reason-options{
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:6px;
+}
+.reason-option-btn{
+  padding:7px 9px;
+  font-size:11px;
+  line-height:1.35;
+}
+#call-reason-card details{
+  margin:8px 0 0 !important;
+}
+#call-reason-card details summary{
+  padding:7px 10px !important;
+}
+.critical-options-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:4px 12px;
+}
+.critical-option{
+  display:flex;
+  min-width:0;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  line-height:1.35;
+  cursor:pointer;
+}
+#specials .card-body>p{
+  margin-bottom:6px !important;
+}
+#specials .card-body>div[style*="grid-template-columns"]{
+  gap:8px !important;
+  padding:4px 0 !important;
+}
+#voc-select,
+#fcr-select{
+  margin-top:2px !important;
+}
+#notes{
+  min-height:74px;
+  line-height:1.45;
+}
+#upload-desc{
+  margin-top:4px !important;
+  line-height:1.4;
+}
+#inline-email-container:empty{
+  display:none;
+}
+.scorecard-action-dock{
+  position:fixed;
+  z-index:90;
+  right:auto;
+  bottom:12px;
+  left:50%;
+  display:flex;
+  width:min(1148px,calc(100vw - 32px));
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  transform:translateX(-50%);
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(31,27,27,.12);
+}
+.scorecard-action-dock #toggle-email-btn{
+  margin-right:auto !important;
+}
+.scorecard-action-dock button{
+  white-space:nowrap;
+}
+.scorecard-advanced-tools{
+  margin:10px 0;
+}
+.scorecard-tools-body{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:0 12px 10px;
+}
+.instructions-body{
+  line-height:1.45;
+}
+.queue-empty-state{
+  min-height:56px;
+}
+@media (min-width:1120px){
+  #sections{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:start;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  #sections>.card{
+    margin-bottom:0;
+  }
+  #sections>.card:last-child:nth-child(odd){
+    grid-column:1/-1;
+  }
+  #specials:has(>.card:nth-child(2)){
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:start;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  #specials:has(>.card:nth-child(2))>.card{
+    margin-bottom:0;
+  }
+}
+
 @media (max-width:680px){
   .topbar{align-items:flex-start;gap:10px;}
   .topbar-right{flex-wrap:wrap;justify-content:flex-end;}
@@ -933,6 +1166,16 @@ label.toggle-switch:has(input[type="checkbox"]){
   .email-control-layout{grid-template-columns:1fr;gap:10px;}
   .email-control-toggle{justify-content:flex-start;justify-self:start;}
   .queue-audit-row{align-items:flex-start;}
+  .wrap{padding:12px 10px 126px;}
+  .ag-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr));}
+  .critical-options-grid{grid-template-columns:1fr;}
+  .scorecard-action-dock{bottom:8px;width:calc(100vw - 16px);flex-wrap:wrap;gap:6px;padding:7px;}
+  .scorecard-action-dock button{flex:1 1 calc(50% - 6px);padding-right:8px;padding-left:8px;font-size:11px;}
+  .scorecard-action-dock #toggle-email-btn{margin-right:0 !important;}
+}
+@media print{
+  .scorecard-action-dock{display:none !important;}
+  .wrap{padding-bottom:0;}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
@@ -1082,15 +1325,15 @@ label.toggle-switch:has(input[type="checkbox"]){
       <div class="card">
         <div class="card-hd"><span class="card-title">General Call Overview & Coaching Notes</span></div>
         <div class="card-body">
-          <textarea id="notes" rows="4" style="width:100%;resize:vertical;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);" placeholder="Record key strengths, improvement areas, or general call overview..."></textarea>
+          <textarea id="notes" rows="3" style="width:100%;resize:vertical;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);" placeholder="Record key strengths, improvement areas, or general call overview..."></textarea>
         </div>
       </div>
 
       <!-- Toggle Email Preview Container -->
       <div id="inline-email-container" style="margin-bottom: 20px;"></div>
 
-      <div class="btn-row">
-        <button class="btn-secondary" id="toggle-email-btn" onclick="toggleEmailPreview()" style="margin-right:auto; border-color:var(--teal); color:var(--teal);">⬇ View/Edit Email Preview Here</button>
+      <div class="btn-row scorecard-action-dock">
+        <button class="btn-secondary" id="toggle-email-btn" onclick="toggleEmailPreview()" style="margin-right:auto; border-color:var(--teal); color:var(--teal);">View/edit email preview</button>
         <button class="btn-primary" id="submit-btn" onclick="submitAudit()">Submit to Google Sheets</button>
         <button class="btn-secondary" onclick="printPage()">Print / save PDF</button>
         <button class="btn-danger" onclick="resetForm()">Reset form</button>
@@ -1099,12 +1342,14 @@ label.toggle-switch:has(input[type="checkbox"]){
       <div id="queue-indicator" style="display:none; margin-top:8px; font-size:12px; color:var(--amber);"></div>
 
       <div id="debug-panel" style="display:none; background:#1a1a2e; color:#0f0; font-family:monospace; font-size:11px; padding:12px; border-radius:8px; margin-top:12px; border:1px solid #333; max-height:200px; overflow-y:auto;"></div>
-      <div style="margin-top:8px;">
-        <button class="btn-secondary" onclick="testConnection()" style="font-size:11px; padding:4px 10px;">Test Connection</button>
-        <button class="btn-secondary" onclick="toggleDebug()" style="font-size:11px; padding:4px 10px; margin-left:4px;">Toggle Debug</button>
-      </div>
+      <details class="scorecard-advanced-tools">
+        <summary>Connection and diagnostic tools</summary>
+        <div class="scorecard-tools-body">
+          <button class="btn-secondary" onclick="testConnection()" style="font-size:11px;">Test Connection</button>
+          <button class="btn-secondary" onclick="toggleDebug()" style="font-size:11px;">Toggle Debug</button>
+        </div>
+      </details>
 
-      <br>
       <details>
         <summary> How to connect your Google Sheet (UPDATED SCRIPT — Action Required) &nbsp;<span style="font-size:11px;color:var(--red);font-weight:600;">— Must re-deploy for email & Drive to work</span></summary>
         <div class="instructions-body">
@@ -2552,7 +2797,7 @@ function ensureHeaders(sheet, expectedHeaders) {
         const panel = document.getElementById('email-panel');
         document.getElementById('wrap').appendChild(panel); 
         const btn = document.getElementById('toggle-email-btn');
-        if (btn) btn.textContent = '⬇ View/Edit Email Preview Here';
+        if (btn) btn.textContent = 'View/edit email preview';
         
         panel.style.display = 'block';
         if (!currentAuditType) {
@@ -2639,9 +2884,9 @@ function ensureHeaders(sheet, expectedHeaders) {
           <div class="card-body">
             ${sec.desc ? `<p style="font-size:12px;margin-bottom:12px;color:var(--red); font-weight: 500;">${sec.desc}</p>` : ''}
             ${sec.type === 'checkboxes' ? `
-              <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="critical-options-grid">
               ${sec.options.map((o, i) => `
-                 <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;">
+                 <label class="critical-option">
                    <input type="checkbox" class="crit-cb" value="${o.label}" onchange="refreshAll()" style="width: 16px; height: 16px; accent-color: var(--red);">
                    ${o.label}
                  </label>
@@ -2991,11 +3236,11 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (panel.parentElement === container) {
         document.getElementById('wrap').appendChild(panel);
         panel.style.display = 'none';
-        btn.textContent = '⬇ View/Edit Email Preview Here';
+        btn.textContent = 'View/edit email preview';
       } else {
         container.appendChild(panel);
         panel.style.display = 'block';
-        btn.textContent = '⬆ Move Email Preview back to Tab';
+        btn.textContent = 'Return preview to its tab';
       }
     }
 
