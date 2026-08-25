@@ -82,7 +82,7 @@
 
     .score-pill {
       background: rgba(255, 255, 255, .15);
-      border-radius: 20px;
+      border-radius: var(--rs);
       padding: 4px 14px;
       font-size: 13px;
       font-weight: 500;
@@ -103,7 +103,7 @@
       padding: 6px;
       border-radius: var(--r);
       border: 1px solid var(--border);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+      box-shadow: none;
     }
 
     .tab {
@@ -423,7 +423,7 @@
       gap: 5px;
       background: var(--green-lt);
       color: var(--green);
-      border-radius: 20px;
+      border-radius: var(--rs);
       padding: 3px 10px;
       font-size: 11px;
       font-weight: 500;
@@ -650,6 +650,173 @@
       box-shadow: inset 0 0 0 1px var(--teal-md);
     }
   </style>
+<style id="ui-ai-detector-hardening">
+
+/* UI AI Detector remediation: form-led, brand-specific audit workflow */
+:root{
+  --navy:#1F1B1B;
+  --teal:#24631E;
+  --teal-lt:#EAEAD4;
+  --teal-md:#50824B;
+  --green:#24631E;
+  --green-lt:#EAEAD4;
+  --amber:#BF8500;
+  --amber-lt:#FFF4D6;
+  --red:#A32D2D;
+  --red-lt:#FCEBEB;
+  --blue:#4C4949;
+  --blue-lt:#F1F1E7;
+  --g50:#FAFAF5;
+  --g100:#F1F1E7;
+  --g200:#D8D8C3;
+  --g400:#74746A;
+  --g600:#56564F;
+  --g800:#302D2D;
+  --g900:#1F1B1B;
+  --border:#D8D8CE;
+  --r:8px;
+  --rs:5px;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:var(--g50);
+  color:var(--g900);
+  line-height:1.68;
+}
+input,select,textarea,button,select option{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+h1,h2,h3,h4,.topbar h1,.card-title,.sc-val{
+  font-family:"Rubik",sans-serif;
+  line-height:1.18;
+}
+.topbar{padding:12px 24px;}
+.topbar h1{font-size:20px;font-weight:650;}
+.topbar a{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  border:1px solid rgba(255,255,255,.34) !important;
+  border-radius:5px !important;
+  background:transparent !important;
+  padding:8px 12px !important;
+}
+.score-pill{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:5px;
+  background:transparent;
+  padding:8px 12px;
+}
+.tabs{
+  gap:0;
+  padding:0;
+  overflow:hidden;
+  border-radius:6px;
+  box-shadow:none;
+}
+.tab{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 8px;
+  border-radius:0;
+  border-right:1px solid var(--border);
+  font-size:12px;
+}
+.tab:last-child{border-right:0;}
+.tab.active{
+  background:var(--teal);
+  color:#fff;
+}
+.card{
+  border-radius:6px;
+  box-shadow:none;
+  margin-bottom:18px;
+}
+.card-hd{
+  min-height:48px;
+  padding:12px 16px;
+  border-radius:5px 5px 0 0;
+  background:var(--g100);
+}
+.card-title{
+  font-size:14px;
+  line-height:1.2;
+  text-transform:none;
+  letter-spacing:0;
+}
+.card-body{padding:18px;}
+.field label{
+  font-size:12px;
+  color:var(--g600);
+  letter-spacing:.02em;
+}
+.field input,.field select,.field textarea,
+.setup-url input{
+  min-height:44px;
+  padding:10px 12px;
+  border-radius:5px;
+}
+textarea{line-height:1.6;}
+.btn-primary,.btn-secondary,.btn-danger,.setup-url button,.copy-btn,.na-btn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:5px;
+}
+.score-bar{
+  gap:0;
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:#fff;
+}
+.sc-card{
+  border:0;
+  border-right:1px solid var(--border);
+  border-radius:0;
+  background:transparent;
+}
+.sc-card:last-child{border-right:0;}
+.sc-val{font-size:24px;line-height:1.15;}
+.reason-tabs{
+  gap:6px;
+  align-items:stretch;
+}
+.reason-tab,.reason-option-btn{
+  min-height:44px;
+  border-radius:5px;
+  padding:10px 12px;
+}
+.reason-option-btn.active{
+  box-shadow:none;
+}
+.toggle-switch{min-width:48px;min-height:30px;}
+.toast{border-radius:6px;}
+details>summary{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+}
+@media (max-width:680px){
+  .topbar{align-items:flex-start;gap:10px;}
+  .topbar-right{flex-wrap:wrap;justify-content:flex-end;}
+  .tabs{overflow:visible;}
+  .tab{border-right:0;border-bottom:1px solid var(--border);}
+  .tab:last-child{border-bottom:0;}
+  .score-bar{grid-template-columns:repeat(2,1fr);}
+  .sc-card{border-bottom:1px solid var(--border);}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+}
+
+</style>
 </head>
 
 <body>
@@ -657,7 +824,7 @@
   <div class="topbar">
     <h1 id="top-title">Combined Quality Audit</h1>
     <div class="topbar-right">
-      <a href="scorecard_analytics.html" target="_blank" style="background:rgba(255,255,255,.12);color:#fff;text-decoration:none;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">📊 Analytics</a>
+      <a href="scorecard_analytics.html" target="_blank" style="background:rgba(255,255,255,.12);color:#fff;text-decoration:none;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.12)'"> Analytics</a>
       <div class="score-pill"><span id="top-score">0</span> / 100</div>
       <div id="top-rating" style="font-size:12px;opacity:.8;">–</div>
     </div>
@@ -704,7 +871,7 @@
 
           <details style="margin-top: 14px; border: 1px dashed var(--border); border-radius: var(--rs); background: var(--g50);">
             <summary style="font-size: 12px; color: var(--teal); font-weight: 500; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-              <span>➕ Add/Edit Call Categories & Sub-Reasons</span>
+              <span> Add/Edit Call Categories & Sub-Reasons</span>
             </summary>
             <div style="padding: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
               <!-- Add Category -->
@@ -783,7 +950,7 @@
 
       <div class="card" style="border: 1px dashed var(--blue);">
         <div class="card-body">
-          <label id="upload-label" style="font-size:12px; font-weight:600; color:var(--blue); display:block; margin-bottom:6px;">📎 Upload Call Recording(s) (Optional)</label>
+          <label id="upload-label" style="font-size:12px; font-weight:600; color:var(--blue); display:block; margin-bottom:6px;"> Upload Call Recording(s) (Optional)</label>
           <input type="file" id="audio-upload" accept="audio/*, video/*" multiple style="font-size:13px; width:100%;" onchange="updateFileStatus()">
           <div id="file-status" style="font-size:12px; margin-top:6px; display:none;"></div>
           <div id="upload-desc" style="font-size:11px; color:var(--g400); margin-top:6px;">The file(s) will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.</div>
@@ -801,7 +968,7 @@
       <div id="inline-email-container" style="margin-bottom: 20px;"></div>
 
       <div class="btn-row">
-        <button class="btn-secondary" id="toggle-email-btn" onclick="toggleEmailPreview()" style="margin-right:auto; border-color:var(--teal); color:var(--teal);">⬇️ View/Edit Email Preview Here</button>
+        <button class="btn-secondary" id="toggle-email-btn" onclick="toggleEmailPreview()" style="margin-right:auto; border-color:var(--teal); color:var(--teal);">⬇ View/Edit Email Preview Here</button>
         <button class="btn-primary" id="submit-btn" onclick="submitAudit()">Submit to Google Sheets</button>
         <button class="btn-secondary" onclick="printPage()">Print / save PDF</button>
         <button class="btn-danger" onclick="resetForm()">Reset form</button>
@@ -817,9 +984,9 @@
 
       <br>
       <details>
-        <summary>⚙️ How to connect your Google Sheet (UPDATED SCRIPT — Action Required) &nbsp;<span style="font-size:11px;color:var(--red);font-weight:600;">— Must re-deploy for email & Drive to work</span></summary>
+        <summary> How to connect your Google Sheet (UPDATED SCRIPT — Action Required) &nbsp;<span style="font-size:11px;color:var(--red);font-weight:600;">— Must re-deploy for email & Drive to work</span></summary>
         <div class="instructions-body">
-          <p style="background: var(--red-lt); color: var(--red); padding: 10px; border-radius: var(--rs); margin-bottom: 15px; font-weight: 500;">⚠️ IMPORTANT: If you have already deployed a previous version, you MUST paste the new script below and re-deploy as a new version.</p>
+          <p style="background: var(--red-lt); color: var(--red); padding: 10px; border-radius: var(--rs); margin-bottom: 15px; font-weight: 500;"> IMPORTANT: If you have already deployed a previous version, you MUST paste the new script below and re-deploy as a new version.</p>
           <p><strong>Step 1:</strong> Open your Google Sheet → <strong>Extensions → Apps Script</strong>.</p>
           <p style="margin-top:8px;"><strong>Step 2:</strong> <u>Select all existing code and delete it</u>, then paste the new script below:</p>
           <div style="position:relative;">
@@ -1243,7 +1410,7 @@ function ensureHeaders(sheet, expectedHeaders) {
   }
 }</div>
           </div>
-          <p style="margin-top:8px;"><strong>Step 3 — Deploy as NEW version:</strong> In Apps Script, click <strong>Deploy → Manage Deployments</strong>. Click the ✏️ pencil/edit icon on your existing deployment. Change the <strong>Version</strong> dropdown to <strong>"New version"</strong>. Keep type as <strong>Web app</strong>, "Execute as" = <strong>Me</strong>, "Who has access" = <strong>Anyone</strong>. Click <strong>Deploy</strong>.</p>
+          <p style="margin-top:8px;"><strong>Step 3 — Deploy as NEW version:</strong> In Apps Script, click <strong>Deploy → Manage Deployments</strong>. Click the  pencil/edit icon on your existing deployment. Change the <strong>Version</strong> dropdown to <strong>"New version"</strong>. Keep type as <strong>Web app</strong>, "Execute as" = <strong>Me</strong>, "Who has access" = <strong>Anyone</strong>. Click <strong>Deploy</strong>.</p>
           <p style="margin-top:8px; background:var(--blue-lt); color:var(--blue); padding:10px; border-radius:var(--rs);"><strong>Step 3b — Authorize permissions (critical):</strong> After deploying, Google will show an <strong>"Authorization required"</strong> popup. Click <strong>"Review Permissions"</strong> → choose your Google account → click <strong>"Advanced"</strong> → <strong>"Go to [your project] (unsafe)"</strong> → <strong>"Allow"</strong>.</p>
           <p style="margin-top:8px;"><strong>Step 4:</strong> The deployment URL stays the same — you do NOT need to paste it again.</p>
         </div>
@@ -1339,7 +1506,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       const names = Array.from(inp.files).map(f => f.name + ' (' + (f.size / 1024 / 1024).toFixed(1) + ' MB)').join(', ');
       st.style.display = 'block';
       st.style.color = 'var(--green)';
-      st.innerHTML = '✅ Loaded: ' + names;
+      st.innerHTML = ' Loaded: ' + names;
     }
 
     function autoFillEmail() {
@@ -2243,11 +2410,11 @@ function ensureHeaders(sheet, expectedHeaders) {
         const uploadInput = document.getElementById('audio-upload');
         if (uploadLabel && uploadInput && uploadDesc) {
           if (type === 'sms' || type === 'email-audit') {
-            uploadLabel.textContent = '📎 Upload Screenshots/Files (Optional)';
+            uploadLabel.textContent = ' Upload Screenshots/Files (Optional)';
             uploadInput.accept = 'image/*, .pdf, .doc, .docx';
             uploadDesc.textContent = 'Files will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB.';
           } else {
-            uploadLabel.textContent = '📎 Upload Call Recording(s) (Optional)';
+            uploadLabel.textContent = ' Upload Call Recording(s) (Optional)';
             uploadInput.accept = 'audio/*, video/*';
             uploadDesc.textContent = 'The file(s) will be saved to Google Drive in a private per-agent folder and the link emailed automatically. Keep files under 10MB (MP3 recommended).';
           }
@@ -2263,7 +2430,7 @@ function ensureHeaders(sheet, expectedHeaders) {
         const panel = document.getElementById('email-panel');
         document.getElementById('wrap').appendChild(panel); 
         const btn = document.getElementById('toggle-email-btn');
-        if (btn) btn.textContent = '⬇️ View/Edit Email Preview Here';
+        if (btn) btn.textContent = '⬇ View/Edit Email Preview Here';
         
         panel.style.display = 'block';
         if (!currentAuditType) {
@@ -2450,7 +2617,7 @@ function ensureHeaders(sheet, expectedHeaders) {
         if (emailPaused && currentAuditType) {
           const count = queuedAudits.length + 1;
           qEl.style.display = 'block';
-          qEl.innerHTML = `⚠️ Emails paused. This audit will queue (<span style="font-weight:600;">${count} pending</span> after submit).`;
+          qEl.innerHTML = ` Emails paused. This audit will queue (<span style="font-weight:600;">${count} pending</span> after submit).`;
         } else {
           qEl.style.display = 'none';
         }
@@ -2496,8 +2663,8 @@ function ensureHeaders(sheet, expectedHeaders) {
       <!-- Analytics Access PIN -->
       <div class="card" style="border-color: var(--blue); margin-top: 14px;">
         <div class="card-hd" style="background: var(--blue-lt);">
-          <span class="card-title" style="color: var(--blue);">📊 Performance Analytics Access</span>
-          <span style="font-size:11px;color:${pinSet ? 'var(--green)' : 'var(--amber)'};font-weight:600;">${pinSet ? '✓ PIN set' : '⚠ No PIN set'}</span>
+          <span class="card-title" style="color: var(--blue);"> Performance Analytics Access</span>
+          <span style="font-size:11px;color:${pinSet ? 'var(--green)' : 'var(--amber)'};font-weight:600;">${pinSet ? ' PIN set' : ' No PIN set'}</span>
         </div>
         <div class="card-body">
           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Set a PIN to control who can access the <a href="scorecard_analytics.html" target="_blank">Performance Analytics Dashboard</a>. Only users who know this PIN can view agent performance data.</p>
@@ -2686,7 +2853,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
       localStorage.setItem('analytics_pin_hash', hash);
       input.value = '';
-      document.getElementById('pin-status').innerHTML = '<span style="color:var(--green);font-weight:500;">✓ PIN updated. Share this PIN with authorized team members.</span>';
+      document.getElementById('pin-status').innerHTML = '<span style="color:var(--green);font-weight:500;"> PIN updated. Share this PIN with authorized team members.</span>';
       showToast('Analytics PIN set successfully!', 'success');
       renderAgentsTab();
     }
@@ -2702,11 +2869,11 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (panel.parentElement === container) {
         document.getElementById('wrap').appendChild(panel);
         panel.style.display = 'none';
-        btn.textContent = '⬇️ View/Edit Email Preview Here';
+        btn.textContent = '⬇ View/Edit Email Preview Here';
       } else {
         container.appendChild(panel);
         panel.style.display = 'block';
-        btn.textContent = '⬆️ Move Email Preview back to Tab';
+        btn.textContent = '⬆ Move Email Preview back to Tab';
       }
     }
 
