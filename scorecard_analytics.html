@@ -1226,40 +1226,80 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
   min-width:0;
   min-height:0;
 }
-.panel-stat-grid{
+.panel-subtitle{
+  margin:-8px 0 16px;
+  color:var(--g600);
+  font-size:11px;
+  line-height:1.5;
+}
+.target-progress-list{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
   margin-top:18px;
   border-top:1px solid var(--border);
 }
-.panel-stat{
+.target-progress-row{
   min-width:0;
-  padding:12px 0 11px;
+  padding:12px 0;
 }
-.panel-stat:nth-child(odd){padding-right:12px;}
-.panel-stat:nth-child(even){
-  padding-left:12px;
-  border-left:1px solid var(--border);
+.target-progress-row+.target-progress-row{
+  border-top:1px solid var(--g100);
 }
-.panel-stat:nth-child(n+3){border-top:1px solid var(--border);}
-.panel-stat-label,.distribution-detail-label{
-  display:block;
+.target-progress-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:baseline;
+  gap:12px;
+}
+.target-progress-label{
   color:var(--g600);
   font-size:11px;
   line-height:1.4;
 }
-.panel-stat-value{
-  display:block;
-  margin-top:4px;
+.target-progress-value{
   color:var(--g900);
-  font:600 18px/1.2 "Rubik",sans-serif;
+  font:600 14px/1.25 "Rubik",sans-serif;
+  text-align:right;
 }
-.panel-stat-caption{
+.target-progress-caption{
   display:block;
   margin-top:3px;
   color:var(--g400);
   font-size:10px;
   line-height:1.45;
+}
+.target-track{
+  position:relative;
+  height:7px;
+  margin-top:8px;
+  overflow:hidden;
+  border-radius:3px;
+  background:var(--g100);
+}
+.target-fill{
+  height:100%;
+  border-radius:inherit;
+}
+.target-marker{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:2px;
+  background:var(--g800);
+  transform:translateX(-1px);
+}
+.target-movement{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  margin-top:14px;
+  padding:12px 0 0;
+  border-top:1px solid var(--border);
+}
+.target-movement strong{
+  color:var(--g900);
+  font:600 17px/1.2 "Rubik",sans-serif;
+  text-align:right;
 }
 .distribution-list{gap:12px;}
 .distribution-detail-list{
@@ -1269,13 +1309,19 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
 }
 .distribution-detail-row{
   display:grid;
-  grid-template-columns:minmax(92px,.8fr) minmax(0,1.2fr);
+  grid-template-columns:minmax(104px,.85fr) minmax(0,1.15fr);
   align-items:start;
   gap:10px;
   padding:11px 0;
 }
 .distribution-detail-row+.distribution-detail-row{
   border-top:1px solid var(--g100);
+}
+.distribution-detail-label{
+  display:block;
+  color:var(--g600);
+  font-size:11px;
+  line-height:1.4;
 }
 .distribution-detail-value{
   min-width:0;
@@ -1299,7 +1345,7 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
   .btn-sm,.copy-chart-btn,.filter-bar select,.filter-bar input[type="date"]{min-height:44px;}
   .department-trend-chart{height:260px;padding:10px 12px 16px;}
   .action-snapshot-item{gap:12px;padding:11px 12px;}
-  .panel-stat{padding-top:10px;padding-bottom:10px;}
+  .target-progress-row{padding:10px 0;}
   .distribution-detail-row{grid-template-columns:minmax(86px,.8fr) minmax(0,1.2fr);}
   .kpi-row,.channel-performance-grid{overflow:visible;border-radius:6px;}
   .kpi-card,.channel-performance-card{border-right:0;border-bottom:1px solid var(--border);}
@@ -1635,6 +1681,7 @@ const AUDIT_VERSION_POLL_MS = 5000;
 const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw18-Q3jen4eLPoDdW51AVdy12kpDEJD_Y0Rcoiu8Jy82RbFRsfwLNezL9dLTg8IYeUIg/exec';
 const COACHING_HUB_URL = 'https://script.google.com/a/macros/food4education.org/s/AKfycbxZ83A13qN_RBNzegUz5_DoZsc-RT1hCvUhOvTuDuoCBeqgsB1m0eMYgp2U1jKrC3V1lg/exec';
 const QUALITY_TARGET = 96;
+const FCR_TARGET = 95;
 const OVERVIEW_PAGE_SIZE = Number.MAX_SAFE_INTEGER;
 const INSIGHT_PAGE_SIZE = 6;
 
@@ -2504,24 +2551,17 @@ function escapeOverviewText(value) {
   return String(value == null ? '' : value).replace(/[&<>"']/g, character => replacements[character]);
 }
 
-function formatOverviewAgentNames(agents, limit = 2) {
+function formatOverviewAgentScores(agents, limit = 2) {
   if (!agents.length) return 'None';
-  const selected = agents.slice(0, limit).map(agent => agent.name).join(', ');
+  const selected = agents.slice(0, limit).map(agent => {
+    const score = Number.isFinite(agent.avgOverall) ? ' (' + agent.avgOverall.toFixed(1) + '%)' : '';
+    return escapeOverviewText(agent.name) + score;
+  }).join(', ');
   const remaining = agents.length - Math.min(agents.length, limit);
-  return escapeOverviewText(selected + (remaining > 0 ? ' +' + remaining + ' more' : ''));
+  return selected + (remaining > 0 ? ' +' + remaining + ' more' : '');
 }
 
 function getOverviewPanelDetails(agents, audits) {
-  let rosterCount = null;
-  try {
-    const managedAgents = JSON.parse(localStorage.getItem('managed_agents') || '[]');
-    if (Array.isArray(managedAgents) && managedAgents.length >= agents.length && managedAgents.length > 0) {
-      rosterCount = managedAgents.length;
-    }
-  } catch (error) {
-    rosterCount = null;
-  }
-
   const weeklyAudits = new Map();
   audits.forEach(audit => {
     const date = parseDate(audit.date);
@@ -2546,7 +2586,7 @@ function getOverviewPanelDetails(agents, audits) {
     sms: 'SMS',
     email: 'Email'
   };
-  const focusScores = currentType === 'all'
+  const channelScores = currentType === 'all'
     ? ALL_CHANNEL_TYPES.map(type => {
         const channelAudits = audits.filter(audit => audit.auditType === type);
         return {
@@ -2554,22 +2594,50 @@ function getOverviewPanelDetails(agents, audits) {
           score: channelAudits.length ? calculateAuditAverage(channelAudits) : null
         };
       }).filter(item => Number.isFinite(item.score))
+    : audits.length
+      ? [{ name: channelLabels[currentType] || CONFIGS[currentType].label, score: calculateAuditAverage(audits) }]
+      : [];
+
+  const focusScores = currentType === 'all'
+    ? [...channelScores]
     : [...new Set(audits.flatMap(audit => (audit.sections || []).map(section => section.name)))]
       .map(name => ({ name, score: calculateSectionAverage(audits, name) }))
       .filter(item => Number.isFinite(item.score));
   focusScores.sort((a, b) => a.score - b.score);
 
+  const weightedAudits = audits.filter(audit =>
+    Number.isFinite(audit.possibleTotal) && audit.possibleTotal > 0
+  );
+  const usesRawPointWeight = weightedAudits.length > 0;
+  const totalScoreWeight = usesRawPointWeight
+    ? weightedAudits.reduce((sum, audit) => sum + audit.possibleTotal, 0)
+    : audits.length;
+  const agentInfluence = agents.map(agent => {
+    const scoreWeight = usesRawPointWeight
+      ? (agent.audits || []).filter(audit =>
+          Number.isFinite(audit.possibleTotal) && audit.possibleTotal > 0
+        ).reduce((sum, audit) => sum + audit.possibleTotal, 0)
+      : agent.auditCount;
+    return {
+      agent,
+      share: totalScoreWeight > 0 ? scoreWeight / totalScoreWeight * 100 : 0
+    };
+  }).sort((a, b) => b.share - a.share);
+
   return {
-    rosterCount,
     weeklyChange,
+    channelsAtTarget: channelScores.filter(item => item.score >= QUALITY_TARGET).length,
+    activeChannelCount: channelScores.length,
     weakest: focusScores[0] || null,
     strongest: focusScores[focusScores.length - 1] || null,
-    priorityAgents: agents
-      .filter(agent => agent.avgOverall < THRESHOLDS.critical)
+    strongAgents: agents
+      .filter(agent => agent.avgOverall >= THRESHOLDS.strong)
+      .sort((a, b) => b.avgOverall - a.avgOverall),
+    belowTargetAgents: agents
+      .filter(agent => agent.avgOverall < THRESHOLDS.strong)
       .sort((a, b) => a.avgOverall - b.avgOverall),
-    monitorAgents: agents
-      .filter(agent => agent.avgOverall >= THRESHOLDS.critical && agent.avgOverall < THRESHOLDS.strong)
-      .sort((a, b) => a.avgOverall - b.avgOverall)
+    highestInfluence: agentInfluence[0] || null,
+    influenceBasis: usesRawPointWeight ? 'raw possible points' : 'completed audits'
   };
 }
 
@@ -2595,8 +2663,6 @@ function buildOverview(displayAgents) {
   const allAudits = allAgents.flatMap(agent => agent.audits || []);
   const csatProxy = calculateCsatProxy(allAudits);
   const fcr = calculateFcrRate(allAudits);
-  const bestAgent = allAgents.length > 0
-    ? allAgents.reduce((best, a) => a.avgOverall > best.avgOverall ? a : best, allAgents[0]) : null;
   const agentCount = allAgents.length;
   const strongCount = allAgents.filter(a => a.avgOverall >= THRESHOLDS.strong).length;
   const monitorCount = allAgents.filter(a => a.avgOverall >= THRESHOLDS.critical && a.avgOverall < THRESHOLDS.strong).length;
@@ -2650,60 +2716,88 @@ const qualityProgress = teamAvg > 0 ? Math.min(100, teamAvg / QUALITY_TARGET * 1
   const gap = teamAvg > 0 ? teamAvg - QUALITY_TARGET : 0;
   const panelDetails = getOverviewPanelDetails(allAgents, allAudits);
   const gapText = teamAvg > 0 ? Math.abs(gap).toFixed(1) + ' pts' : '–';
-  const gapLabel = gap >= 0 ? 'Above target' : 'Gap to target';
   const weeklyChangeText = panelDetails.weeklyChange === null
     ? '–'
     : (panelDetails.weeklyChange >= 0 ? '+' : '') + panelDetails.weeklyChange.toFixed(1) + ' pts';
-  const coverageText = panelDetails.rosterCount === null
-    ? String(agentCount)
-    : agentCount + ' / ' + panelDetails.rosterCount;
-  const coverageCaption = panelDetails.rosterCount === null
-    ? 'Agents in audit data'
-    : Math.round(agentCount / panelDetails.rosterCount * 100) + '% of managed roster';
+  const weeklyDirection = panelDetails.weeklyChange === null
+    ? 'Prior audited week unavailable'
+    : panelDetails.weeklyChange > 0
+      ? 'Moving toward the QA target'
+      : panelDetails.weeklyChange < 0
+        ? 'Moving away from the QA target'
+        : 'No change from the prior audited week';
+  const agentTargetShare = agentCount ? strongCount / agentCount * 100 : 0;
+  const channelTargetShare = panelDetails.activeChannelCount
+    ? panelDetails.channelsAtTarget / panelDetails.activeChannelCount * 100
+    : 0;
+  const fcrTargetGap = fcr.rate === null ? null : fcr.rate - FCR_TARGET;
+  const fcrTargetCaption = fcrTargetGap === null
+    ? 'No FCR responses recorded'
+    : fcrTargetGap >= 0
+      ? Math.abs(fcrTargetGap).toFixed(1) + ' points above target'
+      : Math.abs(fcrTargetGap).toFixed(1) + ' points to target';
 
   document.getElementById('ov-progress').innerHTML = `
-    <div class="panel-title">Department quality target</div>
+    <div class="panel-title">Progress against department targets</div>
+    <div class="panel-subtitle">QA target ${QUALITY_TARGET}% and FCR target ${FCR_TARGET}%, with attainment across agents and active channels.</div>
     <div class="progress-ring" style="--value:${qualityProgress.toFixed(1)}%;--ring-color:${gap >= 0 ? COLORS.green : COLORS.teal};">
-      <div class="progress-ring-value">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}<small>Current score</small></div>
+      <div class="progress-ring-value">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}<small>Department QA</small></div>
     </div>
     <div class="panel-note" style="text-align:center;">${teamAvg > 0
-      ? (gap >= 0 ? Math.abs(gap).toFixed(1) + ' points above the ' + QUALITY_TARGET + '% target.' : Math.abs(gap).toFixed(1) + ' points to the ' + QUALITY_TARGET + '% target.')
-      : 'No scores in the selected period.'}</div>
-    <div class="panel-stat-grid">
-      <div class="panel-stat"><span class="panel-stat-label">Quality target</span><strong class="panel-stat-value">${QUALITY_TARGET}%</strong><span class="panel-stat-caption">Department standard</span></div>
-      <div class="panel-stat"><span class="panel-stat-label">${gapLabel}</span><strong class="panel-stat-value">${gapText}</strong><span class="panel-stat-caption">Weighted audit score</span></div>
-      <div class="panel-stat"><span class="panel-stat-label">Agents at target</span><strong class="panel-stat-value">${strongCount} / ${agentCount}</strong><span class="panel-stat-caption">${agentCount ? Math.round(strongCount / agentCount * 100) : 0}% of audited agents</span></div>
-      <div class="panel-stat"><span class="panel-stat-label">Audit coverage</span><strong class="panel-stat-value">${coverageText}</strong><span class="panel-stat-caption">${coverageCaption}</span></div>
-      <div class="panel-stat"><span class="panel-stat-label">Audits reviewed</span><strong class="panel-stat-value">${totalAudits}</strong><span class="panel-stat-caption">Selected period</span></div>
-      <div class="panel-stat"><span class="panel-stat-label">Weekly movement</span><strong class="panel-stat-value">${weeklyChangeText}</strong><span class="panel-stat-caption">${panelDetails.weeklyChange === null ? 'Prior week unavailable' : 'Latest vs prior audited week'}</span></div>
+      ? (gap >= 0 ? Math.abs(gap).toFixed(1) + ' points above the QA target.' : Math.abs(gap).toFixed(1) + ' points to the QA target.')
+      : 'No QA scores in the selected period.'}</div>
+    <div class="target-progress-list">
+      <div class="target-progress-row">
+        <div class="target-progress-head"><span class="target-progress-label">First Contact Resolution</span><strong class="target-progress-value">${fcr.rate === null ? '–' : fcr.rate.toFixed(1) + '%'} / ${FCR_TARGET}%</strong></div>
+        <span class="target-progress-caption">${fcrTargetCaption}</span>
+        <div class="target-track"><div class="target-fill" style="width:${fcr.rate === null ? 0 : Math.min(100, fcr.rate).toFixed(1)}%;background:${fcr.rate !== null && fcr.rate >= FCR_TARGET ? COLORS.green : COLORS.amber};"></div><span class="target-marker" style="left:${FCR_TARGET}%;"></span></div>
+      </div>
+      <div class="target-progress-row">
+        <div class="target-progress-head"><span class="target-progress-label">Agents meeting QA target</span><strong class="target-progress-value">${strongCount} / ${agentCount}</strong></div>
+        <span class="target-progress-caption">${agentCount ? Math.round(agentTargetShare) : 0}% of audited agents are at or above ${QUALITY_TARGET}%</span>
+        <div class="target-track"><div class="target-fill" style="width:${agentTargetShare.toFixed(1)}%;background:${COLORS.green};"></div></div>
+      </div>
+      <div class="target-progress-row">
+        <div class="target-progress-head"><span class="target-progress-label">${currentType === 'all' ? 'Channels meeting QA target' : 'Selected channel status'}</span><strong class="target-progress-value">${currentType === 'all' ? panelDetails.channelsAtTarget + ' / ' + panelDetails.activeChannelCount : (teamAvg >= QUALITY_TARGET ? 'On target' : 'Below target')}</strong></div>
+        <span class="target-progress-caption">${currentType === 'all' ? Math.round(channelTargetShare) + '% of active channels are at or above ' + QUALITY_TARGET + '%' : CONFIGS[currentType].label + ' against the ' + QUALITY_TARGET + '% QA target'}</span>
+        <div class="target-track"><div class="target-fill" style="width:${currentType === 'all' ? channelTargetShare.toFixed(1) : (teamAvg >= QUALITY_TARGET ? 100 : 0)}%;background:${teamAvg >= QUALITY_TARGET || (currentType === 'all' && panelDetails.channelsAtTarget === panelDetails.activeChannelCount && panelDetails.activeChannelCount > 0) ? COLORS.green : COLORS.amber};"></div></div>
+      </div>
+    </div>
+    <div class="target-movement">
+      <div><span class="target-progress-label">Weekly QA movement</span><span class="target-progress-caption">${weeklyDirection}</span></div>
+      <strong class="${panelDetails.weeklyChange === null ? '' : panelDetails.weeklyChange >= 0 ? 'clr-strong' : 'clr-improve'}">${weeklyChangeText}</strong>
     </div>
   `;
 
   const maxBandCount = Math.max(strongCount, monitorCount, improveCount, 1);
   const focusLabel = currentType === 'all' ? 'channel' : 'QA area';
-  const topPerformerText = bestAgent
-    ? escapeOverviewText(bestAgent.name) + '<small>' + bestAgent.avgOverall.toFixed(1) + '% average</small>'
-    : 'No audit data';
   const weakestText = panelDetails.weakest
     ? escapeOverviewText(panelDetails.weakest.name) + '<small>' + panelDetails.weakest.score.toFixed(1) + '% average</small>'
     : 'No scored audits';
   const strongestText = panelDetails.strongest
     ? escapeOverviewText(panelDetails.strongest.name) + '<small>' + panelDetails.strongest.score.toFixed(1) + '% average</small>'
     : 'No scored audits';
+  const influenceText = panelDetails.highestInfluence
+    ? escapeOverviewText(panelDetails.highestInfluence.agent.name) +
+      '<small>' + panelDetails.highestInfluence.share.toFixed(1) + '% of department score weight · ' +
+      panelDetails.highestInfluence.agent.auditCount + ' audit' +
+      (panelDetails.highestInfluence.agent.auditCount === 1 ? '' : 's') + '</small>'
+    : 'No audit data';
 
   document.getElementById('ov-distribution').innerHTML = `
-    <div class="panel-title">Performance distribution</div>
+    <div class="panel-title">Agents and QA areas influencing performance</div>
+    <div class="panel-subtitle">Shows who is above or below target and where the weighted score is strongest or weakest.</div>
     <div class="distribution-list">
       <div class="dist-row"><span class="dist-label">At target</span><div class="mini-track"><div class="mini-fill" style="width:${strongCount / maxBandCount * 100}%;background:${COLORS.green};"></div></div><span class="dist-count clr-strong">${strongCount}</span></div>
       <div class="dist-row"><span class="dist-label">Monitor</span><div class="mini-track"><div class="mini-fill" style="width:${monitorCount / maxBandCount * 100}%;background:${COLORS.amber};"></div></div><span class="dist-count clr-critical">${monitorCount}</span></div>
       <div class="dist-row"><span class="dist-label">Needs action</span><div class="mini-track"><div class="mini-fill" style="width:${improveCount / maxBandCount * 100}%;background:${COLORS.red};"></div></div><span class="dist-count clr-improve">${improveCount}</span></div>
     </div>
     <div class="distribution-detail-list">
-      <div class="distribution-detail-row"><span class="distribution-detail-label">Priority coaching</span><span class="distribution-detail-value clr-improve">${formatOverviewAgentNames(panelDetails.priorityAgents)}</span></div>
-      <div class="distribution-detail-row"><span class="distribution-detail-label">Monitor closely</span><span class="distribution-detail-value clr-critical">${formatOverviewAgentNames(panelDetails.monitorAgents)}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Agents meeting target</span><span class="distribution-detail-value clr-strong">${formatOverviewAgentScores(panelDetails.strongAgents)}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Agents below target</span><span class="distribution-detail-value clr-critical">${formatOverviewAgentScores(panelDetails.belowTargetAgents)}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Highest score weight</span><span class="distribution-detail-value">${influenceText}<small>Weight based on ${panelDetails.influenceBasis}</small></span></div>
       <div class="distribution-detail-row"><span class="distribution-detail-label">Weakest ${focusLabel}</span><span class="distribution-detail-value">${weakestText}</span></div>
       <div class="distribution-detail-row"><span class="distribution-detail-label">Strongest ${focusLabel}</span><span class="distribution-detail-value">${strongestText}</span></div>
-      <div class="distribution-detail-row"><span class="distribution-detail-label">Top performer</span><span class="distribution-detail-value clr-strong">${topPerformerText}</span></div>
     </div>
   `;
 
