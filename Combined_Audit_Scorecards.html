@@ -1181,6 +1181,75 @@ body{
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
 }
 
+/* Owner-only controls */
+[data-admin-only][hidden],
+.admin-lock-overlay[hidden]{
+  display:none !important;
+}
+.admin-access-btn{
+  min-height:36px;
+  padding:7px 12px;
+  border:1px solid rgba(255,255,255,.45);
+  border-radius:4px;
+  background:transparent;
+  color:#fff;
+  font:500 12px 'Rubik',sans-serif;
+  cursor:pointer;
+}
+.admin-access-btn:hover,
+.admin-access-btn:focus-visible{
+  background:rgba(255,255,255,.12);
+  outline:2px solid rgba(255,255,255,.7);
+  outline-offset:2px;
+}
+.tab.admin-protected{border-style:dashed;}
+.readonly-connection-status{
+  display:flex;
+  align-items:center;
+  min-height:34px;
+  margin:0 0 10px;
+  padding:7px 10px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:#fff;
+  color:var(--g600);
+  font-size:12px;
+}
+.readonly-connection-status.is-connected{border-color:#8cc9b8;color:var(--teal);}
+.admin-lock-overlay{
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(12,20,34,.72);
+}
+.admin-lock-card{
+  width:min(420px,100%);
+  padding:22px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:#fff;
+  box-shadow:0 14px 34px rgba(0,0,0,.24);
+}
+.admin-lock-card h2{margin:0 0 8px;color:var(--navy);font-size:22px;line-height:1.2;}
+.admin-lock-card p{margin:0 0 14px;color:var(--g600);font-size:13px;line-height:1.6;}
+.admin-lock-card input{
+  width:100%;
+  min-height:44px;
+  padding:9px 11px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  font:400 14px 'Rubik',sans-serif;
+}
+.admin-lock-card input:focus{border-color:var(--teal);outline:2px solid rgba(13,110,86,.18);}
+.admin-lock-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+.admin-lock-actions button{min-height:44px;}
+.admin-lock-error{min-height:18px;margin-top:8px;color:var(--red);font-size:12px;}
+@media (max-width:700px){.admin-access-btn{min-height:44px;}}
+
 </style>
 </head>
 
@@ -1189,9 +1258,24 @@ body{
   <div class="topbar">
     <h1 id="top-title">Combined Quality Audit</h1>
     <div class="topbar-right">
+      <button type="button" class="admin-access-btn" id="admin-access-btn" onclick="handleAdminAccess()" aria-haspopup="dialog">Owner access</button>
       <a href="scorecard_analytics.html" target="_blank" style="background:rgba(255,255,255,.12);color:#fff;text-decoration:none;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:5px;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.12)'"> Analytics</a>
       <div class="score-pill"><span id="top-score">0</span> / 100</div>
       <div id="top-rating" style="font-size:12px;opacity:.8;">–</div>
+    </div>
+  </div>
+
+  <div class="admin-lock-overlay" id="admin-lock-overlay" hidden>
+    <div class="admin-lock-card" role="dialog" aria-modal="true" aria-labelledby="admin-lock-title">
+      <h2 id="admin-lock-title">Owner access</h2>
+      <p>Enter the owner access code to manage protected settings. Normal audit work remains available while these controls stay locked.</p>
+      <label for="admin-pin-input" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Owner access code</label>
+      <input type="password" id="admin-pin-input" maxlength="40" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockAdminControls()">
+      <div class="admin-lock-error" id="admin-pin-error" role="alert"></div>
+      <div class="admin-lock-actions">
+        <button type="button" class="btn-secondary" onclick="closeAdminPrompt()">Cancel</button>
+        <button type="button" class="btn-primary" onclick="unlockAdminControls()">Unlock settings</button>
+      </div>
     </div>
   </div>
 
@@ -1203,13 +1287,13 @@ body{
       <div class="tab" onclick="switchTab('survey')" id="tab-survey">CSAT Scorecard</div>
       <div class="tab" onclick="switchTab('sms')" id="tab-sms">SMS Audit</div>
       <div class="tab" onclick="switchTab('email-audit')" id="tab-email-audit">Email Audit</div>
-      <div class="tab" onclick="switchTab('agents')" id="tab-agents">Manage Agents</div>
+      <div class="tab admin-protected" onclick="switchTab('agents')" id="tab-agents" title="Owner access required">Manage Agents</div>
       <div class="tab" onclick="switchTab('email')" id="tab-email">Email & Export</div>
-      <div class="tab" onclick="switchTab('email-pause')" id="tab-email-pause">Email Control</div>
+      <div class="tab admin-protected" onclick="switchTab('email-pause')" id="tab-email-pause" title="Owner access required">Email Control</div>
     </div>
 
     <div id="audit-panels">
-      <div class="setup-panel" id="setup-panel">
+      <div class="setup-panel" id="setup-panel" data-admin-only hidden>
         <h3>Google Sheets connection</h3>
         <p style="font-size:12px;color:var(--blue);margin-bottom:10px;">Paste your Apps Script Web App URL below to automatically send audit results to your Google Sheet.</p>
         <div class="setup-url">
@@ -1218,6 +1302,7 @@ body{
         </div>
         <div id="conn-status" style="margin-top:8px;font-size:12px;"></div>
       </div>
+      <div id="readonly-connection-status" class="readonly-connection-status" role="status"></div>
 
       <div class="card">
         <div class="card-hd"><span class="card-title">Audit details</span></div>
@@ -1234,7 +1319,7 @@ body{
           <div class="reason-tabs" id="reason-tabs-container"></div>
           <div class="reason-options" id="reason-options-container"></div>
 
-          <details style="margin-top: 14px; border: 1px dashed var(--border); border-radius: var(--rs); background: var(--g50);">
+          <details id="call-reason-admin-tools" data-admin-only hidden style="margin-top: 14px; border: 1px dashed var(--border); border-radius: var(--rs); background: var(--g50);">
             <summary style="font-size: 12px; color: var(--teal); font-weight: 500; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
               <span> Add/Edit Call Categories & Sub-Reasons</span>
             </summary>
@@ -1341,8 +1426,8 @@ body{
       <div id="submit-status" class="submit-status"></div>
       <div id="queue-indicator" style="display:none; margin-top:8px; font-size:12px; color:var(--amber);"></div>
 
-      <div id="debug-panel" style="display:none; background:#1a1a2e; color:#0f0; font-family:monospace; font-size:11px; padding:12px; border-radius:8px; margin-top:12px; border:1px solid #333; max-height:200px; overflow-y:auto;"></div>
-      <details class="scorecard-advanced-tools">
+      <div id="debug-panel" data-admin-only hidden style="display:none; background:#1a1a2e; color:#0f0; font-family:monospace; font-size:11px; padding:12px; border-radius:8px; margin-top:12px; border:1px solid #333; max-height:200px; overflow-y:auto;"></div>
+      <details class="scorecard-advanced-tools" data-admin-only hidden>
         <summary>Connection and diagnostic tools</summary>
         <div class="scorecard-tools-body">
           <button class="btn-secondary" onclick="testConnection()" style="font-size:11px;">Test Connection</button>
@@ -1350,7 +1435,7 @@ body{
         </div>
       </details>
 
-      <details>
+      <details id="sheet-setup-instructions" data-admin-only hidden>
         <summary> How to connect your Google Sheet (UPDATED SCRIPT — Action Required) &nbsp;<span style="font-size:11px;color:var(--red);font-weight:600;">— Must re-deploy for email & Drive to work</span></summary>
         <div class="instructions-body">
           <p style="background: var(--red-lt); color: var(--red); padding: 10px; border-radius: var(--rs); margin-bottom: 15px; font-weight: 500;"> IMPORTANT: If you have already deployed a previous version, you MUST paste the new script below and re-deploy as a new version.</p>
@@ -1895,6 +1980,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function addAgent() {
+      if (!requireAdminAccess()) return;
       const nameEl = document.getElementById('new-ag-name');
       const emailEl = document.getElementById('new-ag-email');
       const evaluatorEl = document.getElementById('new-ag-evaluator');
@@ -1914,6 +2000,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function toggleEvaluator(idx, isEvaluator) {
+      if (!requireAdminAccess()) return;
       if (!agents[idx]) return;
       agents[idx].isEvaluator = isEvaluator;
       localStorage.setItem('managed_agents', JSON.stringify(agents));
@@ -1923,6 +2010,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function deleteAgent(idx) {
+      if (!requireAdminAccess()) return;
       if (!confirm(`Remove agent ${agents[idx].name}?`)) return;
       agents.splice(idx, 1);
       localStorage.setItem('managed_agents', JSON.stringify(agents));
@@ -2190,6 +2278,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function handleEditCategory() {
+      if (!requireAdminAccess()) return;
       const selectEl = document.getElementById('edit-category-select');
       const inputEl = document.getElementById('edit-category-name');
       if (!selectEl || !inputEl) return;
@@ -2247,6 +2336,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function handleAddCategory() {
+      if (!requireAdminAccess()) return;
       const inputEl = document.getElementById('new-category-name');
       if (!inputEl) return;
       const catName = inputEl.value.trim();
@@ -2267,6 +2357,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function handleAddSubReason() {
+      if (!requireAdminAccess()) return;
       const selectEl = document.getElementById('add-to-category-select');
       const inputEl = document.getElementById('new-subreason-name');
       if (!selectEl || !inputEl) return;
@@ -2743,7 +2834,122 @@ function ensureHeaders(sheet, expectedHeaders) {
     let currentAuditType = null;
     let scores = {};
 
+
+    const OWNER_ACCESS_HASH = 'deab91472b3a906e5b22f5990b3e36856d8b1ef1a27a56a404d715a2d351d27d';
+    const OWNER_ACCESS_VERSION = '2026-08-25-owner-lock-v1';
+    const ADMIN_SESSION_KEY = 'qa_owner_admin_session';
+    const ADMIN_SESSION_TTL_MS = 30 * 60 * 1000;
+    const PROTECTED_TABS = new Set(['agents', 'email-pause']);
+    let pendingAdminTab = null;
+
+    function initializeOwnerAccess() {
+      if (localStorage.getItem('qa_owner_access_version') !== OWNER_ACCESS_VERSION) {
+        localStorage.removeItem('analytics_pin_hash');
+        localStorage.removeItem('analytics_session');
+        sessionStorage.removeItem(ADMIN_SESSION_KEY);
+        localStorage.setItem('qa_owner_access_version', OWNER_ACCESS_VERSION);
+      }
+    }
+
+    function getOwnerAccessHash() {
+      return localStorage.getItem('analytics_pin_hash') || OWNER_ACCESS_HASH;
+    }
+
+    function hasAdminSession() {
+      const started = Number(sessionStorage.getItem(ADMIN_SESSION_KEY));
+      if (!started || Date.now() - started > ADMIN_SESSION_TTL_MS) {
+        sessionStorage.removeItem(ADMIN_SESSION_KEY);
+        return false;
+      }
+      return true;
+    }
+
+    function openAdminPrompt(requestedTab) {
+      pendingAdminTab = requestedTab || null;
+      const overlay = document.getElementById('admin-lock-overlay');
+      const input = document.getElementById('admin-pin-input');
+      const error = document.getElementById('admin-pin-error');
+      if (error) error.textContent = '';
+      if (overlay) overlay.hidden = false;
+      if (input) {
+        input.value = '';
+        setTimeout(() => input.focus(), 0);
+      }
+    }
+
+    function closeAdminPrompt() {
+      const overlay = document.getElementById('admin-lock-overlay');
+      const input = document.getElementById('admin-pin-input');
+      const error = document.getElementById('admin-pin-error');
+      if (overlay) overlay.hidden = true;
+      if (input) input.value = '';
+      if (error) error.textContent = '';
+      pendingAdminTab = null;
+    }
+
+    async function unlockAdminControls() {
+      const input = document.getElementById('admin-pin-input');
+      const error = document.getElementById('admin-pin-error');
+      const pin = input ? input.value.trim() : '';
+      if (!pin) {
+        if (error) error.textContent = 'Enter the owner access code.';
+        return;
+      }
+      const hash = await hashOwnerAccess(pin);
+      if (hash !== getOwnerAccessHash()) {
+        if (error) error.textContent = 'Incorrect owner access code.';
+        if (input) input.select();
+        return;
+      }
+      const requestedTab = pendingAdminTab;
+      sessionStorage.setItem(ADMIN_SESSION_KEY, Date.now().toString());
+      closeAdminPrompt();
+      refreshAdminAccessUi();
+      if (requestedTab) switchTab(requestedTab);
+      showToast('Owner settings unlocked for 30 minutes.', 'success');
+    }
+
+    async function hashOwnerAccess(value) {
+      const data = new TextEncoder().encode(value);
+      const buffer = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function requireAdminAccess(requestedTab) {
+      if (hasAdminSession()) return true;
+      openAdminPrompt(requestedTab);
+      return false;
+    }
+
+    function lockAdminControls() {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      const activeProtectedTab = document.querySelector('.tab.admin-protected.active');
+      refreshAdminAccessUi();
+      if (activeProtectedTab) switchTab(currentAuditType || 'inbound');
+      showToast('Owner settings locked.', 'info');
+    }
+
+    function handleAdminAccess() {
+      if (hasAdminSession()) lockAdminControls();
+      else openAdminPrompt();
+    }
+
+    function refreshAdminAccessUi() {
+      const unlocked = hasAdminSession();
+      document.querySelectorAll('[data-admin-only]').forEach(element => {
+        element.hidden = !unlocked;
+        if (!unlocked && element.tagName === 'DETAILS') element.open = false;
+      });
+      const status = document.getElementById('readonly-connection-status');
+      if (status) status.hidden = unlocked;
+      const button = document.getElementById('admin-access-btn');
+      if (button) button.textContent = unlocked ? 'Lock settings' : 'Owner access';
+      const debugPanel = document.getElementById('debug-panel');
+      if (!unlocked && debugPanel) debugPanel.style.display = 'none';
+    }
+
     function switchTab(type) {
+      if (PROTECTED_TABS.has(type) && !requireAdminAccess(type)) return;
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.getElementById('tab-' + type).classList.add('active');
 
@@ -3000,7 +3206,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function renderAgentsTab() {
-      const pinSet = localStorage.getItem('analytics_pin_hash') ? true : false;
+      const pinSet = true;
       const cont = document.getElementById('agents-panel');
       cont.innerHTML = `
       <div class="card">
@@ -3039,13 +3245,13 @@ function ensureHeaders(sheet, expectedHeaders) {
       <div class="card" style="border-color: var(--blue); margin-top: 14px;">
         <div class="card-hd" style="background: var(--blue-lt);">
           <span class="card-title" style="color: var(--blue);"> Performance Analytics Access</span>
-          <span style="font-size:11px;color:${pinSet ? 'var(--green)' : 'var(--amber)'};font-weight:600;">${pinSet ? ' PIN set' : ' No PIN set'}</span>
+          <span style="font-size:11px;color:${pinSet ? 'var(--green)' : 'var(--amber)'};font-weight:600;">${pinSet ? ' Owner access configured' : ' Owner access unavailable'}</span>
         </div>
         <div class="card-body">
-          <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Set a PIN to control who can access the <a href="scorecard_analytics.html" target="_blank">Performance Analytics Dashboard</a>. Only users who know this PIN can view agent performance data.</p>
+          <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Change the owner access code saved on this browser. The dashboard, agent administration, Google Sheets setup, diagnostics, and email-sending controls remain owner-only.</p>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <input type="password" id="analytics-pin-input" placeholder="Enter access PIN" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;width:180px;">
-            <button class="btn-primary" onclick="setAnalyticsPin()" style="background:var(--blue);">Set PIN</button>
+            <input type="password" id="analytics-pin-input" placeholder="New owner access code" style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;width:180px;">
+            <button class="btn-primary" onclick="setAnalyticsPin()" style="background:var(--blue);">Save new code</button>
             <a href="scorecard_analytics.html" target="_blank" style="padding:8px 16px;background:#fff;border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--blue);text-decoration:none;font-weight:500;">Open Analytics →</a>
           </div>
           <div id="pin-status" style="font-size:11px;margin-top:8px;color:var(--g400);"></div>
@@ -3132,6 +3338,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function toggleEmailPause() {
+      if (!requireAdminAccess()) return;
       emailPaused = document.getElementById('email-pause-toggle').checked;
       localStorage.setItem('email_send_paused', JSON.stringify(emailPaused));
       updateQueueIndicator();
@@ -3140,6 +3347,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function removeQueued(idx) {
+      if (!requireAdminAccess()) return;
       if (!confirm('Remove this queued audit? This cannot be undone.')) return;
       queuedAudits.splice(idx, 1);
       try { localStorage.setItem('queued_audits', JSON.stringify(queuedAudits)); } catch(e) {}
@@ -3148,6 +3356,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function clearAllQueued() {
+      if (!requireAdminAccess()) return;
       if (queuedAudits.length === 0) return;
       if (!confirm(`Clear all ${queuedAudits.length} queued audit(s)? This cannot be undone.`)) return;
       queuedAudits = [];
@@ -3157,6 +3366,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     async function sendAllQueued() {
+      if (!requireAdminAccess()) return;
       if (queuedAudits.length === 0) {
         showToast('No queued audits to send.', 'info');
         return;
@@ -3201,6 +3411,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function exportQueuedCSV() {
+      if (!requireAdminAccess()) return;
       if (queuedAudits.length === 0) { showToast('No queued audits to export.', 'info'); return; }
       const headers = Object.keys(queuedAudits[0]).filter(k => k !== 'files' && k !== 'emailSettings' && k !== 'row' && k !== 'headers');
       let csv = headers.join(',') + '\n';
@@ -3219,6 +3430,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     async function setAnalyticsPin() {
+      if (!requireAdminAccess()) return;
       const input = document.getElementById('analytics-pin-input');
       const pin = input.value.trim();
       if (!pin) { showToast('Please enter a PIN.', 'error'); return; }
@@ -3227,9 +3439,10 @@ function ensureHeaders(sheet, expectedHeaders) {
       const buf = await crypto.subtle.digest('SHA-256', data);
       const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
       localStorage.setItem('analytics_pin_hash', hash);
+      sessionStorage.setItem(ADMIN_SESSION_KEY, Date.now().toString());
       input.value = '';
-      document.getElementById('pin-status').innerHTML = '<span style="color:var(--green);font-weight:500;"> PIN updated. Share this PIN with authorized team members.</span>';
-      showToast('Analytics PIN set successfully!', 'success');
+      document.getElementById('pin-status').innerHTML = '<span style="color:var(--green);font-weight:500;"> Owner access code updated on this browser.</span>';
+      showToast('Owner access code updated.', 'success');
       renderAgentsTab();
     }
 
@@ -3422,6 +3635,7 @@ ${attachmentText}
     }
 
     function saveUrl() {
+      if (!requireAdminAccess()) return;
       const url = document.getElementById('sheet-url').value.trim();
       if (!url.startsWith('https://script.google.com')) {
         showToast('Please enter a valid Apps Script URL.', 'error'); return;
@@ -3433,10 +3647,19 @@ ${attachmentText}
 
     function updateConnStatus(url) {
       const el = document.getElementById('conn-status');
+      const readOnly = document.getElementById('readonly-connection-status');
       if (url) {
-        el.innerHTML = '<span class="connected-badge">&#10003; Connected</span> &nbsp;<span style="font-size:11px;color:var(--g400);">Audits will be sent to your sheet.</span>';
+        if (el) el.innerHTML = '<span class="connected-badge">&#10003; Connected</span> &nbsp;<span style="font-size:11px;color:var(--g400);">Audits will be sent to your sheet.</span>';
+        if (readOnly) {
+          readOnly.textContent = 'Google Sheets connected. Connection settings are owner-protected.';
+          readOnly.classList.add('is-connected');
+        }
       } else {
-        el.innerHTML = '<span style="color:var(--amber);font-size:12px;">No sheet connected. Audits won\'t be saved automatically.</span>';
+        if (el) el.innerHTML = '<span style="color:var(--amber);font-size:12px;">No sheet connected. Audits won\'t be saved automatically.</span>';
+        if (readOnly) {
+          readOnly.textContent = 'Google Sheets is not connected. Ask the owner to configure the connection.';
+          readOnly.classList.remove('is-connected');
+        }
       }
     }
 
@@ -3741,6 +3964,7 @@ ${attachmentText}
     }
 
     function copyScript() {
+      if (!requireAdminAccess()) return;
       const text = document.getElementById('script-block').textContent;
       navigator.clipboard.writeText(text).then(() => showToast('Script copied to clipboard.', 'info'));
     }
@@ -3756,11 +3980,13 @@ ${attachmentText}
     }
 
     function toggleDebug() {
+      if (!requireAdminAccess()) return;
       var panel = document.getElementById('debug-panel');
       panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
     }
 
     async function testConnection() {
+      if (!requireAdminAccess()) return;
       var url = localStorage.getItem('combined_audit_sheet_url');
       if (!url) { showToast('No sheet URL configured.', 'error'); return; }
       logDebug('Testing connection to: ' + url.substring(0, 60) + '...');
@@ -3804,6 +4030,15 @@ ${attachmentText}
         showToast('POST failed: ' + err.message, 'error');
       }
     }
+
+    initializeOwnerAccess();
+    refreshAdminAccessUi();
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !document.getElementById('admin-lock-overlay').hidden) closeAdminPrompt();
+    });
+    window.setInterval(() => {
+      if (!hasAdminSession()) refreshAdminAccessUi();
+    }, 60000);
 
     const prevUrl = localStorage.getItem('sms_audit_sheet_url');
     const savedUrl = localStorage.getItem('combined_audit_sheet_url') || prevUrl;
