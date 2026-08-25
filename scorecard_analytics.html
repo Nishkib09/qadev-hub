@@ -1153,10 +1153,59 @@ h1,h2,h3,h4,.sidebar-brand,.kpi-value,.agent-score,.channel-performance-score,
 .insight-card.sev-strong .insight-title{color:var(--green);}
 .insight-card.sev-trend .insight-title{color:var(--g800);}
 .insight-icon,.action-snapshot-icon,.empty-icon{display:none;}
+.action-snapshot{
+  gap:10px;
+}
 .action-snapshot-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:16px;
+  min-height:68px;
+  padding:12px 14px;
   border-radius:5px;
   box-shadow:none;
   transition:background .15s;
+}
+.action-snapshot-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.action-snapshot-copy strong{
+  font-size:13px;
+  line-height:1.3;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+.action-snapshot-copy span{
+  font-size:11px;
+  line-height:1.45;
+}
+.action-snapshot-count{
+  min-width:30px;
+  justify-self:end;
+  text-align:right;
+  font:700 22px "Rubik",sans-serif;
+  line-height:1;
+}
+.chart-hd{
+  gap:16px;
+}
+.chart-title{
+  font-family:"Rubik",sans-serif;
+  line-height:1.35;
+}
+.department-trend-chart{
+  height:300px;
+  padding:12px 20px 20px;
+}
+.department-trend-chart canvas{
+  display:block;
+  width:100% !important;
+  height:100% !important;
+  max-height:none;
 }
 .action-snapshot-item:hover{transform:none;background:var(--g100);}
 .workspace-card.primary{
@@ -1171,6 +1220,8 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
 @media (max-width:760px){
   .topbar-dash,.topbar-actions,.filter-bar{gap:8px;}
   .btn-sm,.copy-chart-btn,.filter-bar select,.filter-bar input[type="date"]{min-height:44px;}
+  .department-trend-chart{height:260px;padding:10px 12px 16px;}
+  .action-snapshot-item{gap:12px;padding:11px 12px;}
   .kpi-row,.channel-performance-grid{overflow:visible;border-radius:6px;}
   .kpi-card,.channel-performance-card{border-right:0;border-bottom:1px solid var(--border);}
   .kpi-card:last-child,.channel-performance-card:last-child{border-bottom:0;}
@@ -1326,7 +1377,7 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
             <span class="chart-title">Department Performance Trend · weighted from raw audit points</span>
             <button class="copy-chart-btn" onclick="copyChart('ov-trend-chart')"> Copy</button>
           </div>
-          <div class="chart-body"><canvas id="ov-trend-chart" height="220"></canvas></div>
+          <div class="chart-body department-trend-chart"><canvas id="ov-trend-chart" height="280"></canvas></div>
         </div>
         <div class="sec-header">
           <div>
@@ -2261,15 +2312,49 @@ function mkChart(id, type, labels, datasets, opts = {}) {
   const canvas = document.getElementById(id);
   if (!canvas) return;
   if (CHART_INSTANCES[id]) { CHART_INSTANCES[id].destroy(); }
+
+  const pixelRatio = Math.min(3, Math.max(2, Number(window.devicePixelRatio) || 1));
+  const chartFont = "'Rubik', -apple-system, 'Segoe UI', sans-serif";
+  const chartInk = '#56564f';
+  const chartGrid = 'rgba(31,27,27,.08)';
+
   CHART_INSTANCES[id] = new Chart(canvas, {
     type,
     data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      devicePixelRatio: pixelRatio,
+      resizeDelay: 120,
+      animation: false,
+      normalized: true,
+      layout: { padding: { top: 4, right: 8, bottom: 2, left: 2 } },
+      interaction: { mode: 'index', intersect: false },
+      elements: {
+        line: { borderWidth: 2.5, capBezierPoints: true },
+        point: { radius: 3, hoverRadius: 5, hitRadius: 8 }
+      },
       plugins: {
-        legend: { display: opts.legend !== false, ...(opts.legendOpts || {}) },
+        legend: {
+          display: opts.legend !== false,
+          position: 'top',
+          align: 'center',
+          labels: {
+            color: '#302d2d',
+            font: { family: chartFont, size: 12, weight: '500' },
+            boxWidth: 16,
+            boxHeight: 8,
+            padding: 18,
+            usePointStyle: true,
+            pointStyle: 'line'
+          },
+          ...(opts.legendOpts || {})
+        },
         tooltip: {
+          backgroundColor: '#1f1b1b',
+          titleFont: { family: chartFont, size: 12, weight: '600' },
+          bodyFont: { family: chartFont, size: 12 },
+          padding: 10,
           callbacks: {
             label: ctx => {
               const v = ctx.parsed?.y ?? ctx.parsed?.r ?? ctx.parsed;
@@ -2281,14 +2366,51 @@ function mkChart(id, type, labels, datasets, opts = {}) {
       scales: (type === 'pie' || type === 'doughnut' || type === 'radar') ? (
         type === 'radar' ? {
           r: {
-            beginAtZero: true, min: 0, max: 100,
-            ticks: { stepSize: 20, callback: v => v + '%', font: { size: 10 } },
-            pointLabels: { font: { size: 10 } }
+            beginAtZero: true,
+            min: 0,
+            max: 100,
+            ticks: {
+              stepSize: 20,
+              callback: v => v + '%',
+              color: chartInk,
+              backdropColor: 'transparent',
+              font: { family: chartFont, size: 10 }
+            },
+            pointLabels: { color: chartInk, font: { family: chartFont, size: 10 } },
+            grid: { color: chartGrid },
+            angleLines: { color: chartGrid }
           }
         } : {}
       ) : {
-        y: { beginAtZero: true, min: opts.yMin ?? 0, max: opts.yMax ?? 100, ticks: { callback: v => v + '%' }, ...(opts.yOpts || {}) },
-        x: { ticks: { font: { size: 11 } }, ...(opts.xOpts || {}) }
+        y: {
+          beginAtZero: true,
+          min: opts.yMin ?? 0,
+          max: opts.yMax ?? 100,
+          alignToPixels: true,
+          ticks: {
+            callback: v => v + '%',
+            color: chartInk,
+            padding: 8,
+            font: { family: chartFont, size: 11 }
+          },
+          grid: { color: chartGrid, drawTicks: false },
+          border: { display: false },
+          ...(opts.yOpts || {})
+        },
+        x: {
+          alignToPixels: true,
+          ticks: {
+            color: chartInk,
+            padding: 8,
+            maxRotation: 0,
+            autoSkip: true,
+            autoSkipPadding: 18,
+            font: { family: chartFont, size: 11 }
+          },
+          grid: { display: false, drawTicks: false },
+          border: { display: false },
+          ...(opts.xOpts || {})
+        }
       },
       ...(opts.extra || {})
     }
@@ -2534,10 +2656,16 @@ function buildDepartmentTrend(agents) {
         label: 'Department score',
         data: scores,
         borderColor: COLORS.teal,
-        backgroundColor: 'rgba(13,110,86,.09)',
+        backgroundColor: 'rgba(36,99,30,.06)',
         fill: true,
-        tension: .3,
-        pointRadius: 4
+        tension: .24,
+        cubicInterpolationMode: 'monotone',
+        borderWidth: 2.5,
+        pointRadius: 3.5,
+        pointHoverRadius: 5,
+        pointBackgroundColor: '#ffffff',
+        pointBorderColor: COLORS.teal,
+        pointBorderWidth: 2
       },
       {
         label: 'Quality target',
