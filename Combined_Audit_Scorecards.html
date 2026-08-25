@@ -812,6 +812,116 @@ label:has(input[type="checkbox"]){min-height:44px;padding:6px 0;}
 input[type="checkbox"]{width:22px !important;height:22px !important;}
 .code-block a{min-height:44px;display:inline-flex;align-items:center;}
 .card-body a[href="scorecard_analytics.html"]{min-height:44px;display:inline-flex;align-items:center;}
+
+/* Keep content, operational controls and queue states aligned at every viewport width. */
+.card-hd{
+  gap:12px;
+  min-width:0;
+}
+.card-title,.card-body,.setup-url input{min-width:0;}
+.email-control-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:20px;
+}
+.email-control-copy{min-width:0;}
+.email-control-status{
+  margin:0 0 5px;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.5;
+}
+.email-control-help{
+  margin:0;
+  color:var(--g600);
+  font-size:11px;
+  line-height:1.6;
+}
+.toggle-wrap{
+  display:inline-flex;
+  min-height:44px;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  white-space:nowrap;
+}
+.toggle-switch,
+label.toggle-switch:has(input[type="checkbox"]){
+  position:relative;
+  display:inline-flex;
+  width:52px;
+  min-width:52px;
+  height:44px;
+  min-height:44px;
+  align-items:center;
+  flex:0 0 52px;
+  padding:0;
+}
+.toggle-switch input[type="checkbox"]{
+  position:absolute;
+  width:1px !important;
+  height:1px !important;
+  margin:0;
+  opacity:0;
+}
+.toggle-slider{
+  top:8px;
+  right:auto;
+  bottom:auto;
+  left:0;
+  width:52px;
+  height:28px;
+  border-radius:14px;
+}
+.toggle-slider::before{
+  width:22px;
+  height:22px;
+  left:3px;
+  bottom:3px;
+}
+.queue-badge{
+  display:inline-flex;
+  min-height:26px;
+  align-items:center;
+  border-radius:4px;
+}
+.queue-badge.queue-clear{
+  background:var(--g100);
+  color:var(--g600);
+}
+.queue-empty-state{
+  display:flex;
+  min-height:68px;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+}
+.queue-empty-state strong{
+  color:var(--g900);
+  font-size:13px;
+  line-height:1.4;
+}
+.queue-empty-state span{
+  color:var(--g600);
+  font-size:12px;
+  line-height:1.5;
+}
+.queue-audit-row{
+  display:flex;
+  min-width:0;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:9px 0;
+  border-bottom:1px solid var(--g100);
+  font-size:13px;
+}
+.queue-audit-details{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+
 @media (max-width:680px){
   .topbar{align-items:flex-start;gap:10px;}
   .topbar-right{flex-wrap:wrap;justify-content:flex-end;}
@@ -820,6 +930,9 @@ input[type="checkbox"]{width:22px !important;height:22px !important;}
   .tab:last-child{border-bottom:0;}
   .score-bar{grid-template-columns:repeat(2,1fr);}
   .sc-card{border-bottom:1px solid var(--border);}
+  .email-control-layout{grid-template-columns:1fr;gap:10px;}
+  .email-control-toggle{justify-content:flex-start;justify-self:start;}
+  .queue-audit-row{align-items:flex-start;}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
@@ -2697,14 +2810,14 @@ function ensureHeaders(sheet, expectedHeaders) {
           <span class="card-title" style="color:${isPaused ? 'var(--amber)' : 'var(--green)'};">Email Sending Control</span>
         </div>
         <div class="card-body">
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
-            <div>
-              <p style="font-size:13px; font-weight:500; margin-bottom:4px;">
+          <div class="email-control-layout">
+            <div class="email-control-copy">
+              <p class="email-control-status">
                 Currently: <span class="pause-label ${isPaused ? 'active-text' : 'inactive-text'}">${isPaused ? 'PAUSED — emails will NOT be sent' : 'ACTIVE — emails sent immediately on submit'}</span>
               </p>
-              <p style="font-size:11px; color:var(--g400);">When paused, audits still go to the Google Sheet. Feedback emails are queued for later batch send.</p>
+              <p class="email-control-help">When paused, audits still go to the Google Sheet. Feedback emails wait in the queue until you send them.</p>
             </div>
-            <div class="toggle-wrap">
+            <div class="toggle-wrap email-control-toggle">
               <span style="color:var(--green);font-weight:600;font-size:13px;">Send</span>
               <label class="toggle-switch">
                 <input type="checkbox" id="email-pause-toggle" ${isPaused ? 'checked' : ''} onchange="toggleEmailPause()">
@@ -2717,15 +2830,15 @@ function ensureHeaders(sheet, expectedHeaders) {
       </div>
 
       <div class="card">
-        <div class="card-hd"><span class="card-title">Queued Feedback</span> ${queuedAudits.length > 0 ? `<span class="queue-badge">${queuedAudits.length} pending</span>` : ''}</div>
+        <div class="card-hd"><span class="card-title">Queued Feedback</span> ${queuedAudits.length > 0 ? `<span class="queue-badge">${queuedAudits.length} pending</span>` : `<span class="queue-badge queue-clear">0 pending</span>`}</div>
         <div class="card-body">
           ${queuedAudits.length === 0 ? `
-            <p style="font-size:13px; color:var(--g400); text-align:center; padding:20px;">No queued feedback. All audits have been emailed.</p>
+            <div class="queue-empty-state"><strong>Queue is clear</strong><span>All completed audits have been emailed.</span></div>
           ` : `
             <div style="margin-bottom:16px;">
               ${queuedAudits.map((qa, idx) => `
-                <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--g100); font-size:13px;">
-                  <div>
+                <div class="queue-audit-row">
+                  <div class="queue-audit-details">
                     <span style="font-weight:500;">${qa.agentName || '[Agent]'}</span>
                     <span style="color:var(--g400); margin-left:8px;">${qa.auditType} — ${qa.timestamp}</span>
                     <span style="margin-left:8px; font-size:11px; color:var(--blue);">(${qa.pct}%)</span>
