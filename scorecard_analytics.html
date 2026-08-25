@@ -1366,7 +1366,7 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
     <div class="lock-icon">Secure access</div>
     <h2>Performance Analytics</h2>
     <p>Enter the owner access code. Dashboard access is restricted to the system owner.</p>
-    <input type="password" id="pin-input" class="lock-input" placeholder="• • • •" maxlength="20"
+    <input type="password" id="pin-input" class="lock-input" placeholder="• • • •" maxlength="40"
            onkeydown="if(event.key==='Enter')verifyPin()">
     <button class="lock-btn" onclick="verifyPin()">Unlock Dashboard</button>
     <div class="lock-error" id="pin-error"></div>
