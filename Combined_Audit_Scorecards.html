@@ -1184,7 +1184,8 @@ body{
 /* Owner-only controls */
 [data-admin-only][hidden],
 .admin-lock-overlay[hidden],
-.readonly-connection-status[hidden]{
+.readonly-connection-status[hidden],
+.owner-code-fields[hidden]{
   display:none !important;
 }
 .admin-access-btn{
@@ -1246,6 +1247,21 @@ body{
   font:400 14px 'Rubik',sans-serif;
 }
 .admin-lock-card input:focus{border-color:var(--teal);outline:2px solid rgba(13,110,86,.18);}
+.owner-code-toggle{
+  display:block;
+  min-height:36px;
+  margin-top:7px;
+  padding:5px 0;
+  border:0;
+  background:transparent;
+  color:var(--teal);
+  font:500 12px 'Rubik',sans-serif;
+  text-align:left;
+  cursor:pointer;
+}
+.owner-code-toggle:hover{text-decoration:underline;}
+.owner-code-fields{display:grid;gap:7px;margin-top:8px;}
+.owner-code-fields label{font-size:12px;font-weight:600;}
 .admin-lock-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
 .admin-lock-actions button{min-height:44px;}
 .admin-lock-error{min-height:18px;margin-top:8px;color:var(--red);font-size:12px;}
@@ -1270,12 +1286,19 @@ body{
     <div class="admin-lock-card" role="dialog" aria-modal="true" aria-labelledby="admin-lock-title">
       <h2 id="admin-lock-title">Owner access</h2>
       <p>Enter the owner access code to manage protected settings. Normal audit work remains available while these controls stay locked.</p>
-      <label for="admin-pin-input" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Owner access code</label>
-      <input type="password" id="admin-pin-input" maxlength="40" autocomplete="current-password" onkeydown="if(event.key==='Enter')unlockAdminControls()">
+      <label id="admin-current-code-label" for="admin-pin-input" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Owner access code</label>
+      <input type="password" id="admin-pin-input" maxlength="40" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitOwnerAccess()">
+      <button type="button" class="owner-code-toggle" id="admin-code-toggle" onclick="toggleOwnerCodeSetup()">Set a new access code</button>
+      <div class="owner-code-fields" id="admin-code-fields" hidden>
+        <label for="admin-new-code">New access code</label>
+        <input type="password" id="admin-new-code" maxlength="40" autocomplete="new-password" placeholder="At least 8 characters">
+        <label for="admin-confirm-code">Confirm new access code</label>
+        <input type="password" id="admin-confirm-code" maxlength="40" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitOwnerAccess()">
+      </div>
       <div class="admin-lock-error" id="admin-pin-error" role="alert"></div>
       <div class="admin-lock-actions">
         <button type="button" class="btn-secondary" onclick="closeAdminPrompt()">Cancel</button>
-        <button type="button" class="btn-primary" onclick="unlockAdminControls()">Unlock settings</button>
+        <button type="button" class="btn-primary" id="admin-submit-btn" onclick="submitOwnerAccess()">Unlock settings</button>
       </div>
     </div>
   </div>
@@ -2878,6 +2901,40 @@ function ensureHeaders(sheet, expectedHeaders) {
       }
     }
 
+    function resetOwnerCodeForm() {
+      const fields = document.getElementById('admin-code-fields');
+      const toggle = document.getElementById('admin-code-toggle');
+      const label = document.getElementById('admin-current-code-label');
+      const submit = document.getElementById('admin-submit-btn');
+      const nextCode = document.getElementById('admin-new-code');
+      const confirmCode = document.getElementById('admin-confirm-code');
+      if (fields) fields.hidden = true;
+      if (toggle) toggle.textContent = 'Set a new access code';
+      if (label) label.textContent = 'Owner access code';
+      if (submit) submit.textContent = 'Unlock settings';
+      if (nextCode) nextCode.value = '';
+      if (confirmCode) confirmCode.value = '';
+    }
+
+    function toggleOwnerCodeSetup() {
+      const fields = document.getElementById('admin-code-fields');
+      const toggle = document.getElementById('admin-code-toggle');
+      const label = document.getElementById('admin-current-code-label');
+      const submit = document.getElementById('admin-submit-btn');
+      const error = document.getElementById('admin-pin-error');
+      if (!fields) return;
+      const showing = fields.hidden;
+      fields.hidden = !showing;
+      if (toggle) toggle.textContent = showing ? 'Use existing access code' : 'Set a new access code';
+      if (label) label.textContent = showing ? 'Current owner access code' : 'Owner access code';
+      if (submit) submit.textContent = showing ? 'Save new access code' : 'Unlock settings';
+      if (error) error.textContent = '';
+      if (!showing) {
+        document.getElementById('admin-new-code').value = '';
+        document.getElementById('admin-confirm-code').value = '';
+      }
+    }
+
     function closeAdminPrompt() {
       const overlay = document.getElementById('admin-lock-overlay');
       const input = document.getElementById('admin-pin-input');
@@ -2885,7 +2942,36 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (overlay) overlay.hidden = true;
       if (input) input.value = '';
       if (error) error.textContent = '';
+      resetOwnerCodeForm();
       pendingAdminTab = null;
+    }
+
+    async function submitOwnerAccess() {
+      const fields = document.getElementById('admin-code-fields');
+      if (fields && !fields.hidden) return saveFreshOwnerCode();
+      return unlockAdminControls();
+    }
+
+    async function saveFreshOwnerCode() {
+      const current = document.getElementById('admin-pin-input').value.trim();
+      const next = document.getElementById('admin-new-code').value.trim();
+      const confirm = document.getElementById('admin-confirm-code').value.trim();
+      const error = document.getElementById('admin-pin-error');
+      if (!current) { error.textContent = 'Enter your current owner access code.'; return; }
+      if ((await hashOwnerAccess(current)) !== getOwnerAccessHash()) {
+        error.textContent = 'The current owner access code is incorrect.';
+        return;
+      }
+      if (next.length < 8) { error.textContent = 'Use at least 8 characters for the new code.'; return; }
+      if (next !== confirm) { error.textContent = 'The new access codes do not match.'; return; }
+      if (next === current) { error.textContent = 'Choose a different access code.'; return; }
+      const requestedTab = pendingAdminTab;
+      localStorage.setItem('analytics_pin_hash', await hashOwnerAccess(next));
+      sessionStorage.setItem(ADMIN_SESSION_KEY, Date.now().toString());
+      closeAdminPrompt();
+      refreshAdminAccessUi();
+      if (requestedTab) switchTab(requestedTab);
+      showToast('Your new owner access code has been saved.', 'success');
     }
 
     async function unlockAdminControls() {
