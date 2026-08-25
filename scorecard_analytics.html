@@ -1355,6 +1355,24 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
 }
 
+.lock-reset-toggle{
+  display:block;
+  min-height:40px;
+  margin-top:8px;
+  padding:5px 0;
+  border:0;
+  background:transparent;
+  color:var(--teal);
+  font:500 13px Georgia,serif;
+  text-align:left;
+  cursor:pointer;
+}
+.lock-reset-toggle:hover{text-decoration:underline;}
+.lock-reset-fields{display:grid;gap:7px;margin-top:8px;text-align:left;}
+.lock-reset-fields[hidden]{display:none !important;}
+.lock-reset-fields label{font:500 12px Georgia,serif;color:var(--g600);}
+.lock-reset-fields .lock-input{text-align:left;letter-spacing:normal;font-size:14px;}
+
 </style>
 </head>
 
@@ -1366,9 +1384,16 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
     <div class="lock-icon">Secure access</div>
     <h2>Performance Analytics</h2>
     <p>Enter the owner access code. Dashboard access is restricted to the system owner.</p>
-    <input type="password" id="pin-input" class="lock-input" placeholder="• • • •" maxlength="40"
-           onkeydown="if(event.key==='Enter')verifyPin()">
-    <button class="lock-btn" onclick="verifyPin()">Unlock Dashboard</button>
+    <input type="password" id="pin-input" class="lock-input" placeholder="Current owner access code" maxlength="40"
+           onkeydown="if(event.key==='Enter')submitDashboardAccess()">
+    <button type="button" class="lock-reset-toggle" id="dashboard-code-toggle" onclick="toggleDashboardCodeSetup()">Set a new access code</button>
+    <div class="lock-reset-fields" id="dashboard-code-fields" hidden>
+      <label for="dashboard-new-code">New access code</label>
+      <input type="password" id="dashboard-new-code" class="lock-input" maxlength="40" autocomplete="new-password" placeholder="At least 8 characters">
+      <label for="dashboard-confirm-code">Confirm new access code</label>
+      <input type="password" id="dashboard-confirm-code" class="lock-input" maxlength="40" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitDashboardAccess()">
+    </div>
+    <button class="lock-btn" id="dashboard-lock-action" onclick="submitDashboardAccess()">Unlock Dashboard</button>
     <div class="lock-error" id="pin-error"></div>
     <div class="lock-footer">This code is not shared with evaluators</div>
   </div>
@@ -1824,6 +1849,64 @@ function hasDashboardSession() {
   return true;
 }
 
+function resetDashboardCodeForm() {
+  const fields = document.getElementById('dashboard-code-fields');
+  const toggle = document.getElementById('dashboard-code-toggle');
+  const action = document.getElementById('dashboard-lock-action');
+  if (fields) fields.hidden = true;
+  if (toggle) toggle.textContent = 'Set a new access code';
+  if (action) action.textContent = 'Unlock Dashboard';
+  const next = document.getElementById('dashboard-new-code');
+  const confirm = document.getElementById('dashboard-confirm-code');
+  if (next) next.value = '';
+  if (confirm) confirm.value = '';
+}
+
+function toggleDashboardCodeSetup() {
+  const fields = document.getElementById('dashboard-code-fields');
+  const toggle = document.getElementById('dashboard-code-toggle');
+  const action = document.getElementById('dashboard-lock-action');
+  const error = document.getElementById('pin-error');
+  if (!fields) return;
+  const showing = fields.hidden;
+  fields.hidden = !showing;
+  if (toggle) toggle.textContent = showing ? 'Use existing access code' : 'Set a new access code';
+  if (action) action.textContent = showing ? 'Save new access code' : 'Unlock Dashboard';
+  if (error) error.textContent = '';
+  if (!showing) {
+    document.getElementById('dashboard-new-code').value = '';
+    document.getElementById('dashboard-confirm-code').value = '';
+  }
+}
+
+async function submitDashboardAccess() {
+  const fields = document.getElementById('dashboard-code-fields');
+  if (fields && !fields.hidden) return saveFreshDashboardCode();
+  return verifyPin();
+}
+
+async function saveFreshDashboardCode() {
+  const current = document.getElementById('pin-input').value.trim();
+  const next = document.getElementById('dashboard-new-code').value.trim();
+  const confirm = document.getElementById('dashboard-confirm-code').value.trim();
+  const error = document.getElementById('pin-error');
+  if (!current) { error.textContent = 'Enter your current owner access code.'; return; }
+  if ((await hashStr(current)) !== getOwnerAccessHash()) {
+    error.textContent = 'The current owner access code is incorrect.';
+    return;
+  }
+  if (next.length < 8) { error.textContent = 'Use at least 8 characters for the new code.'; return; }
+  if (next !== confirm) { error.textContent = 'The new access codes do not match.'; return; }
+  if (next === current) { error.textContent = 'Choose a different access code.'; return; }
+  localStorage.setItem('analytics_pin_hash', await hashStr(next));
+  sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
+  document.getElementById('pin-input').value = '';
+  error.textContent = '';
+  resetDashboardCodeForm();
+  unlockDashboard();
+  showToast('Your new owner access code has been saved.', 'success');
+}
+
 async function verifyPin() {
   const input = document.getElementById('pin-input');
   const errEl = document.getElementById('pin-error');
@@ -1862,6 +1945,7 @@ function lockDashboard(showMessage = true) {
   document.getElementById('lock-screen').style.display = 'flex';
   document.getElementById('pin-input').value = '';
   document.getElementById('pin-error').textContent = '';
+  resetDashboardCodeForm();
   if (showMessage) showToast('Dashboard locked.', 'info');
   setTimeout(() => document.getElementById('pin-input').focus(), 0);
 }
