@@ -1304,7 +1304,7 @@ body{
         <div class="card-body" style="background:var(--teal-lt); border-radius:var(--rs); padding: 12px 16px; display: flex; gap: 24px; flex-wrap: wrap;">
           <label style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--teal-md); cursor:pointer;">
             <input type="checkbox" id="training-flag" style="width:16px; height:16px; accent-color:var(--teal-md);">
-            Perfect Call
+            <span id="perfect-interaction-label">Perfect Call</span>
           </label>
           <label style="display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--red); cursor:pointer;">
             <input type="checkbox" id="coaching-flag" style="width:16px; height:16px; accent-color:var(--red);">
@@ -2771,6 +2771,14 @@ function ensureHeaders(sheet, expectedHeaders) {
             document.getElementById('audit-date').value = new Date().toISOString().split('T')[0];
           }
           autoFillEmail();
+        }
+        const perfectInteractionLabel = document.getElementById('perfect-interaction-label');
+        if (perfectInteractionLabel) {
+          perfectInteractionLabel.textContent = type === 'sms'
+            ? 'Perfect Chat'
+            : type === 'email-audit'
+              ? 'Perfect Email'
+              : 'Perfect Call';
         }
         const uploadLabel = document.getElementById('upload-label');
         const uploadDesc = document.getElementById('upload-desc');
