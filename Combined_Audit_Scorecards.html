@@ -1183,7 +1183,8 @@ body{
 
 /* Owner-only controls */
 [data-admin-only][hidden],
-.admin-lock-overlay[hidden]{
+.admin-lock-overlay[hidden],
+.readonly-connection-status[hidden]{
   display:none !important;
 }
 .admin-access-btn{
@@ -3434,7 +3435,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       const input = document.getElementById('analytics-pin-input');
       const pin = input.value.trim();
       if (!pin) { showToast('Please enter a PIN.', 'error'); return; }
-      if (pin.length < 4) { showToast('PIN must be at least 4 characters.', 'error'); return; }
+      if (pin.length < 8) { showToast('Owner access code must be at least 8 characters.', 'error'); return; }
       const data = new TextEncoder().encode(pin);
       const buf = await crypto.subtle.digest('SHA-256', data);
       const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
