@@ -1217,11 +1217,90 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
   min-height:44px;
 }
 .heatmap-table th{height:44px;}
+
+/* Compact, data-led department panels: never stretch empty cards to a neighboring card. */
+.overview-panel-grid{
+  align-items:start;
+}
+.overview-panel-grid .progress-panel{
+  min-width:0;
+  min-height:0;
+}
+.panel-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  margin-top:18px;
+  border-top:1px solid var(--border);
+}
+.panel-stat{
+  min-width:0;
+  padding:12px 0 11px;
+}
+.panel-stat:nth-child(odd){padding-right:12px;}
+.panel-stat:nth-child(even){
+  padding-left:12px;
+  border-left:1px solid var(--border);
+}
+.panel-stat:nth-child(n+3){border-top:1px solid var(--border);}
+.panel-stat-label,.distribution-detail-label{
+  display:block;
+  color:var(--g600);
+  font-size:11px;
+  line-height:1.4;
+}
+.panel-stat-value{
+  display:block;
+  margin-top:4px;
+  color:var(--g900);
+  font:600 18px/1.2 "Rubik",sans-serif;
+}
+.panel-stat-caption{
+  display:block;
+  margin-top:3px;
+  color:var(--g400);
+  font-size:10px;
+  line-height:1.45;
+}
+.distribution-list{gap:12px;}
+.distribution-detail-list{
+  display:grid;
+  margin-top:18px;
+  border-top:1px solid var(--border);
+}
+.distribution-detail-row{
+  display:grid;
+  grid-template-columns:minmax(92px,.8fr) minmax(0,1.2fr);
+  align-items:start;
+  gap:10px;
+  padding:11px 0;
+}
+.distribution-detail-row+.distribution-detail-row{
+  border-top:1px solid var(--g100);
+}
+.distribution-detail-value{
+  min-width:0;
+  color:var(--g900);
+  font-size:11px;
+  font-weight:600;
+  line-height:1.5;
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+.distribution-detail-value small{
+  display:block;
+  margin-top:2px;
+  color:var(--g600);
+  font-size:10px;
+  font-weight:400;
+}
+
 @media (max-width:760px){
   .topbar-dash,.topbar-actions,.filter-bar{gap:8px;}
   .btn-sm,.copy-chart-btn,.filter-bar select,.filter-bar input[type="date"]{min-height:44px;}
   .department-trend-chart{height:260px;padding:10px 12px 16px;}
   .action-snapshot-item{gap:12px;padding:11px 12px;}
+  .panel-stat{padding-top:10px;padding-bottom:10px;}
+  .distribution-detail-row{grid-template-columns:minmax(86px,.8fr) minmax(0,1.2fr);}
   .kpi-row,.channel-performance-grid{overflow:visible;border-radius:6px;}
   .kpi-card,.channel-performance-card{border-right:0;border-bottom:1px solid var(--border);}
   .kpi-card:last-child,.channel-performance-card:last-child{border-bottom:0;}
@@ -2419,6 +2498,81 @@ function mkChart(id, type, labels, datasets, opts = {}) {
 
 // =================== RENDERING — OVERVIEW ===================
 
+
+function escapeOverviewText(value) {
+  const replacements = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(value == null ? '' : value).replace(/[&<>"']/g, character => replacements[character]);
+}
+
+function formatOverviewAgentNames(agents, limit = 2) {
+  if (!agents.length) return 'None';
+  const selected = agents.slice(0, limit).map(agent => agent.name).join(', ');
+  const remaining = agents.length - Math.min(agents.length, limit);
+  return escapeOverviewText(selected + (remaining > 0 ? ' +' + remaining + ' more' : ''));
+}
+
+function getOverviewPanelDetails(agents, audits) {
+  let rosterCount = null;
+  try {
+    const managedAgents = JSON.parse(localStorage.getItem('managed_agents') || '[]');
+    if (Array.isArray(managedAgents) && managedAgents.length >= agents.length && managedAgents.length > 0) {
+      rosterCount = managedAgents.length;
+    }
+  } catch (error) {
+    rosterCount = null;
+  }
+
+  const weeklyAudits = new Map();
+  audits.forEach(audit => {
+    const date = parseDate(audit.date);
+    if (!date) return;
+    const startOfWeek = new Date(date);
+    startOfWeek.setHours(0, 0, 0, 0);
+    startOfWeek.setDate(startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7));
+    const key = startOfWeek.getTime();
+    if (!weeklyAudits.has(key)) weeklyAudits.set(key, []);
+    weeklyAudits.get(key).push(audit);
+  });
+  const auditedWeeks = [...weeklyAudits.entries()].sort((a, b) => a[0] - b[0]);
+  const weeklyChange = auditedWeeks.length >= 2
+    ? calculateAuditAverage(auditedWeeks[auditedWeeks.length - 1][1]) -
+      calculateAuditAverage(auditedWeeks[auditedWeeks.length - 2][1])
+    : null;
+
+  const channelLabels = {
+    inbound: 'Inbound',
+    outbound: 'Outbound',
+    survey: 'CSAT Survey',
+    sms: 'SMS',
+    email: 'Email'
+  };
+  const focusScores = currentType === 'all'
+    ? ALL_CHANNEL_TYPES.map(type => {
+        const channelAudits = audits.filter(audit => audit.auditType === type);
+        return {
+          name: channelLabels[type],
+          score: channelAudits.length ? calculateAuditAverage(channelAudits) : null
+        };
+      }).filter(item => Number.isFinite(item.score))
+    : [...new Set(audits.flatMap(audit => (audit.sections || []).map(section => section.name)))]
+      .map(name => ({ name, score: calculateSectionAverage(audits, name) }))
+      .filter(item => Number.isFinite(item.score));
+  focusScores.sort((a, b) => a.score - b.score);
+
+  return {
+    rosterCount,
+    weeklyChange,
+    weakest: focusScores[0] || null,
+    strongest: focusScores[focusScores.length - 1] || null,
+    priorityAgents: agents
+      .filter(agent => agent.avgOverall < THRESHOLDS.critical)
+      .sort((a, b) => a.avgOverall - b.avgOverall),
+    monitorAgents: agents
+      .filter(agent => agent.avgOverall >= THRESHOLDS.critical && agent.avgOverall < THRESHOLDS.strong)
+      .sort((a, b) => a.avgOverall - b.avgOverall)
+  };
+}
+
 function buildOverview(displayAgents) {
   if (!displayAgents) {
     const fAgent = document.getElementById('f-agent').value;
@@ -2492,33 +2646,68 @@ function buildOverview(displayAgents) {
     </div>
   `;
 
-  const qualityProgress = teamAvg > 0 ? Math.min(100, teamAvg / QUALITY_TARGET * 100) : 0;
+const qualityProgress = teamAvg > 0 ? Math.min(100, teamAvg / QUALITY_TARGET * 100) : 0;
   const gap = teamAvg > 0 ? teamAvg - QUALITY_TARGET : 0;
+  const panelDetails = getOverviewPanelDetails(allAgents, allAudits);
+  const gapText = teamAvg > 0 ? Math.abs(gap).toFixed(1) + ' pts' : '–';
+  const gapLabel = gap >= 0 ? 'Above target' : 'Gap to target';
+  const weeklyChangeText = panelDetails.weeklyChange === null
+    ? '–'
+    : (panelDetails.weeklyChange >= 0 ? '+' : '') + panelDetails.weeklyChange.toFixed(1) + ' pts';
+  const coverageText = panelDetails.rosterCount === null
+    ? String(agentCount)
+    : agentCount + ' / ' + panelDetails.rosterCount;
+  const coverageCaption = panelDetails.rosterCount === null
+    ? 'Agents in audit data'
+    : Math.round(agentCount / panelDetails.rosterCount * 100) + '% of managed roster';
+
   document.getElementById('ov-progress').innerHTML = `
-    <div class="panel-kicker">Progress</div>
     <div class="panel-title">Department quality target</div>
     <div class="progress-ring" style="--value:${qualityProgress.toFixed(1)}%;--ring-color:${gap >= 0 ? COLORS.green : COLORS.teal};">
       <div class="progress-ring-value">${teamAvg > 0 ? teamAvg.toFixed(1) + '%' : '–'}<small>Current score</small></div>
     </div>
     <div class="panel-note" style="text-align:center;">${teamAvg > 0
-      ? (gap >= 0 ? `${Math.abs(gap).toFixed(1)} points above the ${QUALITY_TARGET}% target.` : `${Math.abs(gap).toFixed(1)} points to the ${QUALITY_TARGET}% target.`)
+      ? (gap >= 0 ? Math.abs(gap).toFixed(1) + ' points above the ' + QUALITY_TARGET + '% target.' : Math.abs(gap).toFixed(1) + ' points to the ' + QUALITY_TARGET + '% target.')
       : 'No scores in the selected period.'}</div>
+    <div class="panel-stat-grid">
+      <div class="panel-stat"><span class="panel-stat-label">Quality target</span><strong class="panel-stat-value">${QUALITY_TARGET}%</strong><span class="panel-stat-caption">Department standard</span></div>
+      <div class="panel-stat"><span class="panel-stat-label">${gapLabel}</span><strong class="panel-stat-value">${gapText}</strong><span class="panel-stat-caption">Weighted audit score</span></div>
+      <div class="panel-stat"><span class="panel-stat-label">Agents at target</span><strong class="panel-stat-value">${strongCount} / ${agentCount}</strong><span class="panel-stat-caption">${agentCount ? Math.round(strongCount / agentCount * 100) : 0}% of audited agents</span></div>
+      <div class="panel-stat"><span class="panel-stat-label">Audit coverage</span><strong class="panel-stat-value">${coverageText}</strong><span class="panel-stat-caption">${coverageCaption}</span></div>
+      <div class="panel-stat"><span class="panel-stat-label">Audits reviewed</span><strong class="panel-stat-value">${totalAudits}</strong><span class="panel-stat-caption">Selected period</span></div>
+      <div class="panel-stat"><span class="panel-stat-label">Weekly movement</span><strong class="panel-stat-value">${weeklyChangeText}</strong><span class="panel-stat-caption">${panelDetails.weeklyChange === null ? 'Prior week unavailable' : 'Latest vs prior audited week'}</span></div>
+    </div>
   `;
 
   const maxBandCount = Math.max(strongCount, monitorCount, improveCount, 1);
+  const focusLabel = currentType === 'all' ? 'channel' : 'QA area';
+  const topPerformerText = bestAgent
+    ? escapeOverviewText(bestAgent.name) + '<small>' + bestAgent.avgOverall.toFixed(1) + '% average</small>'
+    : 'No audit data';
+  const weakestText = panelDetails.weakest
+    ? escapeOverviewText(panelDetails.weakest.name) + '<small>' + panelDetails.weakest.score.toFixed(1) + '% average</small>'
+    : 'No scored audits';
+  const strongestText = panelDetails.strongest
+    ? escapeOverviewText(panelDetails.strongest.name) + '<small>' + panelDetails.strongest.score.toFixed(1) + '% average</small>'
+    : 'No scored audits';
+
   document.getElementById('ov-distribution').innerHTML = `
-    <div class="panel-kicker">People</div>
     <div class="panel-title">Performance distribution</div>
     <div class="distribution-list">
       <div class="dist-row"><span class="dist-label">At target</span><div class="mini-track"><div class="mini-fill" style="width:${strongCount / maxBandCount * 100}%;background:${COLORS.green};"></div></div><span class="dist-count clr-strong">${strongCount}</span></div>
       <div class="dist-row"><span class="dist-label">Monitor</span><div class="mini-track"><div class="mini-fill" style="width:${monitorCount / maxBandCount * 100}%;background:${COLORS.amber};"></div></div><span class="dist-count clr-critical">${monitorCount}</span></div>
       <div class="dist-row"><span class="dist-label">Needs action</span><div class="mini-track"><div class="mini-fill" style="width:${improveCount / maxBandCount * 100}%;background:${COLORS.red};"></div></div><span class="dist-count clr-improve">${improveCount}</span></div>
     </div>
-    <div class="panel-note" style="margin-top:16px;">${bestAgent ? `Top performer: ${bestAgent.name} at ${bestAgent.avgOverall.toFixed(1)}%.` : 'No agent performance available.'}</div>
+    <div class="distribution-detail-list">
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Priority coaching</span><span class="distribution-detail-value clr-improve">${formatOverviewAgentNames(panelDetails.priorityAgents)}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Monitor closely</span><span class="distribution-detail-value clr-critical">${formatOverviewAgentNames(panelDetails.monitorAgents)}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Weakest ${focusLabel}</span><span class="distribution-detail-value">${weakestText}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Strongest ${focusLabel}</span><span class="distribution-detail-value">${strongestText}</span></div>
+      <div class="distribution-detail-row"><span class="distribution-detail-label">Top performer</span><span class="distribution-detail-value clr-strong">${topPerformerText}</span></div>
+    </div>
   `;
 
   document.getElementById('ov-action-snapshot').innerHTML = `
-    <div class="panel-kicker">Next step</div>
     <div class="panel-title">Action snapshot</div>
     <div class="action-snapshot">
       <button class="action-snapshot-item" onclick="openInsights('priority')"><span class="action-snapshot-icon"></span><span class="action-snapshot-copy"><strong>Priority coaching</strong><span>Agents below 85%</span></span><span class="action-snapshot-count clr-improve">${improveCount}</span></button>
