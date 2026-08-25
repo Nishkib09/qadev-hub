@@ -803,6 +803,11 @@ details>summary{
   display:flex;
   align-items:center;
 }
+button,.yb,.nb,
+input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),select,textarea{
+  min-height:44px;
+}
+button,.yb,.nb{min-width:44px;}
 @media (max-width:680px){
   .topbar{align-items:flex-start;gap:10px;}
   .topbar-right{flex-wrap:wrap;justify-content:flex-end;}
