@@ -51,7 +51,7 @@
     /* ===== LOCK SCREEN ===== */
     .lock-overlay {
       position: fixed; inset: 0;
-      background: linear-gradient(135deg, var(--navy) 0%, #0f1f3d 50%, #0a1628 100%);
+      background: var(--navy);
       display: flex; align-items: center; justify-content: center;
       z-index: 9999;
     }
@@ -257,7 +257,7 @@
       margin-right: 4px;
     }
 
-    .status-dot.live { background: var(--green); animation: pulse 2s infinite; }
+    .status-dot.live { background: var(--green); animation: none; }
     .status-dot.off { background: var(--g400); }
 
     @keyframes pulse {
@@ -328,7 +328,7 @@
     .content { padding: 24px; flex: 1; }
 
     .page { display: none; }
-    .page.active { display: block; animation: fadeUp .3s ease-out; }
+    .page.active { display: block; animation: none; }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } }
 
@@ -395,7 +395,7 @@
     .agent-card:hover {
       box-shadow: var(--shadow-md);
       border-color: var(--teal-md);
-      transform: translateY(-2px);
+      transform: none;
     }
 
     .agent-card .agent-name {
@@ -756,7 +756,7 @@
       padding: 20px 22px;
       margin-bottom: 18px;
       color: #fff;
-      background: linear-gradient(120deg, var(--navy), #23456f);
+      background: var(--navy);
       border-radius: var(--r);
       box-shadow: var(--shadow-md);
     }
@@ -796,7 +796,7 @@
     .channel-performance-card:hover {
       border-color: var(--teal-md);
       box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
+      transform: none;
     }
 
     .channel-performance-name { font-size: 12px; font-weight: 600; color: var(--g800); }
@@ -805,7 +805,7 @@
     .channel-performance-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
     .channel-performance-kpi span { display: block; font-size: 9px; color: var(--g400); text-transform: uppercase; letter-spacing: .03em; }
     .channel-performance-kpi strong { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; color: var(--g900); }
-    .channel-performance-track { height: 6px; margin-top: 12px; overflow: hidden; background: var(--g100); border-radius: 999px; }
+    .channel-performance-track { height: 6px; margin-top: 12px; overflow: hidden; background: var(--g100); border-radius: 3px; }
     .channel-performance-fill { height: 100%; border-radius: inherit; }
     .channel-performance-hint { display: block; margin-top: 10px; font-size: 10px; font-weight: 500; color: var(--teal); }
 
@@ -851,7 +851,7 @@
     .dist-row { display: grid; grid-template-columns: 90px 1fr 30px; align-items: center; gap: 8px; font-size: 11px; }
     .dist-label { color: var(--g600); }
     .dist-count { font-weight: 700; color: var(--g800); text-align: right; }
-    .mini-track { height: 7px; overflow: hidden; background: var(--g100); border-radius: 999px; }
+    .mini-track { height: 7px; overflow: hidden; background: var(--g100); border-radius: 3px; }
     .mini-fill { height: 100%; border-radius: inherit; transition: width .4s ease; }
 
     .action-snapshot { display: grid; gap: 9px; }
@@ -917,7 +917,7 @@
     .insight-count-card span { font-size: 11px; color: var(--g600); }
     .insight-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); }
     .insight-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
-    .insight-tab { padding: 6px 11px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font: 500 11px 'Rubik', sans-serif; color: var(--g600); cursor: pointer; }
+    .insight-tab { padding: 6px 11px; border: 1px solid var(--border); border-radius: 3px; background: #fff; font: 500 11px 'Rubik', sans-serif; color: var(--g600); cursor: pointer; }
     .insight-tab.active { background: var(--navy); border-color: var(--navy); color: #fff; }
     .insight-agent-select { min-width: 220px; padding: 6px 9px; border: 1px solid var(--border); border-radius: var(--rs); font: 12px 'Rubik', sans-serif; background: #fff; }
     .insight-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
@@ -926,7 +926,7 @@
     /* ===== COACHING HUB ===== */
     .workspace-shell { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 18px; }
     .workspace-card { padding: 28px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow); }
-    .workspace-card.primary { color: #fff; background: linear-gradient(135deg, var(--navy), #28547f); border: none; }
+    .workspace-card.primary { color: #fff; background: var(--navy); border: none; }
     .workspace-card h3 { font-size: 20px; margin: 6px 0 8px; }
     .workspace-card p { font-size: 12px; opacity: .75; max-width: 620px; }
     .workspace-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
@@ -980,6 +980,202 @@
     ::-webkit-scrollbar-thumb { background: var(--g200); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--g400); }
   </style>
+<style id="ui-ai-detector-hardening">
+
+/* UI AI Detector remediation: function-led, brand-specific QA interface */
+:root{
+  --navy:#1F1B1B;
+  --navy-dark:#171414;
+  --teal:#24631E;
+  --teal-md:#50824B;
+  --teal-lt:#EAEAD4;
+  --green:#24631E;
+  --green-lt:#EAEAD4;
+  --amber:#BF8500;
+  --amber-lt:#FFF4D6;
+  --blue:#4C4949;
+  --blue-lt:#F1F1E7;
+  --g50:#FAFAF5;
+  --g100:#F1F1E7;
+  --g200:#D8D8C3;
+  --g400:#74746A;
+  --g600:#56564F;
+  --g800:#302D2D;
+  --g900:#1F1B1B;
+  --border:#D8D8CE;
+  --r:8px;
+  --rs:5px;
+  --shadow:none;
+  --shadow-md:0 12px 30px rgba(31,27,27,.16);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:var(--g50);
+  color:var(--g900);
+  line-height:1.65;
+}
+input,select,textarea,button{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+h1,h2,h3,h4,.sidebar-brand,.kpi-value,.agent-score,.channel-performance-score,
+.progress-ring-value,.workspace-card h3{
+  font-family:"Rubik",sans-serif;
+  line-height:1.18;
+}
+.lock-overlay{background:var(--navy);}
+.lock-card{
+  border-radius:8px;
+  text-align:left;
+  box-shadow:0 16px 40px rgba(0,0,0,.24);
+  animation:none;
+}
+.lock-icon{
+  width:auto;
+  height:auto;
+  margin:0 0 18px;
+  padding:0;
+  justify-content:flex-start;
+  border-radius:0;
+  background:transparent;
+  color:var(--teal);
+  font:700 11px "Rubik",sans-serif;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.lock-card h2{font-size:26px;line-height:1.15;}
+.lock-card p{line-height:1.65;}
+.lock-input,.lock-btn{min-height:48px;}
+.sidebar-brand h1{font-size:20px;line-height:1.15;}
+.nav-item{
+  min-height:44px;
+  border-radius:4px;
+}
+.nav-item .ni{display:none;}
+.nav-label{font-size:11px;}
+.topbar-dash h2{font-size:19px;line-height:1.2;}
+.btn-sm,.copy-chart-btn,.filter-bar select,.filter-bar input[type="date"],
+.insight-tab,.insight-agent-select,.url-row input{
+  min-height:44px;
+}
+.btn-sm,.copy-chart-btn,.insight-tab{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:5px;
+}
+.filter-bar select,.filter-bar input[type="date"],.insight-agent-select,.url-row input{
+  padding:9px 10px;
+}
+.page.active{animation:none;}
+.overview-hero{
+  padding:24px 26px;
+  background:var(--navy);
+  border-radius:8px;
+  box-shadow:none;
+}
+.overview-hero h3{font-size:28px;line-height:1.15;}
+.overview-hero p{font-size:13px;line-height:1.65;}
+.overview-hero .eyebrow{display:none;}
+.kpi-row{
+  gap:0;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+.kpi-card{
+  min-width:0;
+  border:0;
+  border-right:1px solid var(--border);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.kpi-card:last-child{border-right:0;}
+.kpi-card.kpi-primary{border-top:0;}
+.kpi-label{
+  color:var(--g600);
+  letter-spacing:.02em;
+}
+.kpi-value{font-size:27px;}
+.channel-performance-grid{
+  gap:0;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+.channel-performance-card{
+  border:0;
+  border-right:1px solid var(--border);
+  border-radius:0;
+  box-shadow:none;
+  transition:background .15s,border-color .15s;
+}
+.channel-performance-card:last-child{border-right:0;}
+.channel-performance-card:hover,
+.channel-performance-card.active{
+  background:var(--g100);
+  border-color:var(--border);
+  box-shadow:none;
+  transform:none;
+}
+.channel-performance-track,.mini-track{border-radius:3px;}
+.agent-grid{
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:9px;
+}
+.agent-card,.chart-card,.heatmap-wrap,.settings-card,.agent-detail-hd,
+.progress-panel,.agent-focus-bar,.agent-progress-card,.insight-count-card,
+.workspace-card{
+  border-radius:6px;
+  box-shadow:none;
+}
+.agent-card{
+  padding:16px;
+  transition:background .15s,border-color .15s;
+}
+.agent-card:hover{
+  background:var(--g100);
+  box-shadow:none;
+  transform:none;
+}
+.agent-status,.badge,.score-badge,.chip{
+  border-radius:4px !important;
+}
+.insight-card{
+  border-left:1px solid var(--border) !important;
+  border-radius:6px;
+  box-shadow:none;
+}
+.insight-card.sev-improve .insight-title{color:var(--red);}
+.insight-card.sev-critical .insight-title{color:var(--amber);}
+.insight-card.sev-strong .insight-title{color:var(--green);}
+.insight-card.sev-trend .insight-title{color:var(--g800);}
+.insight-icon,.action-snapshot-icon,.empty-icon{display:none;}
+.action-snapshot-item{
+  border-radius:5px;
+  box-shadow:none;
+  transition:background .15s;
+}
+.action-snapshot-item:hover{transform:none;background:var(--g100);}
+.workspace-card.primary{
+  background:var(--navy);
+  box-shadow:none;
+}
+.toast{border-radius:6px;}
+@media (max-width:760px){
+  .topbar-dash,.topbar-actions,.filter-bar{gap:8px;}
+  .btn-sm,.copy-chart-btn,.filter-bar select,.filter-bar input[type="date"]{min-height:44px;}
+  .kpi-row,.channel-performance-grid{overflow:visible;border-radius:6px;}
+  .kpi-card,.channel-performance-card{border-right:0;border-bottom:1px solid var(--border);}
+  .kpi-card:last-child,.channel-performance-card:last-child{border-bottom:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+}
+
+</style>
 </head>
 
 <body>
@@ -987,7 +1183,7 @@
 <!-- ===== LOCK SCREEN ===== -->
 <div id="lock-screen" class="lock-overlay">
   <div class="lock-card">
-    <div class="lock-icon">🔒</div>
+    <div class="lock-icon">Secure access</div>
     <h2>Performance Analytics</h2>
     <p>Enter the access PIN set by your QA administrator to view the dashboard.</p>
     <input type="password" id="pin-input" class="lock-input" placeholder="• • • •" maxlength="20"
@@ -1010,32 +1206,32 @@
   <!-- Sidebar -->
   <nav class="sidebar">
     <div class="sidebar-brand">
-      <h1>📊 QA Analytics</h1>
+      <h1> QA Analytics</h1>
       <span>Performance Dashboard</span>
     </div>
     <div class="sidebar-nav">
       <div class="nav-label">Analytics</div>
       <div class="nav-item active" id="nav-overview" onclick="navigate('overview')">
-        <span class="ni">🏢</span><span class="nav-text">Department Overview</span>
+        <span class="ni"></span><span class="nav-text">Department Overview</span>
       </div>
       <div class="nav-item" id="nav-agent" onclick="navigate('agent')">
-        <span class="ni">👤</span><span class="nav-text">Agent Performance</span>
+        <span class="ni"></span><span class="nav-text">Agent Performance</span>
       </div>
       <div class="nav-item" id="nav-pending" onclick="navigate('pending')">
-        <span class="ni">📈</span><span class="nav-text">Progress Tracker</span>
+        <span class="ni"></span><span class="nav-text">Progress Tracker</span>
       </div>
       <div class="nav-item" id="nav-insights" onclick="navigate('insights')">
-        <span class="ni">✅</span><span class="nav-text">Insights & Actions</span>
+        <span class="ni"></span><span class="nav-text">Insights & Actions</span>
       </div>
       <div class="nav-item" id="nav-heatmap" onclick="navigate('heatmap')">
-        <span class="ni">🗺️</span><span class="nav-text">Team Heatmap</span>
+        <span class="ni"></span><span class="nav-text">Team Heatmap</span>
       </div>
       <div class="nav-label">System</div>
       <div class="nav-item" id="nav-workspace" onclick="navigate('workspace')">
-        <span class="ni">🎯</span><span class="nav-text">Coaching Hub</span>
+        <span class="ni"></span><span class="nav-text">Coaching Hub</span>
       </div>
       <div class="nav-item" id="nav-settings" onclick="navigate('settings')">
-        <span class="ni">⚙️</span><span class="nav-text">Data Settings</span>
+        <span class="ni"></span><span class="nav-text">Data Settings</span>
       </div>
     </div>
     <div class="sidebar-footer" id="sidebar-footer">Last refresh: –</div>
@@ -1049,9 +1245,9 @@
         <span id="conn-pill" style="font-size:11px;color:var(--g400);">
           <span class="status-dot off"></span> No data
         </span>
-        <button class="btn-sm primary" onclick="navigate('workspace')">🎯 Coaching Hub</button>
+        <button class="btn-sm primary" onclick="navigate('workspace')"> Coaching Hub</button>
         <button class="btn-sm" onclick="refreshAllData()">↻ Refresh</button>
-        <button class="btn-sm" onclick="window.print()">🖨 Print</button>
+        <button class="btn-sm" onclick="window.print()"> Print</button>
       </div>
     </div>
 
@@ -1124,7 +1320,7 @@
         <div class="chart-card" style="margin-bottom:24px;">
           <div class="chart-hd">
             <span class="chart-title">Department Performance Trend · weighted from raw audit points</span>
-            <button class="copy-chart-btn" onclick="copyChart('ov-trend-chart')">📋 Copy</button>
+            <button class="copy-chart-btn" onclick="copyChart('ov-trend-chart')"> Copy</button>
           </div>
           <div class="chart-body"><canvas id="ov-trend-chart" height="220"></canvas></div>
         </div>
@@ -1140,7 +1336,7 @@
               <option value="name-asc">Name A-Z</option>
               <option value="audits-desc">Most Audits</option>
             </select>
-            <button class="copy-chart-btn" onclick="copyAgentRankings()">📋 Copy</button>
+            <button class="copy-chart-btn" onclick="copyAgentRankings()"> Copy</button>
           </div>
         </div>
         <div class="agent-grid" id="ov-agents"></div>
@@ -1160,7 +1356,7 @@
         </div>
         <div id="ad-content">
           <div class="empty-state">
-            <div class="empty-icon">👤</div>
+            <div class="empty-icon"></div>
             <h3>Select an Agent</h3>
             <p>Choose an agent from the dropdown above to see their detailed section performance, trends, and analysis.</p>
           </div>
@@ -1171,11 +1367,11 @@
       <div class="page" id="page-heatmap">
         <div class="sec-header">
           <h3>Team Performance Heatmap</h3>
-          <button class="copy-chart-btn" onclick="copyHeatmapTable()">📋 Copy Table</button>
+          <button class="copy-chart-btn" onclick="copyHeatmapTable()"> Copy Table</button>
         </div>
         <div class="heatmap-wrap" id="hm-wrap">
           <div class="empty-state">
-            <div class="empty-icon">🗺️</div>
+            <div class="empty-icon"></div>
             <h3>No data available</h3>
             <p>Connect your data sources in Settings and apply filters to view the heatmap.</p>
           </div>
@@ -1189,7 +1385,7 @@
             <h3>Action Centre</h3>
             <p style="font-size:11px;color:var(--g600);margin-top:2px;">Prioritised findings and recommended next steps, grouped for faster follow-through.</p>
           </div>
-          <button class="copy-chart-btn" onclick="copyInsights()">📋 Copy All</button>
+          <button class="copy-chart-btn" onclick="copyInsights()"> Copy All</button>
         </div>
         <div class="insight-summary" id="ins-summary"></div>
         <div class="insight-toolbar">
@@ -1200,7 +1396,7 @@
         </div>
         <div class="insight-list" id="ins-list">
           <div class="empty-state">
-            <div class="empty-icon">💡</div>
+            <div class="empty-icon"></div>
             <h3>No insights yet</h3>
             <p>Insights are generated automatically from audit data. Connect your data sources in Settings.</p>
           </div>
@@ -1552,12 +1748,12 @@ async function testAllURLs() {
       const rows = await fetchCSV(url, SHEET_NAMES[key]);
       if (rows.length > 1) {
         const bounded = rows.length - 1 >= MAX_CLIENT_AUDITS_PER_TYPE ? ' (window limit)' : '';
-        el.innerHTML = `<span style="color:var(--green)">✓ ${rows.length - 1} rows${bounded}</span>`;
+        el.innerHTML = `<span style="color:var(--green)"> ${rows.length - 1} rows${bounded}</span>`;
       } else {
-        el.innerHTML = '<span style="color:var(--amber)">⚠ Empty</span>';
+        el.innerHTML = '<span style="color:var(--amber)"> Empty</span>';
       }
     } catch {
-      el.innerHTML = '<span style="color:var(--red)">✕ Failed</span>';
+      el.innerHTML = '<span style="color:var(--red)"> Failed</span>';
     }
   }
 }
@@ -2043,9 +2239,9 @@ function processAndRender() {
 // =================== THRESHOLD HELPERS ===================
 
 function getThreshold(pct) {
-  if (pct >= THRESHOLDS.strong) return { label: 'Strong Performance', cls: 'strong', icon: '🟢' };
-  if (pct >= THRESHOLDS.critical) return { label: 'Critical', cls: 'critical', icon: '🟡' };
-  return { label: 'Improvement Needed', cls: 'improve', icon: '🔴' };
+  if (pct >= THRESHOLDS.strong) return { label: 'Strong Performance', cls: 'strong', icon: '' };
+  if (pct >= THRESHOLDS.critical) return { label: 'Critical', cls: 'critical', icon: '' };
+  return { label: 'Improvement Needed', cls: 'improve', icon: '' };
 }
 
 function hmClass(pct) {
@@ -2199,9 +2395,9 @@ function buildOverview(displayAgents) {
     <div class="panel-kicker">Next step</div>
     <div class="panel-title">Action snapshot</div>
     <div class="action-snapshot">
-      <button class="action-snapshot-item" onclick="openInsights('priority')"><span class="action-snapshot-icon">🔴</span><span class="action-snapshot-copy"><strong>Priority coaching</strong><span>Agents below 85%</span></span><span class="action-snapshot-count clr-improve">${improveCount}</span></button>
-      <button class="action-snapshot-item" onclick="openInsights('monitor')"><span class="action-snapshot-icon">🟡</span><span class="action-snapshot-copy"><strong>Monitor closely</strong><span>Agents between 85% and 96%</span></span><span class="action-snapshot-count clr-critical">${monitorCount}</span></button>
-      <button class="action-snapshot-item" onclick="openInsights('strengths')"><span class="action-snapshot-icon">🟢</span><span class="action-snapshot-copy"><strong>Recognise strengths</strong><span>Agents at or above 96%</span></span><span class="action-snapshot-count clr-strong">${strongCount}</span></button>
+      <button class="action-snapshot-item" onclick="openInsights('priority')"><span class="action-snapshot-icon"></span><span class="action-snapshot-copy"><strong>Priority coaching</strong><span>Agents below 85%</span></span><span class="action-snapshot-count clr-improve">${improveCount}</span></button>
+      <button class="action-snapshot-item" onclick="openInsights('monitor')"><span class="action-snapshot-icon"></span><span class="action-snapshot-copy"><strong>Monitor closely</strong><span>Agents between 85% and 96%</span></span><span class="action-snapshot-count clr-critical">${monitorCount}</span></button>
+      <button class="action-snapshot-item" onclick="openInsights('strengths')"><span class="action-snapshot-icon"></span><span class="action-snapshot-copy"><strong>Recognise strengths</strong><span>Agents at or above 96%</span></span><span class="action-snapshot-count clr-strong">${strongCount}</span></button>
     </div>
   `;
   buildDepartmentTrend(allAgents);
@@ -2220,7 +2416,7 @@ function buildOverview(displayAgents) {
   if (sorted.length === 0) {
     document.getElementById('ov-agents').innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;">
-        <div class="empty-icon">📊</div>
+        <div class="empty-icon"></div>
         <h3>No Data Available</h3>
         <p>Connect your Google Sheets CSV in Settings, or load demo data to preview the dashboard.</p>
       </div>`;
@@ -2391,7 +2587,7 @@ function buildAgentDetail() {
   if (!name || !PROCESSED[name]) {
     cont.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">👤</div>
+        <div class="empty-icon"></div>
         <h3>Select an Agent</h3>
         <p>Choose an agent from the dropdown above to see their detailed section performance.</p>
       </div>`;
@@ -2464,7 +2660,7 @@ function buildAgentDetail() {
     <div class="chart-card">
       <div class="chart-hd">
         <span class="chart-title">Section Performance</span>
-        <button class="copy-chart-btn" onclick="copyChart('radar-chart')">📋 Copy</button>
+        <button class="copy-chart-btn" onclick="copyChart('radar-chart')"> Copy</button>
       </div>
       <div class="chart-body"><canvas id="radar-chart" height="300"></canvas></div>
     </div>`;
@@ -2474,7 +2670,7 @@ function buildAgentDetail() {
     <div class="chart-card">
       <div class="chart-hd">
         <span class="chart-title">Section Averages</span>
-        <button class="copy-chart-btn" onclick="copyChart('bar-chart')">📋 Copy</button>
+        <button class="copy-chart-btn" onclick="copyChart('bar-chart')"> Copy</button>
       </div>
       <div class="chart-body"><canvas id="bar-chart" height="300"></canvas></div>
     </div>`;
@@ -2486,7 +2682,7 @@ function buildAgentDetail() {
     <div class="chart-card" style="margin-bottom:24px;">
       <div class="chart-hd">
         <span class="chart-title">Score Trend Over Time</span>
-        <button class="copy-chart-btn" onclick="copyChart('trend-chart')">📋 Copy</button>
+        <button class="copy-chart-btn" onclick="copyChart('trend-chart')"> Copy</button>
       </div>
       <div class="chart-body"><canvas id="trend-chart" height="220"></canvas></div>
     </div>`;
@@ -2495,7 +2691,7 @@ function buildAgentDetail() {
   html += `
     <div class="sec-header">
       <h3>Section Breakdown</h3>
-      <button class="copy-chart-btn" onclick="copySectionTable()">📋 Copy Table</button>
+      <button class="copy-chart-btn" onclick="copySectionTable()"> Copy Table</button>
     </div>
     <div class="heatmap-wrap">
       <table class="heatmap-table" id="section-detail-table">
@@ -2623,7 +2819,7 @@ function buildHeatmap(displayAgents) {
   if (agents.length === 0) {
     wrap.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">🗺️</div>
+        <div class="empty-icon"></div>
         <h3>No data available</h3>
         <p>Connect your data sources in Settings and apply filters.</p>
       </div>`;
@@ -2730,7 +2926,7 @@ function buildInsights(displayAgents) {
       const teamScore = teamSecAvgs[sec.name];
       insights.push({
         severity: 'improve',
-        icon: '👥',
+        icon: '',
         agent: 'Team',
         agentKey: 'team',
         focusArea: sec.name,
@@ -2755,7 +2951,7 @@ function buildInsights(displayAgents) {
       const baselineScore = failedSection?.pct ?? latestImmediateAudit.overallPct;
       insights.push({
         severity: 'improve',
-        icon: '🚨',
+        icon: '',
         agent: agent.name,
         agentKey: agent.key,
         agentEmail: agent.email || '',
@@ -2794,7 +2990,7 @@ function buildInsights(displayAgents) {
         insights.push({
           ...sourceContext,
           severity: 'improve',
-          icon: '🔴',
+          icon: '',
           agent: agent.name,
           focusArea: sec.name,
           score: avg,
@@ -2806,7 +3002,7 @@ function buildInsights(displayAgents) {
         insights.push({
           ...sourceContext,
           severity: 'critical',
-          icon: '🟡',
+          icon: '',
           agent: agent.name,
           focusArea: sec.name,
           score: avg,
@@ -2818,7 +3014,7 @@ function buildInsights(displayAgents) {
         insights.push({
           agentKey: agent.key,
           severity: 'strong',
-          icon: '🟢',
+          icon: '',
           agent: agent.name,
           focusArea: sec.name,
           score: avg,
@@ -2834,7 +3030,7 @@ function buildInsights(displayAgents) {
         insights.push({
           ...sourceContext,
           severity: 'trend',
-          icon: '📉',
+          icon: '',
           agent: agent.name,
           focusArea: sec.name,
           score: avg,
@@ -2861,7 +3057,7 @@ function buildInsights(displayAgents) {
           sourceAuditDate: last3[2].date || '',
           sourceScore: last3[2].overallPct,
           severity: 'improve',
-          icon: '⬇️',
+          icon: '⬇',
           agent: agent.name,
           focusArea: 'Performance Trend',
           score: last3[2].overallPct,
@@ -2886,7 +3082,7 @@ function buildInsights(displayAgents) {
         sourceAuditDate: sourceAudit?.date || '',
         sourceScore: sourceAudit?.overallPct ?? agent.avgOverall,
         severity: 'improve',
-        icon: '🚨',
+        icon: '',
         agent: agent.name,
         focusArea: 'Process & Compliance',
         score: agent.avgOverall,
@@ -2961,7 +3157,7 @@ function renderInsights() {
   if (visible.length === 0) {
     cont.innerHTML = `
       <div class="empty-state" style="grid-column:1/-1;">
-        <div class="empty-icon">✅</div>
+        <div class="empty-icon"></div>
         <h3>Nothing in this category</h3>
         <p>Try another action category or select all agents.</p>
       </div>`;
@@ -3091,7 +3287,7 @@ function buildPendingAudits(displayAgents) {
   if (pendingAgents.length === 0) {
     html += `
       <div class="empty-state" style="border:1px solid var(--border); background:#fff;border-radius:var(--r);">
-        <div class="empty-icon" style="background:var(--green-lt); color:var(--green);">🎯</div>
+        <div class="empty-icon" style="background:var(--green-lt); color:var(--green);"></div>
         <h3 style="color:var(--green);">100% Coverage</h3>
         <p>Every agent in your master list has been audited in this timeframe. Great job!</p>
       </div>`;
