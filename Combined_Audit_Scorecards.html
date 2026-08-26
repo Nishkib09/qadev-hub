@@ -1993,12 +1993,15 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (emEl) emEl.value = agent ? agent.email : '';
     }
 
-    function autoFillEvaluatorEmail() {
-      const sel = document.getElementById('qa-name');
+    function syncEvaluatorFromEmail() {
       const emailEl = document.getElementById('qa-email');
-      if (!sel || !emailEl) return;
-      const evaluator = agents.find(agent => agent.isEvaluator && agent.name === sel.value);
-      emailEl.value = evaluator ? evaluator.email : '';
+      const nameEl = document.getElementById('qa-name');
+      if (!emailEl) return;
+      const selectedEmail = emailEl.value.trim().toLowerCase();
+      const evaluator = agents.find(agent =>
+        agent.isEvaluator && String(agent.email || '').trim().toLowerCase() === selectedEmail
+      );
+      if (nameEl) nameEl.value = evaluator ? evaluator.name : '';
       saveEvaluatorProfile();
       updateEmailBody();
     }
@@ -2051,18 +2054,18 @@ function ensureHeaders(sheet, expectedHeaders) {
         sel.value = currentVal;
       }
 
-      const evaluatorSel = document.getElementById('qa-name');
-      if (evaluatorSel) {
+      const evaluatorEmailSel = document.getElementById('qa-email');
+      if (evaluatorEmailSel) {
         const profile = getEvaluatorProfile();
-        const currentEvaluator = evaluatorSel.value || profile.name;
-        const evaluators = agents.filter(agent => agent.isEvaluator);
-        evaluatorSel.innerHTML = `<option value="">-- Select Evaluator --</option>` + evaluators.map(agent => `<option value="${agent.name}">${agent.name}</option>`).join('');
-        evaluatorSel.value = evaluators.some(agent => agent.name === currentEvaluator) ? currentEvaluator : '';
-        if (!evaluatorSel.value) {
-          const emailEl = document.getElementById('qa-email');
-          if (emailEl) emailEl.value = '';
-          saveEvaluatorProfile();
-        }
+        const currentEmail = (evaluatorEmailSel.value || profile.email || '').trim().toLowerCase();
+        const evaluators = agents.filter(agent => agent.isEvaluator && agent.email);
+        evaluatorEmailSel.innerHTML = `<option value="">${evaluators.length ? '-- Select Evaluator Email --' : '-- Add evaluator in Manage Agents --'}</option>` +
+          evaluators.map(agent => `<option value="${agent.email}">${agent.email}</option>`).join('');
+        const matchingEvaluator = evaluators.find(agent =>
+          String(agent.email).trim().toLowerCase() === currentEmail
+        );
+        evaluatorEmailSel.value = matchingEvaluator ? matchingEvaluator.email : '';
+        syncEvaluatorFromEmail();
       }
     }
 
@@ -2449,25 +2452,21 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function saveEvaluatorProfile() {
-      const nameEl = document.getElementById('qa-name');
       const emailEl = document.getElementById('qa-email');
-      const profile = {
-        name: nameEl ? nameEl.value.trim() : '',
-        email: emailEl ? emailEl.value.trim() : ''
-      };
-      localStorage.setItem(EVALUATOR_PROFILE_KEY, JSON.stringify(profile));
+      const email = emailEl ? emailEl.value.trim() : '';
+      const evaluator = agents.find(agent =>
+        agent.isEvaluator && String(agent.email || '').trim().toLowerCase() === email.toLowerCase()
+      );
+      const nameEl = document.getElementById('qa-name');
+      const name = evaluator ? evaluator.name : (nameEl ? nameEl.value.trim() : '');
+      if (nameEl) nameEl.value = name;
+      localStorage.setItem(EVALUATOR_PROFILE_KEY, JSON.stringify({ name, email }));
     }
 
     function validateEvaluatorProfile() {
-      const nameEl = document.getElementById('qa-name');
       const emailEl = document.getElementById('qa-email');
-      if (!nameEl || !nameEl.value.trim()) {
-        showToast('Enter the evaluator name before submitting.', 'error');
-        if (nameEl) nameEl.focus();
-        return false;
-      }
       if (!emailEl || !emailEl.value.trim() || !emailEl.checkValidity()) {
-        showToast('Enter a valid evaluator email before submitting.', 'error');
+        showToast('Select a valid evaluator email before submitting.', 'error');
         if (emailEl) emailEl.focus();
         return false;
       }
@@ -2483,8 +2482,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
-          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'caller-num', label: 'Customer Email / Ticket Number', type: 'text', default: '' },
           { id: 'call-date', label: 'Date email was received', type: 'date' },
           { id: 'call-type', label: 'Type of email', type: 'select', options: ['General Inquiry', 'Complaint', 'Follow-up', 'Other'] },
@@ -2546,8 +2545,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
-          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'call-date', label: 'Date the call was received', type: 'date' },
@@ -2653,8 +2652,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
-          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
           { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
           { id: 'crm-reason', label: 'Agent Selected Reason on CRM', type: 'text' },
@@ -2725,8 +2724,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
-          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'campaign-name', label: 'Campaign Name', type: 'text' },
@@ -2792,8 +2791,8 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'evaluator-select', required: true, persistEvaluator: true },
-          { id: 'qa-email', label: 'Evaluator Email', type: 'email', required: true, persistEvaluator: true, placeholder: 'name@example.com' },
+          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
+          { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
           { id: 'audited-category', label: 'Audited Call Category', type: 'text', readonly: true, placeholder: 'Select via tabs...' },
@@ -3122,16 +3121,22 @@ function ensureHeaders(sheet, expectedHeaders) {
         if (f.id === 'qa-name') defVal = evaluatorProfile.name;
         if (f.id === 'qa-email') defVal = evaluatorProfile.email;
         const safeDefVal = String(defVal).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        if (f.type === 'agent-select') {
+        if (f.type === 'hidden') {
+          return `<input type="hidden" id="${f.id}" value="${safeDefVal}">`;
+        } else if (f.type === 'agent-select') {
           input = `<select id="${f.id}" onchange="autoFillEmail()">
                 <option value="">-- Select Agent --</option>
                 ${agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
             </select>`;
-        } else if (f.type === 'evaluator-select') {
-          const evaluators = agents.filter(agent => agent.isEvaluator);
-          input = `<select id="${f.id}" onchange="autoFillEvaluatorEmail()" ${f.required ? 'required' : ''}>
-                <option value="">${evaluators.length ? '-- Select Evaluator --' : '-- Add evaluator in Manage Agents --'}</option>
-                ${evaluators.map(evaluator => `<option value="${evaluator.name}" ${evaluator.name === defVal ? 'selected' : ''}>${evaluator.name}</option>`).join('')}
+        } else if (f.type === 'evaluator-email-select') {
+          const evaluators = agents.filter(agent => agent.isEvaluator && agent.email);
+          const selectedEmail = String(defVal || '').trim().toLowerCase();
+          input = `<select id="${f.id}" onchange="syncEvaluatorFromEmail()" ${f.required ? 'required' : ''}>
+                <option value="">${evaluators.length ? '-- Select Evaluator Email --' : '-- Add evaluator in Manage Agents --'}</option>
+                ${evaluators.map(evaluator => {
+                  const email = String(evaluator.email || '').trim();
+                  return `<option value="${email}" ${email.toLowerCase() === selectedEmail ? 'selected' : ''}>${email}</option>`;
+                }).join('')}
             </select>`;
         } else if (f.type === 'select') {
           input = `<select id="${f.id}">
@@ -3299,7 +3304,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       <div class="card">
         <div class="card-hd"><span class="card-title">Manage Agents</span></div>
         <div class="card-body">
-           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Tick <strong>Evaluator</strong> to make a person available in the evaluator dropdown on every scorecard. Their email will auto-fill but remains editable for each audit.</p>
+           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Tick <strong>Evaluator</strong> to make that person's email available in the evaluator email selector on every scorecard. Evaluator names remain visible here for administration only.</p>
            <table style="width:100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-bottom: 20px;">
              <thead>
                  <tr style="border-bottom: 1px solid var(--border);"><th style="padding:10px 8px;">Agent Name</th><th style="padding:10px 8px;">Email Address</th><th style="padding:10px 8px; width: 110px;">Evaluator</th><th style="padding:10px 8px; width: 80px;">Action</th></tr>
