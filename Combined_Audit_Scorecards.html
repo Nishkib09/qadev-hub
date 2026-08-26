@@ -1916,8 +1916,26 @@ function ensureHeaders(sheet, expectedHeaders) {
       { name: "Nancy Waweru", email: "nancy.waweru@food4education.org" }
     ];
 
+    const OWNER_EVALUATOR = Object.freeze({
+      name: 'Vinceciana Wairimu',
+      email: 'vinceciana.wairimu@food4education.org'
+    });
+    const EVALUATOR_ASSIGNMENT_VERSION = 'owner-default-2026-08';
+
     let agents = (JSON.parse(localStorage.getItem('managed_agents')) || defaultAgents)
       .map(agent => ({ ...agent, isEvaluator: agent.isEvaluator === true }));
+
+    if (localStorage.getItem('evaluator_assignment_version') !== EVALUATOR_ASSIGNMENT_VERSION) {
+      agents = agents.map(agent => ({ ...agent, isEvaluator: false }));
+      localStorage.setItem('managed_agents', JSON.stringify(agents));
+      localStorage.setItem('audit_evaluator_profile', JSON.stringify(OWNER_EVALUATOR));
+      localStorage.setItem('evaluator_assignment_version', EVALUATOR_ASSIGNMENT_VERSION);
+    }
+
+    function getAssignedEvaluators() {
+      const assignedAgents = agents.filter(agent => agent.isEvaluator && agent.email);
+      return assignedAgents.length ? assignedAgents : [OWNER_EVALUATOR];
+    }
 
     let emailPaused = JSON.parse(localStorage.getItem('email_send_paused')) || false;
     let queuedAudits = JSON.parse(localStorage.getItem('queued_audits')) || [];
@@ -1998,8 +2016,8 @@ function ensureHeaders(sheet, expectedHeaders) {
       const nameEl = document.getElementById('qa-name');
       if (!emailEl) return;
       const selectedEmail = emailEl.value.trim().toLowerCase();
-      const evaluator = agents.find(agent =>
-        agent.isEvaluator && String(agent.email || '').trim().toLowerCase() === selectedEmail
+      const evaluator = getAssignedEvaluators().find(agent =>
+        String(agent.email || '').trim().toLowerCase() === selectedEmail
       );
       if (nameEl) nameEl.value = evaluator ? evaluator.name : '';
       saveEvaluatorProfile();
@@ -2015,7 +2033,9 @@ function ensureHeaders(sheet, expectedHeaders) {
         showToast('Please enter both name and email.', 'error');
         return;
       }
-      agents.push({ name: nameEl.value.trim(), email: emailEl.value.trim(), isEvaluator: evaluatorEl ? evaluatorEl.checked : false });
+      const makeEvaluator = evaluatorEl ? evaluatorEl.checked : false;
+      if (makeEvaluator) agents.forEach(agent => { agent.isEvaluator = false; });
+      agents.push({ name: nameEl.value.trim(), email: emailEl.value.trim(), isEvaluator: makeEvaluator });
       agents.sort((a, b) => a.name.localeCompare(b.name));
       localStorage.setItem('managed_agents', JSON.stringify(agents));
       nameEl.value = '';
@@ -2029,11 +2049,12 @@ function ensureHeaders(sheet, expectedHeaders) {
     function toggleEvaluator(idx, isEvaluator) {
       if (!requireAdminAccess()) return;
       if (!agents[idx]) return;
+      if (isEvaluator) agents.forEach(agent => { agent.isEvaluator = false; });
       agents[idx].isEvaluator = isEvaluator;
       localStorage.setItem('managed_agents', JSON.stringify(agents));
       rebuildAgentSelects();
       renderAgentsTab();
-      showToast(`${agents[idx].name} ${isEvaluator ? 'can now be selected as an evaluator.' : 'is no longer an evaluator.'}`, 'success');
+      showToast(isEvaluator ? agents[idx].name + ' is now the assigned evaluator.' : agents[idx].name + ' is no longer the evaluator. Your email is active again.', 'success');
     }
 
     function deleteAgent(idx) {
@@ -2058,13 +2079,12 @@ function ensureHeaders(sheet, expectedHeaders) {
       if (evaluatorEmailSel) {
         const profile = getEvaluatorProfile();
         const currentEmail = (evaluatorEmailSel.value || profile.email || '').trim().toLowerCase();
-        const evaluators = agents.filter(agent => agent.isEvaluator && agent.email);
-        evaluatorEmailSel.innerHTML = `<option value="">${evaluators.length ? '-- Select Evaluator Email --' : '-- Add evaluator in Manage Agents --'}</option>` +
-          evaluators.map(agent => `<option value="${agent.email}">${agent.email}</option>`).join('');
+        const evaluators = getAssignedEvaluators();
+        evaluatorEmailSel.innerHTML = evaluators.map(agent => `<option value="${agent.email}">${agent.email}</option>`).join('');
         const matchingEvaluator = evaluators.find(agent =>
           String(agent.email).trim().toLowerCase() === currentEmail
         );
-        evaluatorEmailSel.value = matchingEvaluator ? matchingEvaluator.email : '';
+        evaluatorEmailSel.value = (matchingEvaluator || evaluators[0]).email;
         syncEvaluatorFromEmail();
       }
     }
@@ -2440,22 +2460,24 @@ function ensureHeaders(sheet, expectedHeaders) {
     }
 
     function getEvaluatorProfile() {
+      const evaluators = getAssignedEvaluators();
       try {
         const saved = JSON.parse(localStorage.getItem(EVALUATOR_PROFILE_KEY) || '{}');
-        return {
-          name: typeof saved.name === 'string' ? saved.name : '',
-          email: typeof saved.email === 'string' ? saved.email : ''
-        };
+        const savedEmail = typeof saved.email === 'string' ? saved.email.trim().toLowerCase() : '';
+        const evaluator = evaluators.find(person =>
+          String(person.email || '').trim().toLowerCase() === savedEmail
+        ) || evaluators[0] || OWNER_EVALUATOR;
+        return { name: evaluator.name || '', email: evaluator.email || '' };
       } catch (e) {
-        return { name: '', email: '' };
+        return { ...OWNER_EVALUATOR };
       }
     }
 
     function saveEvaluatorProfile() {
       const emailEl = document.getElementById('qa-email');
       const email = emailEl ? emailEl.value.trim() : '';
-      const evaluator = agents.find(agent =>
-        agent.isEvaluator && String(agent.email || '').trim().toLowerCase() === email.toLowerCase()
+      const evaluator = getAssignedEvaluators().find(agent =>
+        String(agent.email || '').trim().toLowerCase() === email.toLowerCase()
       );
       const nameEl = document.getElementById('qa-name');
       const name = evaluator ? evaluator.name : (nameEl ? nameEl.value.trim() : '');
@@ -3129,10 +3151,9 @@ function ensureHeaders(sheet, expectedHeaders) {
                 ${agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
             </select>`;
         } else if (f.type === 'evaluator-email-select') {
-          const evaluators = agents.filter(agent => agent.isEvaluator && agent.email);
+          const evaluators = getAssignedEvaluators();
           const selectedEmail = String(defVal || '').trim().toLowerCase();
           input = `<select id="${f.id}" onchange="syncEvaluatorFromEmail()" ${f.required ? 'required' : ''}>
-                <option value="">${evaluators.length ? '-- Select Evaluator Email --' : '-- Add evaluator in Manage Agents --'}</option>
                 ${evaluators.map(evaluator => {
                   const email = String(evaluator.email || '').trim();
                   return `<option value="${email}" ${email.toLowerCase() === selectedEmail ? 'selected' : ''}>${email}</option>`;
@@ -3304,7 +3325,7 @@ function ensureHeaders(sheet, expectedHeaders) {
       <div class="card">
         <div class="card-hd"><span class="card-title">Manage Agents</span></div>
         <div class="card-body">
-           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Tick <strong>Evaluator</strong> to make that person's email available in the evaluator email selector on every scorecard. Evaluator names remain visible here for administration only.</p>
+           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Your email is the automatic evaluator by default. Tick <strong>Evaluator</strong> for an agent to reassign all scorecards to that person's email; untick them to return the assignment to your email. Evaluator names remain visible here for administration only.</p>
            <table style="width:100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-bottom: 20px;">
              <thead>
                  <tr style="border-bottom: 1px solid var(--border);"><th style="padding:10px 8px;">Agent Name</th><th style="padding:10px 8px;">Email Address</th><th style="padding:10px 8px; width: 110px;">Evaluator</th><th style="padding:10px 8px; width: 80px;">Action</th></tr>
