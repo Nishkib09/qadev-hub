@@ -222,9 +222,7 @@ function doPost(e) {
         while (d.row.length <= auditIdIndex) d.row.push("");
         d.row[auditIdIndex] = auditId;
       }
-      if (d.headers && d.headers.length > 0) {
-        ensureHeaders(sheet, d.headers);
-      }
+      var sheetHeaders = ensureHeaders(sheet, d.headers);
       duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
       if (duplicateAudit) {
         diag += ' | DuplicateAudit=SKIPPED (' + auditId + ')';
@@ -257,7 +255,7 @@ function doPost(e) {
         try {
           duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
           if (!duplicateAudit) {
-            sheet.appendRow(d.row);
+            sheet.appendRow(alignRowToHeaders_(sheetHeaders, d.headers, d.row));
             markAuditDataChanged_();
           } else {
             diag += ' | ConcurrentDuplicate=SKIPPED (' + auditId + ')';
@@ -1153,25 +1151,51 @@ function saveRow(sheetName, item, headers) {
 
 
 function ensureHeaders(sheet, expectedHeaders) {
-  if (!expectedHeaders || expectedHeaders.length === 0) return;
+  if (!expectedHeaders || expectedHeaders.length === 0) return [];
   var lastCol = sheet.getLastColumn();
-  var maxCols = sheet.getMaxColumns();
-  if (maxCols < expectedHeaders.length) {
-    sheet.insertColumnsAfter(maxCols, expectedHeaders.length - maxCols);
+  var currentHeaders = lastCol > 0
+    ? sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0]
+    : [];
+
+  while (currentHeaders.length && !String(currentHeaders[currentHeaders.length - 1]).trim()) {
+    currentHeaders.pop();
   }
-  var currentHeaders = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
-  var isMismatch = currentHeaders.length !== expectedHeaders.length;
-  if (!isMismatch) {
-    for (var i = 0; i < expectedHeaders.length; i++) {
-      if (currentHeaders[i] !== expectedHeaders[i]) {
-        isMismatch = true;
-        break;
-      }
+
+  if (currentHeaders.length === 0) {
+    if (sheet.getMaxColumns() < expectedHeaders.length) {
+      sheet.insertColumnsAfter(sheet.getMaxColumns(), expectedHeaders.length - sheet.getMaxColumns());
     }
-  }
-  if (isMismatch) {
     sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
+    return expectedHeaders.slice();
   }
+
+  var missingHeaders = expectedHeaders.filter(function(header) {
+    return currentHeaders.indexOf(header) === -1;
+  });
+  if (missingHeaders.length > 0) {
+    var requiredColumns = currentHeaders.length + missingHeaders.length;
+    if (sheet.getMaxColumns() < requiredColumns) {
+      sheet.insertColumnsAfter(sheet.getMaxColumns(), requiredColumns - sheet.getMaxColumns());
+    }
+    sheet.getRange(1, currentHeaders.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
+    currentHeaders = currentHeaders.concat(missingHeaders);
+  }
+  return currentHeaders;
+}
+
+function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
+  var valuesByHeader = {};
+  (payloadHeaders || []).forEach(function(header, index) {
+    if (Object.prototype.hasOwnProperty.call(valuesByHeader, header)) {
+      throw new Error('Duplicate audit header: ' + header);
+    }
+    valuesByHeader[header] = index < (payloadRow || []).length ? payloadRow[index] : '';
+  });
+  return (sheetHeaders || []).map(function(header) {
+    return Object.prototype.hasOwnProperty.call(valuesByHeader, header)
+      ? valuesByHeader[header]
+      : '';
+  });
 }
 
 // Agent Directory CRUD
