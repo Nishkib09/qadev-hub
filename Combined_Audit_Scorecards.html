@@ -1683,9 +1683,7 @@ function doPost(e) {
         while (d.row.length <= auditIdIndex) d.row.push("");
         d.row[auditIdIndex] = auditId;
       }
-      if (d.headers && d.headers.length > 0) {
-        ensureHeaders(sheet, d.headers);
-      }
+      var sheetHeaders = ensureHeaders(sheet, d.headers);
       duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
       if (duplicateAudit) diag += ' | DuplicateAudit=SKIPPED (' + auditId + ')';
 
@@ -1716,7 +1714,7 @@ function doPost(e) {
         try {
           duplicateAudit = findRecentAuditIdRow_(sheet, auditId) !== -1;
           if (!duplicateAudit) {
-            sheet.appendRow(d.row);
+            sheet.appendRow(alignRowToHeaders_(sheetHeaders, d.headers, d.row));
             markAuditDataChanged_();
           }
         } finally {
@@ -1865,25 +1863,51 @@ function backfillAuditIds() {
 }
 
 function ensureHeaders(sheet, expectedHeaders) {
-  if (!expectedHeaders || expectedHeaders.length === 0) return;
+  if (!expectedHeaders || expectedHeaders.length === 0) return [];
   var lastCol = sheet.getLastColumn();
-  var maxCols = sheet.getMaxColumns();
-  if (maxCols < expectedHeaders.length) {
-    sheet.insertColumnsAfter(maxCols, expectedHeaders.length - maxCols);
+  var currentHeaders = lastCol > 0
+    ? sheet.getRange(1, 1, 1, lastCol).getDisplayValues()[0]
+    : [];
+
+  while (currentHeaders.length && !String(currentHeaders[currentHeaders.length - 1]).trim()) {
+    currentHeaders.pop();
   }
-  var currentHeaders = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
-  var isMismatch = currentHeaders.length !== expectedHeaders.length;
-  if (!isMismatch) {
-    for (var i = 0; i < expectedHeaders.length; i++) {
-      if (currentHeaders[i] !== expectedHeaders[i]) {
-        isMismatch = true;
-        break;
-      }
+
+  if (currentHeaders.length === 0) {
+    if (sheet.getMaxColumns() < expectedHeaders.length) {
+      sheet.insertColumnsAfter(sheet.getMaxColumns(), expectedHeaders.length - sheet.getMaxColumns());
     }
-  }
-  if (isMismatch) {
     sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
+    return expectedHeaders.slice();
   }
+
+  var missingHeaders = expectedHeaders.filter(function(header) {
+    return currentHeaders.indexOf(header) === -1;
+  });
+  if (missingHeaders.length > 0) {
+    var requiredColumns = currentHeaders.length + missingHeaders.length;
+    if (sheet.getMaxColumns() < requiredColumns) {
+      sheet.insertColumnsAfter(sheet.getMaxColumns(), requiredColumns - sheet.getMaxColumns());
+    }
+    sheet.getRange(1, currentHeaders.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
+    currentHeaders = currentHeaders.concat(missingHeaders);
+  }
+  return currentHeaders;
+}
+
+function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
+  var valuesByHeader = {};
+  (payloadHeaders || []).forEach(function(header, index) {
+    if (Object.prototype.hasOwnProperty.call(valuesByHeader, header)) {
+      throw new Error('Duplicate audit header: ' + header);
+    }
+    valuesByHeader[header] = index < (payloadRow || []).length ? payloadRow[index] : '';
+  });
+  return (sheetHeaders || []).map(function(header) {
+    return Object.prototype.hasOwnProperty.call(valuesByHeader, header)
+      ? valuesByHeader[header]
+      : '';
+  });
 }</div>
           </div>
           <p style="margin-top:8px;"><strong>Step 3 — Deploy as NEW version:</strong> In Apps Script, click <strong>Deploy → Manage Deployments</strong>. Click the  pencil/edit icon on your existing deployment. Change the <strong>Version</strong> dropdown to <strong>"New version"</strong>. Keep type as <strong>Web app</strong>, "Execute as" = <strong>Me</strong>, "Who has access" = <strong>Anyone</strong>. Click <strong>Deploy</strong>.</p>
@@ -2013,13 +2037,7 @@ function ensureHeaders(sheet, expectedHeaders) {
 
     function syncEvaluatorFromEmail() {
       const emailEl = document.getElementById('qa-email');
-      const nameEl = document.getElementById('qa-name');
       if (!emailEl) return;
-      const selectedEmail = emailEl.value.trim().toLowerCase();
-      const evaluator = getAssignedEvaluators().find(agent =>
-        String(agent.email || '').trim().toLowerCase() === selectedEmail
-      );
-      if (nameEl) nameEl.value = evaluator ? evaluator.name : '';
       saveEvaluatorProfile();
       updateEmailBody();
     }
@@ -2476,13 +2494,7 @@ function ensureHeaders(sheet, expectedHeaders) {
     function saveEvaluatorProfile() {
       const emailEl = document.getElementById('qa-email');
       const email = emailEl ? emailEl.value.trim() : '';
-      const evaluator = getAssignedEvaluators().find(agent =>
-        String(agent.email || '').trim().toLowerCase() === email.toLowerCase()
-      );
-      const nameEl = document.getElementById('qa-name');
-      const name = evaluator ? evaluator.name : (nameEl ? nameEl.value.trim() : '');
-      if (nameEl) nameEl.value = name;
-      localStorage.setItem(EVALUATOR_PROFILE_KEY, JSON.stringify({ name, email }));
+      localStorage.setItem(EVALUATOR_PROFILE_KEY, JSON.stringify({ email }));
     }
 
     function validateEvaluatorProfile() {
@@ -2504,7 +2516,6 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
           { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'caller-num', label: 'Customer Email / Ticket Number', type: 'text', default: '' },
           { id: 'call-date', label: 'Date email was received', type: 'date' },
@@ -2567,7 +2578,6 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
           { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'caller-num', label: 'Caller Number', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
@@ -2674,7 +2684,6 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
           { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'sms-num', label: 'Phone number the customer used to reach us', type: 'text', default: '+254 ' },
           { id: 'channel-contacted', label: 'Channel parent contacted', type: 'select', options: ['Whatsapp', 'Shortcode', 'Intervention Campaign'] },
@@ -2746,7 +2755,6 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
           { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'cx-phone', label: 'Customer Phone Number', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
@@ -2813,7 +2821,6 @@ function ensureHeaders(sheet, expectedHeaders) {
         fields: [
           { id: 'ag-name', label: 'Agent Name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent Email', type: 'email', readonly: true },
-          { id: 'qa-name', label: 'Evaluator Name', type: 'hidden' },
           { id: 'qa-email', label: 'Evaluator Email', type: 'evaluator-email-select', required: true, persistEvaluator: true },
           { id: 'cx-phone', label: 'Phone number contacted', type: 'text', default: '+254 ' },
           { id: 'call-aht', label: 'AHT (Seconds)', type: 'number', placeholder: 'e.g. 120' },
@@ -3140,12 +3147,9 @@ function ensureHeaders(sheet, expectedHeaders) {
       cont.innerHTML = fields.map(f => {
         let input = '';
         let defVal = f.default ? f.default : '';
-        if (f.id === 'qa-name') defVal = evaluatorProfile.name;
         if (f.id === 'qa-email') defVal = evaluatorProfile.email;
         const safeDefVal = String(defVal).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        if (f.type === 'hidden') {
-          return `<input type="hidden" id="${f.id}" value="${safeDefVal}">`;
-        } else if (f.type === 'agent-select') {
+        if (f.type === 'agent-select') {
           input = `<select id="${f.id}" onchange="autoFillEmail()">
                 <option value="">-- Select Agent --</option>
                 ${agents.map(a => `<option value="${a.name}">${a.name}</option>`).join('')}
@@ -3842,7 +3846,12 @@ ${attachmentText}
       const fcrEl = document.getElementById('fcr-select');
       row.push(fcrEl ? fcrEl.value : '');
 
-      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', 'Perfect Call', 'Needs Immediate Coaching', 'Call Recording Link', 'Email Sent Status', 'Email Sent Timestamp');
+      const perfectInteractionHeader = currentAuditType === 'sms'
+        ? 'Perfect Chat'
+        : currentAuditType === 'email-audit'
+          ? 'Perfect Email'
+          : 'Perfect Call';
+      headers.push('Total Points Earned', 'Max Points Possible', 'Percentage Score', 'Rating', 'General Call Overview / Notes', perfectInteractionHeader, 'Needs Immediate Coaching', 'Call Recording Link', 'Email Sent Status', 'Email Sent Timestamp');
       let trFlag = document.getElementById('training-flag');
       let cFlag = document.getElementById('coaching-flag');
       const isEmailPaused = emailPaused && agEmail;
@@ -4052,8 +4061,7 @@ ${attachmentText}
       config.fields.forEach(f => {
         let el = document.getElementById(f.id);
         if (el) {
-          if (f.id === 'qa-name') el.value = getEvaluatorProfile().name;
-          else if (f.id === 'qa-email') el.value = getEvaluatorProfile().email;
+          if (f.id === 'qa-email') el.value = getEvaluatorProfile().email;
           else if (f.type === 'agent-select' || f.type === 'select') el.value = '';
           else el.value = f.default ? f.default : '';
         }
