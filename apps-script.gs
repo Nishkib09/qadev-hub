@@ -453,7 +453,13 @@ var COACHING_LOG_HEADERS = [
   "Focus Area", "Pre-Coaching Score (%)", "Post-Coaching Score (%)",
   "Observations", "Action Items", "Follow-up Date", "Status",
   "Created At", "Updated At", "Agent Email", "Source Audit ID",
-  "Source Audit Type", "Source Audit Date"
+  "Source Audit Type", "Source Audit Date", "Session Time", "Follow-up Notes"
+];
+var TRAINING_LOG_HEADERS = [
+  "ID", "Date", "Training Title", "Trainer Name", "Type",
+  "Topic/Module", "Duration (Hrs)", "Attendees Count", "Pre-Assessment Avg (%)",
+  "Post-Assessment Avg (%)", "Delivery Method", "Status", "Notes",
+  "Created At", "Updated At", "Start Time", "Attendee Emails"
 ];
 
 function ensureAppendOnlyHeaders_(sheet, requiredHeaders) {
@@ -489,12 +495,9 @@ function initTrackerSheets() {
   var trainingSheet = ss.getSheetByName(SHEET_TRAINING);
   if (!trainingSheet) {
     trainingSheet = ss.insertSheet(SHEET_TRAINING);
-    trainingSheet.appendRow([
-      "ID", "Date", "Training Title", "Trainer Name", "Type", 
-      "Topic/Module", "Duration (Hrs)", "Attendees Count", "Pre-Assessment Avg (%)", 
-      "Post-Assessment Avg (%)", "Delivery Method", "Status", "Notes", 
-      "Created At", "Updated At"
-    ]);
+    trainingSheet.appendRow(TRAINING_LOG_HEADERS);
+  } else {
+    ensureAppendOnlyHeaders_(trainingSheet, TRAINING_LOG_HEADERS);
   }
   
   // 3. Execution Plan Sheet
@@ -1062,12 +1065,7 @@ function saveCoachingSession(session) {
 }
 
 function saveTrainingSession(training) {
-  return saveRow(SHEET_TRAINING, training, [
-    "ID", "Date", "Training Title", "Trainer Name", "Type", 
-    "Topic/Module", "Duration (Hrs)", "Attendees Count", "Pre-Assessment Avg (%)", 
-    "Post-Assessment Avg (%)", "Delivery Method", "Status", "Notes", 
-    "Created At", "Updated At"
-  ]);
+  return saveRow(SHEET_TRAINING, training, TRAINING_LOG_HEADERS);
 }
 
 function saveExecutionPlanItem(plan) {
@@ -1268,7 +1266,7 @@ function sendCoachingSummaryEmail(session, agentEmail) {
   
   // Format HTML body beautifully for Food4Education
   var htmlBody = 
-    "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e2d8; border-radius: 12px; background-color: #f4faf3;'>" +
+    "<div style='font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e4e2d8; border-radius: 12px; background-color: #f4faf3;'>" +
       "<div style='background-color: #24631E; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; text-align: center;'>" +
         "<h2 style='margin: 0; font-size: 20px;'>Coaching Discussion Summary</h2>" +
         "<p style='margin: 5px 0 0 0; font-size: 13px; opacity: 0.8;'>Food4Education | Tap2eat Q&T Operations</p>" +
@@ -1307,5 +1305,84 @@ function sendCoachingSummaryEmail(session, agentEmail) {
     htmlBody: htmlBody,
     cc: ccEmails
   });
+  return true;
+}
+
+function buildTrackerDateTime_(dateValue, timeValue) {
+  if (!dateValue) throw new Error("A session date is required.");
+  var dateParts = String(dateValue).split("-");
+  var timeParts = String(timeValue || "10:00").split(":");
+  return new Date(
+    Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]),
+    Number(timeParts[0] || 10), Number(timeParts[1] || 0), 0, 0
+  );
+}
+
+function sendCoachingCalendarInvite(session) {
+  if (!session || !session.agentEmail) throw new Error("The selected agent has no email address.");
+  var start = buildTrackerDateTime_(session.date, session.sessionTime);
+  var end = new Date(start.getTime() + 45 * 60 * 1000);
+  var description = [
+    "Coaching focus: " + (session.focusArea || ""),
+    "Pre-coaching QA score: " + (session.precoachingScore === "" ? "Not recorded" : session.precoachingScore + "%"),
+    "Source Audit ID: " + (session.sourceAuditId || "Not linked"),
+    "Coach: " + (session.coachName || ""),
+    "Action plan will be documented in the Q&T Coaching Hub."
+  ].join("\n");
+  var event = CalendarApp.getDefaultCalendar().createEvent(
+    "Coaching | " + (session.focusArea || "Quality improvement"), start, end,
+    { description: description, guests: session.agentEmail, sendInvites: true }
+  );
+  return { success: true, eventId: event.getId() };
+}
+
+function sendTrainingCalendarInvite(training) {
+  var guests = String(training.attendeeEmails || "").split(",").map(function(email) { return email.trim(); }).filter(String);
+  if (guests.length === 0) throw new Error("Add at least one attendee email before sending invitations.");
+  var start = buildTrackerDateTime_(training.date, training.startTime);
+  var duration = Math.max(Number(training.durationHrs || 1), 0.5);
+  var end = new Date(start.getTime() + duration * 60 * 60 * 1000);
+  var event = CalendarApp.getDefaultCalendar().createEvent(
+    "Training | " + (training.trainingTitle || training.topicmodule || "CX learning session"), start, end,
+    {
+      description: "Topic: " + (training.topicmodule || "") + "\nPre-training average: " + (training.preassessmentAvg === "" ? "Not recorded" : training.preassessmentAvg + "%") + "\nTrainer: " + (training.trainerName || ""),
+      guests: guests.join(","),
+      sendInvites: true
+    }
+  );
+  return { success: true, eventId: event.getId(), invitees: guests.length };
+}
+
+function sendCoachingFollowupEmail(session, agentEmail) {
+  if (!agentEmail) throw new Error("The selected agent has no email address.");
+  if (!session.followupNotes) throw new Error("Follow-up notes are required.");
+  var subject = "Coaching Follow-up | " + (session.focusArea || "Quality improvement") + " | " + session.date;
+  var htmlBody = "<div style='font-family:Georgia,serif;max-width:640px;margin:auto;color:#1F1B1B'>" +
+    "<div style='background:#24631E;color:white;padding:16px 20px'><h2 style='margin:0;font-size:20px'>Coaching Follow-up Record</h2></div>" +
+    "<div style='border:1px solid #E5E5C9;border-top:0;padding:20px'>" +
+    "<p>Hi <strong>" + session.agentName + "</strong>,</p>" +
+    "<p>This documents the follow-up to our coaching on <strong>" + session.focusArea + "</strong>.</p>" +
+    "<p><strong>Pre-score:</strong> " + session.precoachingScore + "% &nbsp; <strong>Post-score:</strong> " + (session.postcoachingScore === "" ? "Pending" : session.postcoachingScore + "%") + "</p>" +
+    "<div style='background:#FAFAF5;border-left:4px solid #FFB200;padding:14px;white-space:pre-wrap'>" + session.followupNotes + "</div>" +
+    "<p><strong>Next follow-up:</strong> " + (session.followupDate || "Not scheduled") + "</p>" +
+    "<p style='font-size:12px;color:#56564F'>This email forms part of the Q&T coaching documentation trail.</p></div></div>";
+  MailApp.sendEmail({ to: agentEmail, subject: subject, htmlBody: htmlBody });
+  return true;
+}
+
+function sendTrainingFollowupEmail(training) {
+  var recipients = String(training.attendeeEmails || "").split(",").map(function(email) { return email.trim(); }).filter(String);
+  if (recipients.length === 0) throw new Error("Add attendee emails before sending follow-up documentation.");
+  var delta = training.preassessmentAvg !== "" && training.postassessmentAvg !== ""
+    ? Number(training.postassessmentAvg) - Number(training.preassessmentAvg) : null;
+  var subject = "Training Follow-up | " + (training.trainingTitle || training.topicmodule || "CX learning session");
+  var htmlBody = "<div style='font-family:Georgia,serif;max-width:640px;margin:auto;color:#1F1B1B'>" +
+    "<div style='background:#1F1B1B;color:white;padding:16px 20px'><h2 style='margin:0;font-size:20px'>Training Follow-up Record</h2></div>" +
+    "<div style='border:1px solid #E5E5C9;border-top:0;padding:20px'><p><strong>Topic:</strong> " + training.topicmodule + "</p>" +
+    "<p><strong>Pre-assessment:</strong> " + training.preassessmentAvg + "% &nbsp; <strong>Post-assessment:</strong> " + (training.postassessmentAvg === "" ? "Pending" : training.postassessmentAvg + "%") +
+    (delta === null ? "" : " &nbsp; <strong>Movement:</strong> " + (delta >= 0 ? "+" : "") + delta.toFixed(1) + " points") + "</p>" +
+    "<div style='background:#FAFAF5;border-left:4px solid #FF8C00;padding:14px;white-space:pre-wrap'>" + (training.notes || "No additional notes recorded.") + "</div>" +
+    "<p style='font-size:12px;color:#56564F'>This email forms part of the Q&T training documentation trail.</p></div></div>";
+  MailApp.sendEmail({ to: recipients.join(","), subject: subject, htmlBody: htmlBody });
   return true;
 }
