@@ -1404,7 +1404,7 @@ body{
         </div>
       </div>
       <div class="pb-track"><div class="pb-fill" id="pbar"></div></div>
-      <div id="crit-flag" class="crit-flag">A critical item was triggered — this conversation requires immediate coaching follow-up.</div>
+      <div id="crit-flag" class="crit-flag">Critical fail — final score is 0%. Other answers are retained for documentation only and earn no points. Immediate coaching follow-up is required.</div>
 
       <div id="sections"></div>
       <div id="specials"></div>
@@ -3293,7 +3293,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       let rating = '\u2013', cls = '', pbColor = '#888780';
 
       if (answered > 0 || critFail) {
-        if (critFail) { rating = 'Critical Fail / Override'; cls = 'poor'; pbColor = '#e24b4a'; }
+        if (critFail) { rating = 'Critical Fail'; cls = 'poor'; pbColor = '#e24b4a'; }
         else if (pct >= 96) { rating = 'Excellent'; cls = 'exc'; pbColor = '#639922'; }
         else if (pct >= 86) { rating = 'Good'; cls = 'good'; pbColor = '#378add'; }
         else if (pct >= 70) { rating = 'Satisfactory'; cls = 'sat'; pbColor = '#ef9f27'; }
@@ -3810,6 +3810,9 @@ ${attachmentText}
       document.querySelectorAll('.crit-cb').forEach(cb => {
         if (cb.checked) { critFail = true; issues.push(cb.value); }
       });
+
+      // Critical failures earn no points; retain individual answers as evidence only.
+      if (critFail) earned = 0;
 
       const pct = possible > 0 ? Math.round(earned / possible * 100) : 0;
       const rating = critFail ? 'Critical fail' :
