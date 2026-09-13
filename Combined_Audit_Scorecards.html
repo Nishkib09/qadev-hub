@@ -1313,7 +1313,7 @@ body{
       <div class="tab" onclick="switchTab('email-audit')" id="tab-email-audit">Email Audit</div>
       <div class="tab admin-protected" onclick="switchTab('agents')" id="tab-agents" title="Owner access required">Manage Agents</div>
       <div class="tab" onclick="switchTab('email')" id="tab-email">Email & Export</div>
-      <div class="tab admin-protected" onclick="switchTab('email-pause')" id="tab-email-pause" title="Owner access required">Email Control</div>
+      <div class="tab admin-protected" onclick="switchTab('email-pause')" id="tab-email-pause" title="Feedback email controls">Email Control</div>
     </div>
 
     <div id="audit-panels">
@@ -2486,6 +2486,19 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       }
     }
 
+    function getFeedbackCc(evaluatorEmail) {
+      const email = String(evaluatorEmail || '').trim().toLowerCase();
+      if (email === 'john.gitungi@food4education.org') {
+        return 'vinceciana.wairimu@food4education.org, teresia.nyokabi@food4education.org, adah.achieng@food4education.org';
+      }
+      return [email, 'teresia.nyokabi@food4education.org'].filter(Boolean).filter((value, index, list) => list.indexOf(value) === index).join(', ');
+    }
+
+    function requireFeedbackAccess() {
+      if (getEvaluatorProfile().email.toLowerCase() === 'john.gitungi@food4education.org') return true;
+      return requireAdminAccess('email-pause');
+    }
+
     function getEvaluatorProfile() {
       const evaluators = getAssignedEvaluators();
       try {
@@ -3073,7 +3086,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     function switchTab(type) {
-      if (PROTECTED_TABS.has(type) && !requireAdminAccess(type)) return;
+      if (type === 'email-pause' ? !requireFeedbackAccess() : PROTECTED_TABS.has(type) && !requireAdminAccess(type)) return;
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.getElementById('tab-' + type).classList.add('active');
 
@@ -3464,7 +3477,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     function toggleEmailPause() {
-      if (!requireAdminAccess()) return;
+      if (!requireFeedbackAccess()) return;
       emailPaused = document.getElementById('email-pause-toggle').checked;
       localStorage.setItem('email_send_paused', JSON.stringify(emailPaused));
       updateQueueIndicator();
@@ -3473,7 +3486,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     function removeQueued(idx) {
-      if (!requireAdminAccess()) return;
+      if (!requireFeedbackAccess()) return;
       if (!confirm('Remove this queued audit? This cannot be undone.')) return;
       queuedAudits.splice(idx, 1);
       try { localStorage.setItem('queued_audits', JSON.stringify(queuedAudits)); } catch(e) {}
@@ -3482,7 +3495,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     function clearAllQueued() {
-      if (!requireAdminAccess()) return;
+      if (!requireFeedbackAccess()) return;
       if (queuedAudits.length === 0) return;
       if (!confirm(`Clear all ${queuedAudits.length} queued audit(s)? This cannot be undone.`)) return;
       queuedAudits = [];
@@ -3492,7 +3505,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     async function sendAllQueued() {
-      if (!requireAdminAccess()) return;
+      if (!requireFeedbackAccess()) return;
       if (queuedAudits.length === 0) {
         showToast('No queued audits to send.', 'info');
         return;
@@ -3510,6 +3523,11 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       for (let i = 0; i < queuedAudits.length; i++) {
         try {
           const qa = queuedAudits[i];
+          if (qa.emailSettings.evaluatorEmail) {
+            qa.emailSettings.cc = getFeedbackCc(qa.emailSettings.evaluatorEmail);
+          } else if (String(qa.emailSettings.cc || '').toLowerCase().includes('john.gitungi@food4education.org')) {
+            qa.emailSettings.cc = getFeedbackCc('john.gitungi@food4education.org');
+          }
           qa.emailSettings.send = true;
           qa.emailOnly = true;
           await fetch(url, {
@@ -3537,7 +3555,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     function exportQueuedCSV() {
-      if (!requireAdminAccess()) return;
+      if (!requireFeedbackAccess()) return;
       if (queuedAudits.length === 0) { showToast('No queued audits to export.', 'info'); return; }
       const headers = Object.keys(queuedAudits[0]).filter(k => k !== 'files' && k !== 'emailSettings' && k !== 'row' && k !== 'headers');
       let csv = headers.join(',') + '\n';
@@ -3601,7 +3619,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
         <div class="card-body">
            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom:12px;">
                <div class="field">
-                 <label>Evaluator Email (CC)</label>
+                 <label>Feedback CC recipients</label>
                  <input type="text" id="em-sender" readonly style="background:var(--g50); color:var(--g600);">
                </div>
                <div class="field">
@@ -3641,7 +3659,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
 
       const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
       let evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : '';
-      evEmail = evEmail ? `${evEmail}, Terry Nyokabi <teresia.nyokabi@food4education.org>` : 'Terry Nyokabi <teresia.nyokabi@food4education.org>';
+      evEmail = getFeedbackCc(evEmail);
       const senderBox = document.getElementById('em-sender');
       if (senderBox) senderBox.value = evEmail;
 
@@ -3745,7 +3763,7 @@ ${attachmentText}
       const subject = encodeURIComponent(`${AUDITS[currentAuditType].title} Results - ${agn}`);
       let textBody = document.getElementById('em-body').innerText;
       const body = encodeURIComponent(textBody);
-      window.location.href = `mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`;
+      window.location.href = `mailto:${to}?cc=${encodeURIComponent(cc)}&subject=${subject}&body=${body}`;
     }
 
     function copyEmailBody() {
@@ -3976,7 +3994,7 @@ ${attachmentText}
 <p style="margin:0;">Best regards,<br>QA Team</p>
 </div>`;
 
-      const ccStr = evEmail ? `${evEmail}, Terry Nyokabi <teresia.nyokabi@food4education.org>` : 'Terry Nyokabi <teresia.nyokabi@food4education.org>';
+      const ccStr = getFeedbackCc(evEmail);
 
       const payload = {
         auditType: config.title,
@@ -3992,6 +4010,7 @@ ${attachmentText}
           send: agEmail && !emailPaused ? true : false,
           to: agEmail,
           cc: ccStr,
+          evaluatorEmail: evEmail,
           subject: `${config.title} Results \u2014 ${agName}`,
           body: emailBodyHtml
         }
