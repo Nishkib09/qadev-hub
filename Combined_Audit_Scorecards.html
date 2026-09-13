@@ -1933,7 +1933,6 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       { name: "Gerald Macharia", email: "gerald.macharia@food4education.org" },
       { name: "Janipher Achieng", email: "janipher@food4education.org" },
       { name: "Joan Wachira", email: "joan.wachira@food4education.org" },
-      { name: "John Gitungi", email: "john.gitungi@food4education.org", isEvaluator: true },
       { name: "Lilian Kemunto", email: "lilian.kemunto@food4education.org" },
       { name: "Louisa Chikete", email: "louisa.chikete@food4education.org" },
       { name: "Magdalene Mukami", email: "magdaline.njeru@food4education.org" },
@@ -1956,20 +1955,21 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       localStorage.setItem('evaluator_assignment_version', EVALUATOR_ASSIGNMENT_VERSION);
     }
 
-    // Apply the shared John assignment once to both existing and new browsers.
-    if (localStorage.getItem('john_evaluator_assignment_version') !== '2026-09-13') {
-      const johnDefault = defaultAgents.find(agent => agent.email === 'john.gitungi@food4education.org');
-      const john = agents.find(agent => String(agent.email || '').trim().toLowerCase() === johnDefault.email);
-      if (john) john.isEvaluator = true;
-      else agents.push({ ...johnDefault });
-      localStorage.setItem('managed_agents', JSON.stringify(agents));
-      localStorage.setItem('john_evaluator_assignment_version', '2026-09-13');
-    }
+    const JOHN_EVALUATOR = Object.freeze({
+      name: 'John Gitungi',
+      email: 'john.gitungi@food4education.org'
+    });
+
+    // Remove the previous dual-role assignment from existing browsers.
+    agents = agents.filter(agent =>
+      String(agent.email || '').trim().toLowerCase() !== JOHN_EVALUATOR.email);
+    localStorage.setItem('managed_agents', JSON.stringify(agents));
+    localStorage.setItem('john_evaluator_assignment_version', '2026-09-13-evaluator-only');
 
     function getAssignedEvaluators() {
       const assignedAgents = agents.filter(agent => agent.isEvaluator && agent.email &&
-        String(agent.email).trim().toLowerCase() !== OWNER_EVALUATOR.email);
-      return [OWNER_EVALUATOR, ...assignedAgents];
+        ![OWNER_EVALUATOR.email, JOHN_EVALUATOR.email].includes(String(agent.email).trim().toLowerCase()));
+      return [OWNER_EVALUATOR, JOHN_EVALUATOR, ...assignedAgents];
     }
 
     let emailPaused = JSON.parse(localStorage.getItem('email_send_paused')) || false;
