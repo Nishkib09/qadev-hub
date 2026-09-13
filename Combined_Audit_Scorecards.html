@@ -1933,7 +1933,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       { name: "Gerald Macharia", email: "gerald.macharia@food4education.org" },
       { name: "Janipher Achieng", email: "janipher@food4education.org" },
       { name: "Joan Wachira", email: "joan.wachira@food4education.org" },
-      { name: "John Gitungi", email: "john.gitungi@food4education.org" },
+      { name: "John Gitungi", email: "john.gitungi@food4education.org", isEvaluator: true },
       { name: "Lilian Kemunto", email: "lilian.kemunto@food4education.org" },
       { name: "Louisa Chikete", email: "louisa.chikete@food4education.org" },
       { name: "Magdalene Mukami", email: "magdaline.njeru@food4education.org" },
@@ -1956,9 +1956,20 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       localStorage.setItem('evaluator_assignment_version', EVALUATOR_ASSIGNMENT_VERSION);
     }
 
+    // Apply the shared John assignment once to both existing and new browsers.
+    if (localStorage.getItem('john_evaluator_assignment_version') !== '2026-09-13') {
+      const johnDefault = defaultAgents.find(agent => agent.email === 'john.gitungi@food4education.org');
+      const john = agents.find(agent => String(agent.email || '').trim().toLowerCase() === johnDefault.email);
+      if (john) john.isEvaluator = true;
+      else agents.push({ ...johnDefault });
+      localStorage.setItem('managed_agents', JSON.stringify(agents));
+      localStorage.setItem('john_evaluator_assignment_version', '2026-09-13');
+    }
+
     function getAssignedEvaluators() {
-      const assignedAgents = agents.filter(agent => agent.isEvaluator && agent.email);
-      return assignedAgents.length ? assignedAgents : [OWNER_EVALUATOR];
+      const assignedAgents = agents.filter(agent => agent.isEvaluator && agent.email &&
+        String(agent.email).trim().toLowerCase() !== OWNER_EVALUATOR.email);
+      return [OWNER_EVALUATOR, ...assignedAgents];
     }
 
     let emailPaused = JSON.parse(localStorage.getItem('email_send_paused')) || false;
@@ -2052,7 +2063,6 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
         return;
       }
       const makeEvaluator = evaluatorEl ? evaluatorEl.checked : false;
-      if (makeEvaluator) agents.forEach(agent => { agent.isEvaluator = false; });
       agents.push({ name: nameEl.value.trim(), email: emailEl.value.trim(), isEvaluator: makeEvaluator });
       agents.sort((a, b) => a.name.localeCompare(b.name));
       localStorage.setItem('managed_agents', JSON.stringify(agents));
@@ -2067,12 +2077,11 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     function toggleEvaluator(idx, isEvaluator) {
       if (!requireAdminAccess()) return;
       if (!agents[idx]) return;
-      if (isEvaluator) agents.forEach(agent => { agent.isEvaluator = false; });
       agents[idx].isEvaluator = isEvaluator;
       localStorage.setItem('managed_agents', JSON.stringify(agents));
       rebuildAgentSelects();
       renderAgentsTab();
-      showToast(isEvaluator ? agents[idx].name + ' is now the assigned evaluator.' : agents[idx].name + ' is no longer the evaluator. Your email is active again.', 'success');
+      showToast(isEvaluator ? agents[idx].name + ' is now available as an evaluator.' : agents[idx].name + ' is no longer available as an evaluator.', 'success');
     }
 
     function deleteAgent(idx) {
@@ -3329,7 +3338,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       <div class="card">
         <div class="card-hd"><span class="card-title">Manage Agents</span></div>
         <div class="card-body">
-           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Your email is the automatic evaluator by default. Tick <strong>Evaluator</strong> for an agent to reassign all scorecards to that person's email; untick them to return the assignment to your email. Evaluator names remain visible here for administration only.</p>
+           <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Your email is the default evaluator. Tick <strong>Evaluator</strong> to add an agent to the evaluator email options. Each evaluator selects their own email on their browser. Changes made here are saved on this browser. Evaluator names remain visible here for administration only.</p>
            <table style="width:100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-bottom: 20px;">
              <thead>
                  <tr style="border-bottom: 1px solid var(--border);"><th style="padding:10px 8px;">Agent Name</th><th style="padding:10px 8px;">Email Address</th><th style="padding:10px 8px; width: 110px;">Evaluator</th><th style="padding:10px 8px; width: 80px;">Action</th></tr>
@@ -4164,8 +4173,9 @@ ${attachmentText}
       if (!hasAdminSession()) refreshAdminAccessUi();
     }, 60000);
 
+    const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw18-Q3jen4eLPoDdW51AVdy12kpDEJD_Y0Rcoiu8Jy82RbFRsfwLNezL9dLTg8IYeUIg/exec';
     const prevUrl = localStorage.getItem('sms_audit_sheet_url');
-    const savedUrl = localStorage.getItem('combined_audit_sheet_url') || prevUrl;
+    const savedUrl = localStorage.getItem('combined_audit_sheet_url') || prevUrl || DEFAULT_APPS_SCRIPT_URL;
     if (savedUrl) {
       document.getElementById('sheet-url').value = savedUrl;
       localStorage.setItem('combined_audit_sheet_url', savedUrl);
