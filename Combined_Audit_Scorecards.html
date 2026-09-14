@@ -3751,7 +3751,7 @@ ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
 ${attachmentText}
-<p style="margin:0;">Best regards,<br>QA Team</p>
+<p style="margin:0;">Best regards,<br>${evName}</p>
 </div>`;
     }
 
@@ -3852,6 +3852,8 @@ ${attachmentText}
       const agEmail = agEmailEl ? agEmailEl.value : '';
       const evEmailEl = document.getElementById('qa-email') || document.getElementById('ev-email');
       const evEmail = evEmailEl && evEmailEl.value ? evEmailEl.value : '';
+      const evaluatorProfile = getEvaluatorProfile();
+      const evName = evaluatorProfile.name || 'QA Team';
 
       let headers = ['Timestamp', 'Audit Type'];
       let row = [submissionTimestamp, config.title];
@@ -3991,7 +3993,7 @@ ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
 <p style="margin:0 0 16px 0;">${generalNotes}</p>
 ${attachmentText}
-<p style="margin:0;">Best regards,<br>QA Team</p>
+<p style="margin:0;">Best regards,<br>${evName}</p>
 </div>`;
 
       const ccStr = getFeedbackCc(evEmail);
@@ -4011,6 +4013,7 @@ ${attachmentText}
           to: agEmail,
           cc: ccStr,
           evaluatorEmail: evEmail,
+          evaluatorName: evName,
           subject: `${config.title} Results \u2014 ${agName}`,
           body: emailBodyHtml
         }
