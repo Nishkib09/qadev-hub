@@ -2491,7 +2491,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       if (email === 'john.gitungi@food4education.org') {
         return 'vinceciana.wairimu@food4education.org, teresia.nyokabi@food4education.org';
       }
-      return [email, 'teresia.nyokabi@food4education.org'].filter(Boolean).filter((value, index, list) => list.indexOf(value) === index).join(', ');
+      return [email === 'vinceciana.wairimu@food4education.org' ? 'john.gitungi@food4education.org' : email, 'teresia.nyokabi@food4education.org'].filter(Boolean).filter((value, index, list) => list.indexOf(value) === index).join(', ');
     }
 
     function requireFeedbackAccess() {
