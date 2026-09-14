@@ -277,16 +277,26 @@ function doPost(e) {
         body = body.replace(/\[Call Recording Link\]/gi, 'No folder link available (no recordings uploaded).');
       }
 
-      var cc = d.emailSettings.cc || '';
-      if (cc.indexOf('teresia.nyokabi@food4education.org') === -1) {
-        cc += (cc ? ',' : '') + 'teresia.nyokabi@food4education.org';
+      var evaluatorEmail = String(d.emailSettings.evaluatorEmail || '').trim().toLowerCase();
+      var evaluators = {
+        'vinceciana.wairimu@food4education.org': 'Vinceciana Wairimu',
+        'john.gitungi@food4education.org': 'John Gitungi'
+      };
+      if (!evaluators[evaluatorEmail]) {
+        throw new Error('The selected evaluator is not authorised to send audit feedback.');
       }
+
+      var cc = evaluatorEmail === 'john.gitungi@food4education.org'
+        ? 'vinceciana.wairimu@food4education.org,teresia.nyokabi@food4education.org'
+        : 'teresia.nyokabi@food4education.org';
 
       var mailOptions = {
         to: d.emailSettings.to,
         subject: d.emailSettings.subject,
         htmlBody: body,
-        cc: cc
+        cc: cc,
+        name: evaluators[evaluatorEmail],
+        replyTo: evaluatorEmail
       };
 
       if (attachments && attachments.length > 0) {
