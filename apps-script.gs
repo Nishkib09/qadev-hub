@@ -287,8 +287,8 @@ function doPost(e) {
       }
 
       var cc = evaluatorEmail === 'john.gitungi@food4education.org'
-        ? 'vinceciana.wairimu@food4education.org,teresia.nyokabi@food4education.org'
-        : 'teresia.nyokabi@food4education.org';
+        ? 'john.gitungi@food4education.org,vinceciana.wairimu@food4education.org,adah.achieng@food4education.org,teresia.nyokabi@food4education.org'
+        : 'john.gitungi@food4education.org,adah.achieng@food4education.org,teresia.nyokabi@food4education.org';
 
       var mailOptions = {
         to: d.emailSettings.to,
@@ -555,7 +555,6 @@ function initTrackerSheets() {
     agentSheet.appendRow(["Gerald Macharia", "gerald.macharia@food4education.org", "CX Team", "Active"]);
     agentSheet.appendRow(["Janipher Achieng", "janipher@food4education.org", "CX Team", "Active"]);
     agentSheet.appendRow(["Joan Wachira", "joan.wachira@food4education.org", "CX Team", "Active"]);
-    agentSheet.appendRow(["John Gitungi", "john.gitungi@food4education.org", "CX Team", "Active"]);
     agentSheet.appendRow(["Lilian Kemunto", "lilian.kemunto@food4education.org", "CX Team", "Active"]);
     agentSheet.appendRow(["Magdalene Mukami", "magdaline.njeru@food4education.org", "CX Team", "Active"]);
     agentSheet.appendRow(["Nancy Waweru", "nancy.waweru@food4education.org", "CX Team", "Active"]);
