@@ -2132,38 +2132,45 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     }
 
     function formatImprovement(q) {
-      let text = q.label.trim();
-      if (text.endsWith('?')) text = text.slice(0, -1);
-      text = text.replace(/\s*\(if applicable\)$/i, '');
-      text = text.replace(/^did the agent /i, '');
-      text = text.replace(/^was the agent'?s? /i, '');
-      text = text.replace(/^was the /i, '');
-      text = text.replace(/^were the /i, '');
-      text = text.replace(/^were /i, '');
-      text = text.replace(/^(demonstrate|maintain|follow|use|show|provide|offer|confirm|manage|handle|probe|correctly|personalize|ask|tailor|build|record|capture|avoid|keep|allow|inform|thank|check|make|log|select|state|adhered to the|acknowledged the|personalized the)\s+/i, '');
-      text = text.replace(/\s+(appropriately|effectively|professionally|properly|correctly|accurately|clearly|completely)\s*$/i, '');
-      text = text.replace(/\s+before engaging the caller$/i, '');
-      text = text.replace(/\s+and ready$/i, '');
-      text = text.replace(/\s+throughout the call$/i, '');
-      text = text.replace(/\s+completed$/i, '');
-      text = text.replace(/\s+followed$/i, '');
-      text = text.replace(/\s+selected$/i, '');
-      text = text.replace(/\s+offered accurate and complete$/i, '');
-      text = text.replace(/\s+offered$/i, '');
-      text = text.replace(/\s+within sla \(180 aht\)$/i, '');
-      text = text.replace(/\s+handled$/i, '');
-      text = text.replace(/\s+and protect the company image$/i, '');
-      text = text.replace(/\s+and offer further assistance before closing$/i, '');
-      text = text.replace(/^the\s+/i, '');
-      text = text.replace(/^correct\s+/i, '');
-      text = text.replace(/^set\s+/i, '');
-      text = text.replace(/^standard\s+/i, '');
-      text = text.trim();
-      if (!text) text = q.label.replace(/\?$/, '');
-      text = text.replace(/\b\w+/g, function(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); });
-      text = text.replace(/\b(And|The|Of|In|To|For|With|Or|A|An|At|By|On|If|As|Sla|Aht)\b/g, function(m) { return m.toLowerCase(); });
-      text = text.charAt(0).toUpperCase() + text.slice(1);
-      return '<li><i>' + text + ' [Lost ' + q.pts + ' points]</i></li>';
+      const original = String(q.label || '').trim().replace(/\?$/, '');
+      let action = original;
+
+      // Convert every failed scorecard question into a complete coaching action.
+      // Keep the substance of the criterion intact instead of removing words and
+      // producing unclear fragments such as "Call interaction".
+      if (/^Did the agent\s+/i.test(action)) {
+        action = 'The agent should ' + action.replace(/^Did the agent\s+/i, '');
+      } else if (/^Was the agent\s+/i.test(action)) {
+        action = 'The agent should be ' + action.replace(/^Was the agent\s+/i, '');
+      } else if (/^Was the call\s+/i.test(action)) {
+        action = 'The call should be ' + action.replace(/^Was the call\s+/i, '');
+      } else if (/^Was the\s+/i.test(action)) {
+        action = 'The ' + action.replace(/^Was the\s+/i, '').replace(/\s+completed$/i, ' should be completed').replace(/\s+selected$/i, ' should be selected').replace(/\s+logged$/i, ' should be logged').replace(/\s+used(\s|$)/i, ' should be used$1').replace(/\s+handled(\s|$)/i, ' should be handled$1');
+      } else if (/^Were\s+/i.test(action)) {
+        action = action.replace(/^Were\s+/i, '').replace(/\s+followed(\s|$)/i, ' should be followed$1').replace(/\s+used(\s|$)/i, ' should be used$1');
+      } else {
+        const statementRules = [
+          [/^Acknowledged\s+/i, 'Acknowledge '],
+          [/^Adhered to\s+/i, 'Follow '],
+          [/^Avoided\s+/i, 'Avoid '],
+          [/^Demonstrated\s+/i, 'Demonstrate '],
+          [/^Followed\s+/i, 'Follow '],
+          [/^Personalized\s+/i, 'Personalize '],
+          [/^Proactively offered\s+/i, 'Proactively offer '],
+          [/^Probed\s+/i, 'Probe '],
+          [/^Provided\s+/i, 'Provide '],
+          [/^Summarized\s+/i, 'Summarize '],
+          [/^Used\s+/i, 'Use ']
+        ];
+        const rule = statementRules.find(([pattern]) => pattern.test(action));
+        action = rule ? 'The agent should ' + action.replace(rule[0], rule[1]).replace(/^./, c => c.toLowerCase()) : 'This scorecard requirement should be met: ' + action;
+      }
+
+      action = action.trim();
+      action = action.charAt(0).toUpperCase() + action.slice(1);
+      if (!/[.!]$/.test(action)) action += '.';
+
+      return '<li><i><b>Improve by:</b> ' + action + ' [Lost ' + q.pts + ' points]</i></li>';
     }
 
     // Call Reason Selector logic & data
