@@ -3684,6 +3684,8 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       evEmail = getFeedbackCc(evEmail);
       const senderBox = document.getElementById('em-sender');
       if (senderBox) senderBox.value = evEmail;
+      const evaluatorProfile = getEvaluatorProfile();
+      const evName = evaluatorProfile.name || 'QA Team';
 
       const linkEl = document.getElementById('em-link');
       const link = linkEl ? linkEl.value.trim() : '';
