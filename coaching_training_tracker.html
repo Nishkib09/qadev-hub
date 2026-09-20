@@ -1974,9 +1974,14 @@
         {agentName: "John Gitungi", emailAddress: "john.gitungi@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Lilian Kemunto", emailAddress: "lilian.kemunto@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Magdalene Mukami", emailAddress: "magdaline.njeru@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Mindy Achieng", emailAddress: "Jackline.mindi@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Nancy Waweru", emailAddress: "nancy.waweru@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "John Mtana", emailAddress: "john.mtana@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Peter Mwangi", emailAddress: "peter.mwangi@food4education.org", team: "CX Team", status: "Active"},
-        {agentName: "Rahab Munyua", emailAddress: "rahab.munyua@food4education.org", team: "CX Team", status: "Active"}
+        {agentName: "Rahab Munyua", emailAddress: "rahab.munyua@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Lydia Nyambura", emailAddress: "lydia.kanyi@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Serah Kanaga", emailAddress: "serah.kanaga@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Sheila Nyambura", emailAddress: "sheila.nyambura@food4education.org", team: "CX Team", status: "Active"}
       ],
       settings: {
         Coaches: ["Jane Doe", "John Smith", "Mercy Wanjiku"],
@@ -2125,6 +2130,26 @@
     }
 
     function onDatabaseLoaded() {
+      // Keep newly added agents available even when an older browser cache or
+      // spreadsheet response supplies the tracker roster.
+      const requiredAgents = [
+        {agentName: "Mindy Achieng", emailAddress: "Jackline.mindi@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Lydia Nyambura", emailAddress: "lydia.kanyi@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "John Mtana", emailAddress: "john.mtana@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Sheila Nyambura", emailAddress: "sheila.nyambura@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Serah Kanaga", emailAddress: "serah.kanaga@food4education.org", team: "CX Team", status: "Active"}
+      ];
+      if (!Array.isArray(db.agents)) db.agents = [];
+      requiredAgents.forEach(requiredAgent => {
+        const email = requiredAgent.emailAddress.trim().toLowerCase();
+        const existing = db.agents.find(agent =>
+          String(agent.emailAddress || '').trim().toLowerCase() === email);
+        if (existing) Object.assign(existing, requiredAgent);
+        else db.agents.push({ ...requiredAgent });
+      });
+      db.agents.sort((a, b) => a.agentName.localeCompare(b.agentName));
+      localStorage.setItem('qt_tracker_cache', JSON.stringify(db));
+
       // 1. Populate Dropdowns in forms
       populateDropdowns();
       
@@ -3656,9 +3681,14 @@
         {agentName: "John Gitungi", emailAddress: "john.gitungi@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Lilian Kemunto", emailAddress: "lilian.kemunto@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Magdalene Mukami", emailAddress: "magdaline.njeru@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Mindy Achieng", emailAddress: "Jackline.mindi@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Nancy Waweru", emailAddress: "nancy.waweru@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "John Mtana", emailAddress: "john.mtana@food4education.org", team: "CX Team", status: "Active"},
         {agentName: "Peter Mwangi", emailAddress: "peter.mwangi@food4education.org", team: "CX Team", status: "Active"},
-        {agentName: "Rahab Munyua", emailAddress: "rahab.munyua@food4education.org", team: "CX Team", status: "Active"}
+        {agentName: "Rahab Munyua", emailAddress: "rahab.munyua@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Lydia Nyambura", emailAddress: "lydia.kanyi@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Serah Kanaga", emailAddress: "serah.kanaga@food4education.org", team: "CX Team", status: "Active"},
+        {agentName: "Sheila Nyambura", emailAddress: "sheila.nyambura@food4education.org", team: "CX Team", status: "Active"}
       ];
 
       db.coaching = [

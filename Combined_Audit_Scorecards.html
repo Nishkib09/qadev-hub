@@ -1936,9 +1936,14 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       { name: "Lilian Kemunto", email: "lilian.kemunto@food4education.org" },
       { name: "Louisa Chikete", email: "louisa.chikete@food4education.org" },
       { name: "Magdalene Mukami", email: "magdaline.njeru@food4education.org" },
+      { name: "Mindy Achieng", email: "Jackline.mindi@food4education.org" },
       { name: "Nancy Waweru", email: "nancy.waweru@food4education.org" },
+      { name: "John Mtana", email: "john.mtana@food4education.org" },
       { name: "Peter Mwangi", email: "peter.mwangi@food4education.org" },
-      { name: "Rahab Munyua", email: "rahab.munyua@food4education.org" }
+      { name: "Rahab Munyua", email: "rahab.munyua@food4education.org" },
+      { name: "Lydia Nyambura", email: "lydia.kanyi@food4education.org" },
+      { name: "Serah Kanaga", email: "serah.kanaga@food4education.org" },
+      { name: "Sheila Nyambura", email: "sheila.nyambura@food4education.org" }
     ];
 
     const OWNER_EVALUATOR = Object.freeze({
@@ -1966,15 +1971,15 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     agents = agents.filter(agent =>
       String(agent.email || '').trim().toLowerCase() !== JOHN_EVALUATOR.email);
 
-    const AGENT_ROSTER_VERSION = '2026-09-14-restore-peter-rahab';
+    const AGENT_ROSTER_VERSION = '2026-09-20-add-five-agents';
     if (localStorage.getItem('agent_roster_version') !== AGENT_ROSTER_VERSION) {
       defaultAgents
-        .filter(defaultAgent => ['peter.mwangi@food4education.org', 'rahab.munyua@food4education.org'].includes(defaultAgent.email))
         .forEach(defaultAgent => {
           const exists = agents.some(agent =>
-            String(agent.email || '').trim().toLowerCase() === defaultAgent.email);
+            String(agent.email || '').trim().toLowerCase() === String(defaultAgent.email).trim().toLowerCase());
           if (!exists) agents.push({ ...defaultAgent, isEvaluator: false });
         });
+      agents.sort((a, b) => a.name.localeCompare(b.name));
       localStorage.setItem('agent_roster_version', AGENT_ROSTER_VERSION);
     }
 
