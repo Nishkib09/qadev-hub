@@ -3778,7 +3778,7 @@ ${crmReasonText}
 <p style="margin:0 0 4px 0;"><b>Areas of improvement:</b></p>
 ${improvementsText}
 <p style="margin:0 0 4px 0;"><b>General feedback:</b></p>
-<p style="margin:0 0 16px 0;">${generalNotes}</p>
+<p id="em-general-feedback" data-generated-notes="${encodeURIComponent(notes)}" style="margin:0 0 16px 0;">${generalNotes}</p>
 ${attachmentText}
 <p style="margin:0;">Best regards,<br>${evName}</p>
 </div>`;
@@ -4011,7 +4011,24 @@ ${attachmentText}
         }
       }
 
-      let emBodyContent = document.getElementById('em-body') ? document.getElementById('em-body').innerHTML : '';
+      const emBodyElement = document.getElementById('em-body');
+      if (emBodyElement) {
+        const previewGeneralFeedback = emBodyElement.querySelector('#em-general-feedback');
+        if (previewGeneralFeedback) {
+          const generatedNotes = decodeURIComponent(previewGeneralFeedback.dataset.generatedNotes || '');
+          const previewText = previewGeneralFeedback.innerText.replace(/\r\n/g, '\n').trim();
+          const generatedText = generatedNotes.replace(/\r\n/g, '\n').trim() || 'None';
+
+          // Refresh generated feedback from the latest scorecard notes while preserving manual preview edits.
+          if (previewText === generatedText) {
+            previewGeneralFeedback.innerHTML = generalNotes;
+            previewGeneralFeedback.dataset.generatedNotes = encodeURIComponent(
+              document.getElementById('notes').value || ''
+            );
+          }
+        }
+      }
+      let emBodyContent = emBodyElement ? emBodyElement.innerHTML : '';
       let emailBodyHtml = emBodyContent || `<div style="font-family: Georgia, serif; font-size: 14px; line-height: 1.6; color: #222;">
 <p style="margin:0 0 4px 0;">Hi ${agName || 'Agent'},</p>
 <p style="margin:0 0 12px 0;">Here is your recent ${scoreText} audited on ${auditDateStr} for phone number ${phoneNumStr}.</p>
