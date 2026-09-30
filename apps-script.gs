@@ -11,6 +11,15 @@ var AUDIT_VERSION_PROPERTY = "QA_AUDIT_VERSION";
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
+
+    // Shared scorecard configuration updates must be handled before the audit
+    // submission flow so they never create folders, rows, or emails.
+    if (d && d.action === "saveCallReasons") {
+      return ContentService
+        .createTextOutput(JSON.stringify(saveSharedCallReasons_(d.callReasons, d.evaluatorEmail)))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     var fileUrls = [];
     var fileUrlStr = "No files attached";
@@ -337,6 +346,11 @@ function doGet(e) {
         .createTextOutput(JSON.stringify({ version: getAuditDataVersion_() }))
         .setMimeType(ContentService.MimeType.JSON);
     }
+    if (e.parameter.action === "getCallReasons") {
+      return ContentService
+        .createTextOutput(JSON.stringify(getSharedCallReasons_()))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
   }
   
   try {
@@ -357,6 +371,60 @@ function doGet(e) {
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
         .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
+}
+
+function getScorecardConfigSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetName = "Scorecard Configuration";
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    sheet.getRange(1, 1, 1, 4).setValues([["Configuration Key", "JSON Value", "Updated At", "Updated By"]]);
+    sheet.setFrozenRows(1);
+    try { sheet.hideSheet(); } catch (hideErr) {}
+  }
+  return sheet;
+}
+
+function getSharedCallReasons_() {
+  var sheet = getScorecardConfigSheet_();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { status: "success", callReasons: null };
+  var keys = sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues();
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i][0] === "call_reasons") {
+      var raw = sheet.getRange(i + 2, 2).getValue();
+      try { return { status: "success", callReasons: JSON.parse(raw), updatedAt: sheet.getRange(i + 2, 3).getDisplayValue() }; }
+      catch (parseErr) { return { status: "error", callReasons: null, msg: "The shared call-reason configuration is invalid." }; }
+    }
+  }
+  return { status: "success", callReasons: null };
+}
+
+function saveSharedCallReasons_(callReasons, evaluatorEmail) {
+  var ownerEmail = "vinceciana.wairimu@food4education.org";
+  var submittedBy = String(evaluatorEmail || "").trim().toLowerCase();
+  if (submittedBy !== ownerEmail) throw new Error("Only the scorecard owner can change the shared audited call reasons.");
+  if (!callReasons || Object.prototype.toString.call(callReasons) !== "[object Object]" || Array.isArray(callReasons)) throw new Error("A valid call-reason configuration is required.");
+  var categories = Object.keys(callReasons);
+  if (!categories.length) throw new Error("At least one call-reason category is required.");
+  for (var i = 0; i < categories.length; i++) {
+    var category = categories[i];
+    if (!category.trim() || !Array.isArray(callReasons[category])) throw new Error("Every call-reason category must have a valid list of options.");
+  }
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sheet = getScorecardConfigSheet_();
+    var lastRow = sheet.getLastRow();
+    var targetRow = lastRow + 1;
+    if (lastRow >= 2) {
+      var keys = sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues();
+      for (var r = 0; r < keys.length; r++) if (keys[r][0] === "call_reasons") { targetRow = r + 2; break; }
+    }
+    sheet.getRange(targetRow, 1, 1, 4).setValues([["call_reasons", JSON.stringify(callReasons), new Date(), submittedBy]]);
+    return { status: "success", updatedAt: new Date().toISOString() };
+  } finally { lock.releaseLock(); }
 }
 
 function getAuditsData(sheetName, requestedLimit) {
