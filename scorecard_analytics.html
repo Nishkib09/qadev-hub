@@ -1764,9 +1764,19 @@ const CONFIGS = {
   },
   sms: {
     label: 'SMS Quality Audit',
+    // The CRM-disposition question (q4b) is stored in a column appended at the END of the
+    // raw sheet. Map it by header text back into Account Verification (after q4). Historical
+    // rows leave it blank, so it is skipped for them; q4 was 10 pts before q4b existed and
+    // 5 pts once q4b is answered.
+    appendedQuestions: [{
+      header: /^\(\d+pts?\)\s*Did the agent capture the correct conversation disposition in the CRM\?$/i,
+      after: /^\(\d+pts?\)\s*Followed proper account verification procedures without unnecessary delays$/i,
+      pts: 5,
+      afterPtsWhenAnswered: 5
+    }],
     sections: [
       { name: 'Opening & Greeting', qCount: 3, pts: [6,7,7] },
-      { name: 'Account Verification', qCount: 2, pts: [10,10] },
+      { name: 'Account Verification', qCount: 3, pts: [5,5,10] },
       { name: 'Issue Understanding & Resolution', qCount: 4, pts: [7,8,10,5] },
       { name: 'Service Quality', qCount: 3, pts: [8,7,5] },
       { name: 'Communication & Closure', qCount: 2, pts: [5,5] }
@@ -2212,6 +2222,27 @@ function findQuestionCols(headers) {
   return cols;
 }
 
+function orderQuestionCols(cols, config) {
+  (config && config.appendedQuestions || []).forEach(spec => {
+    const afterPos = cols.findIndex(c => spec.after.test(String(c.header)));
+    if (afterPos === -1) return; // Unknown layout (e.g. demo data): keep positional order.
+    const fromPos = cols.findIndex(c => spec.header.test(String(c.header)));
+    let col;
+    if (fromPos === -1) {
+      col = { index: -1, pts: spec.pts, header: '' }; // Column not created yet: placeholder.
+    } else {
+      col = cols.splice(fromPos, 1)[0];
+    }
+    col.skipBlank = true;
+    const insertAt = cols.findIndex(c => spec.after.test(String(c.header))) + 1;
+    cols.splice(insertAt, 0, col);
+    if (spec.afterPtsWhenAnswered) {
+      cols[insertAt - 1] = { ...cols[insertAt - 1], sibling: col, ptsWhenSiblingAnswered: spec.afterPtsWhenAnswered };
+    }
+  });
+  return cols;
+}
+
 function findColIdx(headers, pattern) {
   return headers.findIndex(h => pattern.test(String(h)));
 }
@@ -2295,7 +2326,7 @@ function processTypeData(type) {
   const fcrIdx = findColIdx(headers, /first\s*(?:call|contact)\s*resolution|\bfcr\b/i);
   const ratingIdx = findColIdx(headers, /rating/i);
   const immediateCoachingIdx = findColIdx(headers, /needs\s*immediate\s*coaching/i);
-  const qCols = findQuestionCols(headers);
+  const qCols = orderQuestionCols(findQuestionCols(headers), config);
 
   if (agentIdx === -1) return {};
 
@@ -2345,8 +2376,14 @@ function processTypeData(type) {
       let earned = 0, possible = 0;
       for (let i = 0; i < sec.qCount; i++) {
         if (qIdx >= qCols.length) { qIdx++; continue; }
-        const val = String(row[qCols[qIdx].index] || '').toLowerCase().trim();
-        const pts = qCols[qIdx].pts;
+        const qCol = qCols[qIdx];
+        const val = qCol.index === -1 ? '' : String(row[qCol.index] || '').toLowerCase().trim();
+        if (qCol.skipBlank && !val) { qIdx++; continue; } // Question did not exist for this audit.
+        let pts = qCol.pts;
+        if (qCol.ptsWhenSiblingAnswered && qCol.sibling && qCol.sibling.index !== -1 &&
+            String(row[qCol.sibling.index] || '').trim()) {
+          pts = qCol.ptsWhenSiblingAnswered;
+        }
         if (val === 'na' || val === 'n/a') {
           // Excluded
         } else {

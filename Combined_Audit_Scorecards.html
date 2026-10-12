@@ -2811,7 +2811,7 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       sms: {
         id: 'sms',
         title: 'SMS Quality Audit',
-        numQuestions: 14,
+        numQuestions: 15,
         fields: [
           { id: 'ag-name', label: 'Agent name', type: 'agent-select' },
           { id: 'ag-email', label: 'Agent email', type: 'email', readonly: true },
@@ -2834,7 +2834,10 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
           },
           {
             id: 'vr', title: 'Account verification', criteria: [
-              { id: 'q4', label: 'Followed proper account verification procedures without unnecessary delays', pts: 10, crit: true, na: false },
+              // sheetHeader keeps q4 answers in the existing raw-sheet column (historical header text).
+              // q4b is new: its header is appended at the end of the raw sheet, never inserted mid-sheet.
+              { id: 'q4', label: 'Did the agent follow the correct account verification process without unnecessary delays?', pts: 5, crit: true, na: false, sheetHeader: '(10pts) Followed proper account verification procedures without unnecessary delays' },
+              { id: 'q4b', label: 'Did the agent capture the correct conversation disposition in the CRM?', pts: 5, crit: true, na: false },
               { id: 'q5', label: 'Verification was accurate and completed in a timely manner', pts: 10, crit: true, na: false }
             ]
           },
@@ -3976,7 +3979,7 @@ ${attachmentText}
       });
 
       config.sections.forEach(sec => sec.criteria.forEach(q => {
-        headers.push('(' + q.pts + 'pts) ' + q.label);
+        headers.push(q.sheetHeader || ('(' + q.pts + 'pts) ' + q.label));
         row.push(scores[q.id] || '\u2013');
       }));
 
