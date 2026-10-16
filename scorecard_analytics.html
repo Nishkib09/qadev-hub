@@ -4253,7 +4253,7 @@ function renderInsights() {
 
   cont.innerHTML = visible.map(ins => `
     <div class="insight-card sev-${ins.severity}">
-      <div class="insight-icon">${ins.icon}</div>
+      <div class="insight-icon">${ins.icon || ''}</div>
       <div class="insight-body">
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
           <div class="insight-title">${escapeOverviewText(ins.title)}</div>
