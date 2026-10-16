@@ -1401,28 +1401,15 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
   <div class="lock-card">
     <div class="lock-icon">Secure access</div>
     <h2>Performance Analytics</h2>
-    <p>Enter the owner access code. Dashboard access is restricted to the system owner.</p>
+    <p>Enter the authorised QA dashboard access code.</p>
     <div class="password-field-wrap is-centered">
-      <input type="password" id="pin-input" class="lock-input" placeholder="Current owner access code" maxlength="40"
+      <input type="password" id="pin-input" class="lock-input" placeholder="Access code" maxlength="40"
              autocomplete="current-password" onkeydown="if(event.key==='Enter')submitDashboardAccess()">
       <button type="button" class="password-toggle" data-code-toggle="pin-input" aria-controls="pin-input" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('pin-input', this)">Show</button>
     </div>
-    <button type="button" class="lock-reset-toggle" id="dashboard-code-toggle" onclick="toggleDashboardCodeSetup()">Set a new access code</button>
-    <div class="lock-reset-fields" id="dashboard-code-fields" hidden>
-      <label for="dashboard-new-code">New access code</label>
-      <div class="password-field-wrap">
-        <input type="password" id="dashboard-new-code" class="lock-input" maxlength="40" autocomplete="new-password" placeholder="At least 8 characters">
-        <button type="button" class="password-toggle" data-code-toggle="dashboard-new-code" aria-controls="dashboard-new-code" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('dashboard-new-code', this)">Show</button>
-      </div>
-      <label for="dashboard-confirm-code">Confirm new access code</label>
-      <div class="password-field-wrap">
-        <input type="password" id="dashboard-confirm-code" class="lock-input" maxlength="40" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitDashboardAccess()">
-        <button type="button" class="password-toggle" data-code-toggle="dashboard-confirm-code" aria-controls="dashboard-confirm-code" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('dashboard-confirm-code', this)">Show</button>
-      </div>
-    </div>
     <button class="lock-btn" id="dashboard-lock-action" onclick="submitDashboardAccess()">Unlock Dashboard</button>
     <div class="lock-error" id="pin-error"></div>
-    <div class="lock-footer">This code is not shared with evaluators</div>
+    <div class="lock-footer">Access is limited to authorised Quality &amp; Training users.</div>
   </div>
 </div>
 
@@ -1704,14 +1691,9 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
         </div>
 
         <div class="settings-card">
-          <div class="settings-hd"><h3>Access PIN Management</h3></div>
+          <div class="settings-hd"><h3>Dashboard Access Code</h3></div>
           <div class="settings-body">
-            <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Change the access PIN for this dashboard. The PIN is stored in your browser and shared with the scorecard page (same origin).</p>
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-              <input type="password" id="new-pin" placeholder="New PIN" autocomplete="new-password" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;width:160px;font-family:'Rubik',sans-serif;">
-              <button type="button" class="password-toggle is-inline" data-code-toggle="new-pin" aria-controls="new-pin" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('new-pin', this)">Show</button>
-              <button class="btn-sm primary" onclick="changePin()">Update PIN</button>
-            </div>
+            <p style="font-size:12px;color:var(--g600);margin:0;">The shared dashboard access code is centrally managed. Contact the dashboard owner when a code change is required.</p>
           </div>
         </div>
       </div>
@@ -2008,17 +1990,24 @@ let AUDIT_DATE_QUALITY = { total: 0, valid: 0, invalid: 0 };
 
 // =================== AUTH ===================
 
-const OWNER_ACCESS_HASH = 'deab91472b3a906e5b22f5990b3e36856d8b1ef1a27a56a404d715a2d351d27d';
-const OWNER_ACCESS_VERSION = '2026-08-25-owner-lock-v1';
+// Shared access code: only its SHA-256 hash is committed. Every approved browser checks this
+// same hash; no browser-specific override is read or written.
+const OWNER_ACCESS_HASH = '707a43e0b16460fe1aa3be2c542efb92e654f9fb90799d4c10a6f20b20b91984';
+const OWNER_ACCESS_VERSION = '2026-10-16-shared-qa-lock-v2';
+// Dashboard-only version key, so this page and the scorecard page (which keeps
+// 'qa_owner_access_version') do not repeatedly reset each other's state.
+const DASHBOARD_ACCESS_VERSION_KEY = 'qa_dashboard_access_version';
 const DASHBOARD_SESSION_KEY = 'qa_dashboard_owner_session';
 const OWNER_SESSION_TTL_MS = 30 * 60 * 1000;
 
 function initializeOwnerAccess() {
-  if (localStorage.getItem('qa_owner_access_version') !== OWNER_ACCESS_VERSION) {
-    localStorage.removeItem('analytics_pin_hash');
-    localStorage.removeItem('analytics_session');
+  // Always drop any old browser-specific code hash or legacy session marker.
+  // Other dashboard settings and data-source URLs are left untouched.
+  localStorage.removeItem('analytics_pin_hash');
+  localStorage.removeItem('analytics_session');
+  if (localStorage.getItem(DASHBOARD_ACCESS_VERSION_KEY) !== OWNER_ACCESS_VERSION) {
     sessionStorage.removeItem(DASHBOARD_SESSION_KEY);
-    localStorage.setItem('qa_owner_access_version', OWNER_ACCESS_VERSION);
+    localStorage.setItem(DASHBOARD_ACCESS_VERSION_KEY, OWNER_ACCESS_VERSION);
   }
 }
 
@@ -2029,7 +2018,7 @@ async function hashStr(str) {
 }
 
 function getOwnerAccessHash() {
-  return localStorage.getItem('analytics_pin_hash') || OWNER_ACCESS_HASH;
+  return OWNER_ACCESS_HASH;
 }
 
 function hasDashboardSession() {
@@ -2066,69 +2055,18 @@ function resetCodeVisibility() {
 }
 
 function resetDashboardCodeForm() {
-  const fields = document.getElementById('dashboard-code-fields');
-  const toggle = document.getElementById('dashboard-code-toggle');
-  const action = document.getElementById('dashboard-lock-action');
-  if (fields) fields.hidden = true;
-  if (toggle) toggle.textContent = 'Set a new access code';
-  if (action) action.textContent = 'Unlock Dashboard';
-  const next = document.getElementById('dashboard-new-code');
-  const confirm = document.getElementById('dashboard-confirm-code');
-  if (next) next.value = '';
-  if (confirm) confirm.value = '';
   resetCodeVisibility();
 }
 
-function toggleDashboardCodeSetup() {
-  const fields = document.getElementById('dashboard-code-fields');
-  const toggle = document.getElementById('dashboard-code-toggle');
-  const action = document.getElementById('dashboard-lock-action');
-  const error = document.getElementById('pin-error');
-  if (!fields) return;
-  const showing = fields.hidden;
-  fields.hidden = !showing;
-  if (toggle) toggle.textContent = showing ? 'Use existing access code' : 'Set a new access code';
-  if (action) action.textContent = showing ? 'Save new access code' : 'Unlock Dashboard';
-  if (error) error.textContent = '';
-  if (!showing) {
-    document.getElementById('dashboard-new-code').value = '';
-    document.getElementById('dashboard-confirm-code').value = '';
-  }
-}
-
 async function submitDashboardAccess() {
-  const fields = document.getElementById('dashboard-code-fields');
-  if (fields && !fields.hidden) return saveFreshDashboardCode();
   return verifyPin();
-}
-
-async function saveFreshDashboardCode() {
-  const current = document.getElementById('pin-input').value.trim();
-  const next = document.getElementById('dashboard-new-code').value.trim();
-  const confirm = document.getElementById('dashboard-confirm-code').value.trim();
-  const error = document.getElementById('pin-error');
-  if (!current) { error.textContent = 'Enter your current owner access code.'; return; }
-  if ((await hashStr(current)) !== getOwnerAccessHash()) {
-    error.textContent = 'The current owner access code is incorrect.';
-    return;
-  }
-  if (next.length < 8) { error.textContent = 'Use at least 8 characters for the new code.'; return; }
-  if (next !== confirm) { error.textContent = 'The new access codes do not match.'; return; }
-  if (next === current) { error.textContent = 'Choose a different access code.'; return; }
-  localStorage.setItem('analytics_pin_hash', await hashStr(next));
-  sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
-  document.getElementById('pin-input').value = '';
-  error.textContent = '';
-  resetDashboardCodeForm();
-  unlockDashboard();
-  showToast('Your new owner access code has been saved.', 'success');
 }
 
 async function verifyPin() {
   const input = document.getElementById('pin-input');
   const errEl = document.getElementById('pin-error');
   const pin = input.value.trim();
-  if (!pin) { errEl.textContent = 'Enter the owner access code.'; return; }
+  if (!pin) { errEl.textContent = 'Enter the access code.'; return; }
 
   const hash = await hashStr(pin);
   if (hash === getOwnerAccessHash()) {
@@ -2139,7 +2077,7 @@ async function verifyPin() {
     unlockDashboard();
   } else {
     input.classList.add('error');
-    errEl.textContent = 'Incorrect owner access code.';
+    errEl.textContent = 'Incorrect access code.';
     input.select();
     setTimeout(() => input.classList.remove('error'), 500);
   }
@@ -2166,19 +2104,6 @@ function lockDashboard(showMessage = true) {
   resetDashboardCodeForm();
   if (showMessage) showToast('Dashboard locked.', 'info');
   setTimeout(() => document.getElementById('pin-input').focus(), 0);
-}
-
-async function changePin() {
-  if (!hasDashboardSession()) { lockDashboard(false); return; }
-  const pin = document.getElementById('new-pin').value.trim();
-  if (!pin) { showToast('Enter a new owner access code.', 'error'); return; }
-  if (pin.length < 8) { showToast('Use at least 8 characters.', 'error'); return; }
-  const hash = await hashStr(pin);
-  localStorage.setItem('analytics_pin_hash', hash);
-  sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
-  document.getElementById('new-pin').value = '';
-  resetCodeVisibility();
-  showToast('Owner access code updated on this browser.', 'success');
 }
 
 // =================== CSV FETCHING ===================
