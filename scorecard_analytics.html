@@ -1807,6 +1807,55 @@ CONFIGS.all = {
 
 const STORE = { inbound: [], outbound: [], survey: [], sms: [], email: [] };
 let PROCESSED = {}; // { agentName: { avgOverall, auditCount, sectionAvgs:{}, audits:[] } }
+
+// Former agents excluded from ALL active-agent dashboard results (display + calculations).
+// Matches the evaluated agent only (Agent Name / Agent Email) — never the evaluator.
+// Exact full-name or exact email match after normalisation; no partial matching
+// (John Mtana is a different person and must stay). Source spreadsheet rows are untouched.
+// Branice's audit rows record her as "Branice Arakot" with the verified directory email below.
+const DASHBOARD_EXCLUDED_AGENTS = [
+  {
+    names: ['branice mukasa', 'branice arakot'],
+    emails: ['branice.mukasa@food4education.org']
+  },
+  {
+    names: ['john gitungi'],
+    emails: ['john.gitungi@food4education.org']
+  },
+  {
+    names: ['adah achieng'],
+    emails: ['adah.achieng@food4education.org']
+  }
+];
+
+function normalizeAgentIdentity(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function isDashboardExcludedAgent(agentName, agentEmail) {
+  const normalizedName = normalizeAgentIdentity(agentName);
+  const normalizedEmail = normalizeAgentIdentity(agentEmail);
+  return DASHBOARD_EXCLUDED_AGENTS.some(person => {
+    const nameMatch = !!normalizedName && (person.names || [])
+      .map(normalizeAgentIdentity)
+      .includes(normalizedName);
+    const emailMatch = !!normalizedEmail && (person.emails || [])
+      .map(normalizeAgentIdentity)
+      .includes(normalizedEmail);
+    return nameMatch || emailMatch;
+  });
+}
+
+function removeExcludedDashboardAgents(agents) {
+  const filtered = {};
+  Object.entries(agents || {}).forEach(([key, agent]) => {
+    if (!isDashboardExcludedAgent(agent.name, agent.email)) filtered[key] = agent;
+  });
+  return filtered;
+}
 let CHART_INSTANCES = {};
 let currentPage = 'overview';
 let currentType = 'all';
@@ -2336,6 +2385,7 @@ function processTypeData(type) {
     const agentName = String(row[agentIdx] || '').trim();
     if (!agentName) return;
     const agentEmail = agentEmailIdx !== -1 ? String(row[agentEmailIdx] || '').trim().toLowerCase() : '';
+    if (isDashboardExcludedAgent(agentName, agentEmail)) return; // Former agent: not an active-agent result.
     const agentKey = agentEmail ? `email:${agentEmail}` : `name:${agentName.toLowerCase()}`;
 
     if (!agents[agentKey]) {
@@ -2515,7 +2565,7 @@ function applyDateFilter(agents) {
 
 function processAndRender() {
   const rawAgents = currentType === 'all' ? processAllChannelData() : processTypeData(currentType);
-  PROCESSED = applyDateFilter(rawAgents);
+  PROCESSED = applyDateFilter(removeExcludedDashboardAgents(rawAgents));
 
   // Populate agent dropdown
   const agentEntries = Object.entries(PROCESSED)
@@ -3768,6 +3818,7 @@ function buildPendingAudits(displayAgents) {
   let masterAgents = [];
   try {
     masterAgents = JSON.parse(localStorage.getItem('managed_agents')) || [];
+    masterAgents = masterAgents.filter(a => !isDashboardExcludedAgent(a && a.name, a && a.email));
   } catch (e) {
     console.warn("Could not parse managed_agents from localStorage");
   }
