@@ -1373,6 +1373,14 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
 .lock-reset-fields label{font:500 12px Georgia,serif;color:var(--g600);}
 .lock-reset-fields .lock-input{text-align:left;letter-spacing:normal;font-size:14px;}
 
+/* Access-code visibility toggles */
+.password-field-wrap{position:relative;width:100%;}
+.password-field-wrap .lock-input{padding-right:76px;}
+.password-toggle{position:absolute;top:50%;right:8px;transform:translateY(-50%);min-width:56px;min-height:32px;padding:4px 10px;border:1px solid var(--border);border-radius:var(--rs);background:#fff;color:var(--teal);font:600 12px 'Rubik',sans-serif;letter-spacing:normal;cursor:pointer;}
+.password-toggle:hover{border-color:var(--teal);}
+.password-toggle:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+.password-toggle.is-inline{position:static;transform:none;min-height:32px;}
+
 </style>
 </head>
 
@@ -1384,14 +1392,23 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
     <div class="lock-icon">Secure access</div>
     <h2>Performance Analytics</h2>
     <p>Enter the owner access code. Dashboard access is restricted to the system owner.</p>
-    <input type="password" id="pin-input" class="lock-input" placeholder="Current owner access code" maxlength="40"
-           onkeydown="if(event.key==='Enter')submitDashboardAccess()">
+    <div class="password-field-wrap is-centered">
+      <input type="password" id="pin-input" class="lock-input" placeholder="Current owner access code" maxlength="40"
+             autocomplete="current-password" onkeydown="if(event.key==='Enter')submitDashboardAccess()">
+      <button type="button" class="password-toggle" data-code-toggle="pin-input" aria-controls="pin-input" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('pin-input', this)">Show</button>
+    </div>
     <button type="button" class="lock-reset-toggle" id="dashboard-code-toggle" onclick="toggleDashboardCodeSetup()">Set a new access code</button>
     <div class="lock-reset-fields" id="dashboard-code-fields" hidden>
       <label for="dashboard-new-code">New access code</label>
-      <input type="password" id="dashboard-new-code" class="lock-input" maxlength="40" autocomplete="new-password" placeholder="At least 8 characters">
+      <div class="password-field-wrap">
+        <input type="password" id="dashboard-new-code" class="lock-input" maxlength="40" autocomplete="new-password" placeholder="At least 8 characters">
+        <button type="button" class="password-toggle" data-code-toggle="dashboard-new-code" aria-controls="dashboard-new-code" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('dashboard-new-code', this)">Show</button>
+      </div>
       <label for="dashboard-confirm-code">Confirm new access code</label>
-      <input type="password" id="dashboard-confirm-code" class="lock-input" maxlength="40" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitDashboardAccess()">
+      <div class="password-field-wrap">
+        <input type="password" id="dashboard-confirm-code" class="lock-input" maxlength="40" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitDashboardAccess()">
+        <button type="button" class="password-toggle" data-code-toggle="dashboard-confirm-code" aria-controls="dashboard-confirm-code" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('dashboard-confirm-code', this)">Show</button>
+      </div>
     </div>
     <button class="lock-btn" id="dashboard-lock-action" onclick="submitDashboardAccess()">Unlock Dashboard</button>
     <div class="lock-error" id="pin-error"></div>
@@ -1681,7 +1698,8 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
           <div class="settings-body">
             <p style="font-size:12px;color:var(--g600);margin-bottom:12px;">Change the access PIN for this dashboard. The PIN is stored in your browser and shared with the scorecard page (same origin).</p>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-              <input type="password" id="new-pin" placeholder="New PIN" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;width:160px;font-family:'Rubik',sans-serif;">
+              <input type="password" id="new-pin" placeholder="New PIN" autocomplete="new-password" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);font-size:13px;width:160px;font-family:'Rubik',sans-serif;">
+              <button type="button" class="password-toggle is-inline" data-code-toggle="new-pin" aria-controls="new-pin" aria-label="Show access code" aria-pressed="false" onclick="toggleCodeVisibility('new-pin', this)">Show</button>
               <button class="btn-sm primary" onclick="changePin()">Update PIN</button>
             </div>
           </div>
@@ -1908,6 +1926,30 @@ function hasDashboardSession() {
   return true;
 }
 
+// Show/hide an access-code field. Changes only the input type; the value is never
+// read, copied, stored or logged here.
+function toggleCodeVisibility(inputId, button) {
+  const input = document.getElementById(inputId);
+  if (!input || !button) return;
+  input.type = input.type === 'text' ? 'password' : 'text';
+  setCodeToggleState(button, input.type === 'text');
+}
+
+function setCodeToggleState(button, isVisible) {
+  button.setAttribute('aria-pressed', String(isVisible));
+  button.setAttribute('aria-label', isVisible ? 'Hide access code' : 'Show access code');
+  button.textContent = isVisible ? 'Hide' : 'Show';
+}
+
+// Re-mask every access-code field (used whenever the forms are cleared or the dashboard locks/unlocks).
+function resetCodeVisibility() {
+  document.querySelectorAll('[data-code-toggle]').forEach(button => {
+    const input = document.getElementById(button.getAttribute('data-code-toggle'));
+    if (input) input.type = 'password';
+    setCodeToggleState(button, false);
+  });
+}
+
 function resetDashboardCodeForm() {
   const fields = document.getElementById('dashboard-code-fields');
   const toggle = document.getElementById('dashboard-code-toggle');
@@ -1919,6 +1961,7 @@ function resetDashboardCodeForm() {
   const confirm = document.getElementById('dashboard-confirm-code');
   if (next) next.value = '';
   if (confirm) confirm.value = '';
+  resetCodeVisibility();
 }
 
 function toggleDashboardCodeSetup() {
@@ -1977,6 +2020,7 @@ async function verifyPin() {
     sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
     input.value = '';
     errEl.textContent = '';
+    resetCodeVisibility();
     unlockDashboard();
   } else {
     input.classList.add('error');
@@ -2018,6 +2062,7 @@ async function changePin() {
   localStorage.setItem('analytics_pin_hash', hash);
   sessionStorage.setItem(DASHBOARD_SESSION_KEY, Date.now().toString());
   document.getElementById('new-pin').value = '';
+  resetCodeVisibility();
   showToast('Owner access code updated on this browser.', 'success');
 }
 
