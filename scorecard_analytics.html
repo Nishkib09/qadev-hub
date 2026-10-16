@@ -586,6 +586,16 @@
     }
 
     .insight-action strong { color: var(--teal); font-weight: 600; }
+    .insight-evidence { margin: 8px 0 4px; font-size: 12px; color: var(--g800, #2c2c2a); }
+    .insight-evidence-hd { font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--g600); margin-bottom: 4px; }
+    .insight-evidence ul { margin: 0; padding-left: 18px; }
+    .insight-evidence li { margin: 2px 0; line-height: 1.45; }
+    .insight-evidence li.ev-critical { color: var(--red); }
+    .insight-evidence details summary { cursor: pointer; color: var(--teal); font-size: 12px; margin: 4px 0; }
+    .insight-evidence-note { margin-top: 6px; color: var(--g600); line-height: 1.45; }
+    .agent-evidence-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .agent-evidence-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .agent-evidence-card { height: auto; }
 
     /* ===== SETTINGS ===== */
     .settings-card {
@@ -1811,6 +1821,111 @@ const CONFIGS = {
   }
 };
 
+// Question metadata generated from Combined_Audit_Scorecards.html (AUDITS): question IDs, wording,
+// section (dashboard theme), points and critical status. Keep aligned when the scorecard changes.
+const QUESTION_METADATA = {
+  inbound: [
+    {"id":"q1","section":"Call Opening & Structure","question":"Was the agent prepared and ready before engaging the caller?","points":2,"critical":false},
+    {"id":"q2","section":"Call Opening & Structure","question":"Did the agent follow the set standard opening procedure?","points":4,"critical":false},
+    {"id":"q3","section":"Call Opening & Structure","question":"Did the agent personalize the interaction appropriately?","points":2,"critical":false},
+    {"id":"q4","section":"Call Opening & Structure","question":"Did the agent maintain a structured and logical call flow?","points":3,"critical":false},
+    {"id":"q5","section":"Communication & Soft Skills","question":"Did the agent demonstrate active listening?","points":5,"critical":false},
+    {"id":"q6","section":"Communication & Soft Skills","question":"Was the agent's tone, pace, and volume appropriate?","points":4,"critical":false},
+    {"id":"q7","section":"Communication & Soft Skills","question":"Did the agent use the right choice of words?","points":4,"critical":false},
+    {"id":"q8","section":"Communication & Soft Skills","question":"Did the agent maintain professionalism throughout the call?","points":4,"critical":false},
+    {"id":"q9","section":"Communication & Soft Skills","question":"Did the agent demonstrate willingness to assist?","points":4,"critical":false},
+    {"id":"q10","section":"Communication & Soft Skills","question":"Did the agent show ownership and accountability?","points":4,"critical":false},
+    {"id":"q11","section":"Process & Compliance","question":"Was the correct account verification process completed?","points":4,"critical":false},
+    {"id":"q12","section":"Process & Compliance","question":"Were the set troubleshooting steps followed?","points":4,"critical":false},
+    {"id":"q13","section":"Process & Compliance","question":"Were correct escalation procedures followed (if applicable)?","points":4,"critical":false},
+    {"id":"q14","section":"Process & Compliance","question":"Was the correct call disposition selected?","points":4,"critical":false},
+    {"id":"q15","section":"Process & Compliance","question":"Did the agent follow the set standard closing procedure?","points":4,"critical":false},
+    {"id":"q16","section":"Resolution Quality & Accuracy","question":"Did the agent correctly identify the customer's issue?","points":6,"critical":false},
+    {"id":"q17","section":"Resolution Quality & Accuracy","question":"Did the agent probe effectively to gather necessary information?","points":5,"critical":false},
+    {"id":"q18","section":"Resolution Quality & Accuracy","question":"Was the resolution offered accurate and complete?","points":7,"critical":false},
+    {"id":"q19","section":"Resolution Quality & Accuracy","question":"Did the agent provide relevant additional information or alternatives (if applicable)?","points":4,"critical":false},
+    {"id":"q20","section":"Resolution Quality & Accuracy","question":"Did the agent confirm the caller's understanding of the resolution?","points":4,"critical":false},
+    {"id":"q21","section":"Customer Experience & Efficiency","question":"Did the agent manage objections professionally and protect the company image? (if applicable)","points":3,"critical":false},
+    {"id":"q22","section":"Customer Experience & Efficiency","question":"Did the agent avoid unnecessary silence or dead air?","points":3,"critical":false},
+    {"id":"q23","section":"Customer Experience & Efficiency","question":"Did the agent use the caller's preferred language?","points":3,"critical":false},
+    {"id":"q24","section":"Customer Experience & Efficiency","question":"Was the call handled within SLA (180 AHT)?","points":3,"critical":false},
+    {"id":"q25","section":"Customer Experience & Efficiency","question":"Did the agent confirm satisfaction and offer further assistance before closing?","points":6,"critical":false}
+  ],
+  outbound: [
+    {"id":"o_q1","section":"Call Preparation & Opening","question":"Was the agent prepared with the correct customer context and campaign objective?","points":5,"critical":false},
+    {"id":"o_q2","section":"Call Preparation & Opening","question":"Did the agent clearly introduce themselves and the organization?","points":5,"critical":false},
+    {"id":"o_q3","section":"Call Preparation & Opening","question":"Did the agent clearly state the purpose of the call early?","points":5,"critical":false},
+    {"id":"o_q4","section":"Communication Quality","question":"Did the agent demonstrate active listening (no interruptions, relevant responses)?","points":6,"critical":false},
+    {"id":"o_q5","section":"Communication Quality","question":"Did the agent use clear, concise, and appropriate language (tone, pace, volume)?","points":6,"critical":false},
+    {"id":"o_q6","section":"Communication Quality","question":"Was the agent professional and respectful throughout the call?","points":6,"critical":false},
+    {"id":"o_q7","section":"Engagement & Probing","question":"Did the agent ask relevant questions to understand the customer’s situation?","points":6,"critical":false},
+    {"id":"o_q8","section":"Engagement & Probing","question":"Did the agent tailor the conversation based on customer responses (not scripted only)?","points":6,"critical":false},
+    {"id":"o_q9","section":"Influence & Ownership","question":"Did the agent clearly explain the required action (e.g., tag replacement, top-up, attendance)?","points":6,"critical":false},
+    {"id":"o_q10","section":"Influence & Ownership","question":"Did the agent demonstrate accountability and willingness to assist?","points":6,"critical":false},
+    {"id":"o_q11","section":"Influence & Ownership","question":"Did the agent handle objections or hesitation effectively?","points":6,"critical":false},
+    {"id":"o_q12","section":"Customer Experience","question":"Was the agent empathetic, courteous, and polite?","points":5,"critical":false},
+    {"id":"o_q13","section":"Customer Experience","question":"Did the agent build trust and confidence in the program/service?","points":5,"critical":false},
+    {"id":"o_q14","section":"Resolution & Clarity","question":"Did the agent provide accurate and complete information?","points":5,"critical":false},
+    {"id":"o_q15","section":"Resolution & Clarity","question":"Did the agent confirm understanding of next steps with the customer?","points":5,"critical":false},
+    {"id":"o_q16","section":"Resolution & Clarity","question":"Did the agent confirm customer willingness/commitment to act?","points":5,"critical":false},
+    {"id":"o_q17","section":"Closing & Compliance","question":"Did the agent follow the standard closing procedure?","points":6,"critical":false},
+    {"id":"o_q18","section":"Closing & Compliance","question":"Did the agent correctly log/select the appropriate disposition?","points":6,"critical":false}
+  ],
+  survey: [
+    {"id":"sv_q1","section":"Call Preparation & Opening","question":"Was the agent prepared with the correct customer details and survey context?","points":5,"critical":false},
+    {"id":"sv_q2","section":"Call Preparation & Opening","question":"Did the agent introduce themselves and the organization clearly?","points":5,"critical":false},
+    {"id":"sv_q3","section":"Call Preparation & Opening","question":"Did the agent inform the customer that the call may be recorded (where applicable)?","points":5,"critical":false},
+    {"id":"sv_q4","section":"Call Preparation & Opening","question":"Did the agent clearly state the purpose of the call (survey)?","points":5,"critical":false},
+    {"id":"sv_q5","section":"Communication Quality","question":"Did the agent demonstrate active listening?","points":5,"critical":false},
+    {"id":"sv_q6","section":"Communication Quality","question":"Did the agent communicate clearly using appropriate tone, pace, and language?","points":5,"critical":false},
+    {"id":"sv_q7","section":"Communication Quality","question":"Was the agent professional and respectful throughout the call?","points":5,"critical":false},
+    {"id":"sv_q8","section":"Survey Delivery","question":"Did the agent ask all survey questions exactly as designed (no leading or rephrasing bias)?","points":5,"critical":true},
+    {"id":"sv_q9","section":"Survey Delivery","question":"Did the agent maintain neutrality (no influencing or prompting responses)?","points":5,"critical":true},
+    {"id":"sv_q10","section":"Survey Delivery","question":"Did the agent allow the customer adequate time to respond without interruption?","points":5,"critical":false},
+    {"id":"sv_q11","section":"Data Accuracy & Integrity","question":"Did the agent record responses accurately and completely?","points":5,"critical":false},
+    {"id":"sv_q12","section":"Data Accuracy & Integrity","question":"Did the agent avoid assumptions or altering customer responses?","points":5,"critical":false},
+    {"id":"sv_q13","section":"Data Accuracy & Integrity","question":"Did the agent capture the NPS score and verbatim feedback accurately?","points":5,"critical":false},
+    {"id":"sv_q14","section":"Customer Experience","question":"Was the agent courteous, empathetic, and patient?","points":5,"critical":false},
+    {"id":"sv_q15","section":"Customer Experience","question":"Did the agent demonstrate willingness to assist if the customer had concerns?","points":5,"critical":false},
+    {"id":"sv_q16","section":"Value Addition & Support","question":"Did the agent provide relevant additional information when appropriate (without derailing the survey)?","points":5,"critical":false},
+    {"id":"sv_q17","section":"Value Addition & Support","question":"Did the agent handle any questions or concerns appropriately?","points":5,"critical":false},
+    {"id":"sv_q18","section":"Closing & Compliance","question":"Did the agent follow the standard closing procedure?","points":5,"critical":false},
+    {"id":"sv_q19","section":"Closing & Compliance","question":"Did the agent thank the customer for their time and participation?","points":5,"critical":false},
+    {"id":"sv_q20","section":"Closing & Compliance","question":"Did the agent correctly select the appropriate disposition?","points":5,"critical":false}
+  ],
+  sms: [
+    {"id":"q1","section":"Opening & Greeting","question":"Adhered to the standard SMS/chat opening procedure","points":6,"critical":false},
+    {"id":"q2","section":"Opening & Greeting","question":"Acknowledged the customer's request and showed willingness to assist","points":7,"critical":false},
+    {"id":"q3","section":"Opening & Greeting","question":"Personalized the conversation — humanized the interaction beyond the script","points":7,"critical":false},
+    {"id":"q4","section":"Account Verification","question":"Did the agent follow the correct account verification process without unnecessary delays?","points":5,"critical":true,"legacyHeaders":["(10pts) Followed proper account verification procedures without unnecessary delays"]},
+    {"id":"q4b","section":"Account Verification","question":"Did the agent capture the correct conversation disposition in the CRM?","points":5,"critical":true},
+    {"id":"q5","section":"Account Verification","question":"Verification was accurate and completed in a timely manner","points":10,"critical":true},
+    {"id":"q6","section":"Issue Understanding & Resolution","question":"Probed effectively to fully understand the customer's issue before responding","points":7,"critical":false},
+    {"id":"q7","section":"Issue Understanding & Resolution","question":"Summarized and confirmed the issue with the customer before offering a solution","points":8,"critical":false},
+    {"id":"q8","section":"Issue Understanding & Resolution","question":"Provided accurate and complete information to resolve the issue","points":10,"critical":true},
+    {"id":"q9","section":"Issue Understanding & Resolution","question":"Used appropriate resources (knowledge base, escalation) when required","points":5,"critical":false},
+    {"id":"q10","section":"Service Quality","question":"Demonstrated empathy and maintained a solution-oriented approach throughout","points":8,"critical":false},
+    {"id":"q11","section":"Service Quality","question":"Avoided unnecessary back-and-forth — kept the conversation efficient","points":7,"critical":false},
+    {"id":"q12","section":"Service Quality","question":"Proactively offered additional helpful information to the customer","points":5,"critical":false},
+    {"id":"q13","section":"Communication & Closure","question":"Avoided grammatical errors, unclear statements, and punctuation issues","points":5,"critical":false},
+    {"id":"q14","section":"Communication & Closure","question":"Adhered to the standard SMS/chat closure procedure","points":5,"critical":false}
+  ],
+  email: [
+    {"id":"q1","section":"Professionalism & Tone","question":"Did the agent use an appropriate greeting and closing?","points":5,"critical":false},
+    {"id":"q2","section":"Professionalism & Tone","question":"Was the tone professional, empathetic, and on-brand?","points":10,"critical":false},
+    {"id":"q3","section":"Professionalism & Tone","question":"Was the grammar, spelling, and punctuation correct?","points":5,"critical":false},
+    {"id":"q4","section":"Accuracy & Completeness","question":"Did the agent accurately address all customer inquiries?","points":15,"critical":false},
+    {"id":"q5","section":"Accuracy & Completeness","question":"Was the information provided correct and up-to-date?","points":10,"critical":false},
+    {"id":"q6","section":"Accuracy & Completeness","question":"Did the agent provide relevant additional information (e.g., resources, links)?","points":10,"critical":false},
+    {"id":"q7","section":"Process & Compliance","question":"Was the correct email template or structure used (if applicable)?","points":5,"critical":true},
+    {"id":"q8","section":"Process & Compliance","question":"Were internal procedures and policies followed accurately?","points":10,"critical":false},
+    {"id":"q9","section":"Process & Compliance","question":"Was the correct disposition or categorization logged?","points":5,"critical":false},
+    {"id":"q10","section":"Process & Compliance","question":"Was the email handled within SLA?","points":10,"critical":false},
+    {"id":"q11","section":"Formatting & Clarity","question":"Was the email easy to read and logically structured?","points":10,"critical":false},
+    {"id":"q12","section":"Formatting & Clarity","question":"Were formatting tools (bold, bullet points) used appropriately for clarity?","points":5,"critical":false}
+  ]
+};
+
 CONFIGS.all = {
   label: 'All Channels',
   sections: ALL_CHANNEL_TYPES.map(type => ({
@@ -2420,13 +2535,14 @@ function processTypeData(type) {
   const fcrIdx = findColIdx(headers, /first\s*(?:call|contact)\s*resolution|\bfcr\b/i);
   const ratingIdx = findColIdx(headers, /rating/i);
   const immediateCoachingIdx = findColIdx(headers, /needs\s*immediate\s*coaching/i);
+  const violationsIdx = findColIdx(headers, /critical\s*compliance/i);
   const qCols = orderQuestionCols(findQuestionCols(headers), config);
 
   if (agentIdx === -1) return {};
 
   const agents = {};
 
-  data.forEach(row => {
+  data.forEach((row, rowIndex) => {
     const agentName = String(row[agentIdx] || '').trim();
     if (!agentName) return;
     const agentEmail = agentEmailIdx !== -1 ? String(row[agentEmailIdx] || '').trim().toLowerCase() : '';
@@ -2465,6 +2581,14 @@ function processTypeData(type) {
     if (parseDate(auditDate)) AUDIT_DATE_QUALITY.valid++;
     else AUDIT_DATE_QUALITY.invalid++;
 
+    const auditId = auditIdIdx !== -1 ? String(row[auditIdIdx] || '').trim() : '';
+    const auditUid = `${type}:${rowIndex}`;
+    const questionResults = [];
+    // Rows without a valid Audit Date are historical rows whose columns no longer line up with
+    // the current headers; their answers cannot be tied to the right question, so they are kept
+    // out of question-level evidence (section scores are unchanged).
+    const evidenceUsable = !!parseDate(auditDate);
+
     // Calculate per-section scores
     let qIdx = 0;
     const sections = config.sections.map(sec => {
@@ -2479,6 +2603,23 @@ function processTypeData(type) {
             String(row[qCol.sibling.index] || '').trim()) {
           pts = qCol.ptsWhenSiblingAnswered;
         }
+        // Question-level evidence for insights (exact recorded answer; raw data unchanged).
+        const meta = findQuestionMeta(type, qCol.header);
+        if (evidenceUsable) questionResults.push({
+          channel: type,
+          section: sec.name,
+          header: qCol.header,
+          question: meta ? meta.question : cleanQuestionHeader(qCol.header),
+          questionId: meta ? meta.id : '',
+          points: pts,
+          answer: normalizeAnswer(val),
+          critical: !!(meta && meta.critical),
+          auditId,
+          auditDate,
+          auditUid,
+          agentKey,
+          agentName
+        });
         if (val === 'na' || val === 'n/a') {
           // Excluded
         } else {
@@ -2490,9 +2631,12 @@ function processTypeData(type) {
       return { name: sec.name, earned, possible, pct: possible > 0 ? (earned / possible * 100) : null };
     });
 
-    const auditId = auditIdIdx !== -1 ? String(row[auditIdIdx] || '').trim() : '';
     agents[agentKey].audits.push({
       auditId,
+      auditUid,
+      auditType: type,
+      questionResults,
+      criticalViolations: violationsIdx !== -1 ? parseCriticalViolations(row[violationsIdx]) : [],
       agentEmail,
       date: auditDate,
       overallPct,
@@ -2655,7 +2799,7 @@ function processAndRender() {
 
 function getThreshold(pct) {
   if (pct >= THRESHOLDS.strong) return { label: 'Strong Performance', cls: 'strong', icon: '' };
-  if (pct >= THRESHOLDS.critical) return { label: 'Critical', cls: 'critical', icon: '' };
+  if (pct >= THRESHOLDS.critical) return { label: 'Area to monitor', cls: 'critical', icon: '' };
   return { label: 'Improvement Needed', cls: 'improve', icon: '' };
 }
 
@@ -3301,6 +3445,8 @@ function buildAgentDetail() {
       </div>
     </div>`;
 
+  html += buildAgentEvidencePanel(agent);
+
   // Charts grid
   html += `<div class="chart-grid">`;
 
@@ -3459,6 +3605,33 @@ function buildAgentDetail() {
 
 // =================== RENDERING — HEATMAP ===================
 
+function buildAgentEvidencePanel(agent) {
+  const items = generateAgentInsights(agent, buildTeamThemeScores(Object.values(PROCESSED)));
+  const groups = [
+    ['Strengths', items.filter(i => i.kind === 'theme' && i.severity === 'strong'), 'strong', 'No theme is at or above 96% in the selected audits.'],
+    ['Areas to monitor', items.filter(i => i.kind === 'theme' && i.severity === 'critical'), 'critical', 'No theme is between 85% and 96%.'],
+    ['Improvement priorities', items.filter(i => i.kind === 'theme' && i.severity === 'improve').sort((a, b) => (b.hasCritical - a.hasCritical) || (a.score - b.score)), 'improve', 'No theme is below 85%.'],
+    ['Critical failures', items.filter(i => i.kind === 'critical-failure'), 'improve', 'No critical-failure audits in the selected range.']
+  ];
+  return `
+    <div class="sec-header"><h3>Evidence from scorecard answers</h3></div>
+    <div class="agent-evidence-grid">
+      ${groups.map(([title, list, cls, empty]) => `
+        <div class="agent-evidence-col">
+          <div class="panel-kicker clr-${cls}">${title} · ${list.length}</div>
+          ${list.length ? list.map(ins => `
+            <div class="insight-card sev-${ins.severity} agent-evidence-card">
+              <div class="insight-body">
+                <div class="insight-title">${escapeOverviewText(ins.title)}</div>
+                <div class="insight-detail">${escapeOverviewText(ins.detail)}</div>
+                ${renderEvidenceList(ins, 3)}
+                <div class="insight-action"><strong>Next Action:</strong> ${escapeOverviewText(ins.action)}</div>
+              </div>
+            </div>`).join('') : `<div class="panel-note">${empty}</div>`}
+        </div>`).join('')}
+    </div>`;
+}
+
 function buildHeatmap(displayAgents) {
   if (!displayAgents) displayAgents = PROCESSED;
   const agents = Object.values(displayAgents).sort((a, b) => b.avgOverall - a.avgOverall);
@@ -3543,223 +3716,487 @@ function sortHeatmap(key) {
 
 // =================== RENDERING — INSIGHTS ===================
 
+// =================== QUESTION-LEVEL EVIDENCE ===================
+// Insights are built from the exact Yes/No answers recorded for each scorecard question.
+// N/A, blank and "–" answers are not applicable: they never count as a pass or a failure.
+
+function cleanQuestionHeader(header) {
+  return String(header || '')
+    .replace(/^\s*\(\s*\d+\s*pts?\s*\)\s*/i, '')
+    .trim();
+}
+
+function normalizeQuestionKey(text) {
+  return String(text || '')
+    .replace(/[‘’‛′]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+const QUESTION_LOOKUP_CACHE = {};
+function getQuestionLookup(type) {
+  if (QUESTION_LOOKUP_CACHE[type]) return QUESTION_LOOKUP_CACHE[type];
+  const lookup = {};
+  (QUESTION_METADATA[type] || []).forEach(meta => {
+    lookup[normalizeQuestionKey(meta.question)] = meta;
+    (meta.legacyHeaders || []).forEach(header => {
+      lookup[normalizeQuestionKey(cleanQuestionHeader(header))] = meta;
+    });
+  });
+  QUESTION_LOOKUP_CACHE[type] = lookup;
+  return lookup;
+}
+
+function findQuestionMeta(type, header) {
+  return getQuestionLookup(type)[normalizeQuestionKey(cleanQuestionHeader(header))] || null;
+}
+
+function normalizeAnswer(value) {
+  const v = String(value == null ? '' : value).trim().toLowerCase();
+  if (v === 'yes') return 'yes';
+  if (v === 'no') return 'no';
+  if (v === 'na' || v === 'n/a') return 'na';
+  return 'blank'; // blank, "–" or anything unexpected: neither passed nor failed
+}
+
+function parseCriticalViolations(value) {
+  const text = String(value || '').trim();
+  if (!text || /^none$/i.test(text) || text === '–' || text === '-') return [];
+  return text.split(/\s*,\s*(?=[A-Z])/).map(item => item.trim()).filter(Boolean);
+}
+
+function isCriticalFailAudit(audit) {
+  const rating = String(audit.rating || '').toLowerCase();
+  return rating.includes('critical') || rating.includes('fail');
+}
+
+function formatEvidenceDate(value) {
+  const d = value instanceof Date ? value : parseDate(value);
+  if (!d || isNaN(d)) return 'date not recorded';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function laterDate(current, candidate) {
+  const c = parseDate(candidate);
+  if (!c) return current;
+  return !current || c > current ? c : current;
+}
+
+// Aggregate question results into per-question evidence.
+function aggregateQuestionEvidence(results) {
+  const byQuestion = {};
+  results.forEach(r => {
+    const key = `${r.channel}|${r.questionId || normalizeQuestionKey(r.question)}`;
+    if (!byQuestion[key]) {
+      byQuestion[key] = {
+        key, channel: r.channel, section: r.section, question: r.question, questionId: r.questionId,
+        points: r.points, critical: r.critical, yes: 0, no: 0, na: 0, blank: 0,
+        lastYes: null, lastNo: null, noAuditIds: [], yesAuditIds: [], noAgents: new Set(), agents: new Set()
+      };
+    }
+    const q = byQuestion[key];
+    q.points = Math.max(q.points || 0, r.points || 0);
+    if (r.answer === 'yes') {
+      q.yes++; q.lastYes = laterDate(q.lastYes, r.auditDate); q.agents.add(r.agentKey);
+      if (r.auditId) q.yesAuditIds.push(r.auditId);
+    } else if (r.answer === 'no') {
+      q.no++; q.lastNo = laterDate(q.lastNo, r.auditDate); q.agents.add(r.agentKey); q.noAgents.add(r.agentKey);
+      if (r.auditId) q.noAuditIds.push(r.auditId);
+      q.pointsLost = (q.pointsLost || 0) + (r.points || 0);
+    } else if (r.answer === 'na') q.na++;
+    else q.blank++;
+  });
+  Object.values(byQuestion).forEach(q => {
+    q.applicable = q.yes + q.no;
+    q.passRate = q.applicable ? q.yes / q.applicable * 100 : null;
+    q.failRate = q.applicable ? q.no / q.applicable * 100 : null;
+    q.pointsLost = q.pointsLost || 0;
+  });
+  return byQuestion;
+}
+
+// Theme (section) score from applicable answers only, weighted by question points.
+function summariseTheme(results) {
+  let earned = 0, possible = 0;
+  const audits = new Set();
+  let latest = null;
+  results.forEach(r => {
+    if (r.answer !== 'yes' && r.answer !== 'no') return;
+    possible += r.points || 0;
+    if (r.answer === 'yes') earned += r.points || 0;
+    audits.add(r.auditUid);
+    latest = laterDate(latest, r.auditDate);
+  });
+  return { pct: possible > 0 ? earned / possible * 100 : null, applicableAudits: audits.size, latest };
+}
+
+function rankGaps(questions) {
+  return [...questions].filter(q => q.no > 0).sort((a, b) =>
+    (b.critical - a.critical) || (b.no - a.no) || (b.failRate - a.failRate) ||
+    (b.points - a.points) || ((b.lastNo || 0) - (a.lastNo || 0)));
+}
+
+function rankStrengths(questions) {
+  return [...questions].filter(q => q.yes > 0).sort((a, b) =>
+    (b.yes - a.yes) || (b.passRate - a.passRate) || (b.points - a.points) || ((b.lastYes || 0) - (a.lastYes || 0)));
+}
+
+// Turn a scorecard question into a requirement clause ("follow the set standard opening procedure").
+const PAST_TO_BASE = {
+  adhered: 'adhere', acknowledged: 'acknowledge', personalized: 'personalize', personalised: 'personalise',
+  followed: 'follow', probed: 'probe', summarized: 'summarize', summarised: 'summarise', provided: 'provide',
+  used: 'use', demonstrated: 'demonstrate', avoided: 'avoid', proactively: 'proactively'
+};
+function toRequirement(question) {
+  let q = String(question || '').trim().replace(/\?$/, '').trim();
+  q = q.replace(/\s*\((?:if|where) applicable\)\s*/gi, ' ').replace(/\s+/g, ' ').trim();
+  let m;
+  if ((m = q.match(/^did the agent\s+(.+)$/i))) return m[1];
+  if ((m = q.match(/^was the agent's\s+(.+?)\s+appropriate$/i))) return `keep their ${m[1]} appropriate`;
+  if ((m = q.match(/^was the agent\s+(.+)$/i))) return `be ${m[1]}`;
+  if ((m = q.match(/^(was|were)\s+(.+)$/i))) {
+    const verb = m[1].toLowerCase();
+    const words = m[2].split(' ');
+    const splitWords = /^(accurate|correct|easy|professional|appropriate|within|followed|selected|logged|used|handled|completed)$/i;
+    for (let i = 1; i < words.length; i++) {
+      if (splitWords.test(words[i]) && !/^(the|an|a|were|was)$/i.test(words[i - 1])) {
+        return `ensure ${words.slice(0, i).join(' ')} ${verb} ${words.slice(i).join(' ')}`;
+      }
+    }
+    return `ensure ${m[2]}`;
+  }
+  const first = q.split(' ')[0].toLowerCase();
+  if (PAST_TO_BASE[first]) {
+    // Statement-style criteria ("Adhered to … and showed …"): put every past-tense verb in base form.
+    const INNER = { showed: 'show', maintained: 'maintain', humanized: 'humanize', humanised: 'humanise', kept: 'keep', confirmed: 'confirm', offered: 'offer' };
+    const rest = q.split(' ').slice(1).map(w => INNER[w.toLowerCase()] || w);
+    if (first === 'proactively' && rest[0]) rest[0] = PAST_TO_BASE[rest[0].toLowerCase()] || INNER[rest[0].toLowerCase()] || rest[0];
+    return [PAST_TO_BASE[first], ...rest].join(' ').replace(/ \u2014 /g, ', ');
+  }
+  if (/\s(was|were)\s/i.test(q)) return `ensure ${q.charAt(0).toLowerCase()}${q.slice(1)}`;
+  return q.charAt(0).toLowerCase() + q.slice(1);
+}
+
+function joinList(items) {
+  if (items.length <= 1) return items.join('');
+  return `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
+}
+
+// Behaviour-specific coaching action for a failed question (first matching rule wins).
+const QUESTION_ACTION_RULES = [
+  [/disposition|categori[sz]ation/i, 'Review the correct disposition for this type of interaction and confirm it is applied in the next applicable audit.'],
+  [/survey questions exactly|neutral|leading|prompting/i, 'Ask every survey question exactly as designed and keep a neutral tone that does not lead or prompt the answer.'],
+  [/record responses|nps|verbatim|altering customer responses|assumptions/i, 'Record survey responses, the NPS score and verbatim feedback exactly as the customer gives them.'],
+  [/verification/i, 'Reinforce completion of all mandatory verification steps before accessing or sharing account information.'],
+  [/understanding/i, 'Require a clear understanding check after explaining the process or resolution.'],
+  [/satisfaction|further assistance/i, 'Reinforce the separate satisfaction check and the offer of further assistance before closure.'],
+  [/summari[sz]ed and confirmed the issue/i, 'Summarise the customer\u2019s issue back to them and confirm it before offering a solution.'],
+  [/prob(e|ed|ing)|relevant questions|identify the customer|understand the customer/i, 'Practise targeted probing to establish the complete issue before proposing a resolution.'],
+  [/resolution|accurate and complete|accurately address|information provided correct|correct and up-to-date/i, 'Review how to provide a complete and accurate resolution using the approved process or knowledge resource.'],
+  [/clos(e|ing|ure)/i, 'Practise the complete channel-specific closure procedure before ending the interaction.'],
+  [/grammar|spelling|punctuation|unclear statements/i, 'Review message structure, grammar, punctuation and sentence clarity before sending.'],
+  [/opening|greeting|introduce|purpose of the call|recorded/i, 'Practise the complete standard opening (introduction, organisation and purpose) at the start of every interaction.'],
+  [/sla|aht|dead air|silence|back-and-forth|efficient/i, 'Keep the interaction efficient: avoid dead air and repeated back-and-forth, and stay within the handling-time target.'],
+  [/additional (helpful )?information|alternatives/i, 'Share relevant additional information or alternatives before closing when they would help the customer.'],
+  [/escalation|troubleshooting|resources|procedures and policies/i, 'Review the required troubleshooting, escalation and policy steps and follow them in order.'],
+  [/empath|courteous|polite|patient|tone|professional|respectful|choice of words|language/i, 'Reinforce a courteous, empathetic and professional tone, with clear and appropriate wording, throughout the interaction.'],
+  [/personali[sz]|tailor|humani[sz]ed/i, 'Personalise the interaction to the customer’s situation instead of relying on the script alone.'],
+  [/listening|interruption/i, 'Practise active listening: let the customer finish, then respond directly to what they said.'],
+  [/template|structure|formatting|easy to read|flow/i, 'Use the correct template and a clear, logical structure for every response.'],
+  [/ownership|accountability|willingness/i, 'Take visible ownership of the customer’s request and state the next step the agent will take.'],
+  [/objection|hesitation/i, 'Practise acknowledging objections and responding with a clear, factual answer before moving on.'],
+  [/prepared|context/i, 'Review the customer details and interaction context before starting the conversation.'],
+  [/required action|commitment|trust/i, 'Explain the required action clearly and confirm the customer’s commitment to complete it.']
+];
+
+function actionForQuestion(question) {
+  const rule = QUESTION_ACTION_RULES.find(([pattern]) => pattern.test(question));
+  if (rule) return rule[1];
+  return `Coach the agent to ${toRequirement(question)}.`;
+}
+
+function combineActions(gaps, lead) {
+  const actions = [];
+  gaps.forEach(g => { const a = actionForQuestion(g.question); if (!actions.includes(a)) actions.push(a); });
+  if (!actions.length) return '';
+  if (actions.length === 1) return `${lead} ${actions[0]}`;
+  return `${lead} ${actions.map((a, i) => `(${i + 1}) ${a}`).join(' ')}`;
+}
+
+function evidenceLine(q, kind) {
+  const quoted = `“${q.question}”`;
+  if (kind === 'gap') {
+    const parts = [`No in ${q.no} of ${q.applicable} applicable audit${q.applicable === 1 ? '' : 's'}`];
+    if (q.critical) parts.push('critical criterion');
+    parts.push(`${q.pointsLost} pt${q.pointsLost === 1 ? '' : 's'} affected`);
+    if (q.lastNo) parts.push(`last No ${formatEvidenceDate(q.lastNo)}`);
+    return { text: `${quoted} — ${parts.join(' · ')}`, critical: q.critical };
+  }
+  const parts = [`Yes in ${q.yes} of ${q.applicable} applicable audit${q.applicable === 1 ? '' : 's'}`];
+  if (q.lastYes) parts.push(`latest ${formatEvidenceDate(q.lastYes)}`);
+  return { text: `${quoted} — ${parts.join(' · ')}`, critical: false };
+}
+
+function strengthLabel(applicableAudits) {
+  if (applicableAudits >= 3) return 'Consistent strength';
+  if (applicableAudits === 2) return 'Emerging strength';
+  return 'Positive observation';
+}
+
+function strengthAction(applicableAudits) {
+  if (applicableAudits >= 3) return 'Recognise and reinforce this behaviour, and use one of these interactions as a positive example in the agent’s next review. Maintain this consistency in subsequent audits.';
+  if (applicableAudits === 2) return 'Recognise this behaviour and confirm it is maintained in the next audits.';
+  return 'No immediate intervention is required; continue monitoring to confirm the behaviour is repeated.';
+}
+
+function themeLabel(channel, section) {
+  return currentType === 'all' ? `${CONFIGS[channel]?.label || channel} · ${section}` : section;
+}
+
+function collectResults(audits) {
+  return audits.flatMap(audit => audit.questionResults || []);
+}
+
+function groupByTheme(results) {
+  const groups = {};
+  results.forEach(r => {
+    const key = `${r.channel}|${r.section}`;
+    (groups[key] = groups[key] || { channel: r.channel, section: r.section, results: [] }).results.push(r);
+  });
+  return Object.values(groups);
+}
+
+// Order themes by channel order, then scorecard section order.
+function themeOrder(theme) {
+  const ci = ALL_CHANNEL_TYPES.indexOf(theme.channel);
+  const si = (CONFIGS[theme.channel]?.sections || []).findIndex(s => s.name === theme.section);
+  return ci * 100 + (si < 0 ? 99 : si);
+}
+
+function buildTeamThemeScores(allAgents) {
+  const scores = {};
+  groupByTheme(collectResults(allAgents.flatMap(a => a.audits || []))).forEach(t => {
+    scores[`${t.channel}|${t.section}`] = summariseTheme(t.results).pct;
+  });
+  return scores;
+}
+
+function sourceAuditForTheme(agent, theme, gapQuestions) {
+  const gapKeys = new Set(gapQuestions.map(q => q.key));
+  return [...agent.audits]
+    .filter(a => (a.questionResults || []).some(r => r.answer === 'no' &&
+      gapKeys.has(`${r.channel}|${r.questionId || normalizeQuestionKey(r.question)}`)))
+    .map(a => ({ ...a, dateObj: parseDate(a.date) }))
+    .filter(a => a.dateObj)
+    .sort((a, b) => b.dateObj - a.dateObj)[0] || null;
+}
+
+// One primary insight per agent, channel and theme, plus critical-failure, trend and
+// immediate-coaching insights that carry distinct evidence.
+function generateAgentInsights(agent, teamThemeScores) {
+  const insights = [];
+  const base = { agent: agent.name, agentKey: agent.key, agentEmail: agent.email || '' };
+
+  groupByTheme(collectResults(agent.audits)).sort((a, b) => themeOrder(a) - themeOrder(b)).forEach(theme => {
+    const summary = summariseTheme(theme.results);
+    if (summary.pct === null) return;
+    const questions = Object.values(aggregateQuestionEvidence(theme.results));
+    const pct = summary.pct;
+    const label = themeLabel(theme.channel, theme.section);
+    const teamPct = teamThemeScores[`${theme.channel}|${theme.section}`];
+    const contextParts = [
+      `${pct.toFixed(1)}% across ${summary.applicableAudits} applicable audit${summary.applicableAudits === 1 ? '' : 's'}`,
+      pct >= QUALITY_TARGET ? `${(pct - QUALITY_TARGET).toFixed(1)} pts above the ${QUALITY_TARGET}% target` : `${(QUALITY_TARGET - pct).toFixed(1)} pts below the ${QUALITY_TARGET}% target`
+    ];
+    if (Number.isFinite(teamPct)) {
+      const diff = pct - teamPct;
+      contextParts.push(`${Math.abs(diff) < 0.05 ? 'level with' : `${Math.abs(diff).toFixed(1)} pts ${diff > 0 ? 'above' : 'below'}`} the team (${teamPct.toFixed(1)}%)`);
+    }
+    if (summary.latest) contextParts.push(`latest evidence ${formatEvidenceDate(summary.latest)}`);
+    const detail = contextParts.join(' · ');
+
+    if (pct >= THRESHOLDS.strong) {
+      const strong = rankStrengths(questions);
+      const demonstrated = strong.filter(q => q.passRate >= THRESHOLDS.strong);
+      const minorGaps = rankGaps(questions);
+      const tier = strengthLabel(summary.applicableAudits);
+      const lines = demonstrated.map(q => evidenceLine(q, 'strength'));
+      const top = demonstrated.slice(0, 3).map(q => toRequirement(q.question));
+      const lead = summary.applicableAudits >= 3 ? 'The agent consistently managed to'
+        : summary.applicableAudits === 2 ? 'In both applicable audits the agent managed to'
+        : 'In the one applicable audit the agent managed to';
+      const summaryText = top.length ? `${lead}: ${top.length > 1 ? `${top.slice(0, -1).join('; ')}; and ${top.at(-1)}` : top[0]}.` : '';
+      insights.push({
+        ...base, kind: 'theme', severity: 'strong', channel: theme.channel, focusArea: theme.section, score: pct,
+        title: `${tier}: ${label} — ${pct.toFixed(1)}%`,
+        detail,
+        evidenceHeading: 'Demonstrated behaviours',
+        evidence: lines,
+        note: [summaryText, minorGaps.length ? `Still to watch: ${minorGaps.slice(0, 2).map(q => `“${q.question}” (No in ${q.no} of ${q.applicable})`).join('; ')}.` : ''].filter(Boolean).join(' '),
+        action: strengthAction(summary.applicableAudits)
+      });
+      return;
+    }
+
+    const gaps = rankGaps(questions);
+    const isMonitor = pct >= THRESHOLDS.critical;
+    const sourceAudit = sourceAuditForTheme(agent, theme, gaps);
+    const sourceScore = sourceAudit ? (sourceAudit.sections.find(s => s.name === theme.section)?.pct ?? sourceAudit.overallPct) : pct;
+    insights.push({
+      ...base, kind: 'theme', severity: isMonitor ? 'critical' : 'improve', channel: theme.channel, focusArea: theme.section, score: pct,
+      sourceAuditId: sourceAudit?.auditId || '', sourceAuditDate: sourceAudit?.date || '',
+      sourceScore: Number.isFinite(sourceScore) ? sourceScore : pct,
+      hasCritical: gaps.some(g => g.critical),
+      title: `${isMonitor ? 'Area to monitor' : 'Improvement required'}: ${label} — ${pct.toFixed(1)}%`,
+      detail,
+      evidenceHeading: isMonitor ? 'Consistency gaps' : 'Specific gaps',
+      evidence: gaps.map(q => evidenceLine(q, 'gap')),
+      action: combineActions(gaps.slice(0, 3), isMonitor ? 'Reinforce during the next quality check:' : 'Focus the next coaching session on these behaviours:')
+    });
+  });
+
+  // Critical failures: show the exact failed critical criterion or recorded violation.
+  agent.audits.filter(isCriticalFailAudit)
+    .map(a => ({ ...a, dateObj: parseDate(a.date) }))
+    .sort((a, b) => (b.dateObj || 0) - (a.dateObj || 0))
+    .forEach(audit => {
+      const failedCritical = (audit.questionResults || []).filter(r => r.critical && r.answer === 'no');
+      const violations = audit.criticalViolations || [];
+      const channelLabel = CONFIGS[audit.auditType]?.label || CONFIGS[currentType]?.label || '';
+      const evidence = [
+        ...failedCritical.map(r => ({ text: `“${r.question}” — No (critical criterion, ${r.section})`, critical: true })),
+        ...violations.map(v => ({ text: `Recorded compliance violation: ${v}`, critical: true }))
+      ];
+      const meta = `Audit date ${formatEvidenceDate(audit.date)} · Audit ID ${audit.auditId || 'not recorded'} · Final audit score ${Number(audit.overallPct || 0).toFixed(0)}%${channelLabel ? ` · ${channelLabel}` : ''}`;
+      let title, action;
+      if (!evidence.length) {
+        title = 'Critical failure: criterion not identified in the data';
+        evidence.push({ text: 'The audit is recorded as a critical failure, but the specific failed criterion could not be identified from the available data.', critical: true });
+        action = 'Open the audit record to confirm which critical requirement failed, then coach on that requirement and check the next applicable interaction for compliance.';
+      } else {
+        title = evidence.length === 1
+          ? `Critical failure: ${failedCritical.length ? `“${failedCritical[0].question}” — No` : violations[0]}`
+          : `Critical failure: ${evidence.length} critical requirements not met`;
+        const actions = [];
+        failedCritical.forEach(r => { const a = actionForQuestion(r.question); if (!actions.includes(a)) actions.push(a); });
+        violations.forEach(v => actions.push(`Review the recorded violation (“${v}”) with the agent and agree the correct handling.`));
+        action = `${actions.join(' ')} Confirm the agent understands the requirement, then check the next applicable interaction for compliance.`;
+      }
+      insights.push({
+        ...base, kind: 'critical-failure', severity: 'improve', channel: audit.auditType,
+        focusArea: failedCritical[0]?.section || 'Critical Compliance', score: Number(audit.overallPct || 0),
+        sourceScore: Number(audit.overallPct || 0), sourceAuditId: audit.auditId || '', sourceAuditDate: audit.date || '',
+        title, detail: meta, evidenceHeading: 'Evidence', evidence, action
+      });
+    });
+
+  // Distinct trend evidence: three consecutive declining audit scores.
+  const dated = [...agent.audits].map(a => ({ ...a, dateObj: parseDate(a.date) })).filter(a => a.dateObj).sort((a, b) => a.dateObj - b.dateObj);
+  if (dated.length >= 3) {
+    const last3 = dated.slice(-3);
+    if (last3[0].overallPct > last3[1].overallPct && last3[1].overallPct > last3[2].overallPct) {
+      const gaps = rankGaps(Object.values(aggregateQuestionEvidence(collectResults(last3))));
+      insights.push({
+        ...base, kind: 'trend', severity: 'trend', channel: last3[2].auditType, focusArea: gaps[0]?.section || 'Performance Trend',
+        score: last3[2].overallPct, sourceScore: last3[2].overallPct, sourceAuditId: last3[2].auditId || '', sourceAuditDate: last3[2].date || '',
+        title: `Declining trend over the last 3 audits: ${last3.map(a => `${a.overallPct.toFixed(0)}%`).join(' → ')}`,
+        detail: `Audits dated ${last3.map(a => formatEvidenceDate(a.dateObj)).join(', ')}.`,
+        evidenceHeading: 'Requirements marked No in these audits',
+        evidence: gaps.map(q => evidenceLine(q, 'gap')),
+        action: gaps.length ? combineActions(gaps.slice(0, 3), 'Address the behaviours behind the decline:') : 'Compare the three audits to confirm what changed; no individual question was marked No.'
+      });
+    }
+  }
+
+  // Immediate coaching flag set by the evaluator.
+  const flagged = dated.filter(a => a.needsImmediateCoaching).at(-1);
+  if (flagged) {
+    const gaps = rankGaps(Object.values(aggregateQuestionEvidence(flagged.questionResults || [])));
+    insights.push({
+      ...base, kind: 'immediate', severity: 'improve', channel: flagged.auditType, focusArea: gaps[0]?.section || 'Immediate Coaching Review',
+      score: flagged.overallPct, sourceScore: flagged.overallPct, sourceAuditId: flagged.auditId || '', sourceAuditDate: flagged.date || '',
+      title: `Immediate coaching requested — audit of ${formatEvidenceDate(flagged.dateObj)}`,
+      detail: `The evaluator marked this audit as needing immediate coaching · Audit ID ${flagged.auditId || 'not recorded'} · Score ${flagged.overallPct.toFixed(0)}%.`,
+      evidenceHeading: 'Requirements marked No in this audit',
+      evidence: gaps.map(q => evidenceLine(q, 'gap')),
+      action: gaps.length ? combineActions(gaps.slice(0, 3), 'Use this audit as the coaching baseline and cover:') : 'Use this audit as the coaching baseline; no individual question was marked No, so review the evaluator’s notes for the reason.'
+    });
+  }
+  return insights;
+}
+
+// Team priorities: the same exact question failing across several active agents.
+function generateTeamInsights(allAgents) {
+  const insights = [];
+  const results = collectResults(allAgents.flatMap(a => a.audits || []));
+  const questions = Object.values(aggregateQuestionEvidence(results));
+  questions
+    .filter(q => q.applicable >= 3 && q.passRate < THRESHOLDS.critical && q.noAgents.size >= 2)
+    .sort((a, b) => (b.critical - a.critical) || (b.no - a.no) || (b.failRate - a.failRate) || (b.points - a.points))
+    .forEach(q => {
+      const channelCounts = {};
+      results.filter(r => r.answer === 'no' && `${r.channel}|${r.questionId || normalizeQuestionKey(r.question)}` === q.key)
+        .forEach(r => { channelCounts[r.channel] = (channelCounts[r.channel] || 0) + 1; });
+      const topChannel = Object.entries(channelCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+      insights.push({
+        agent: 'Team', agentKey: 'team', kind: 'team', severity: 'improve', recommendedType: 'training',
+        channel: q.channel, focusArea: q.section, score: q.passRate,
+        title: `Team improvement priority: “${q.question}”`,
+        detail: `${q.no} No response${q.no === 1 ? '' : 's'} across ${q.applicable} applicable audits · ${q.noAgents.size} agents affected · team pass rate ${q.passRate.toFixed(0)}%${topChannel ? ` · most affected channel: ${CONFIGS[topChannel]?.label || topChannel}` : ''}${q.critical ? ' · critical criterion' : ''}`,
+        evidenceHeading: 'Theme',
+        evidence: [{ text: `${themeLabel(q.channel, q.section)}${q.lastNo ? ` · last No ${formatEvidenceDate(q.lastNo)}` : ''}`, critical: q.critical }],
+        action: `Run a focused team refresher: ${actionForQuestion(q.question)} Then review this criterion in the next audit cycle.`
+      });
+    });
+  return insights;
+}
+
+function renderEvidenceList(ins, visibleCount = 3) {
+  const lines = ins.evidence || [];
+  if (!lines.length && !ins.note) return '';
+  const li = line => `<li class="${line.critical ? 'ev-critical' : ''}">${escapeOverviewText(line.text)}</li>`;
+  const shown = lines.slice(0, visibleCount).map(li).join('');
+  const hidden = lines.slice(visibleCount);
+  return `<div class="insight-evidence">
+      ${lines.length ? `<div class="insight-evidence-hd">${escapeOverviewText(ins.evidenceHeading || 'Evidence')}</div><ul>${shown}</ul>` : ''}
+      ${hidden.length ? `<details><summary>Show ${hidden.length} more</summary><ul>${hidden.map(li).join('')}</ul></details>` : ''}
+      ${ins.note ? `<div class="insight-evidence-note">${escapeOverviewText(ins.note)}</div>` : ''}
+    </div>`;
+}
+
+function insightToText(ins) {
+  return [
+    ins.title,
+    ins.detail,
+    ...(ins.evidence && ins.evidence.length ? [`${ins.evidenceHeading || 'Evidence'}:`, ...ins.evidence.map(l => `- ${l.text}`)] : []),
+    ins.note || '',
+    `Next Action: ${ins.action}`
+  ].filter(Boolean).join('\n');
+}
+
 function buildInsights(displayAgents) {
   if (!displayAgents) displayAgents = PROCESSED;
   const agents = Object.values(displayAgents);
-  const config = CONFIGS[currentType];
-
   if (agents.length === 0) {
     currentInsights = [];
     renderInsights();
     return;
   }
+  // Team comparisons always use every active agent in the current filters.
+  const allAgents = Object.values(PROCESSED);
+  const teamThemeScores = buildTeamThemeScores(allAgents);
+  const insights = [...generateTeamInsights(allAgents)];
+  agents.forEach(agent => insights.push(...generateAgentInsights(agent, teamThemeScores)));
 
-  // Team averages
-  const teamSecAvgs = {};
-  const teamAudits = agents.flatMap(agent => agent.audits || []);
-  config.sections.forEach(sec => {
-    teamSecAvgs[sec.name] = calculateSectionAverage(teamAudits, sec.name);
-  });
-
-  const insights = [];
-
-  // Recommend team training when the same failed section affects a meaningful
-  // share of the team. Individual failures remain coaching recommendations.
-  config.sections.forEach(sec => {
-    const affectedAgents = agents.filter(agent => {
-      const score = agent.sectionAvgs[sec.name];
-      return score !== null && score < THRESHOLDS.critical;
-    });
-    const minimumAffected = Math.max(2, Math.ceil(agents.length * 0.3));
-    if (affectedAgents.length >= minimumAffected) {
-      const teamScore = teamSecAvgs[sec.name];
-      insights.push({
-        severity: 'improve',
-        icon: '',
-        agent: 'Team',
-        agentKey: 'team',
-        focusArea: sec.name,
-        score: Number.isFinite(teamScore) ? teamScore : 0,
-        recommendedType: 'training',
-        title: `Team training recommended: "${sec.name}"`,
-        detail: `${affectedAgents.length} of ${agents.length} agents are below 85% in ${sec.name}.`,
-        action: `Create a team training session on ${sec.name.toLowerCase()}, then compare later audits with the pre-training baseline.`
-      });
-    }
-  });
-
-  agents.forEach(agent => {
-    const latestImmediateAudit = [...agent.audits]
-      .filter(audit => audit.needsImmediateCoaching && parseDate(audit.date))
-      .sort((a, b) => parseDate(b.date) - parseDate(a.date))[0] || null;
-    if (latestImmediateAudit) {
-      const failedSection = [...latestImmediateAudit.sections]
-        .filter(section => section.pct !== null)
-        .sort((a, b) => a.pct - b.pct)[0] || null;
-      const focusArea = failedSection?.name || 'Immediate Coaching Review';
-      const baselineScore = failedSection?.pct ?? latestImmediateAudit.overallPct;
-      insights.push({
-        severity: 'improve',
-        icon: '',
-        agent: agent.name,
-        agentKey: agent.key,
-        agentEmail: agent.email || '',
-        focusArea,
-        score: baselineScore,
-        sourceScore: baselineScore,
-        sourceAuditId: latestImmediateAudit.auditId || '',
-        sourceAuditDate: latestImmediateAudit.date || '',
-        title: `Immediate coaching requested for ${agent.name}`,
-        detail: `The audit dated ${latestImmediateAudit.date} was explicitly marked as needing immediate coaching.`,
-        action: `Open a coaching case linked to this exact audit and use its ${focusArea.toLowerCase()} score as the pre-coaching baseline.`
-      });
-    }
-
-    // Section-level insights
-    config.sections.forEach(sec => {
-      const avg = agent.sectionAvgs[sec.name];
-      if (avg === null) return;
-      const sourceAudit = [...agent.audits]
-        .map(audit => ({
-          ...audit,
-          dateObj: parseDate(audit.date),
-          sectionScore: audit.sections.find(section => section.name === sec.name)?.pct
-        }))
-        .filter(audit => audit.dateObj && audit.sectionScore !== null && audit.sectionScore < THRESHOLDS.strong)
-        .sort((a, b) => b.dateObj - a.dateObj)[0] || null;
-      const sourceContext = {
-        agentKey: agent.key,
-        agentEmail: agent.email || '',
-        sourceAuditId: sourceAudit?.auditId || '',
-        sourceAuditDate: sourceAudit?.date || '',
-        sourceScore: Number.isFinite(sourceAudit?.sectionScore) ? sourceAudit.sectionScore : avg
-      };
-
-      if (avg < THRESHOLDS.critical) {
-        insights.push({
-          ...sourceContext,
-          severity: 'improve',
-          icon: '',
-          agent: agent.name,
-          focusArea: sec.name,
-          score: avg,
-          title: `Improvement needed in "${sec.name}" (${avg.toFixed(1)}%)`,
-          detail: `${agent.name} is averaging ${avg.toFixed(1)}% in ${sec.name}, which is below the 85% threshold across ${agent.auditCount} audit(s).`,
-          action: `Schedule a targeted coaching session on ${sec.name.toLowerCase()}. Review the last 3 audit recordings focusing on this area. Create a personalized action plan with clear milestones.`
-        });
-      } else if (avg >= THRESHOLDS.critical && avg < THRESHOLDS.strong) {
-        insights.push({
-          ...sourceContext,
-          severity: 'critical',
-          icon: '',
-          agent: agent.name,
-          focusArea: sec.name,
-          score: avg,
-          title: `Critical zone in "${sec.name}" (${avg.toFixed(1)}%)`,
-          detail: `${agent.name} scores ${avg.toFixed(1)}% in ${sec.name} — in the monitoring zone (85-96%). Close to needing improvement.`,
-          action: `Monitor closely. Include ${sec.name.toLowerCase()} in next 1-on-1 discussion. Share best-practice examples from top performers in this area.`
-        });
-      } else if (avg >= THRESHOLDS.strong) {
-        insights.push({
-          agentKey: agent.key,
-          severity: 'strong',
-          icon: '',
-          agent: agent.name,
-          focusArea: sec.name,
-          score: avg,
-          title: `Strong performance in "${sec.name}" (${avg.toFixed(1)}%)`,
-          detail: `${agent.name} consistently excels in ${sec.name} with ${avg.toFixed(1)}% average.`,
-          action: `Acknowledge and reinforce this strength. Consider having ${agent.name} mentor others in ${sec.name.toLowerCase()}.`
-        });
-      }
-
-      // Below team average
-      const teamAvg = teamSecAvgs[sec.name];
-      if (teamAvg !== null && avg < teamAvg - 5 && avg < THRESHOLDS.strong) {
-        insights.push({
-          ...sourceContext,
-          severity: 'trend',
-          icon: '',
-          agent: agent.name,
-          focusArea: sec.name,
-          score: avg,
-          title: `Below team average in "${sec.name}"`,
-          detail: `${agent.name} (${avg.toFixed(1)}%) is ${(teamAvg - avg).toFixed(1)} percentage points below the team average (${teamAvg.toFixed(1)}%) in ${sec.name}.`,
-          action: `Pair with a top performer for peer learning in this area. Create a personalized improvement plan focusing on ${sec.name.toLowerCase()}.`
-        });
-      }
-    });
-
-    // Trend detection (declining 3+ consecutive audits)
-    const sortedAudits = [...agent.audits]
-      .map(a => ({ ...a, dateObj: parseDate(a.date) }))
-      .filter(a => a.dateObj)
-      .sort((a, b) => a.dateObj - b.dateObj);
-
-    if (sortedAudits.length >= 3) {
-      const last3 = sortedAudits.slice(-3);
-      if (last3[0].overallPct > last3[1].overallPct && last3[1].overallPct > last3[2].overallPct) {
-        insights.push({
-          agentKey: agent.key,
-          agentEmail: agent.email || '',
-          sourceAuditId: last3[2].auditId || '',
-          sourceAuditDate: last3[2].date || '',
-          sourceScore: last3[2].overallPct,
-          severity: 'improve',
-          icon: '⬇',
-          agent: agent.name,
-          focusArea: 'Performance Trend',
-          score: last3[2].overallPct,
-          title: `Downward trend detected for ${agent.name}`,
-          detail: `Score has declined over the last 3 audits: ${last3.map(a => a.overallPct.toFixed(0) + '%').join(' → ')}.`,
-          action: `Immediate intervention needed. Review recent audits to identify root cause. Consider side-by-side coaching or shadowing sessions.`
-        });
-      }
-    }
-
-    // Critical failures
-    const critFails = agent.audits.filter(a => a.rating.toLowerCase().includes('critical') || a.rating.toLowerCase().includes('fail'));
-    if (critFails.length > 0) {
-      const sourceAudit = [...critFails]
-        .map(audit => ({ ...audit, dateObj: parseDate(audit.date) }))
-        .filter(audit => audit.dateObj)
-        .sort((a, b) => b.dateObj - a.dateObj)[0] || null;
-      insights.push({
-        agentKey: agent.key,
-        agentEmail: agent.email || '',
-        sourceAuditId: sourceAudit?.auditId || '',
-        sourceAuditDate: sourceAudit?.date || '',
-        sourceScore: sourceAudit?.overallPct ?? agent.avgOverall,
-        severity: 'improve',
-        icon: '',
-        agent: agent.name,
-        focusArea: 'Process & Compliance',
-        score: agent.avgOverall,
-        title: `Critical compliance issue flagged ${critFails.length} time(s)`,
-        detail: `${agent.name} has ${critFails.length} critical failure(s) in their audit history for ${CONFIGS[currentType].label}.`,
-        action: `Mandatory re-training on compliance procedures required. Escalate to supervisor if this is a repeated pattern. Review all flagged audits.`
-      });
-    }
-
-    // Overall excellence
-    if (agent.avgOverall >= THRESHOLDS.strong && agent.auditCount >= 3) {
-      insights.push({
-        agentKey: agent.key,
-        severity: 'strong',
-        icon: '⭐',
-        agent: agent.name,
-        focusArea: 'Quality Excellence',
-        score: agent.avgOverall,
-        title: `Consistently excellent — ${agent.name} (${agent.avgOverall.toFixed(1)}%)`,
-        detail: `Maintains a ${agent.avgOverall.toFixed(1)}% average across ${agent.auditCount} audits. A model of quality performance.`,
-        action: `Recognize this outstanding performance. Nominate for quality champion. Use their calls as training material for the team.`
-      });
-    }
-  });
-
-  // Sort: improve > critical > trend > strong
+  // Sort: priority (critical failures first) > monitor > trend > strengths.
   const sevOrder = { improve: 0, critical: 1, trend: 2, strong: 3 };
-  insights.sort((a, b) => (sevOrder[a.severity] ?? 9) - (sevOrder[b.severity] ?? 9));
+  const kindOrder = { 'critical-failure': 0, team: 1, immediate: 2, theme: 3, trend: 4 };
+  insights.sort((a, b) =>
+    ((sevOrder[a.severity] ?? 9) - (sevOrder[b.severity] ?? 9)) ||
+    ((kindOrder[a.kind] ?? 9) - (kindOrder[b.kind] ?? 9)) ||
+    (a.severity === 'strong' ? (b.score - a.score) : (a.score - b.score)));
   currentInsights = insights;
   renderInsights();
 }
@@ -3819,7 +4256,7 @@ function renderInsights() {
       <div class="insight-icon">${ins.icon}</div>
       <div class="insight-body">
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-          <div class="insight-title">${ins.title}</div>
+          <div class="insight-title">${escapeOverviewText(ins.title)}</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
             ${ins.agent !== 'Team' ? `<button class="copy-chart-btn" onclick="navigateToAgent('${String(ins.agentKey || '').replace(/'/g, "\\'")}')">View agent</button>` : ''}
             ${ins.severity !== 'strong'
@@ -3829,8 +4266,9 @@ function renderInsights() {
               : ''}
           </div>
         </div>
-        <div class="insight-detail">${ins.detail}</div>
-        <div class="insight-action"><strong>Next Action:</strong> ${ins.action}</div>
+        <div class="insight-detail">${escapeOverviewText(ins.detail)}</div>
+        ${renderEvidenceList(ins)}
+        <div class="insight-action"><strong>Next Action:</strong> ${escapeOverviewText(ins.action)}</div>
       </div>
     </div>
   `).join('');
@@ -4046,9 +4484,7 @@ function copyAgentRankings() {
 
 function copyInsights() {
   if (!filteredInsights.length) { showToast('No insights to copy.', 'error'); return; }
-  const lines = filteredInsights.map(insight =>
-    `${insight.title}\n${insight.detail}\nNext Action: ${insight.action}\n`
-  );
+  const lines = filteredInsights.map(insight => `${insightToText(insight)}\n`);
   navigator.clipboard.writeText(lines.join('\n---\n\n')).then(() => showToast('Insights copied!', 'success'));
 }
 
