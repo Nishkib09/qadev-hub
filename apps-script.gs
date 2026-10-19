@@ -289,7 +289,8 @@ function doPost(e) {
       var evaluatorEmail = String(d.emailSettings.evaluatorEmail || '').trim().toLowerCase();
       var evaluators = {
         'vinceciana.wairimu@food4education.org': 'Vinceciana Wairimu',
-        'john.gitungi@food4education.org': 'John Gitungi'
+        'john.gitungi@food4education.org': 'John Gitungi',
+        'adah.achieng@food4education.org': 'Adah Achieng'
       };
       if (!evaluators[evaluatorEmail]) {
         throw new Error('The selected evaluator is not authorised to send audit feedback.');
@@ -297,7 +298,9 @@ function doPost(e) {
 
       var cc = evaluatorEmail === 'john.gitungi@food4education.org'
         ? 'john.gitungi@food4education.org,vinceciana.wairimu@food4education.org,adah.achieng@food4education.org,teresia.nyokabi@food4education.org'
-        : 'john.gitungi@food4education.org,adah.achieng@food4education.org,teresia.nyokabi@food4education.org';
+        : evaluatorEmail === 'adah.achieng@food4education.org'
+          ? 'vinceciana.wairimu@food4education.org,john.gitungi@food4education.org,teresia.nyokabi@food4education.org'
+          : 'john.gitungi@food4education.org,adah.achieng@food4education.org,teresia.nyokabi@food4education.org';
 
       var mailOptions = {
         to: d.emailSettings.to,

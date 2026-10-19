@@ -1927,7 +1927,6 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
 
   <script>
     const defaultAgents = [
-      { name: "Adah Achieng", email: "adah.achieng@food4education.org" },
       { name: "Brian Gichuhi", email: "brian.gichuhi@food4education.org" },
       { name: "Eddy Wanjiku", email: "eddy.gathogo@food4education.org" },
       { name: "Gerald Macharia", email: "gerald.macharia@food4education.org" },
@@ -1967,9 +1966,19 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       email: 'john.gitungi@food4education.org'
     });
 
-    // Remove the previous dual-role assignment from existing browsers.
+    // Adah Achieng is an authorised evaluator only (no longer an agent).
+    const ADAH_EVALUATOR = Object.freeze({
+      name: 'Adah Achieng',
+      email: 'adah.achieng@food4education.org'
+    });
+
+    // Committed evaluator configuration shared by every browser (not localStorage).
+    const CORE_EVALUATORS = Object.freeze([OWNER_EVALUATOR, JOHN_EVALUATOR, ADAH_EVALUATOR]);
+    const EVALUATOR_ONLY_EMAILS = [JOHN_EVALUATOR.email, ADAH_EVALUATOR.email];
+
+    // Remove evaluator-only people from the agent list in existing browsers.
     agents = agents.filter(agent =>
-      String(agent.email || '').trim().toLowerCase() !== JOHN_EVALUATOR.email);
+      !EVALUATOR_ONLY_EMAILS.includes(String(agent.email || '').trim().toLowerCase()));
 
     const AGENT_ROSTER_VERSION = '2026-09-20-add-five-agents';
     if (localStorage.getItem('agent_roster_version') !== AGENT_ROSTER_VERSION) {
@@ -1987,9 +1996,16 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
     localStorage.setItem('john_evaluator_assignment_version', '2026-09-13-evaluator-only');
 
     function getAssignedEvaluators() {
-      const assignedAgents = agents.filter(agent => agent.isEvaluator && agent.email &&
-        ![OWNER_EVALUATOR.email, JOHN_EVALUATOR.email].includes(String(agent.email).trim().toLowerCase()));
-      return [OWNER_EVALUATOR, JOHN_EVALUATOR, ...assignedAgents];
+      // Core evaluators first, then any agents ticked as evaluators; emails matched
+      // case-insensitively so nobody appears twice.
+      const seen = new Set();
+      return [...CORE_EVALUATORS, ...agents.filter(agent => agent.isEvaluator && agent.email)]
+        .filter(person => {
+          const key = String(person.email || '').trim().toLowerCase();
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
     }
 
     let emailPaused = JSON.parse(localStorage.getItem('email_send_paused')) || false;
@@ -2600,11 +2616,14 @@ function alignRowToHeaders_(sheetHeaders, payloadHeaders, payloadRow) {
       if (email === 'john.gitungi@food4education.org') {
         return 'john.gitungi@food4education.org, vinceciana.wairimu@food4education.org, adah.achieng@food4education.org, teresia.nyokabi@food4education.org';
       }
+      if (email === 'adah.achieng@food4education.org') {
+        return 'vinceciana.wairimu@food4education.org, john.gitungi@food4education.org, teresia.nyokabi@food4education.org';
+      }
       return [email === 'vinceciana.wairimu@food4education.org' ? 'john.gitungi@food4education.org' : email, 'adah.achieng@food4education.org', 'teresia.nyokabi@food4education.org'].filter(Boolean).filter((value, index, list) => list.indexOf(value) === index).join(', ');
     }
 
     function requireFeedbackAccess() {
-      if (getEvaluatorProfile().email.toLowerCase() === 'john.gitungi@food4education.org') return true;
+      if (EVALUATOR_ONLY_EMAILS.includes(getEvaluatorProfile().email.toLowerCase())) return true;
       return requireAdminAccess('email-pause');
     }
 
