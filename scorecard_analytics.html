@@ -812,7 +812,7 @@
     .channel-performance-name { font-size: 12px; font-weight: 600; color: var(--g800); }
     .channel-performance-score { margin: 8px 0 4px; font-size: 28px; font-weight: 700; line-height: 1.1; }
     .channel-performance-meta { font-size: 10px; color: var(--g600); }
-    .channel-performance-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .channel-performance-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
     .channel-performance-kpi span { display: block; font-size: 9px; color: var(--g400); text-transform: uppercase; letter-spacing: .03em; }
     .channel-performance-kpi strong { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; color: var(--g900); }
     .channel-performance-track { height: 6px; margin-top: 12px; overflow: hidden; background: var(--g100); border-radius: 3px; }
@@ -912,6 +912,7 @@
     .agent-focus-bar label { display: block; margin-bottom: 3px; color: var(--g400); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
     .agent-focus-bar p { font-size: 11px; color: var(--g600); }
     .agent-progress-grid { display: grid; grid-template-columns: 1.1fr repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .agent-aht-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: -6px 0 20px; }
     .agent-progress-card { min-height: 132px; padding: 15px 16px; background: #fff; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow); }
     .agent-progress-card.ring-card { display: flex; align-items: center; gap: 14px; }
     .agent-progress-card .progress-ring { width: 92px; height: 92px; flex: 0 0 92px; margin: 0; }
@@ -971,7 +972,7 @@
       .filter-bar { padding: 8px 16px; }
       .kpi-row { grid-template-columns: repeat(2, 1fr); }
       .overview-hero, .agent-focus-bar { align-items: flex-start; flex-direction: column; }
-      .overview-panel-grid, .agent-progress-grid, .insight-summary, .insight-list { grid-template-columns: 1fr; }
+      .overview-panel-grid, .agent-progress-grid, .agent-aht-grid, .insight-summary, .insight-list { grid-template-columns: 1fr; }
       .progress-panel:last-child { grid-column: auto; }
       .insight-agent-select { min-width: 100%; width: 100%; }
     }
@@ -1519,7 +1520,7 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
         <div class="sec-header" style="margin-bottom:12px;">
           <div>
             <h3>Department KPI Snapshot</h3>
-            <p style="font-size:11px;color:var(--g600);margin-top:2px;">QA Score, CSAT Proxy and FCR across the selected channels and Audit Date range.</p>
+            <p style="font-size:11px;color:var(--g600);margin-top:2px;">QA Score, CSAT Proxy, FCR and voice AHT (target ≤ 3:00) across the selected channels and Audit Date range.</p>
           </div>
         </div>
         <div class="kpi-row" id="ov-kpis"></div>
@@ -1543,6 +1544,14 @@ button,input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),sel
             <button class="copy-chart-btn" onclick="copyChart('ov-trend-chart')"> Copy</button>
           </div>
           <div class="chart-body department-trend-chart"><canvas id="ov-trend-chart" height="280"></canvas></div>
+        </div>
+        <div class="chart-card" id="ov-aht-card" style="margin-bottom:24px;">
+          <div class="chart-hd">
+            <span class="chart-title">Voice AHT Trend · weekly average by Audit Date · target ≤ 3:00</span>
+            <button class="copy-chart-btn" onclick="copyChart('ov-aht-chart')"> Copy</button>
+          </div>
+          <div class="chart-body department-trend-chart"><canvas id="ov-aht-chart" height="240"></canvas></div>
+          <p class="panel-note" id="ov-aht-note" style="padding:0 16px 14px;" hidden></p>
         </div>
         <div class="sec-header">
           <div>
@@ -1718,6 +1727,13 @@ const DEFAULT_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw18-Q3
 const COACHING_HUB_URL = 'https://script.google.com/a/macros/food4education.org/s/AKfycbxZ83A13qN_RBNzegUz5_DoZsc-RT1hCvUhOvTuDuoCBeqgsB1m0eMYgp2U1jKrC3V1lg/exec';
 const QUALITY_TARGET = 96;
 const FCR_TARGET = 95;
+// Average Handling Time (voice calls only). The scorecard submits the "AHT (Seconds)" field
+// (id call-aht) on Inbound, Outbound and CSAT Survey calls; SMS and Email have no comparable field.
+const AHT_TARGET_SECONDS = 180;
+const AHT_CHANNEL_TYPES = ['inbound', 'outbound', 'survey'];
+// Matched by header text, never by column position. Exact "AHT" header only, so question
+// headers such as "Was the call handled within SLA (180 AHT)?" are never picked up.
+const AHT_HEADER_PATTERN = /^\s*aht\s*(?:\(\s*(?:sec|secs|second|seconds)\s*\))?\s*$/i;
 const OVERVIEW_PAGE_SIZE = Number.MAX_SAFE_INTEGER;
 const INSIGHT_PAGE_SIZE = 6;
 
@@ -1940,6 +1956,12 @@ const DASHBOARD_EXCLUDED_AGENTS = [
   {
     names: ['adah achieng'],
     emails: ['adah.achieng@food4education.org']
+  },
+  {
+    // Inactive agent. Raw records are kept in the sheet; remove this entry to restore him.
+    // Both spellings are listed so a spelling variant cannot bring his rows back.
+    names: ['brian gichuhi', 'brian gichugi'],
+    emails: ['brian.gichuhi@food4education.org']
   }
 ];
 
@@ -2430,6 +2452,69 @@ function calculateCsatProxy(audits) {
   return { average, percentage: average / 5 * 100, count: scores.length };
 }
 
+// Converts a stored AHT value to seconds. Accepts seconds ("125", "125.5"), MM:SS and HH:MM:SS.
+// Blank, zero, negative, non-numeric or malformed values (e.g. dates in legacy rows) return null
+// so they are excluded from averages rather than counted as zero.
+function parseAhtSeconds(value) {
+  const text = String(value === null || value === undefined ? '' : value).trim();
+  if (!text) return null;
+  let seconds = null;
+  if (/^\d+(?:\.\d+)?$/.test(text)) {
+    seconds = parseFloat(text);
+  } else {
+    const parts = text.match(/^(\d{1,3}):([0-5]\d)(?::([0-5]\d))?$/);
+    if (!parts) return null;
+    seconds = parts[3] === undefined
+      ? Number(parts[1]) * 60 + Number(parts[2])
+      : Number(parts[1]) * 3600 + Number(parts[2]) * 60 + Number(parts[3]);
+  }
+  return Number.isFinite(seconds) && seconds > 0 && seconds < 86400 ? seconds : null;
+}
+
+function formatAht(seconds) {
+  if (!Number.isFinite(seconds)) return '–';
+  const total = Math.round(seconds);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const sec = String(total % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`;
+}
+
+function isAhtChannel(type) {
+  return AHT_CHANNEL_TYPES.includes(type);
+}
+
+// Voice-call AHT only. Each audit counts once (Audit ID, else its row reference), so duplicate
+// submissions cannot inflate the average.
+function calculateAht(audits) {
+  const seen = new Set();
+  const values = [];
+  (audits || []).forEach(audit => {
+    if (!audit || !isAhtChannel(audit.auditType) || !Number.isFinite(audit.ahtSeconds)) return;
+    const key = audit.auditId ? `${audit.auditType}:${audit.auditId}` : audit.auditUid;
+    if (seen.has(key)) return;
+    seen.add(key);
+    values.push(audit.ahtSeconds);
+  });
+  if (!values.length) return { average: null, count: 0, withinTarget: 0, targetMet: null };
+  const average = values.reduce((sum, v) => sum + v, 0) / values.length;
+  return {
+    average,
+    count: values.length,
+    withinTarget: values.filter(v => v <= AHT_TARGET_SECONDS).length,
+    targetMet: average <= AHT_TARGET_SECONDS
+  };
+}
+
+function ahtStatusText(aht) {
+  if (aht.average === null) return '';
+  return aht.targetMet ? 'Target met (≤ ' + formatAht(AHT_TARGET_SECONDS) + ')' : 'Target missed (> ' + formatAht(AHT_TARGET_SECONDS) + ')';
+}
+
+function ahtApplies() {
+  return currentType === 'all' || isAhtChannel(currentType);
+}
+
 function calculateFcrRate(audits) {
   const responses = audits
     .map(audit => audit.fcrResolved)
@@ -2461,6 +2546,7 @@ function processTypeData(type) {
   const ratingIdx = findColIdx(headers, /rating/i);
   const immediateCoachingIdx = findColIdx(headers, /needs\s*immediate\s*coaching/i);
   const violationsIdx = findColIdx(headers, /critical\s*compliance/i);
+  const ahtIdx = isAhtChannel(type) ? headers.findIndex(h => AHT_HEADER_PATTERN.test(String(h || ''))) : -1;
   const qCols = orderQuestionCols(findQuestionCols(headers), config);
 
   if (agentIdx === -1) return {};
@@ -2513,6 +2599,8 @@ function processTypeData(type) {
     // the current headers; their answers cannot be tied to the right question, so they are kept
     // out of question-level evidence (section scores are unchanged).
     const evidenceUsable = !!parseDate(auditDate);
+    // AHT is only trusted on rows with a valid Audit Date (legacy shifted rows hold dates there).
+    const ahtSeconds = ahtIdx !== -1 && evidenceUsable ? parseAhtSeconds(row[ahtIdx]) : null;
 
     // Calculate per-section scores
     let qIdx = 0;
@@ -2569,6 +2657,7 @@ function processTypeData(type) {
       possibleTotal,
       csatProxy,
       fcrResolved,
+      ahtSeconds,
       rating,
       needsImmediateCoaching,
       sections
@@ -2787,7 +2876,8 @@ function mkChart(id, type, labels, datasets, opts = {}) {
           callbacks: {
             label: ctx => {
               const v = ctx.parsed?.y ?? ctx.parsed?.r ?? ctx.parsed;
-              return typeof v === 'number' ? ctx.dataset.label + ': ' + v.toFixed(1) + '%' : v;
+              if (typeof v !== 'number') return v;
+              return ctx.dataset.label + ': ' + (opts.valueFormatter ? opts.valueFormatter(v) : v.toFixed(1) + '%');
             }
           }
         }
@@ -2817,7 +2907,7 @@ function mkChart(id, type, labels, datasets, opts = {}) {
           max: opts.yMax ?? 100,
           alignToPixels: true,
           ticks: {
-            callback: v => v + '%',
+            callback: opts.tickFormatter || (v => v + '%'),
             color: chartInk,
             padding: 8,
             font: { family: chartFont, size: 11 }
@@ -2974,6 +3064,22 @@ function buildOverview(displayAgents) {
     .map(audit => parseDate(audit.date))
     .filter(Boolean);
   const latestAuditDate = datedAudits.length ? new Date(Math.max(...datedAudits)) : null;
+  // AHT follows the agent, channel and Audit Date filters (voice channels only).
+  const ahtAgentFilter = agents.length === 1 && agents.length !== allAgents.length ? agents[0].name : '';
+  const aht = calculateAht(agents.flatMap(agent => agent.audits || []));
+  const ahtCard = !ahtApplies() ? `
+    <div class="kpi-card">
+      <div class="kpi-label">AHT</div>
+      <div class="kpi-value">–</div>
+      <div class="kpi-sub">Not captured for ${CONFIGS[currentType].label}</div>
+    </div>` : `
+    <div class="kpi-card kpi-primary">
+      <div class="kpi-label">AHT${currentType === 'all' ? ' · Voice' : ''}</div>
+      <div class="kpi-value ${aht.average === null ? '' : aht.targetMet ? 'clr-strong' : 'clr-improve'}">${formatAht(aht.average)}</div>
+      <div class="kpi-sub">${aht.average === null
+        ? 'No AHT recorded'
+        : ahtStatusText(aht) + ' · ' + aht.count + ' call' + (aht.count === 1 ? '' : 's') + (ahtAgentFilter ? ' · ' + escapeOverviewText(ahtAgentFilter) : '')}</div>
+    </div>`;
 
   document.getElementById('ov-kpis').innerHTML = `
     <div class="kpi-card kpi-primary">
@@ -2991,6 +3097,7 @@ function buildOverview(displayAgents) {
       <div class="kpi-value">${fcr.rate === null ? '–' : fcr.rate.toFixed(1) + '%'}</div>
       <div class="kpi-sub">${fcr.count ? fcr.resolved + ' of ' + fcr.count + ' resolved at first contact' : 'No FCR responses recorded'}</div>
     </div>
+    ${ahtCard}
     <div class="kpi-card">
       <div class="kpi-label">Total Audits</div>
       <div class="kpi-value">${totalAudits}</div>
@@ -3113,6 +3220,7 @@ const qualityProgress = teamAvg > 0 ? Math.min(100, teamAvg / QUALITY_TARGET * 1
     </div>
   `;
   buildDepartmentTrend(allAgents);
+  buildAhtTrend(agents);
 
   // Sort agents
   const sortVal = document.getElementById('ov-sort')?.value || 'score-desc';
@@ -3147,7 +3255,7 @@ const qualityProgress = teamAvg > 0 ? Math.min(100, teamAvg / QUALITY_TARGET * 1
       <div class="agent-card" onclick="navigateToAgent('${String(agent.key || '').replace(/'/g, "\\'")}')">
         <div style="position:absolute;top:12px;right:14px;font-size:11px;color:var(--g400);font-weight:600;">#${pageStart + rank + 1}</div>
         <div class="agent-name">${agent.name}</div>
-        <div class="agent-count">${agent.auditCount} audit${agent.auditCount !== 1 ? 's' : ''}</div>
+        <div class="agent-count">${agent.auditCount} audit${agent.auditCount !== 1 ? 's' : ''}${(() => { const a = calculateAht(agent.audits); return a.average === null ? '' : ' · AHT ' + formatAht(a.average); })()}</div>
         <div class="agent-score clr-${th.cls}">${agent.avgOverall.toFixed(1)}%</div>
         <span class="agent-badge badge-${th.cls}">${th.icon} ${th.label}</span>
       </div>`;
@@ -3186,6 +3294,9 @@ function buildChannelPerformance(agents) {
     const score = calculateAuditAverage(channelAudits);
     const csatProxy = calculateCsatProxy(channelAudits);
     const fcr = calculateFcrRate(channelAudits);
+    const channelAht = isAhtChannel(type) ? calculateAht(channelAudits) : null;
+    const ahtText = !channelAht ? 'N/A' : channelAht.average === null ? '–' :
+      `<span class="${channelAht.targetMet ? 'clr-strong' : 'clr-improve'}">${formatAht(channelAht.average)}</span>`;
     const threshold = channelAudits.length ? getThreshold(score) : null;
     const color = !threshold ? 'var(--g400)' :
       threshold.cls === 'strong' ? 'var(--green)' :
@@ -3199,6 +3310,7 @@ function buildChannelPerformance(agents) {
         <div class="channel-performance-kpis">
           <div class="channel-performance-kpi"><span>CSAT Proxy</span><strong>${csatProxy.average === null ? '–' : csatProxy.average.toFixed(2) + '/5'}</strong></div>
           <div class="channel-performance-kpi"><span>FCR</span><strong>${fcr.rate === null ? '–' : fcr.rate.toFixed(1) + '%'}</strong></div>
+          <div class="channel-performance-kpi"><span>AHT</span><strong>${ahtText}</strong></div>
         </div>
         <div class="channel-performance-track"><div class="channel-performance-fill" style="width:${Math.min(100, score).toFixed(1)}%;background:${color};"></div></div>
         <span class="channel-performance-hint">View channel →</span>
@@ -3263,6 +3375,82 @@ function buildDepartmentTrend(agents) {
       }
     ],
     { legend: true }
+  );
+}
+
+function weeklyAhtSeries(audits) {
+  const buckets = new Map();
+  (audits || []).forEach(audit => {
+    if (!isAhtChannel(audit.auditType) || !Number.isFinite(audit.ahtSeconds)) return;
+    const date = parseDate(audit.date); // Audit Date, never the interaction date
+    if (!date) return;
+    const week = new Date(date);
+    week.setHours(0, 0, 0, 0);
+    week.setDate(week.getDate() - ((week.getDay() + 6) % 7));
+    const key = week.getTime();
+    if (!buckets.has(key)) buckets.set(key, { date: week, audits: [] });
+    buckets.get(key).audits.push(audit);
+  });
+  return [...buckets.values()]
+    .sort((a, b) => a.date - b.date)
+    .map(bucket => ({ date: bucket.date, aht: calculateAht(bucket.audits) }));
+}
+
+function ahtChartOptions(values) {
+  const peak = Math.max(AHT_TARGET_SECONDS, ...values.filter(Number.isFinite));
+  return {
+    legend: true,
+    yMax: Math.ceil(peak * 1.15 / 60) * 60,
+    tickFormatter: v => formatAht(v),
+    valueFormatter: v => formatAht(v)
+  };
+}
+
+function buildAhtTrend(agents) {
+  const card = document.getElementById('ov-aht-card');
+  const note = document.getElementById('ov-aht-note');
+  if (!card) return;
+  const clearChart = () => {
+    if (CHART_INSTANCES['ov-aht-chart']) {
+      CHART_INSTANCES['ov-aht-chart'].destroy();
+      delete CHART_INSTANCES['ov-aht-chart'];
+    }
+  };
+  card.hidden = !ahtApplies();
+  if (!ahtApplies()) { clearChart(); return; }
+  const series = weeklyAhtSeries(agents.flatMap(agent => agent.audits || []));
+  if (note) {
+    note.hidden = series.length > 0;
+    note.textContent = series.length ? '' : 'No AHT recorded for the selected filters.';
+  }
+  if (!series.length) { clearChart(); return; }
+  const values = series.map(point => point.aht.average);
+  mkChart('ov-aht-chart', 'line',
+    series.map(point => 'Week of ' + point.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+    [
+      {
+        label: 'Average AHT',
+        data: values,
+        borderColor: COLORS.blue,
+        backgroundColor: 'rgba(24,95,165,.06)',
+        fill: true,
+        tension: .24,
+        cubicInterpolationMode: 'monotone',
+        borderWidth: 2.5,
+        pointRadius: 3.5,
+        pointBackgroundColor: values.map(v => v <= AHT_TARGET_SECONDS ? COLORS.green : COLORS.red),
+        pointBorderColor: values.map(v => v <= AHT_TARGET_SECONDS ? COLORS.green : COLORS.red)
+      },
+      {
+        label: 'AHT target (3:00)',
+        data: series.map(() => AHT_TARGET_SECONDS),
+        borderColor: COLORS.amber,
+        borderDash: [6, 5],
+        pointRadius: 0,
+        borderWidth: 1.5
+      }
+    ],
+    ahtChartOptions(values)
   );
 }
 
@@ -3370,6 +3558,31 @@ function buildAgentDetail() {
       </div>
     </div>`;
 
+  // Voice AHT for this agent within the current channel and Audit Date filters.
+  const agentAht = calculateAht(agent.audits);
+  const teamAht = calculateAht(Object.values(PROCESSED).flatMap(item => item.audits || []));
+  const agentAhtSeries = weeklyAhtSeries(agent.audits);
+  if (ahtApplies()) {
+    html += `
+    <div class="agent-aht-grid">
+      <div class="agent-progress-card">
+        <div class="panel-kicker">Average AHT${currentType === 'all' ? ' · voice calls' : ''}</div>
+        <div class="focus-value ${agentAht.average === null ? '' : agentAht.targetMet ? 'clr-strong' : 'clr-improve'}">${formatAht(agentAht.average)}</div>
+        <div class="panel-note">${agentAht.average === null ? 'No AHT recorded in the selected period.' : agentAht.count + ' call' + (agentAht.count === 1 ? '' : 's') + ' with AHT recorded'}</div>
+      </div>
+      <div class="agent-progress-card">
+        <div class="panel-kicker">AHT target (≤ ${formatAht(AHT_TARGET_SECONDS)})</div>
+        <div class="focus-name ${agentAht.average === null ? '' : agentAht.targetMet ? 'clr-strong' : 'clr-improve'}">${agentAht.average === null ? 'No data' : agentAht.targetMet ? 'Target met' : 'Target missed'}</div>
+        <div class="panel-note">${agentAht.average === null ? '' : agentAht.withinTarget + ' of ' + agentAht.count + ' calls at or below ' + formatAht(AHT_TARGET_SECONDS)}</div>
+      </div>
+      <div class="agent-progress-card">
+        <div class="panel-kicker">Team average AHT</div>
+        <div class="focus-value">${formatAht(teamAht.average)}</div>
+        <div class="panel-note">${teamAht.average === null ? 'No team AHT recorded.' : agentAht.average === null ? ahtStatusText(teamAht) : (agentAht.average <= teamAht.average ? formatAht(teamAht.average - agentAht.average) + ' faster than team' : formatAht(agentAht.average - teamAht.average) + ' slower than team')}</div>
+      </div>
+    </div>`;
+  }
+
   html += buildAgentEvidencePanel(agent);
 
   // Charts grid
@@ -3406,6 +3619,17 @@ function buildAgentDetail() {
       </div>
       <div class="chart-body"><canvas id="trend-chart" height="220"></canvas></div>
     </div>`;
+
+  if (ahtApplies() && agentAhtSeries.length) {
+    html += `
+    <div class="chart-card" style="margin-bottom:24px;">
+      <div class="chart-hd">
+        <span class="chart-title">AHT Trend · weekly average by Audit Date · target ≤ 3:00</span>
+        <button class="copy-chart-btn" onclick="copyChart('agent-aht-chart')"> Copy</button>
+      </div>
+      <div class="chart-body"><canvas id="agent-aht-chart" height="220"></canvas></div>
+    </div>`;
+  }
 
   // Section breakdown table
   html += `
@@ -3489,6 +3713,33 @@ function buildAgentDetail() {
         xOpts: { ticks: { font: { size: 10 }, maxRotation: 45 } }
       }
     );
+
+    if (ahtApplies() && agentAhtSeries.length) {
+      const ahtValues = agentAhtSeries.map(point => point.aht.average);
+      mkChart('agent-aht-chart', 'line',
+        agentAhtSeries.map(point => 'Week of ' + point.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+        [
+          {
+            label: agent.name + ' AHT',
+            data: ahtValues,
+            borderColor: COLORS.blue,
+            tension: .24,
+            borderWidth: 2.5,
+            pointRadius: 3.5,
+            pointBackgroundColor: ahtValues.map(v => v <= AHT_TARGET_SECONDS ? COLORS.green : COLORS.red)
+          },
+          {
+            label: 'AHT target (3:00)',
+            data: agentAhtSeries.map(() => AHT_TARGET_SECONDS),
+            borderColor: COLORS.amber,
+            borderDash: [6, 5],
+            pointRadius: 0,
+            borderWidth: 1.5
+          }
+        ],
+        ahtChartOptions(ahtValues)
+      );
+    }
 
     // Trend chart
     if (sortedAudits.length > 0) {
@@ -4399,10 +4650,10 @@ function copySectionTable() {
 
 function copyAgentRankings() {
   const agents = Object.values(PROCESSED).sort((a, b) => b.avgOverall - a.avgOverall);
-  const lines = ['Agent\tAvg Score\tAudits\tRating'];
+  const lines = ['Agent\tAvg Score\tAudits\tRating\tAvg AHT'];
   agents.forEach((a, i) => {
     const th = getThreshold(a.avgOverall);
-    lines.push(`${i + 1}. ${a.name}\t${a.avgOverall.toFixed(1)}%\t${a.auditCount}\t${th.label}`);
+    lines.push(`${i + 1}. ${a.name}\t${a.avgOverall.toFixed(1)}%\t${a.auditCount}\t${th.label}\t${formatAht(calculateAht(a.audits).average)}`);
   });
   navigator.clipboard.writeText(lines.join('\n')).then(() => showToast('Rankings copied!', 'success'));
 }
